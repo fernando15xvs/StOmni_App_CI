@@ -1,0 +1,82 @@
+name: Supabase clean pgcrypto probe
+
+on:
+  push:
+    branches:
+      - feature/saas-multitenant-foundation
+    paths:
+      - .github/pgcrypto-probe-trigger
+
+permissions:
+  contents: read
+
+jobs:
+  pgcrypto-probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.109.1
+      - name: Start clean local Supabase
+        shell: bash
+        run: |
+          set -euo pipefail
+          mv supabase/migrations supabase/migrations.saved
+          mkdir -p supabase/migrations
+          supabase start
+      - name: Verify pgcrypto and compact bootstrap primitive
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+          psql "$DB" -v ON_ERROR_STOP=1 <<'SQL'
+          \pset tuples_only on
+          \pset format unaligned
+          select
+            to_regprocedure('extensions.pgp_sym_decrypt(bytea,text)') is not null as has_pgp_decrypt,
+            to_regprocedure('extensions.digest(bytea,text)') is not null as has_digest;
+
+          do $probe$
+          declare
+            v_packed bytea;
+            v_payload text;
+            v_statements text[];
+            v_stmt text;
+          begin
+            if to_regprocedure('extensions.pgp_sym_encrypt(text,text,text)') is null
+               or to_regprocedure('extensions.pgp_sym_decrypt(bytea,text)') is null
+               or to_regprocedure('extensions.digest(bytea,text)') is null then
+              raise exception 'required pgcrypto primitives are unavailable';
+            end if;
+
+            v_packed := extensions.pgp_sym_encrypt(
+              'create table public.pgcrypto_probe_a(id bigint primary key)' || chr(30) ||
+              'insert into public.pgcrypto_probe_a(id) values (1)',
+              'stomni-baseline-v1',
+              'compress-algo=1, compress-level=9, cipher-algo=aes256'
+            );
+            v_payload := extensions.pgp_sym_decrypt(v_packed, 'stomni-baseline-v1');
+            v_statements := string_to_array(v_payload, chr(30));
+
+            if cardinality(v_statements) <> 2 then
+              raise exception 'unexpected statement count: %', cardinality(v_statements);
+            end if;
+
+            foreach v_stmt in array v_statements loop
+              execute v_stmt;
+            end loop;
+
+            if not exists (select 1 from public.pgcrypto_probe_a where id = 1) then
+              raise exception 'dynamic statement execution probe failed';
+            end if;
+          end
+          $probe$;
+
+          select 'pgcrypto-clean-bootstrap-probe=OK';
+          SQL
+      - name: Stop Supabase
+        if: always()
+        shell: bash
+        run: supabase stop --no-backup || true
