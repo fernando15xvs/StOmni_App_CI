@@ -1,0 +1,16 @@
+include: ../../analysis_options.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+
+linter:
+  rules:
+    # Agrega aquí reglas adicionales para el core si es necesario
+
+# Para evitar importaciones de UI (material/cupertino) en el core
+# usamos analyzer custom rules o plugins como custom_lint / dart_code_metrics,
+# pero como regla base de Dart Analyzer, puedes ignorarlas o advertirlas.
+# Lo más directo es usar custom_lint, pero por ahora confiaremos en revisiones
+# o en la separación de dependencias. (pubspec.yaml de core_logic no exporta material).

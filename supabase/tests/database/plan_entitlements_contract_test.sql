@@ -1,0 +1,31 @@
+BEGIN;
+CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
+SELECT plan(24);
+
+SELECT ok(to_regclass('public.entitlement_definitions') IS NOT NULL,'entitlement_definitions existe');
+SELECT ok(to_regclass('public.plan_entitlements') IS NOT NULL,'plan_entitlements existe');
+SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.entitlement_definitions'::regclass AND pg_get_constraintdef(oid) ILIKE '%feature%limit%'),'kind restringido');
+SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.plan_entitlements'::regclass AND contype='p' AND pg_get_constraintdef(oid) ILIKE '%plan_id%entitlement_key%'),'PK plan+entitlement');
+SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.plan_entitlements'::regclass AND pg_get_constraintdef(oid) ILIKE '%subscription_plans(id)%'),'FK plan');
+SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.plan_entitlements'::regclass AND pg_get_constraintdef(oid) ILIKE '%entitlement_definitions(key)%'),'FK definition');
+SELECT ok((SELECT relrowsecurity FROM pg_class WHERE oid='public.entitlement_definitions'::regclass),'RLS definitions');
+SELECT ok((SELECT relrowsecurity FROM pg_class WHERE oid='public.plan_entitlements'::regclass),'RLS plan entitlements');
+SELECT ok(has_table_privilege('authenticated','public.entitlement_definitions','SELECT'),'authenticated lee definitions');
+SELECT ok(has_table_privilege('authenticated','public.plan_entitlements','SELECT'),'authenticated lee plan entitlements');
+SELECT ok(NOT has_table_privilege('authenticated','public.plan_entitlements','UPDATE'),'authenticated no muta entitlements');
+SELECT ok(EXISTS(SELECT 1 FROM public.entitlement_definitions WHERE key='feature.inventory' AND kind='feature'),'feature inventory');
+SELECT ok(EXISTS(SELECT 1 FROM public.entitlement_definitions WHERE key='feature.business_assistant' AND kind='feature'),'feature assistant');
+SELECT ok(EXISTS(SELECT 1 FROM public.entitlement_definitions WHERE key='limit.users' AND kind='limit'),'limit users');
+SELECT ok(EXISTS(SELECT 1 FROM public.entitlement_definitions WHERE key='limit.branches' AND kind='limit'),'limit branches');
+SELECT ok(EXISTS(SELECT 1 FROM public.entitlement_definitions WHERE key='limit.warehouses' AND kind='limit'),'limit warehouses');
+SELECT ok(EXISTS(SELECT 1 FROM public.entitlement_definitions WHERE key='limit.cash_registers' AND kind='limit'),'limit cash registers');
+SELECT ok(NOT EXISTS(SELECT 1 FROM public.plan_entitlements WHERE limit_value IS NOT NULL),'seed inicial no inventa límites');
+SELECT ok(to_regprocedure('public.get_my_entitlements_v1()') IS NOT NULL,'get_my_entitlements_v1 existe');
+SELECT ok(has_function_privilege('authenticated','public.get_my_entitlements_v1()','EXECUTE'),'authenticated obtiene sus entitlements');
+SELECT ok(to_regprocedure('private.subscription_feature_enabled(uuid,text)') IS NOT NULL,'helper feature existe');
+SELECT ok(to_regprocedure('private.subscription_limit_value(uuid,text)') IS NOT NULL,'helper limit existe');
+SELECT ok(NOT has_function_privilege('authenticated','private.set_plan_entitlement_v1(text,text,boolean,bigint)','EXECUTE'),'writer entitlement no es cliente');
+SELECT ok(has_function_privilege('service_role','private.set_plan_entitlement_v1(text,text,boolean,bigint)','EXECUTE'),'service_role configura entitlement');
+
+SELECT * FROM finish();
+ROLLBACK;

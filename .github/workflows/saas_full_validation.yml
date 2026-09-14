@@ -1,0 +1,369 @@
+name: StOmni SaaS Full Validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/saas-multitenant-foundation
+    paths:
+      - .github/saas-ci-trigger
+
+permissions:
+  contents: read
+
+concurrency:
+  group: saas-full-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.38.9'
+  SUPABASE_CLI_VERSION: '2.109.1'
+  NODE_VERSION: '24'
+
+jobs:
+  t00-t02-static:
+    name: T00-T02 static gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout candidate with history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: ${{ env.SUPABASE_CLI_VERSION }}
+
+      - name: T00 toolchain and candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git status --short
+          git rev-parse --abbrev-ref HEAD
+          git rev-parse HEAD
+          node --version
+          flutter --version
+          dart --version
+          deno --version
+          supabase --version
+          docker --version
+
+      - name: Publication safety - tracked local Supabase state
+        shell: bash
+        run: |
+          set -euo pipefail
+          bad="$(git ls-files | grep -E '(^|/)\.env$|(^|/)\.env\.(local|prod|production)$|^supabase/\.temp/|\.(pem|p12|pfx|key|jks|keystore)$' || true)"
+          if [ -n "$bad" ]; then
+            echo "Sensitive/generated paths are tracked:"
+            echo "$bad"
+            exit 1
+          fi
+
+      - name: T02 complete non-stop audit
+        run: node scripts/run_saas_t02_ci.mjs
+
+      - name: Edge TypeScript check
+        shell: bash
+        run: |
+          set -euo pipefail
+          found=false
+          while IFS= read -r -d '' file; do
+            found=true
+            echo "Checking $file"
+            deno check "$file"
+          done < <(find supabase/functions -mindepth 2 -maxdepth 2 -name index.ts -print0 | sort -z)
+          test "$found" = true
+
+      - name: Upload T02 report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: t02-report
+          path: .dart_tool/saas/t02-ci-report.json
+          if-no-files-found: warn
+
+  t03-t12-t14-t17-t18-backend:
+    name: Local Supabase dynamic validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: ${{ env.SUPABASE_CLI_VERSION }}
+
+      - name: Install PostgreSQL 17 client
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y curl ca-certificates gnupg lsb-release
+          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /usr/share/keyrings/postgresql.gpg
+          echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-17
+          psql --version
+          pg_dump --version
+          pg_restore --version
+
+      - name: T03 start and first clean reset
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase start
+          supabase db reset
+          supabase status
+
+      - name: T04 database contracts (pgTAP)
+        run: supabase test db
+
+      - name: Database lint
+        run: supabase db lint --local --level error
+
+      - name: T05-T12 and T14 representative multi-tenant E2E
+        run: node supabase/tests/e2e/multi_tenant_e2e.mjs
+
+      - name: T17 concurrency probe
+        env:
+          STOMNI_LOAD_CONCURRENCY: '8'
+          STOMNI_LOAD_CUSTOMERS_PER_TENANT: '25'
+          STOMNI_LOAD_INVENTORY_WRITES_PER_TENANT: '20'
+        run: node supabase/tests/performance/multi_tenant_concurrency_probe.mjs
+
+      - name: T18 backup
+        env:
+          STOMNI_SAAS_BACKUP_DIR: .dart_tool/saas/backups/ci
+        run: node scripts/saas_backup_local.mjs
+
+      - name: T18 destructive restore drill (local only)
+        env:
+          STOMNI_ALLOW_DESTRUCTIVE_RESTORE: 'YES'
+          STOMNI_SAAS_BACKUP_DIR: .dart_tool/saas/backups/ci
+        run: node scripts/saas_restore_drill_local.mjs .dart_tool/saas/backups/ci
+
+      - name: T03 reproducibility second reset
+        run: supabase db reset
+
+      - name: Re-run pgTAP after second reset
+        run: supabase test db
+
+      - name: Upload backend evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-saas-evidence
+          path: |
+            .dart_tool/saas/**/*.json
+            .dart_tool/saas/backups/ci/manifest.json
+          if-no-files-found: warn
+
+      - name: Stop Supabase
+        if: always()
+        run: supabase stop --no-backup || true
+
+  t01-t13-t15-mobile-web-android:
+    name: Flutter core/mobile + Web/Android
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: T01 dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter clean
+          flutter pub get
+          (cd packages/core_logic && flutter pub get)
+          (cd packages/mobile_app && flutter pub get)
+          (cd packages/desktop_app && flutter pub get)
+          git diff --exit-code
+
+      - name: T13 format check
+        run: dart format --output=none --set-exit-if-changed packages/core_logic packages/mobile_app packages/desktop_app
+
+      - name: T13 analyze core
+        working-directory: packages/core_logic
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: T13 test core
+        working-directory: packages/core_logic
+        run: flutter test --reporter expanded
+
+      - name: T13 analyze mobile
+        working-directory: packages/mobile_app
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: T13 test mobile
+        working-directory: packages/mobile_app
+        run: flutter test --reporter expanded
+
+      - name: T15 build Web release
+        working-directory: packages/mobile_app
+        run: flutter build web --release --dart-define=SUPABASE_URL=http://127.0.0.1:54321 --dart-define=SUPABASE_ANON_KEY=ci-local-placeholder
+
+      - name: T15 build Android debug APK
+        working-directory: packages/mobile_app
+        run: flutter build apk --debug --dart-define=SUPABASE_URL=http://127.0.0.1:54321 --dart-define=SUPABASE_ANON_KEY=ci-local-placeholder
+
+      - name: Upload Web and APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-web-android-builds
+          path: |
+            packages/mobile_app/build/web/**
+            packages/mobile_app/build/app/outputs/flutter-apk/app-debug.apk
+
+  t13-t15-windows:
+    name: Windows desktop validation
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Enable Windows desktop
+        run: flutter config --enable-windows-desktop
+
+      - name: Resolve desktop dependencies
+        working-directory: packages/desktop_app
+        run: flutter pub get
+
+      - name: Analyze desktop
+        working-directory: packages/desktop_app
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Test desktop
+        working-directory: packages/desktop_app
+        run: flutter test --reporter expanded
+
+      - name: Build Windows release
+        working-directory: packages/desktop_app
+        run: flutter build windows --release
+
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: packages/desktop_app/build/windows/x64/runner/Release/**
+
+  macos-ios-smoke:
+    name: macOS/iOS compile smoke
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Toolchain
+        run: |
+          flutter doctor -v
+          xcodebuild -version
+          pod --version
+
+      - name: macOS desktop dependencies
+        working-directory: packages/desktop_app
+        run: flutter pub get
+
+      - name: macOS desktop test
+        working-directory: packages/desktop_app
+        run: flutter test --reporter expanded
+
+      - name: Build macOS release
+        working-directory: packages/desktop_app
+        run: flutter build macos --release
+
+      - name: iOS dependencies
+        working-directory: packages/mobile_app
+        run: flutter pub get
+
+      - name: iOS simulator compile smoke
+        working-directory: packages/mobile_app
+        run: flutter build ios --simulator --debug --dart-define=SUPABASE_URL=http://127.0.0.1:54321 --dart-define=SUPABASE_ANON_KEY=ci-local-placeholder
+
+  validation-summary:
+    name: T00-T19 CI summary
+    if: always()
+    needs:
+      - t00-t02-static
+      - t03-t12-t14-t17-t18-backend
+      - t01-t13-t15-mobile-web-android
+      - t13-t15-windows
+      - macos-ios-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summarize jobs
+        shell: bash
+        run: |
+          echo "T00-T02 static: ${{ needs.t00-t02-static.result }}"
+          echo "Backend dynamic: ${{ needs.t03-t12-t14-t17-t18-backend.result }}"
+          echo "Flutter mobile/web/android: ${{ needs.t01-t13-t15-mobile-web-android.result }}"
+          echo "Windows: ${{ needs.t13-t15-windows.result }}"
+          echo "macOS/iOS: ${{ needs.macos-ios-smoke.result }}"
+          if [ "${{ needs.t00-t02-static.result }}" != "success" ] || \
+             [ "${{ needs.t03-t12-t14-t17-t18-backend.result }}" != "success" ] || \
+             [ "${{ needs.t01-t13-t15-mobile-web-android.result }}" != "success" ] || \
+             [ "${{ needs.t13-t15-windows.result }}" != "success" ] || \
+             [ "${{ needs.macos-ios-smoke.result }}" != "success" ]; then
+            echo "STOMNI SaaS validation: NOT GREEN"
+            exit 1
+          fi
+          echo "STOMNI SaaS validation jobs: GREEN"
+          echo "Commercial GO still requires review of T19 evidence; this workflow does not deploy or merge."

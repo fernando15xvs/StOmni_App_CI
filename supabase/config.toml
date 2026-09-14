@@ -1,0 +1,65 @@
+[functions.delete_employee]
+enabled = true
+verify_jwt = true
+import_map = "./functions/delete_employee/deno.json"
+entrypoint = "./functions/delete_employee/index.ts"
+
+[functions.create_employee]
+verify_jwt = true
+
+[functions.get-persona]
+verify_jwt = true
+
+[functions.emitir-comprobante]
+verify_jwt = true
+
+[functions.consultar-comprobante]
+verify_jwt = true
+
+[functions.reintentar-comprobante]
+verify_jwt = true
+
+[functions.reintentar-comprobantes-pendientes]
+verify_jwt = true
+
+[functions.emitir-nota-credito]
+verify_jwt = true
+
+[functions.reintentar-nota-credito]
+verify_jwt = true
+
+[functions.consultar-nota-credito]
+verify_jwt = true
+
+[functions.reintentar-notas-credito-pendientes]
+verify_jwt = true
+
+[functions.ejecutar-resumen-diario]
+verify_jwt = true
+
+[functions.procesar-bajas-tributarias]
+verify_jwt = true
+
+[functions.consultar-proceso-tributario]
+verify_jwt = true
+
+[functions.reintentar-proceso-tributario]
+verify_jwt = true
+
+[functions.reintentar-procesos-tributarios-pendientes]
+verify_jwt = true
+
+[functions.emitir-guia-remision]
+verify_jwt = true
+
+[functions.consultar-guia-remision]
+verify_jwt = true
+
+[functions.reintentar-guia-remision]
+verify_jwt = true
+
+[functions.reintentar-guias-pendientes]
+verify_jwt = true
+
+[functions.resolver-resultado-incierto]
+verify_jwt = true

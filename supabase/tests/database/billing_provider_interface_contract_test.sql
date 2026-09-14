@@ -1,0 +1,35 @@
+BEGIN;
+CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
+SELECT plan(28);
+
+SELECT ok(to_regclass('public.billing_provider_plan_prices') IS NOT NULL,'price mappings existe');
+SELECT ok(to_regclass('public.billing_provider_accounts') IS NOT NULL,'provider accounts existe');
+SELECT ok(to_regclass('public.billing_webhook_events') IS NOT NULL,'webhook ledger existe');
+SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.billing_provider_plan_prices'::regclass AND contype='p' AND pg_get_constraintdef(oid) ILIKE '%provider_code%external_price_ref%'),'mapping PK provider+price');
+SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.billing_provider_accounts'::regclass AND contype='p' AND pg_get_constraintdef(oid) ILIKE '%organization_id%'),'account una fila por tenant');
+SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.billing_provider_accounts'::regclass AND pg_get_constraintdef(oid) ILIKE '%provider_code%external_subscription_ref%'),'external subscription unique');
+SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.billing_webhook_events'::regclass AND contype='p' AND pg_get_constraintdef(oid) ILIKE '%provider_code%event_id%'),'event PK idempotente');
+SELECT ok(EXISTS(SELECT 1 FROM pg_attribute WHERE attrelid='public.billing_webhook_events'::regclass AND attname='payload_sha256' AND attnotnull AND NOT attisdropped),'payload digest requerido');
+SELECT ok(NOT EXISTS(SELECT 1 FROM pg_attribute WHERE attrelid='public.billing_webhook_events'::regclass AND attname IN ('payload','raw_payload','body') AND NOT attisdropped),'no payload bruto');
+SELECT ok((SELECT relrowsecurity FROM pg_class WHERE oid='public.billing_provider_plan_prices'::regclass),'RLS price mapping');
+SELECT ok((SELECT relrowsecurity FROM pg_class WHERE oid='public.billing_provider_accounts'::regclass),'RLS accounts');
+SELECT ok((SELECT relrowsecurity FROM pg_class WHERE oid='public.billing_webhook_events'::regclass),'RLS events');
+SELECT ok(NOT has_table_privilege('authenticated','public.billing_provider_accounts','SELECT'),'cliente no lee refs externas');
+SELECT ok(NOT has_table_privilege('authenticated','public.billing_webhook_events','SELECT'),'cliente no lee eventos');
+SELECT ok(NOT has_table_privilege('authenticated','public.billing_provider_plan_prices','SELECT'),'cliente no lee price refs');
+SELECT ok(to_regprocedure('public.get_my_billing_summary_v1()') IS NOT NULL,'billing summary RPC existe');
+SELECT ok(has_function_privilege('authenticated','public.get_my_billing_summary_v1()','EXECUTE'),'cliente puede leer resumen saneado');
+SELECT ok(to_regprocedure('private.set_billing_plan_price_binding_v1(text,text,text,text,boolean)') IS NOT NULL,'price binding writer existe');
+SELECT ok(to_regprocedure('private.bind_billing_provider_account_v1(uuid,text,text,text,bigint)') IS NOT NULL,'account binding writer existe');
+SELECT ok(to_regprocedure('private.apply_billing_subscription_event_v1(text,text,text,text,text,text,text,timestamptz,timestamptz,boolean)') IS NOT NULL,'processor privado existe');
+SELECT ok(NOT has_function_privilege('authenticated','private.apply_billing_subscription_event_v1(text,text,text,text,text,text,text,timestamptz,timestamptz,boolean)','EXECUTE'),'processor privado no cliente');
+SELECT ok(to_regprocedure('public.apply_billing_subscription_event_v1(text,text,text,text,text,text,text,timestamptz,timestamptz,boolean)') IS NOT NULL,'wrapper Edge existe');
+SELECT ok(NOT has_function_privilege('authenticated','public.apply_billing_subscription_event_v1(text,text,text,text,text,text,text,timestamptz,timestamptz,boolean)','EXECUTE'),'wrapper Edge no cliente');
+SELECT ok(has_function_privilege('service_role','public.apply_billing_subscription_event_v1(text,text,text,text,text,text,text,timestamptz,timestamptz,boolean)','EXECUTE'),'wrapper Edge service_role');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p WHERE p.oid='private.apply_billing_subscription_event_v1(text,text,text,text,text,text,text,timestamptz,timestamptz,boolean)'::regprocedure AND lower(pg_get_functiondef(p.oid)) LIKE '%on conflict(provider_code,event_id) do nothing%'),'processor dedupe por event ID');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p WHERE p.oid='private.apply_billing_subscription_event_v1(text,text,text,text,text,text,text,timestamptz,timestamptz,boolean)'::regprocedure AND lower(pg_get_functiondef(p.oid)) LIKE '%billing_provider_plan_prices%' AND lower(pg_get_functiondef(p.oid)) LIKE '%external_price_ref=p_external_price_ref%'),'plan viene de mapping server-side');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p WHERE p.oid='private.apply_billing_subscription_event_v1(text,text,text,text,text,text,text,timestamptz,timestamptz,boolean)'::regprocedure AND lower(pg_get_functiondef(p.oid)) LIKE '%set_organization_subscription_v1%' AND lower(pg_get_functiondef(p.oid)) LIKE '%billing_sync%'),'processor usa writer suscripción');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p WHERE p.oid='private.apply_billing_subscription_event_v1(text,text,text,text,text,text,text,timestamptz,timestamptz,boolean)'::regprocedure AND lower(pg_get_functiondef(p.oid)) LIKE '%status=''failed''%' AND lower(pg_get_functiondef(p.oid)) LIKE '%error_code=v_error%'),'fallos quedan registrados');
+
+SELECT * FROM finish();
+ROLLBACK;

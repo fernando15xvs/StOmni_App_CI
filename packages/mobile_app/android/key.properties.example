@@ -1,0 +1,8 @@
+# Copia este archivo como android/key.properties y completa valores reales.
+# android/key.properties y los archivos *.jks/*.keystore están ignorados por Git.
+# En Windows, usa doble barra invertida en storeFile.
+
+storePassword=CAMBIAR
+keyPassword=CAMBIAR
+keyAlias=upload
+storeFile=C:\\ruta\\privada\\upload-keystore.jks

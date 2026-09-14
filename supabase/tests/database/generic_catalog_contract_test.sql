@@ -1,0 +1,31 @@
+BEGIN;
+CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
+SELECT plan(24);
+
+SELECT ok(EXISTS(SELECT 1 FROM pg_attribute WHERE attrelid='public.productos'::regclass AND attname='item_type' AND attnotnull AND NOT attisdropped),'productos.item_type NOT NULL');
+SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.productos'::regclass AND conname='productos_item_type_valid' AND pg_get_constraintdef(oid) ILIKE '%stock_product%non_stock_product%service%bundle%'),'item_type restringido a catálogo soportado');
+SELECT ok(to_regclass('public.bundle_components') IS NOT NULL,'bundle_components existe');
+SELECT ok(EXISTS(SELECT 1 FROM pg_attribute WHERE attrelid='public.bundle_components'::regclass AND attname='organization_id' AND attnotnull AND NOT attisdropped),'bundle_components.organization_id NOT NULL');
+SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.bundle_components'::regclass AND conname='bundle_components_pkey' AND pg_get_constraintdef(oid) ILIKE '%organization_id%bundle_product_id%component_product_id%'),'bundle PK tenant-aware');
+SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.bundle_components'::regclass AND conname='bundle_components_bundle_fkey' AND pg_get_constraintdef(oid) ILIKE '%organization_id%bundle_product_id%productos%organization_id%id%'),'bundle parent FK tenant-qualified');
+SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.bundle_components'::regclass AND conname='bundle_components_component_fkey' AND pg_get_constraintdef(oid) ILIKE '%organization_id%component_product_id%productos%organization_id%id%'),'bundle component FK tenant-qualified');
+SELECT ok(EXISTS(SELECT 1 FROM pg_class WHERE oid='public.bundle_components'::regclass AND relrowsecurity),'bundle_components RLS habilitado');
+SELECT ok(EXISTS(SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='bundle_components' AND policyname='bundle_components_tenant_select' AND lower(qual) LIKE '%row_belongs_to_current_organization(organization_id)%'),'bundle RLS tenant-aware');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname='set_catalog_item_type_v1'),'set_catalog_item_type_v1 existe');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname='get_bundle_components_v1'),'get_bundle_components_v1 existe');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname='set_bundle_components_v1'),'set_bundle_components_v1 existe');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='private' AND p.proname='normalize_catalog_item_type' AND lower(pg_get_functiondef(p.oid)) LIKE '%cannot convert a stocked item to a non-stock catalog type%'),'transición stock->no-stock fail-closed');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='private' AND p.proname='validate_bundle_component' AND lower(pg_get_functiondef(p.oid)) LIKE '%nested bundles are not supported%'),'bundles anidados bloqueados');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='private' AND p.proname='validate_bundle_component' AND lower(pg_get_functiondef(p.oid)) LIKE '%traceable stock products are not supported%'),'componentes trazables bloqueados');
+SELECT ok(EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.product_traceability_configs'::regclass AND tgname='zz_traceability_not_bundle_component' AND NOT tgisinternal),'no se activa trazabilidad sobre componente bundle');
+SELECT ok(EXISTS(SELECT 1 FROM pg_attribute WHERE attrelid='public.detalle_ventas'::regclass AND attname='bundle_components_snapshot' AND NOT attisdropped),'detalle venta conserva snapshot bundle');
+SELECT ok(EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.detalle_ventas'::regclass AND tgname='detalle_ventas_consume_bundle_components' AND NOT tgisinternal),'detalle venta consume componentes');
+SELECT ok(EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.detalle_ventas'::regclass AND tgname='detalle_ventas_restore_bundle_components' AND NOT tgisinternal),'delete de detalle puede restaurar cancelación bundle');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='private' AND p.proname='consume_bundle_components_on_sale_detail' AND lower(pg_get_functiondef(p.oid)) LIKE '%bundles are temporarily limited to internal tickets%'),'bundle electrónico fail-closed');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='private' AND p.proname='restore_bundle_components_on_cancelled_detail' AND lower(pg_get_functiondef(p.oid)) LIKE '%ventas_requests_anulados%' AND lower(pg_get_functiondef(p.oid)) LIKE '%venta_id_original=old.venta_id%'),'restauración exige evidencia de anulación');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname='_item_type_zero_inventory_v1' AND lower(pg_get_functiondef(p.oid)) LIKE '%non_stock_product%service%bundle%'),'tipos no-stock mantienen saldo cero');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname='_item_type_block_purchase_line_v1' AND lower(pg_get_functiondef(p.oid)) LIKE '%only stock products can be received as inventory%'),'compras de inventario sólo aceptan stock_product');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname='_item_type_block_traceability_v1' AND lower(pg_get_functiondef(p.oid)) LIKE '%only stock products can use lot/serial traceability%'),'trazabilidad sólo acepta stock_product');
+
+SELECT * FROM finish();
+ROLLBACK;

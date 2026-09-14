@@ -1,0 +1,32 @@
+BEGIN;
+CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
+SELECT plan(25);
+
+SELECT ok(EXISTS(SELECT 1 FROM pg_attribute WHERE attrelid='public.productos'::regclass AND attname='custom_fields' AND attnotnull AND NOT attisdropped),'productos.custom_fields NOT NULL');
+SELECT ok(EXISTS(SELECT 1 FROM pg_attribute WHERE attrelid='public.clientes'::regclass AND attname='custom_fields' AND attnotnull AND NOT attisdropped),'clientes.custom_fields NOT NULL');
+SELECT ok(EXISTS(SELECT 1 FROM pg_attribute WHERE attrelid='public.proveedores'::regclass AND attname='custom_fields' AND attnotnull AND NOT attisdropped),'proveedores.custom_fields NOT NULL');
+SELECT ok(to_regclass('public.custom_field_definitions') IS NOT NULL,'custom_field_definitions existe');
+SELECT ok(EXISTS(SELECT 1 FROM pg_attribute WHERE attrelid='public.custom_field_definitions'::regclass AND attname='organization_id' AND attnotnull AND NOT attisdropped),'definiciones tienen tenant');
+SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.custom_field_definitions'::regclass AND conname='custom_field_definitions_organization_id_key' AND pg_get_constraintdef(oid) ILIKE '%organization_id%id%'),'definiciones exponen clave tenant compuesta');
+SELECT ok(EXISTS(SELECT 1 FROM pg_indexes WHERE schemaname='public' AND tablename='custom_field_definitions' AND indexname='custom_field_definitions_code_key' AND indexdef ILIKE '%organization_id%entity_type%code%'),'code único por tenant y entidad');
+SELECT ok(EXISTS(SELECT 1 FROM pg_class WHERE oid='public.custom_field_definitions'::regclass AND relrowsecurity),'RLS definiciones habilitado');
+SELECT ok(EXISTS(SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='custom_field_definitions' AND policyname='custom_field_definitions_tenant_select' AND lower(qual) LIKE '%row_belongs_to_current_organization(organization_id)%'),'RLS definiciones tenant-aware');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='private' AND p.proname='custom_field_definition_is_valid' AND lower(pg_get_functiondef(p.oid)) LIKE '%min_length%max_length%' AND lower(pg_get_functiondef(p.oid)) NOT LIKE '%pattern%'),'reglas finales sin regex configurables');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='private' AND p.proname='custom_field_value_is_valid' AND lower(pg_get_functiondef(p.oid)) LIKE '%multiselect%' AND lower(pg_get_functiondef(p.oid)) LIKE '%jsonb_array_length(p_value)>100%'),'validador limita multiselect');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='private' AND p.proname='validate_entity_custom_fields' AND lower(pg_get_functiondef(p.oid)) LIKE '%to_jsonb(new)%' AND lower(pg_get_functiondef(p.oid)) LIKE '%pg_column_size(v_values)>65536%'),'trigger universal layout-safe y con límite');
+SELECT ok(EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.productos'::regclass AND tgname='zzz_productos_validate_custom_fields' AND NOT tgisinternal),'producto valida custom fields después de normalización');
+SELECT ok(NOT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.productos'::regclass AND tgname='productos_validate_custom_fields' AND NOT tgisinternal),'trigger producto anterior retirado');
+SELECT ok(EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.clientes'::regclass AND tgname='clientes_validate_custom_fields' AND NOT tgisinternal),'cliente valida custom fields');
+SELECT ok(EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.proveedores'::regclass AND tgname='proveedores_validate_custom_fields' AND NOT tgisinternal),'proveedor valida custom fields');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname='list_custom_field_definitions_v1'),'RPC listar definiciones existe');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname='upsert_custom_field_definition_v1' AND lower(pg_get_functiondef(p.oid)) LIKE '%private.has_permission(''tenant.admin'')%'),'RPC definición exige tenant.admin');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname='upsert_custom_field_definition_v1' AND lower(pg_get_functiondef(p.oid)) LIKE '%populate valid values before making custom field required%'),'required exige rollout poblado');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname='upsert_custom_field_definition_v1' AND lower(pg_get_functiondef(p.oid)) LIKE '%remove existing values before restricting custom field to other item types%'),'alcance por item_type no deja valores huérfanos');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname='set_entity_custom_fields_v1' AND lower(pg_get_functiondef(p.oid)) LIKE '%private.has_permission(''tenant.write'')%'),'RPC valores exige tenant.write');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname='set_entity_custom_fields_v1' AND lower(pg_get_functiondef(p.oid)) LIKE '%where organization_id=v_org and id=p_entity_id%'),'RPC valores tenant-scoped');
+SELECT ok(NOT EXISTS(SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='custom_field_values' AND c.relkind IN ('r','p')),'sin tabla EAV custom_field_values');
+SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.productos'::regclass AND conname='productos_custom_fields_object'),'productos exige objeto JSON');
+SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.clientes'::regclass AND conname='clientes_custom_fields_object'),'clientes exige objeto JSON');
+
+SELECT * FROM finish();
+ROLLBACK;

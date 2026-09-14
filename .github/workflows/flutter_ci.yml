@@ -1,0 +1,189 @@
+name: Flutter CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+      - feature/desktop-architecture-refactor
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flutter-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze-and-test:
+    name: Analyze core/mobile/desktop, test, Edge check and Android build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.9'
+          channel: stable
+          cache: true
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Deno version
+        run: deno --version
+
+      - name: Static architecture and migration-version guard
+        run: node scripts/verify_architecture.mjs
+
+      - name: SaaS anti-singleton regression gate
+        run: |
+          node scripts/verify_no_new_singletons.mjs --self-test
+          node scripts/verify_no_new_singletons.mjs
+
+      - name: SaaS foundation schema gate
+        run: |
+          node scripts/verify_saas_foundation.mjs --self-test
+          node scripts/verify_saas_foundation.mjs
+
+      - name: SaaS authorization helper gate
+        run: |
+          node scripts/verify_saas_authorization.mjs --self-test
+          node scripts/verify_saas_authorization.mjs
+
+      - name: SaaS foundation RLS gate
+        run: |
+          node scripts/verify_saas_rls.mjs --self-test
+          node scripts/verify_saas_rls.mjs
+
+      - name: SaaS configuration domain gate
+        run: |
+          node scripts/verify_saas_domain_configuration.mjs --self-test
+          node scripts/verify_saas_domain_configuration.mjs
+
+      - name: SaaS customer supplier tenant gate
+        run: |
+          node scripts/verify_saas_customers_suppliers.mjs --self-test
+          node scripts/verify_saas_customers_suppliers.mjs
+
+      - name: SaaS catalog tenant gate
+        run: |
+          node scripts/verify_saas_catalog_foundation.mjs --self-test
+          node scripts/verify_saas_catalog_foundation.mjs
+
+      - name: SaaS inventory tenant gate
+        run: |
+          node scripts/verify_saas_inventory.mjs --self-test
+          node scripts/verify_saas_inventory.mjs
+          node scripts/verify_saas_inventory_runtime.mjs --self-test
+          node scripts/verify_saas_inventory_runtime.mjs
+          node scripts/verify_saas_inventory_surface.mjs --self-test
+          node scripts/verify_saas_inventory_surface.mjs
+
+      - name: SaaS sales tenant gate
+        run: |
+          node scripts/verify_saas_sales.mjs --self-test
+          node scripts/verify_saas_sales.mjs
+
+      - name: SaaS purchases tenant gate
+        run: |
+          node scripts/verify_saas_purchases.mjs --self-test
+          node scripts/verify_saas_purchases.mjs
+
+      # El archivo raíz solo se usa como entrada opcional del validador de
+      # seguridad. mobile_app no empaqueta ni requiere un asset .env.
+      - name: Create CI env placeholder
+        shell: bash
+        run: touch .env
+
+      - name: Validate client env safety
+        run: dart run scripts/validate_client_env.dart
+
+      - name: Install workspace dependencies
+        run: flutter pub get
+
+      # Existen warnings heredados todavía no promovidos a fatal; errores sí
+      # bloquean. Las fronteras del refactor tienen gates dedicados debajo.
+      - name: Analyze core logic
+        working-directory: packages/core_logic
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Analyze mobile app
+        working-directory: packages/mobile_app
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Analyze desktop app
+        working-directory: packages/desktop_app
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Test core logic
+        working-directory: packages/core_logic
+        run: flutter test
+
+      - name: Test typed business boundaries
+        working-directory: packages/core_logic
+        run: |
+          flutter test test/architecture/typed_sales_boundary_test.dart --reporter expanded
+          flutter test test/architecture/typed_inventory_boundary_test.dart --reporter expanded
+
+      - name: Test commercial presentation architecture
+        working-directory: packages/core_logic
+        run: flutter test test/architecture/commercial_presentation_boundary_test.dart --reporter expanded
+
+      - name: Test product capabilities architecture
+        working-directory: packages/core_logic
+        run: flutter test test/architecture/product_capabilities_boundary_test.dart --reporter expanded
+
+      - name: Test fiscal profile architecture
+        working-directory: packages/core_logic
+        run: flutter test test/architecture/business_fiscal_profile_boundary_test.dart --reporter expanded
+
+      - name: Test inventory architecture
+        working-directory: packages/mobile_app
+        run: flutter test test/architecture/inventory_application_boundary_test.dart --reporter expanded
+
+      - name: Test sales architecture
+        working-directory: packages/mobile_app
+        run: flutter test test/architecture/phase3_sales_architecture_test.dart --reporter expanded
+
+      - name: Test mobile app
+        working-directory: packages/mobile_app
+        run: flutter test --reporter expanded
+
+      - name: Test desktop smoke
+        working-directory: packages/desktop_app
+        run: flutter test test/widget_test.dart --reporter expanded
+
+      - name: Check Edge Functions
+        shell: bash
+        run: |
+          set -euo pipefail
+          found=false
+          while IFS= read -r -d '' file; do
+            found=true
+            echo "Checking $file"
+            deno check "$file"
+          done < <(find supabase/functions -mindepth 2 -maxdepth 2 -name index.ts -print0 | sort -z)
+
+          if [ "$found" != true ]; then
+            echo "No Edge Function entrypoints found."
+            exit 1
+          fi
+
+      - name: Build Android debug smoke
+        working-directory: packages/mobile_app
+        run: |
+          flutter build apk --debug \
+            --dart-define=SUPABASE_URL=https://example.supabase.co \
+            --dart-define=SUPABASE_ANON_KEY=ci-placeholder

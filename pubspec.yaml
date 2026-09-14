@@ -1,0 +1,8 @@
+name: ferreteria_workspace
+environment:
+  sdk: ^3.10.8
+
+workspace:
+  - packages/core_logic
+  - packages/mobile_app
+  - packages/desktop_app

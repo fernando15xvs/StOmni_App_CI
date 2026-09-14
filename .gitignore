@@ -1,0 +1,85 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+**/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# iOS
+/ios/Pods/
+/ios/Podfile.lock
+/ios/Flutter/Flutter.framework
+
+# Environment variables (sensitive credentials)
+.env
+.env.local
+
+# Temporary/scratch files and analysis outputs
+analyzer_output.txt
+analyzer_output2.txt
+analyzer_final.txt
+analyzer_final3.txt
+fix_errors.dart
+fix_reportes.dart
+devtools_options.yaml
+/android/app/release
+
+# Temporary/scratch files
+refactor_nuevo_producto.dart
+scratch_refactor_kardex_py.py
+scratch_refactor_kardex_test.dart
+scratch_refactor_reportes.dart
+*.bak
+
+# Gemini / AI agent
+.agents/
+
+# Supabase CLI local state / generated read-only snapshots
+supabase/.temp/
+supabase/.snapshots/
+
+# Security (Keys & configs)
+android/key.properties
+**/*.keystore
+**/*.jks
+google-services.json
+firebase_options.dart
