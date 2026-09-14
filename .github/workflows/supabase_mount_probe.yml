@@ -1,0 +1,44 @@
+name: Supabase local mount probe
+
+on:
+  push:
+    branches:
+      - feature/saas-multitenant-foundation
+    paths:
+      - .github/mount-probe-trigger
+
+permissions:
+  contents: read
+
+jobs:
+  mount-probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.109.1
+      - name: Start local Supabase without project migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          mv supabase/migrations supabase/migrations.saved
+          mkdir -p supabase/migrations
+          printf 'probe-file-visible\n' > supabase/project_mount_probe.txt
+          supabase start
+      - name: Inspect database mounts and candidate project paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          db_id="$(docker ps --filter 'name=supabase_db_' --format '{{.ID}}' | head -n1)"
+          test -n "$db_id"
+          echo '=== DB MOUNTS ==='
+          docker inspect "$db_id" --format '{{range .Mounts}}{{println .Source " -> " .Destination}}{{end}}'
+          echo '=== ROOT CANDIDATES ==='
+          docker exec "$db_id" sh -lc 'for p in /workspace /workspaces /github/workspace /supabase /app /docker-entrypoint-initdb.d /etc/postgresql-custom; do if [ -e "$p" ]; then echo "FOUND $p"; ls -la "$p" | head -n 20; fi; done'
+          echo '=== PROBE SEARCH ==='
+          docker exec "$db_id" sh -lc 'find / -name project_mount_probe.txt -print 2>/dev/null | head -n 20' || true
+      - name: Stop Supabase
+        if: always()
+        run: supabase stop --no-backup || true
