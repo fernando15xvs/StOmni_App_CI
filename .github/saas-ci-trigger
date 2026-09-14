@@ -1,0 +1,4 @@
+trigger=2026-09-14T04:32:00Z
+source_private_sha=dc1199c7abf28b6ec06df22472342babffdce28d
+mirror_snapshot_sha=31ad44625f539410cc81260e6bed72cea94659bf
+purpose=run-full-saas-validation
