@@ -1,0 +1,52 @@
+name: Supabase migration include probe
+
+on:
+  push:
+    branches:
+      - feature/saas-multitenant-foundation
+    paths:
+      - .github/include-probe-trigger
+
+permissions:
+  contents: read
+
+jobs:
+  include-probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.109.1
+
+      - name: Build isolated probe project
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf supabase/migrations
+          mkdir -p supabase/migrations supabase/baseline
+          cat > supabase/baseline/include_probe_part.sql <<'SQL'
+          create table public.include_probe_table (
+            id bigint primary key
+          );
+          SQL
+          cat > supabase/migrations/20260101000000_include_probe.sql <<'SQL'
+          \ir ../baseline/include_probe_part.sql
+          SQL
+
+      - name: Start local Supabase and reset
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase start
+          supabase db reset
+          psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -v ON_ERROR_STOP=1 -Atc "select to_regclass('public.include_probe_table') is not null;"
+
+      - name: Stop Supabase
+        if: always()
+        shell: bash
+        run: supabase stop --no-backup || true
