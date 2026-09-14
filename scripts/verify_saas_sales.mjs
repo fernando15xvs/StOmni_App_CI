@@ -62,7 +62,7 @@ function verify(s, r, l, vr, dr) {
     ['pagos_deuda_requests_empleado_id_fkey','empleados'],
   ];
   for (const [constraint,parent] of composite) {
-    need(errors,s,new RegExp(`${constraint}[\\s\\S]{0,180}?FOREIGN KEY\\s*\\(\\s*organization_id\\s*,[\\s\\S]{0,100}?\\)[\\s\\S]{0,180}?REFERENCES\\s+public\\.${parent}\\s*\\(\\s*organization_id\\s*,\\s*id\\s*\\)`,'i'),`${constraint} tenant-qualified`);
+    need(errors,s,new RegExp(`ADD CONSTRAINT\\s+${constraint}\\b[\\s\\S]{0,180}?FOREIGN KEY\\s*\\(\\s*organization_id\\s*,[\\s\\S]{0,100}?\\)[\\s\\S]{0,180}?REFERENCES\\s+public\\.${parent}\\s*\\(\\s*organization_id\\s*,\\s*id\\s*\\)`,'i'),`${constraint} tenant-qualified`);
   }
   need(errors,s,/pagos_venta_request_id_fkey[\s\S]{0,220}?FOREIGN KEY\s*\(\s*organization_id\s*,\s*request_id\s*\)[\s\S]{0,180}?pagos_deuda_requests\s*\(\s*organization_id\s*,\s*request_id\s*\)/i,'pago/request tenant-qualified');
 
