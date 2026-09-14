@@ -20,6 +20,29 @@ const sql=()=>files.map(read).join('\n');
 const core=()=>coreFiles.map(read).join('\n');
 const need=(e,s,r,l)=>{if(!r.test(s))e.push(`Falta: ${l}`);};
 
+function effectiveFunction(source,name){
+  const lower=source.toLowerCase();
+  const needle=`create or replace function public.${name.toLowerCase()}`;
+  const start=lower.lastIndexOf(needle);
+  if(start<0)return '';
+  const next=lower.indexOf('create or replace function ',start+needle.length);
+  return source.slice(start,next<0?undefined:next);
+}
+
+function mutated(source,regex,replacement,label){
+  const next=source.replace(regex,replacement);
+  if(next===source)throw new Error(`Self-test fixture no pudo mutar: ${label}`);
+  return next;
+}
+
+function mutateEffectiveFunction(source,name,regex,replacement,label){
+  const block=effectiveFunction(source,name);
+  if(!block)throw new Error(`Self-test fixture no encontró función efectiva: ${name}`);
+  const changed=mutated(block,regex,replacement,label);
+  const start=source.lastIndexOf(block);
+  return source.slice(0,start)+changed+source.slice(start+block.length);
+}
+
 function verify(source,coreSource){
   const e=[];
   need(e,source,/CREATE TABLE public\.operational_alert_settings/i,'settings por tenant');
@@ -60,7 +83,8 @@ function verify(source,coreSource){
     need(e,coreSource,new RegExp(`['"]${rpc}['"]`),`core usa RPC literal ${rpc}`);
   }
   need(e,source,/v_org uuid:=private\.require_current_organization_id\(\)/i,'RPC derivan tenant server-side');
-  need(e,source,/p_expected_revision[\s\S]{0,1800}?s\.organization_id=v_org AND s\.revision=p_expected_revision/i,'settings optimistic concurrency tenant-aware');
+  const settingsUpdate=effectiveFunction(source,'update_operational_alert_settings_v1');
+  need(e,settingsUpdate,/p_expected_revision[\s\S]{0,1800}?s\.organization_id=v_org AND s\.revision=p_expected_revision/i,'settings optimistic concurrency tenant-aware');
   need(e,source,/jsonb_object_keys\(p_settings\) AS x\(key\)/i,'allowlist settings corregida');
   need(e,source,/Only tenant admin can create operational tasks/i,'tareas sólo admin');
   need(e,source,/Only tenant admin can resolve alerts manually/i,'resolución manual admin');
@@ -86,10 +110,21 @@ function selfTest(){
   const s=sql(),c=core();
   const cases=[
     ['válido',s,c,false],
-    ['sin tenant deuda',s.replace('v.organization_id=p_organization_id','true'),c,true],
-    ['sin trigger diferido',s.replace('DEFERRABLE INITIALLY DEFERRED',''),c,true],
-    ['settings sin revision tenant',s.replace('s.organization_id=v_org AND s.revision=p_expected_revision','s.revision=p_expected_revision'),c,true],
-    ['RPC dinámico',s,c.replace("'refresh_operational_alerts_v1'",'rpcName'),true],
+    ['sin tenant deuda',mutated(s,/v\.organization_id=p_organization_id/i,'true','sin tenant deuda'),c,true],
+    ['sin trigger diferido',mutated(s,/DEFERRABLE INITIALLY DEFERRED/i,'','sin trigger diferido'),c,true],
+    [
+      'settings sin revision tenant',
+      mutateEffectiveFunction(
+        s,
+        'update_operational_alert_settings_v1',
+        /s\.organization_id=v_org AND s\.revision=p_expected_revision/i,
+        's.revision=p_expected_revision',
+        'settings sin revision tenant',
+      ),
+      c,
+      true,
+    ],
+    ['RPC dinámico',s,mutated(c,/['"]refresh_operational_alerts_v1['"]/,'rpcName','RPC dinámico'),true],
   ];
   const failed=[];
   for(const [n,a,b,shouldFail] of cases){if((verify(a,b).length>0)!==shouldFail)failed.push(n);}

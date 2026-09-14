@@ -11,6 +11,14 @@ function need(errors, source, regex, label) {
   if (!regex.test(source)) errors.push(`Falta: ${label}`);
 }
 
+function mutated(source, regex, replacement, label) {
+  const next = source.replace(regex, replacement);
+  if (next === source) {
+    throw new Error(`Self-test fixture no pudo mutar: ${label}`);
+  }
+  return next;
+}
+
 function verify(source) {
   const errors = [];
   need(errors, source, /ALTER TABLE public\.almacenes[\s\S]{0,80}?ADD COLUMN branch_id uuid/i, 'almacenes.branch_id');
@@ -33,11 +41,31 @@ function verify(source) {
 
 function selfTest() {
   const valid = read();
+  const fkSimple = mutated(
+    mutated(
+      valid,
+      /FOREIGN KEY \(organization_id, branch_id\)/i,
+      'FOREIGN KEY (branch_id)',
+      'FK simple: columnas',
+    ),
+    /REFERENCES public\.branches\(organization_id, id\)/i,
+    'REFERENCES public.branches(id)',
+    'FK simple: referencia',
+  );
   const cases = [
     ['válido', valid, false],
-    ['FK simple insegura', valid.replace('FOREIGN KEY (organization_id, branch_id)', 'FOREIGN KEY (branch_id)').replace('REFERENCES public.branches(organization_id, id)', 'REFERENCES public.branches(id)'), true],
-    ['sin NOT NULL', valid.replace('ALTER COLUMN branch_id SET NOT NULL,', ''), true],
-    ['sin tenant branch', valid.replace('b.organization_id=v_org', 'true'), true],
+    ['FK simple insegura', fkSimple, true],
+    ['sin NOT NULL', mutated(valid, /ALTER COLUMN branch_id SET NOT NULL,?/i, '', 'sin NOT NULL'), true],
+    [
+      'sin tenant branch',
+      mutated(
+        valid,
+        /WHERE\s+b\.organization_id=v_org\s+AND\s+b\.id=NEW\.branch_id/gi,
+        'WHERE true AND b.id=NEW.branch_id',
+        'sin tenant branch',
+      ),
+      true,
+    ],
   ];
   const failed = [];
   for (const [name, source, shouldFail] of cases) {

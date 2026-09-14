@@ -12,6 +12,16 @@ const forbid = (errors, source, expression, message) => {
   if (expression.test(source)) errors.push(message);
 };
 
+function assertionBlockByDescription(source, description) {
+  const marker = `'${description}'`;
+  const markerIndex = source.indexOf(marker);
+  if (markerIndex < 0) return '';
+  const start = source.lastIndexOf('SELECT ok(', markerIndex);
+  const end = source.indexOf(');', markerIndex);
+  if (start < 0 || end < 0) return '';
+  return source.slice(start, end + 2);
+}
+
 function verifyProbeBoundaries(errors, source) {
   need(errors, source,
     /function assertLocalSupabase\([\s\S]*?127\.0\.0\.1[\s\S]*?localhost[\s\S]*?url\.protocol !== 'http:'/,
@@ -125,9 +135,16 @@ function verify() {
   need(errors, contract,
     /correlativos_procesos_tributarios[\s\S]*?PRIMARY KEY \(organization_id, tipo_proceso, fecha_referencia\)/,
     'pgTAP no congela namespace de correlativos tributarios');
-  need(errors, contract,
-    /tributario_preparar_procesos[\s\S]*?pg_advisory_xact_lock[\s\S]*?FORUPDATESKIPLOCKED/,
-    'pgTAP no cubre contención de preparación tributaria');
+  const tributaryContention = assertionBlockByDescription(
+    contract,
+    'preparación tributaria serializa correlativo por tenant y distribuye trabajo con SKIP LOCKED',
+  );
+  need(errors, tributaryContention, /tributario_preparar_procesos/i,
+    'pgTAP de contención tributaria no inspecciona tributario_preparar_procesos');
+  need(errors, tributaryContention, /pg_advisory_xact_lock/i,
+    'pgTAP de contención tributaria no exige advisory lock');
+  need(errors, tributaryContention, /FORUPDATESKIPLOCKED|FOR\s+UPDATE\s+SKIP\s+LOCKED/i,
+    'pgTAP de contención tributaria no exige FOR UPDATE SKIP LOCKED');
   need(errors, contract,
     /process_sale_v3[\s\S]*?series_comprobantes[\s\S]*?ultimo_correlativo/,
     'pgTAP no cubre correlativo de comprobantes por tenant');

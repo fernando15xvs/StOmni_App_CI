@@ -179,7 +179,7 @@ function selfTest() {
     process.exit(1);
   }
   const mutations=[
-    ['sin FK detalle/producto tenant',mutated(s,/detalle_ventas_producto_id_fkey\b/i,'detalle_ventas_producto_global_fkey','sin FK detalle/producto tenant'),r,l,vr,dr],
+    ['sin FK detalle/producto tenant',mutated(s,/ADD CONSTRAINT\s+detalle_ventas_producto_id_fkey\b/i,'ADD CONSTRAINT detalle_ventas_producto_global_fkey','sin FK detalle/producto tenant'),r,l,vr,dr],
     ['singleton configuración restaurado',s,mutated(r,/WHERE\s+cn\.organization_id\s*=\s*private\.require_current_organization_id\(\)/i,'-- tenant filter removed','singleton configuración restaurado'),l,vr,dr],
     ['v4 sin precheck',s,mutated(r,/PERFORM\s+private\.assert_sales_payload_in_current_organization\(p_request_id,p_cliente_id,p_cotizacion_id,p_detalles\);/i,'PERFORM 1;','v4 sin precheck'),l,vr,dr],
     ['legacy cobro global',s,r,mutated(l,/AND\s+e\.auth_id\s*=\s*v_auth_user_id/i,'AND true','legacy cobro global'),vr,dr],
