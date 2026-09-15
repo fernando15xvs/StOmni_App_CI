@@ -4,7 +4,7 @@ import '../support/workspace_paths.dart';
 
 void main() {
   const migrationPath =
-      'supabase/migrations/20260822052115_expense_mutation_atomicity.sql';
+      'supabase/migration_sources/pre_bootstrap/20260822052115_expense_mutation_atomicity.sql';
 
   test('eliminar pago de gasto recalcula saldo dentro de la RPC', () {
     final sql = repositoryFile(migrationPath).readAsStringSync();

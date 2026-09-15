@@ -20,7 +20,7 @@ void main() {
 
   test('alerta de stock evalua el delta total al final de la transaccion', () {
     final sql = repositoryFile(
-      'supabase/migrations/20260821191000_stock_alert_transactional_fix.sql',
+      'supabase/migration_sources/pre_bootstrap/20260821191000_stock_alert_transactional_fix.sql',
     ).readAsStringSync();
 
     expect(sql, contains('stock_alert_tx_context'));
@@ -154,7 +154,7 @@ void main() {
   test('scripts de notificacion no versionan credenciales REST de OneSignal', () {
     final script = repositoryFile('scripts/trigger_notificaciones.sql').readAsStringSync();
     final migration = repositoryFile(
-      'supabase/migrations/20260821191000_stock_alert_transactional_fix.sql',
+      'supabase/migration_sources/pre_bootstrap/20260821191000_stock_alert_transactional_fix.sql',
     ).readAsStringSync();
 
     for (final source in [script, migration]) {
@@ -168,7 +168,7 @@ void main() {
   test('alertas usan endpoint y autenticacion modernos de OneSignal', () {
     final script = repositoryFile('scripts/trigger_notificaciones.sql').readAsStringSync();
     final migration = repositoryFile(
-      'supabase/migrations/20260821191000_stock_alert_transactional_fix.sql',
+      'supabase/migration_sources/pre_bootstrap/20260821191000_stock_alert_transactional_fix.sql',
     ).readAsStringSync();
 
     for (final source in [script, migration]) {

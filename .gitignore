@@ -75,6 +75,7 @@ scratch_refactor_reportes.dart
 
 # Supabase CLI local state / generated read-only snapshots
 supabase/.temp/
+supabase/.branches/
 supabase/.snapshots/
 
 # Security (Keys & configs)

@@ -1,7 +1,7 @@
 # Fase 5 — Supabase Security & Performance Advisors
 
 Fecha de inventario: 2026-08-21  
-Proyecto: `AlmacenStOmni` (`CI_PROJECT_REF_REDACTED`)
+Proyecto: `AlmacenStOmni` (`rbieglhxufocxvxmyswo`)
 
 > Este documento describe un inventario obtenido en **solo lectura**. No se aplicó DDL ni se modificaron datos de producción.
 

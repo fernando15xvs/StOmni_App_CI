@@ -7,7 +7,7 @@ File workspaceFile(String relativePath) => File('../../$relativePath');
 void main() {
   test('migración GRE persiste cantidad_bultos y expone RPC v4', () {
     final migration = workspaceFile(
-      'supabase/migrations/20260820002405_gre_cantidad_bultos.sql',
+      'supabase/migration_sources/pre_bootstrap/20260820002405_gre_cantidad_bultos.sql',
     ).readAsStringSync();
 
     expect(migration, contains('cantidad_bultos integer'));

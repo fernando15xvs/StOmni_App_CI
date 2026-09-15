@@ -1,4 +1,2 @@
-trigger=2026-09-14T05:30:00Z
-source_private_sha=ddccfbc9762d58c54a06fb21d967399835071428
-mirror_snapshot_sha=17c2f02bc59c0a3ddbbdf23dc8b1b066ddc80122
-purpose=rerun-full-saas-validation-after-sales-constraint-hardening
+source_sha=e5dd147eb47d17284dcafd9dc3993660b90d89e5
+triggered_at_utc=2026-09-15T04:28:56.1252838Z

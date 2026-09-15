@@ -2,7 +2,7 @@
 
 Fecha de inicio: 2026-08-21.
 Última verificación de producción: 2026-08-21.
-Proyecto inspeccionado: `AlmacenStOmni` (`CI_PROJECT_REF_REDACTED`).
+Proyecto inspeccionado: `AlmacenStOmni` (`rbieglhxufocxvxmyswo`).
 PostgreSQL administrado: 17.6.
 
 > Todo el diagnóstico de este documento se obtuvo con consultas **solo lectura**. No se aplicó DDL ni se modificaron datos ni el historial de migraciones de producción.

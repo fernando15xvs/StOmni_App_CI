@@ -37,10 +37,10 @@ $labRoot=Join-Path ([System.IO.Path]::GetTempPath()) ('stomni-fase5-lab-'+[guid]
 New-Item -ItemType Directory -Path $labRoot -Force | Out-Null
 $dbContainer=$null; $labStarted=$false
 $pendingMigrations=@(
-  (Join-Path $repoRoot 'supabase/migrations/20260822052046_debt_payment_idempotency.sql'),
-  (Join-Path $repoRoot 'supabase/migrations/20260822052056_warehouse_deactivation_integrity.sql'),
-  (Join-Path $repoRoot 'supabase/migrations/20260822052106_advisor_safe_hardening.sql'),
-  (Join-Path $repoRoot 'supabase/migrations/20260822052115_expense_mutation_atomicity.sql')
+  (Join-Path $repoRoot 'supabase/migration_sources/pre_bootstrap/20260822052046_debt_payment_idempotency.sql'),
+  (Join-Path $repoRoot 'supabase/migration_sources/pre_bootstrap/20260822052056_warehouse_deactivation_integrity.sql'),
+  (Join-Path $repoRoot 'supabase/migration_sources/pre_bootstrap/20260822052106_advisor_safe_hardening.sql'),
+  (Join-Path $repoRoot 'supabase/migration_sources/pre_bootstrap/20260822052115_expense_mutation_atomicity.sql')
 )
 $fingerprintSource=Join-Path $repoRoot 'supabase/tests/database/fase5_public_snapshot_fingerprint_test.sql'
 $contractSources=@(

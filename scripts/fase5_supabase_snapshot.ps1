@@ -1,5 +1,5 @@
 param(
-  [string]$ProjectRef = 'CI_PROJECT_REF_REDACTED',
+  [string]$ProjectRef = 'rbieglhxufocxvxmyswo',
   [switch]$LinkProject
 )
 

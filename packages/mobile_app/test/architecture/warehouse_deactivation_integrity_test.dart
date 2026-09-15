@@ -4,7 +4,7 @@ import '../support/workspace_paths.dart';
 
 void main() {
   const migrationPath =
-      'supabase/migrations/20260822052056_warehouse_deactivation_integrity.sql';
+      'supabase/migration_sources/pre_bootstrap/20260822052056_warehouse_deactivation_integrity.sql';
 
   test('desactivacion bloquea cualquier stock distinto de cero', () {
     final sql = repositoryFile(migrationPath).readAsStringSync();

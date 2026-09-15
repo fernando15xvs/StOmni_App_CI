@@ -4,7 +4,7 @@ import '../support/workspace_paths.dart';
 
 void main() {
   const migrationPath =
-      'supabase/migrations/20260822052046_debt_payment_idempotency.sql';
+      'supabase/migration_sources/pre_bootstrap/20260822052046_debt_payment_idempotency.sql';
 
   test('migracion v2 protege pagos con request_id persistente', () {
     final sql = repositoryFile(migrationPath).readAsStringSync();

@@ -19,6 +19,7 @@ env:
   FLUTTER_VERSION: '3.38.9'
   SUPABASE_CLI_VERSION: '2.109.1'
   NODE_VERSION: '24'
+  EXPECTED_BOOTSTRAP_CANONICAL_SHA256: 'c6421682c5a64ee026d864483315c32e6e814b595fa91dfde527699236ad31ed'
 
 jobs:
   t00-t02-static:
@@ -35,6 +36,29 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+
+      - name: Verify CI candidate provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f docs/saas/CI_CANDIDATE_SOURCE.json
+          node <<'NODE'
+          const fs = require('fs');
+          const p = 'docs/saas/CI_CANDIDATE_SOURCE.json';
+          const m = JSON.parse(fs.readFileSync(p, 'utf8').replace(/^\uFEFF/, ''));
+          if (m.source_repository !== 'fernando15xvs/StOmni_App') throw new Error('source_repository inválido');
+          if (m.source_branch !== 'feature/saas-multitenant-foundation') throw new Error('source_branch inválido');
+          if (!/^[0-9a-f]{40}$/.test(m.source_sha ?? '')) throw new Error('source_sha inválido');
+          if (m.bootstrap_path !== 'supabase/migrations/20260822052116_bootstrap_public_schema.sql') throw new Error('baseline no registrada');
+          if (m.bootstrap_identity_kind !== 'canonical-git-lf') throw new Error('tipo de identidad de baseline inválido');
+          if (m.bootstrap_sha256_checkout !== process.env.EXPECTED_BOOTSTRAP_CANONICAL_SHA256) throw new Error('hash canónico de baseline en manifiesto no coincide');
+          console.log(`Source candidate: ${m.source_repository}@${m.source_sha}`);
+          console.log(`Source branch: ${m.source_branch}`);
+          console.log(`Canonical Git baseline SHA-256: ${m.bootstrap_sha256_checkout}`);
+          NODE
+          test -f supabase/migrations/20260822052116_bootstrap_public_schema.sql
+          actual_sha="$(sha256sum supabase/migrations/20260822052116_bootstrap_public_schema.sql | awk '{print $1}')"
+          test "$actual_sha" = "$EXPECTED_BOOTSTRAP_CANONICAL_SHA256"
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -67,11 +91,11 @@ jobs:
           supabase --version
           docker --version
 
-      - name: Publication safety - tracked local Supabase state
+      - name: Publication safety - tracked sensitive/generated state
         shell: bash
         run: |
           set -euo pipefail
-          bad="$(git ls-files | grep -E '(^|/)\.env$|(^|/)\.env\.(local|prod|production)$|^supabase/\.temp/|\.(pem|p12|pfx|key|jks|keystore)$' || true)"
+          bad="$(git ls-files | grep -E '(^|/)\.env$|(^|/)\.env\.(local|prod|production)$|^supabase/\.(temp|branches)/|\.(pem|p12|pfx|key|jks|keystore)$' || true)"
           if [ -n "$bad" ]; then
             echo "Sensitive/generated paths are tracked:"
             echo "$bad"
@@ -102,14 +126,23 @@ jobs:
           if-no-files-found: warn
 
   t03-t12-t14-t17-t18-backend:
-    name: Local Supabase dynamic validation
+    name: Automated backend validation
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 105
     steps:
       - name: Checkout candidate
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Verify CI candidate provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f docs/saas/CI_CANDIDATE_SOURCE.json
+          test -f supabase/migrations/20260822052116_bootstrap_public_schema.sql
+          actual_sha="$(sha256sum supabase/migrations/20260822052116_bootstrap_public_schema.sql | awk '{print $1}')"
+          test "$actual_sha" = "$EXPECTED_BOOTSTRAP_CANONICAL_SHA256"
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -141,22 +174,43 @@ jobs:
           set -euo pipefail
           supabase start
           supabase db reset
-          supabase status
+          echo "Supabase local started and reset successfully. Credentials intentionally not printed in public CI logs."
 
-      - name: T04 database contracts (pgTAP)
-        run: supabase test db
+      - name: T04 current database contracts (pgTAP)
+        run: node scripts/run_saas_current_pgtap_ci.mjs
 
-      - name: Database lint
-        run: supabase db lint --local --level error
+      - name: T04 database lint
+        run: supabase db lint --local --schema public --level error --fail-on error
 
-      - name: T05-T12 and T14 representative multi-tenant E2E
-        run: node supabase/tests/e2e/multi_tenant_e2e.mjs
+      - name: T03/T04 no schema drift
+        shell: bash
+        run: |
+          set -euo pipefail
+          output="$(supabase db diff --local --schema public 2>&1)"
+          printf '%s\n' "$output"
+          if ! grep -q "No schema changes found" <<<"$output"; then
+            echo "Schema drift detectado entre migraciones y DB local."
+            exit 1
+          fi
+
+      - name: T05-T09/T12/T14 representative multi-tenant E2E
+        run: node scripts/run_saas_e2e_ci.mjs
+
+      - name: T12 tenant exports ORG_A and ORG_B
+        shell: bash
+        run: |
+          set -euo pipefail
+          ORG_A_ID="$(node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync('.dart_tool/saas/f9_1_e2e_report.json','utf8'));process.stdout.write(r.organizations.ORG_A)")"
+          ORG_B_ID="$(node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync('.dart_tool/saas/f9_1_e2e_report.json','utf8'));process.stdout.write(r.organizations.ORG_B)")"
+          node scripts/saas_export_tenant.mjs --organization-id "$ORG_A_ID"
+          node scripts/saas_export_tenant.mjs --organization-id "$ORG_B_ID"
 
       - name: T17 concurrency probe
         env:
           STOMNI_LOAD_CONCURRENCY: '8'
-          STOMNI_LOAD_CUSTOMERS_PER_TENANT: '25'
+          STOMNI_LOAD_CUSTOMERS_PER_TENANT: '40'
           STOMNI_LOAD_INVENTORY_WRITES_PER_TENANT: '20'
+          STOMNI_LOAD_READS_PER_TENANT: '40'
         run: node supabase/tests/performance/multi_tenant_concurrency_probe.mjs
 
       - name: T18 backup
@@ -164,17 +218,28 @@ jobs:
           STOMNI_SAAS_BACKUP_DIR: .dart_tool/saas/backups/ci
         run: node scripts/saas_backup_local.mjs
 
-      - name: T18 destructive restore drill (local only)
+      - name: T18 destructive restore drill (local runner only)
         env:
           STOMNI_ALLOW_DESTRUCTIVE_RESTORE: 'YES'
           STOMNI_SAAS_BACKUP_DIR: .dart_tool/saas/backups/ci
         run: node scripts/saas_restore_drill_local.mjs .dart_tool/saas/backups/ci
 
-      - name: T03 reproducibility second reset
+      - name: T03/T18 reproducibility second reset
         run: supabase db reset
 
-      - name: Re-run pgTAP after second reset
-        run: supabase test db
+      - name: Re-run current pgTAP after second reset
+        run: node scripts/run_saas_current_pgtap_ci.mjs
+
+      - name: Re-check no schema drift after second reset
+        shell: bash
+        run: |
+          set -euo pipefail
+          output="$(supabase db diff --local --schema public 2>&1)"
+          printf '%s\n' "$output"
+          if ! grep -q "No schema changes found" <<<"$output"; then
+            echo "Schema drift detectado después del segundo reset."
+            exit 1
+          fi
 
       - name: Upload backend evidence
         if: always()
@@ -193,7 +258,7 @@ jobs:
   t01-t13-t15-mobile-web-android:
     name: Flutter core/mobile + Web/Android
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 70
     steps:
       - name: Checkout candidate
         uses: actions/checkout@v4
@@ -260,7 +325,7 @@ jobs:
   t13-t15-windows:
     name: Windows desktop validation
     runs-on: windows-latest
-    timeout-minutes: 60
+    timeout-minutes: 70
     steps:
       - name: Checkout candidate
         uses: actions/checkout@v4
@@ -297,10 +362,53 @@ jobs:
           name: windows-release
           path: packages/desktop_app/build/windows/x64/runner/Release/**
 
+  t15-linux:
+    name: Linux desktop compile smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+
+      - name: Install Linux desktop toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Enable Linux desktop
+        run: flutter config --enable-linux-desktop
+
+      - name: Resolve desktop dependencies
+        working-directory: packages/desktop_app
+        run: flutter pub get
+
+      - name: Linux desktop test
+        working-directory: packages/desktop_app
+        run: flutter test --reporter expanded
+
+      - name: Build Linux release
+        working-directory: packages/desktop_app
+        run: flutter build linux --release
+
+      - name: Upload Linux build
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-release
+          path: packages/desktop_app/build/linux/x64/release/bundle/**
+
   macos-ios-smoke:
     name: macOS/iOS compile smoke
     runs-on: macos-latest
-    timeout-minutes: 60
+    timeout-minutes: 70
     steps:
       - name: Checkout candidate
         uses: actions/checkout@v4
@@ -339,13 +447,14 @@ jobs:
         run: flutter build ios --simulator --debug --dart-define=SUPABASE_URL=http://127.0.0.1:54321 --dart-define=SUPABASE_ANON_KEY=ci-local-placeholder
 
   validation-summary:
-    name: T00-T19 CI summary
+    name: CI candidate summary
     if: always()
     needs:
       - t00-t02-static
       - t03-t12-t14-t17-t18-backend
       - t01-t13-t15-mobile-web-android
       - t13-t15-windows
+      - t15-linux
       - macos-ios-smoke
     runs-on: ubuntu-latest
     steps:
@@ -353,17 +462,29 @@ jobs:
         shell: bash
         run: |
           echo "T00-T02 static: ${{ needs.t00-t02-static.result }}"
-          echo "Backend dynamic: ${{ needs.t03-t12-t14-t17-t18-backend.result }}"
+          echo "Backend automated: ${{ needs.t03-t12-t14-t17-t18-backend.result }}"
           echo "Flutter mobile/web/android: ${{ needs.t01-t13-t15-mobile-web-android.result }}"
           echo "Windows: ${{ needs.t13-t15-windows.result }}"
+          echo "Linux: ${{ needs.t15-linux.result }}"
           echo "macOS/iOS: ${{ needs.macos-ios-smoke.result }}"
+          {
+            echo "## StOmni SaaS CI candidate"
+            echo ""
+            echo "- Static: ${{ needs.t00-t02-static.result }}"
+            echo "- Backend automated: ${{ needs.t03-t12-t14-t17-t18-backend.result }}"
+            echo "- Mobile/Web/Android: ${{ needs.t01-t13-t15-mobile-web-android.result }}"
+            echo "- Windows: ${{ needs.t13-t15-windows.result }}"
+            echo "- Linux: ${{ needs.t15-linux.result }}"
+            echo "- macOS/iOS: ${{ needs.macos-ios-smoke.result }}"
+          } >> "$GITHUB_STEP_SUMMARY"
           if [ "${{ needs.t00-t02-static.result }}" != "success" ] || \
              [ "${{ needs.t03-t12-t14-t17-t18-backend.result }}" != "success" ] || \
              [ "${{ needs.t01-t13-t15-mobile-web-android.result }}" != "success" ] || \
              [ "${{ needs.t13-t15-windows.result }}" != "success" ] || \
+             [ "${{ needs.t15-linux.result }}" != "success" ] || \
              [ "${{ needs.macos-ios-smoke.result }}" != "success" ]; then
-            echo "STOMNI SaaS validation: NOT GREEN"
+            echo "CI CANDIDATE NOT GREEN"
             exit 1
           fi
-          echo "STOMNI SaaS validation jobs: GREEN"
-          echo "Commercial GO still requires review of T19 evidence; this workflow does not deploy or merge."
+          echo "CI CANDIDATE GREEN"
+          echo "Local acceptance L00-L08 and T19 are still required. This workflow never deploys or merges."

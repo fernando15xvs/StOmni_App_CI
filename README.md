@@ -142,7 +142,7 @@ Este proyecto está bajo la Licencia MIT - ver `LICENSE` para más detalles.
 ## 📧 Contacto
 
 Luis Fernando Aguilar Chaponan
-- Email: contact@example.invalid
+- Email: luisfernandoaguilarchaponan@gmail.com
 - GitHub: [@usuario](https://github.com/usuario)
 
 ---

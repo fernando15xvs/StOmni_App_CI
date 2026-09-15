@@ -15,6 +15,11 @@ $architectureVerifier = Join-Path $PSScriptRoot 'verify_architecture.mjs'
 $envVerifier = Join-Path $PSScriptRoot 'validate_client_env.dart'
 $linkedSchemaLab = Join-Path $PSScriptRoot 'verify_linked_schema_lab.ps1'
 $baselinePath = Join-Path $repoRoot 'supabase/migrations/20260722180810_remote_schema.sql'
+$testsDir = Join-Path $repoRoot 'supabase/tests/database'
+$historicalFingerprintTests = @(
+  'fase5_production_fingerprint_test.sql',
+  'fase5_public_snapshot_fingerprint_test.sql'
+)
 
 function Assert-Command {
   param([Parameter(Mandatory = $true)][string]$Name)
@@ -91,8 +96,23 @@ try {
         supabase db reset --local
       }
 
-      Invoke-Checked 'Ejecutando contratos pgTAP de la base local' {
-        supabase test db --local
+      $currentContractTests = @(
+        Get-ChildItem -LiteralPath $testsDir -File -Filter '*.sql' |
+          Where-Object { $historicalFingerprintTests -notcontains $_.Name } |
+          Sort-Object Name |
+          ForEach-Object { $_.FullName }
+      )
+      if ($currentContractTests.Count -eq 0) {
+        throw 'No se encontraron contratos pgTAP actuales para ejecutar.'
+      }
+
+      Write-Host (
+        "Contratos pgTAP actuales: $($currentContractTests.Count). " +
+        'Se excluyen 2 fingerprints históricos PRE-Fase 5 que no pertenecen al esquema SaaS final.'
+      ) -ForegroundColor DarkYellow
+
+      Invoke-Checked 'Ejecutando contratos pgTAP actuales de la base local' {
+        supabase test db --local @currentContractTests
       }
     }
   }

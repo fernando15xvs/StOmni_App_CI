@@ -4,7 +4,7 @@ import '../support/workspace_paths.dart';
 
 void main() {
   const migrationPath =
-      'supabase/migrations/20260822052106_advisor_safe_hardening.sql';
+      'supabase/migration_sources/pre_bootstrap/20260822052106_advisor_safe_hardening.sql';
 
   late String sql;
 

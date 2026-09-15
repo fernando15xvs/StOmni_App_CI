@@ -1,6 +1,6 @@
 -- Instalador manual de alertas de stock bajo y producto agotado.
 -- Fuente versionada equivalente:
--- supabase/migrations/20260821191000_stock_alert_transactional_fix.sql
+-- supabase/migration_sources/pre_bootstrap/20260821191000_stock_alert_transactional_fix.sql
 --
 -- IMPORTANTE:
 -- 1. La alerta se evalua por el delta TOTAL de la transaccion. Un traslado
