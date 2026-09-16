@@ -74,7 +74,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       MaterialPageRoute(
         builder: (_) => route == SaasEntryRoute.passwordChangeRequired
             ? const CambiarPasswordPage(forzado: true)
-            : MobileSaasEntryGate(initialTab: PreferencesService.startScreen),
+            : MobileSaasEntryGate(
+                initialTab: PreferencesService.startScreen,
+                showPostLoginWarmup: true,
+              ),
       ),
     );
   }

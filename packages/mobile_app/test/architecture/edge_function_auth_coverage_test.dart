@@ -22,7 +22,7 @@ void main() {
     expect(guard, contains("if (role === 'admin') return 'admin'"));
     expect(guard, contains("if (role === 'operador') return 'operador'"));
     expect(guard, contains('empleado.activo !== true'));
-    expect(guard, contains('admin.auth.getUser(token)'));
+    expect(guard, contains('bootstrapAdmin.auth.getUser(token)'));
     expect(guard, isNot(contains("role === 'vendedor'")));
     expect(guard, isNot(contains("role === 'almacenero'")));
   });

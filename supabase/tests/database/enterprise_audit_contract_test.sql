@@ -1,6 +1,6 @@
 BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
-SELECT plan(30);
+SELECT plan(31);
 
 SELECT ok(to_regclass('public.audit_logs') IS NOT NULL,'audit_logs existe');
 SELECT ok(EXISTS(SELECT 1 FROM pg_attribute WHERE attrelid='public.audit_logs'::regclass AND attname='organization_id' AND attnotnull AND NOT attisdropped),'audit_logs.organization_id NOT NULL');
@@ -31,6 +31,7 @@ SELECT ok(EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.employee_permiss
 SELECT ok(EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.business_capabilities'::regclass AND tgname='business_capabilities_audit_change' AND NOT tgisinternal),'capacidades auditadas');
 SELECT ok(EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.custom_field_definitions'::regclass AND tgname='custom_field_definitions_audit_change' AND NOT tgisinternal),'campos configurables auditados');
 SELECT ok(EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.configuracion_negocio'::regclass AND tgname='configuracion_negocio_audit_change' AND NOT tgisinternal),'configuración negocio auditada');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p WHERE p.oid='private.audit_business_metric_definition_change()'::regprocedure AND regexp_replace(lower(pg_get_functiondef(p.oid)),'\s+','','g') LIKE '%v_source,tg_table_name,tg_op,null,v_metadata%'),'auditoría dashboard conserva source_table/source_operation');
 
 SELECT ok(to_regprocedure('public.list_audit_logs_v1(integer,bigint,text,text)') IS NOT NULL,'RPC list_audit_logs_v1 existe');
 SELECT ok(has_function_privilege('authenticated','public.list_audit_logs_v1(integer,bigint,text,text)','EXECUTE') AND EXISTS(SELECT 1 FROM pg_proc p WHERE p.oid='public.list_audit_logs_v1(integer,bigint,text,text)'::regprocedure AND lower(pg_get_functiondef(p.oid)) LIKE '%where a.organization_id=v_org%' AND lower(pg_get_functiondef(p.oid)) LIKE '%tenant.admin%'),'RPC audit expuesto sólo con tenant/admin');

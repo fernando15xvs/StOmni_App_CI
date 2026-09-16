@@ -7,6 +7,9 @@ import '../support/workspace_paths.dart';
 void main() {
   test('login usa pantalla puente y warm-up compartido', () {
     final login = File('lib/auth/pages/login_page.dart').readAsStringSync();
+    final entryGate = File(
+      'lib/onboarding/saas_entry_gate.dart',
+    ).readAsStringSync();
     final bridge = File(
       'lib/home/post_login_home_page.dart',
     ).readAsStringSync();
@@ -17,7 +20,12 @@ void main() {
       'lib/home/widgets/post_login_loading_overlay.dart',
     ).readAsStringSync();
 
-    expect(login, contains('PostLoginHomePage('));
+    expect(login, contains('MobileSaasEntryGate('));
+    expect(login, contains('showPostLoginWarmup: true'));
+    expect(
+      entryGate,
+      contains('PostLoginHomePage(pestanaInicial: initialTab)'),
+    );
     expect(bridge, contains('HomePage(pestanaInicial: widget.pestanaInicial)'));
     expect(bridge, contains('homeWarmupCoordinatorProvider'));
     expect(bridge, contains('Duration(seconds: 6)'));
@@ -70,6 +78,9 @@ void main() {
 
   test('splash precarga home sin mostrar un segundo loader', () {
     final splash = File('lib/splash/splash_screen.dart').readAsStringSync();
+    final entryGate = File(
+      'lib/onboarding/saas_entry_gate.dart',
+    ).readAsStringSync();
     final validation = coreFile(
       'lib/auth/data/supabase_session_validation_gateway.dart',
     ).readAsStringSync();
@@ -81,9 +92,12 @@ void main() {
     expect(splash, contains('Duration(seconds: 5)'));
     expect(
       splash,
-      contains('HomePage(pestanaInicial: PreferencesService.startScreen)'),
+      contains(
+        'MobileSaasEntryGate(initialTab: PreferencesService.startScreen)',
+      ),
     );
     expect(splash, isNot(contains('PostLoginHomePage(')));
+    expect(entryGate, contains('HomePage(pestanaInicial: initialTab)'));
 
     // Splash solo orquesta; las consultas pesadas permanecen centralizadas.
     expect(splash, isNot(contains('balanceRepositoryProvider')));

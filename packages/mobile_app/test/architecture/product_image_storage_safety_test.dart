@@ -14,19 +14,23 @@ void main() {
     expect(repository, contains(".remove([path])"));
   });
 
-  test(
-    'imagen anterior solo se limpia después de confirmar el nuevo valor',
-    () {
-      final repository = coreFile(
-        'lib/features/almacen/data/producto_admin_repository.dart',
-      ).readAsStringSync();
+  test('imagen anterior solo se limpia después de confirmar el nuevo valor', () {
+    final repository = coreFile(
+      'lib/features/almacen/data/producto_admin_repository.dart',
+    ).readAsStringSync();
 
-      expect(repository, contains('limpiarImagenAnteriorSiReemplazada'));
-      expect(repository, contains(".select('imagen_path')"));
-      expect(repository, contains('if (actual != nueva) return;'));
-      expect(repository, contains('await _removeIfUnreferenced(anterior)'));
-    },
-  );
+    expect(repository, contains('limpiarImagenAnteriorSiReemplazada'));
+    expect(repository, contains(".select('imagen_path')"));
+    expect(repository, contains('if (actual != nueva) return;'));
+    expect(
+      repository,
+      matches(
+        RegExp(
+          r'await\s+_removeIfUnreferenced\(\s*anterior,\s*organizationId\s*\)',
+        ),
+      ),
+    );
+  });
 
   test('use case conserva rollback reference-aware ante error incierto', () {
     final useCase = coreFile(

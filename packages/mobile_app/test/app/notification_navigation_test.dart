@@ -136,6 +136,9 @@ void main() {
   test('integración enfoca producto usando el inventario local-first', () {
     final bootstrap = File('lib/app/bootstrap.dart').readAsStringSync();
     final splash = File('lib/splash/splash_screen.dart').readAsStringSync();
+    final entryGate = File(
+      'lib/onboarding/saas_entry_gate.dart',
+    ).readAsStringSync();
     final postLogin = File(
       'lib/home/post_login_home_page.dart',
     ).readAsStringSync();
@@ -153,7 +156,8 @@ void main() {
     expect(navigation, contains("label: 'VER TODAS'"));
     expect(navigation, isNot(contains("Supabase.instance")));
     expect(navigation, isNot(contains(".from('productos')")));
-    expect(splash, contains('StockAlertNotificationHost'));
+    expect(splash, contains('MobileSaasEntryGate'));
+    expect(entryGate, contains('StockAlertNotificationHost'));
     expect(postLogin, contains('enabled: _preparado'));
     expect(router, contains('StockAlertNotificationHost'));
   });

@@ -15,7 +15,7 @@ void main() {
     );
     final rpc = service.indexOf("'actualizar_configuracion_negocio_v1'");
     final confirm = service.indexOf(
-      '_setActiveConfiguration(nuevaConfiguracion);',
+      '_setActiveConfiguration(nuevaConfiguracion',
     );
     final cleanup = service.indexOf(
       'await eliminarLogoPropioPorUrl(logoAnterior);',

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app/notification_navigation.dart';
 import '../home/home_page.dart';
+import '../home/post_login_home_page.dart';
 import 'guided_onboarding_page.dart';
 import 'organization_setup_page.dart';
 
@@ -13,9 +14,14 @@ import 'organization_setup_page.dart';
 /// Orden: Auth sin tenant -> alta F8.1 -> onboarding F8.2 -> Home.
 /// Una autorización offline ya validada no consulta el RPC de onboarding.
 class MobileSaasEntryGate extends ConsumerWidget {
-  const MobileSaasEntryGate({super.key, this.initialTab = 0});
+  const MobileSaasEntryGate({
+    super.key,
+    this.initialTab = 0,
+    this.showPostLoginWarmup = false,
+  });
 
   final int initialTab;
+  final bool showPostLoginWarmup;
 
   static const _routing = SaasEntryRoutingPolicy();
 
@@ -86,8 +92,9 @@ class MobileSaasEntryGate extends ConsumerWidget {
     );
   }
 
-  Widget _home() =>
-      StockAlertNotificationHost(child: HomePage(pestanaInicial: initialTab));
+  Widget _home() => showPostLoginWarmup
+      ? PostLoginHomePage(pestanaInicial: initialTab)
+      : StockAlertNotificationHost(child: HomePage(pestanaInicial: initialTab));
 }
 
 class _BlockedEntryView extends StatelessWidget {

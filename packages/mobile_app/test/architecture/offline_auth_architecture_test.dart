@@ -18,9 +18,12 @@ void main() {
       expect(gateway, contains('AuthSessionCache.loadForUser(authUserId)'));
       expect(useCase, contains('on SessionValidationUnavailable'));
       expect(useCase, contains('cached.isValidFor(userId, _now())'));
-      final offlineBranch = useCase.substring(
-        useCase.indexOf('on SessionValidationUnavailable'),
-      );
+      final offlineStart = useCase.indexOf('on SessionValidationUnavailable');
+      final offlineEnd = useCase.indexOf('} catch (_)', offlineStart);
+      expect(offlineStart, isNonNegative);
+      expect(offlineEnd, greaterThan(offlineStart));
+      final offlineBranch = useCase.substring(offlineStart, offlineEnd);
+      expect(offlineBranch, contains('return offlineResult();'));
       expect(offlineBranch, isNot(contains('invalidateSession(')));
       expect(
         coreFile('lib/splash/services/splash_service.dart').existsSync(),
