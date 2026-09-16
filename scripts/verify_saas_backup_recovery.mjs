@@ -54,6 +54,9 @@ function verifyOperationalBoundaries(errors, { common, backup, restore, tenantEx
     'export tenant no deriva tablas por organization_id');
   need(errors, tenantExport, /WHERE t\.organization_id=.*::uuid/,
     'export tenant no filtra cada tabla por organization_id');
+  need(errors, tenantExport,
+    /SELECT count\(\*\)::text FROM public\.organizations[\s\S]*?organizationCount === '1'/,
+    'export tenant no valida inequívocamente la existencia de la organización');
   need(errors, tenantExport, /listStorageObjects\(config\.dbUrl, \{ organizationId \}\)/,
     'export tenant no limita Storage al prefijo de la organización');
   need(errors, tenantExport, /auth_password_hashes_or_sessions: false/,
@@ -110,7 +113,7 @@ function selfTest() {
     common: `LOOPBACK_HOSTS 127.0.0.1 localhost protocols: new Set(['postgres:', 'postgresql:']) protocols: new Set(['http:'])`,
     backup: `pg_dump --schema=public --table=auth.users --table=auth.identities collectRecoveryFingerprints before after downloadStorageObjects storage_bytes_backed_up_separately: true`,
     restore: `process.env[STOMNI_ALLOW_DESTRUCTIVE_RESTORE] === 'YES'; runCommand('supabase', ['db', 'reset']); process.env.STOMNI_ALLOW_SCHEMA_MISMATCH === 'YES'; pg_restore --data-only --disable-triggers uploadStorageArtifacts database_fingerprints_exact: true storage_hashes_exact: true status: 'RESTORE_DRILL_GREEN'`,
-    tenantExport: `--organization-id UUID válido listTenantOwnedTables WHERE t.organization_id=x::uuid listStorageObjects(config.dbUrl, { organizationId }) auth_password_hashes_or_sessions: false`,
+    tenantExport: `--organization-id UUID válido listTenantOwnedTables WHERE t.organization_id=x::uuid SELECT count(*)::text FROM public.organizations organizationCount === '1' listStorageObjects(config.dbUrl, { organizationId }) auth_password_hashes_or_sessions: false`,
   };
   const safeErrors = [];
   verifyOperationalBoundaries(safeErrors, safe);

@@ -105,11 +105,14 @@ function exportTenantTable(dbUrl, table, organizationId, dataDir) {
 async function main() {
   const config = loadLocalSupabaseConfig();
   const organizationId = resolveOrganizationId();
-  const exists = psql(
+  const organizationCount = psql(
     config.dbUrl,
-    `SELECT EXISTS(SELECT 1 FROM public.organizations WHERE id=${sqlLiteral(organizationId)}::uuid)::text;`,
+    `SELECT count(*)::text FROM public.organizations WHERE id=${sqlLiteral(organizationId)}::uuid;`,
   );
-  ensure(exists === 't', `La organización ${organizationId} no existe en Supabase local.`);
+  ensure(
+    organizationCount === '1',
+    `La organización ${organizationId} no existe en Supabase local.`,
+  );
 
   const outputDir = resolveOutputDir(organizationId);
   ensure(!fs.existsSync(outputDir), `El directorio de exportación ya existe: ${outputDir}`);
