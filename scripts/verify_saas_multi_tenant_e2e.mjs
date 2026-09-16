@@ -117,6 +117,24 @@ function verifyRunnerBoundaries(errors, source) {
   need(
     errors,
     source,
+    /function customerDocument\([\s\S]*?createHash\('sha256'\)[\s\S]*?padStart\(6, '0'\)/,
+    'runner no genera documentos numéricos y reproducibles para clientes',
+  );
+  need(
+    errors,
+    source,
+    /tipo_doc: '1'/,
+    'runner no usa el código SQL canónico para DNI',
+  );
+  forbid(
+    errors,
+    source,
+    /dni_ruc:\s*`[^`]*runId\.slice/,
+    'runner usa un sufijo hexadecimal como documento de cliente',
+  );
+  need(
+    errors,
+    source,
     /id=eq\.\$\{encodeURIComponent\(b\.customer\.id\)\}/,
     'runner no ataca una PK conocida de ORG_B desde ORG_A',
   );
@@ -224,6 +242,8 @@ function selfTest() {
     E2E-08-cross-tenant-delete-blocked E2E-09-organization-id-spoof-blocked
     E2E-10-onboarding-cross-tenant-filter-blocked
     clientes?select=* method: 'POST' nombre: x dni_ruc: y
+    function customerDocument() { createHash('sha256'); padStart(6, '0'); }
+    tipo_doc: '1'
     id=eq.\${encodeURIComponent(b.customer.id)}
     method: 'PATCH' CROSS UPDATE
     const crossDelete = { method: 'DELETE' }

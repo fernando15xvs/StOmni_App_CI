@@ -1,7 +1,7 @@
 BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
-SELECT plan(18);
+SELECT plan(19);
 
 SELECT ok(
   EXISTS (
@@ -10,6 +10,15 @@ SELECT ok(
       AND attname='organization_id' AND NOT attisdropped AND attnotnull
   ),
   'clientes.organization_id existe y es NOT NULL'
+);
+
+SELECT ok(
+  EXISTS (
+    SELECT 1 FROM pg_attribute
+    WHERE attrelid='public.clientes'::regclass
+      AND attname='telefono' AND NOT attisdropped
+  ),
+  'clientes.telefono coincide con el contrato del gateway compartido'
 );
 
 SELECT ok(

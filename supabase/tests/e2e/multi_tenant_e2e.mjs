@@ -28,6 +28,14 @@ const ensure = (condition, message) => {
 const delay = (milliseconds) =>
   new Promise((resolve) => setTimeout(resolve, milliseconds));
 
+function customerDocument(runId, prefix) {
+  const digest = crypto.createHash('sha256').update(runId).digest();
+  const suffix = (digest.readUInt32BE(0) % 1_000_000)
+    .toString()
+    .padStart(6, '0');
+  return `${prefix}${suffix}`;
+}
+
 function isJwtIssuedInFuture(response) {
   return (
     response.status === 401 &&
@@ -296,7 +304,10 @@ async function completeOnboarding(config, tenant) {
 }
 
 async function insertCustomer(config, tenant, runId) {
-  const document = `${tenant.label === 'ORG_A' ? '10' : '20'}${runId.slice(-6)}`;
+  const document = customerDocument(
+    runId,
+    tenant.label === 'ORG_A' ? '10' : '20',
+  );
   const response = await tableRequest(config, tenant.accessToken, 'clientes?select=*', {
     method: 'POST',
     prefer: 'return=representation',
@@ -304,7 +315,7 @@ async function insertCustomer(config, tenant, runId) {
       nombre: `Cliente ${tenant.label} ${runId}`,
       dni_ruc: document,
       direccion: `E2E ${tenant.label}`,
-      tipo_doc: 'DNI',
+      tipo_doc: '1',
       telefono: '900000000',
     },
   });
@@ -410,8 +421,9 @@ async function verifyCrossTenantAttacks(config, a, b, runId) {
     body: {
       organization_id: b.organizationId,
       nombre: `Spoof ${runId}`,
-      dni_ruc: `90${runId.slice(-6)}`,
+      dni_ruc: customerDocument(runId, '90'),
       direccion: 'E2E spoof',
+      tipo_doc: '1',
     },
   });
   ensure(!spoof.ok, 'ORG_A pudo insertar cliente declarando organization_id de ORG_B.');
