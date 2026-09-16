@@ -164,6 +164,10 @@ jobs:
           echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
           sudo apt-get update
           sudo apt-get install -y postgresql-client-17
+          echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
+          export PATH="/usr/lib/postgresql/17/bin:$PATH"
+          test "$(command -v pg_dump)" = "/usr/lib/postgresql/17/bin/pg_dump"
+          test "$(command -v pg_restore)" = "/usr/lib/postgresql/17/bin/pg_restore"
           psql --version
           pg_dump --version
           pg_restore --version
