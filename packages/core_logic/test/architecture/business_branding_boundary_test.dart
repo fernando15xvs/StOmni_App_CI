@@ -31,7 +31,11 @@ void main() {
     expect(gateway, contains('_checkUser(user)'));
     expect(
       providers,
-      contains('FutureProvider.autoDispose.family<BusinessBranding, bool>'),
+      matches(
+        RegExp(
+          r'FutureProvider\.autoDispose\s*\.family<BusinessBranding,\s*bool>',
+        ),
+      ),
     );
   });
 
