@@ -1,6 +1,6 @@
 BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
-SELECT plan(18);
+SELECT plan(21);
 
 SELECT ok(to_regprocedure('public.get_organization_signup_state_v1()') IS NOT NULL,'RPC estado de alta existe');
 SELECT ok(to_regprocedure('public.create_my_organization_v1(text,text,text,text,text)') IS NOT NULL,'RPC alta autoservicio existe');
@@ -28,6 +28,17 @@ SELECT ok(
 SELECT ok(
   pg_get_functiondef('public.create_my_organization_v1(text,text,text,text,text)'::regprocedure) ILIKE '%''bootstrap_default''%'
   ,'alta conserva razón bootstrap_default');
+SELECT ok(
+  pg_get_functiondef('public.create_my_organization_v1(text,text,text,text,text)'::regprocedure) ILIKE '%INSERT INTO public.empleados%'
+  ,'alta crea ficha laboral para el dueño');
+SELECT ok(
+  pg_get_functiondef('public.create_my_organization_v1(text,text,text,text,text)'::regprocedure) ILIKE '%organization_id,%app_user_id,%auth_id,%'
+  AND pg_get_functiondef('public.create_my_organization_v1(text,text,text,text,text)'::regprocedure) ILIKE '%v_org,%v_user,%v_user,%'
+  ,'ficha del dueño enlaza tenant y auth.uid server-side');
+SELECT ok(
+  pg_get_functiondef('public.create_my_organization_v1(text,text,text,text,text)'::regprocedure) ILIKE '%FROM auth.users%'
+  AND pg_get_functiondef('public.create_my_organization_v1(text,text,text,text,text)'::regprocedure) ILIKE '%''admin''%'
+  ,'ficha del dueño usa identidad Auth y rol admin');
 SELECT ok(
   pg_get_functiondef('public.create_my_organization_v1(text,text,text,text,text)'::regprocedure) NOT ILIKE '%p_organization_id%'
   ,'cliente no aporta organization_id');

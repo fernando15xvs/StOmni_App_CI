@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const migrationPath='supabase/migrations/20260908059000_saas_self_service_organization_signup.sql';
+const ownerIdentityPath='supabase/migrations/20260916053000_saas_signup_owner_employee.sql';
 const domainPath='packages/core_logic/lib/onboarding/domain/organization_signup.dart';
 const gatewayPath='packages/core_logic/lib/onboarding/data/supabase_organization_signup_gateway.dart';
 const useCasePath='packages/core_logic/lib/onboarding/application/organization_signup_use_case.dart';
@@ -13,7 +14,8 @@ function read(p){return fs.readFileSync(path.join(root,p),'utf8');}
 function need(errors,source,re,message){if(!re.test(source))errors.push(message);}
 function verify(){
   const errors=[];
-  const sql=read(migrationPath);
+  const sql=`${read(migrationPath)}\n${read(ownerIdentityPath)}`;
+  const ownerIdentity=read(ownerIdentityPath);
   const domain=read(domainPath);
   const gateway=read(gatewayPath);
   const useCase=read(useCasePath);
@@ -26,6 +28,11 @@ function verify(){
   need(errors,sql,/REVOKE EXECUTE ON FUNCTION public\.bootstrap_organization_v1\(text,text,text,text,text\)[\s\S]*?FROM authenticated/i,'bootstrap técnico sigue expuesto a authenticated');
   need(errors,sql,/GRANT EXECUTE ON FUNCTION public\.create_my_organization_v1\(text,text,text,text,text\) TO authenticated/i,'RPC de alta no está concedida a authenticated');
   need(errors,sql,/legacy_identity_requires_migration/i,'estado no distingue identidad legacy');
+  need(errors,ownerIdentity,/SELECT lower\(NULLIF\(btrim\(u\.email\),''\)\)[\s\S]*?FROM auth\.users u[\s\S]*?WHERE u\.id=v_user/i,'alta no resuelve email del dueño desde auth.uid()');
+  need(errors,ownerIdentity,/INSERT INTO public\.empleados\([\s\S]*?organization_id,[\s\S]*?app_user_id,[\s\S]*?auth_id,[\s\S]*?rol,[\s\S]*?\) VALUES \([\s\S]*?v_org,[\s\S]*?v_user,[\s\S]*?v_user,[\s\S]*?'admin'/i,'alta no crea ficha laboral admin enlazada al tenant y usuario autenticado');
+  const bootstrapIndex=ownerIdentity.indexOf('v_org:=public.bootstrap_organization_v1');
+  const employeeIndex=ownerIdentity.indexOf('INSERT INTO public.empleados');
+  if(bootstrapIndex<0||employeeIndex<=bootstrapIndex)errors.push('alta crea ficha laboral antes de completar membership/defaults del bootstrap');
   if(/create_my_organization_v1\([\s\S]*?organization_id/i.test(sql.split('RETURNS jsonb')[0]??''))errors.push('alta acepta organization_id del cliente');
   if(/p_plan_code/i.test(sql))errors.push('alta acepta plan_code del cliente');
   if(/EXCEPTION\s+WHEN\s+OTHERS/i.test(sql))errors.push('alta captura WHEN OTHERS y puede ocultar rollback');
@@ -57,4 +64,5 @@ if(errors.length){console.error('SaaS organization signup gate FAILED:');for(con
 console.log('SaaS organization signup gate OK (F8.1).');
 console.log('  - identidad derivada server-side y bootstrap técnico no expuesto');
 console.log('  - tenants autoservicio inician en Starter sin plan controlado por cliente');
+console.log('  - dueño autoservicio recibe ficha laboral admin y RBAC operativo');
 console.log('  - gateway/core tipados sin organization_id manipulable');

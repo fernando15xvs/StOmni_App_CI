@@ -72,6 +72,9 @@ function verifyProbeBoundaries(errors, source) {
     'probe F9.2 no usa el código SQL canónico para DNI');
   forbid(errors, source, /tipo_doc: 'DNI'/,
     'probe F9.2 usa la etiqueta UI DNI en lugar del código SQL');
+  need(errors, source,
+    /get_my_effective_permissions_v1[\s\S]*?permissions\.includes\('inventory\.receive'\)/,
+    'probe F9.2 no confirma el permiso operativo del dueño autoservicio');
 
   need(errors, source,
     /sharedCreateRequest[\s\S]*?createProductWithSharedRequest\(config, a[\s\S]*?createProductWithSharedRequest\(config, b/,
@@ -216,7 +219,10 @@ function selfTest() {
     async function provisionAuthUser(config) { return config.serviceRoleKey; }
     async function signIn() {}
     async function table(config, token) { return {apiKey: config.anonKey, token}; }
-    async function createTenant() {}
+    async function createTenant() {
+      const permissions = await rpc('get_my_effective_permissions_v1');
+      permissions.permissions.includes('inventory.receive');
+    }
     async function sameTenantRetryRace() { return registrar_ingreso_mercaderia_scaled_v2; }
     async function crossTenantSameRequest() { return registrar_ingreso_mercaderia_scaled_v2; }
     async function inventoryBurst() {}

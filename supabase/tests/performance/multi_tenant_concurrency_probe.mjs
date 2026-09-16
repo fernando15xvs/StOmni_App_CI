@@ -152,6 +152,11 @@ async function createTenant(config, label, runId) {
     });
   }
   ensure(progress?.status === 'completed', `${label}: onboarding incompleto.`);
+  const permissions = await rpc(config, token, 'get_my_effective_permissions_v1');
+  ensure(
+    Array.isArray(permissions?.permissions) && permissions.permissions.includes('inventory.receive'),
+    `${label}: dueño autoservicio sin permiso operativo inventory.receive.`,
+  );
   return { label, token, organizationId: signup.organization_id };
 }
 
