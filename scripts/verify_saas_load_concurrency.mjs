@@ -66,6 +66,14 @@ function verifyProbeBoundaries(errors, source) {
   }
 
   need(errors, source,
+    /function loadCustomerDocument\([\s\S]*?tenant\.label === 'ORG_A' \? '10' : '20'[\s\S]*?padStart\(6, '0'\)/,
+    'probe F9.2 no genera documentos DNI numéricos de 8 dígitos por tenant');
+  need(errors, source, /tipo_doc: '1'/,
+    'probe F9.2 no usa el código SQL canónico para DNI');
+  forbid(errors, source, /tipo_doc: 'DNI'/,
+    'probe F9.2 usa la etiqueta UI DNI en lugar del código SQL');
+
+  need(errors, source,
     /sharedCreateRequest[\s\S]*?createProductWithSharedRequest\(config, a[\s\S]*?createProductWithSharedRequest\(config, b/,
     'probe no reutiliza el mismo request_id entre ORG_A y ORG_B al crear producto');
   need(errors, source,
@@ -212,7 +220,11 @@ function selfTest() {
     async function sameTenantRetryRace() { return registrar_ingreso_mercaderia_scaled_v2; }
     async function crossTenantSameRequest() { return registrar_ingreso_mercaderia_scaled_v2; }
     async function inventoryBurst() {}
-    async function customerBurst() {}
+    function loadCustomerDocument(tenant, index) {
+      const tenantPrefix = tenant.label === 'ORG_A' ? '10' : '20';
+      return tenantPrefix + String(index).padStart(6, '0');
+    }
+    async function customerBurst() { const fixture = { tipo_doc: '1' }; }
     async function readBurst() {}
     async function verifyCustomerIsolation() {}
     const sharedCreateRequest = 1;

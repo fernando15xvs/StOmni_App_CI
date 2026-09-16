@@ -256,17 +256,21 @@ function stats(values) {
   };
 }
 
+function loadCustomerDocument(tenant, index) {
+  const tenantPrefix = tenant.label === 'ORG_A' ? '10' : '20';
+  return `${tenantPrefix}${String(index).padStart(6, '0')}`;
+}
+
 async function customerBurst(config, tenant, runId) {
-  const base = crypto.createHash('sha256').update(runId).digest('hex').slice(0, 6);
   const indices = Array.from({ length: limits.customersPerTenant }, (_, i) => i);
   return runPool(indices, limits.concurrency, async (i) => {
-    const document = `${tenant.label === 'ORG_A' ? '1' : '2'}${base}${String(i).padStart(4, '0')}`.slice(0, 11);
+    const document = loadCustomerDocument(tenant, i);
     return timed(async () => {
       const response = await table(config, tenant.token, 'clientes?select=id,organization_id,dni_ruc', {
         method: 'POST', prefer: 'return=representation',
         body: {
           nombre: `Load ${tenant.label} ${i}`, dni_ruc: document,
-          direccion: 'F9.2 local', tipo_doc: 'DNI', telefono: '900000000',
+          direccion: 'F9.2 local', tipo_doc: '1', telefono: '900000000',
         },
       });
       ensure(response.ok, `${tenant.label}: INSERT cliente ${i} HTTP ${response.status} ${describe(response)}`);
