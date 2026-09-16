@@ -49,11 +49,13 @@ class AlmacenProductFormCatalogGateway implements ProductFormCatalogGateway {
       throw StateError('$source devolvió una respuesta inválida.');
     }
 
-    return raw.map((item) {
-      if (item is Map<String, dynamic>) return item;
-      if (item is Map) return Map<String, dynamic>.from(item);
-      throw StateError('$source contiene un registro inválido.');
-    }).toList(growable: false);
+    return raw
+        .map((item) {
+          if (item is Map<String, dynamic>) return item;
+          if (item is Map) return Map<String, dynamic>.from(item);
+          throw StateError('$source contiene un registro inválido.');
+        })
+        .toList(growable: false);
   }
 
   static int _requiredId(

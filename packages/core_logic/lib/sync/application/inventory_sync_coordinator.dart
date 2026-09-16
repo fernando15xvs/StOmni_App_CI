@@ -13,7 +13,9 @@ class InventoryRealtimeEvent {
 }
 
 class FinancialRealtimeEvent {
-  const FinancialRealtimeEvent({required this.requiereRecargaReportesFinancieros});
+  const FinancialRealtimeEvent({
+    required this.requiereRecargaReportesFinancieros,
+  });
   final bool requiereRecargaReportesFinancieros;
 }
 
@@ -93,10 +95,12 @@ class InventorySyncCoordinator {
       }
     }
     if (!_disposed && succeeded.isNotEmpty) {
-      _events.add(InventoryRealtimeEvent(
-        productosActualizados: succeeded,
-        requiereRecargaKardex: ledgerChanged,
-      ));
+      _events.add(
+        InventoryRealtimeEvent(
+          productosActualizados: succeeded,
+          requiereRecargaKardex: ledgerChanged,
+        ),
+      );
     }
   }
 
@@ -106,10 +110,12 @@ class InventorySyncCoordinator {
     await inventory.sincronizarTodo(propagarError: true);
     if (_disposed) return;
     _retries.clear();
-    _events.add(InventoryRealtimeEvent(
-      productosActualizados: const <int>{},
-      requiereRecargaKardex: true,
-    ));
+    _events.add(
+      InventoryRealtimeEvent(
+        productosActualizados: const <int>{},
+        requiereRecargaKardex: true,
+      ),
+    );
   }
 
   void dispose() {

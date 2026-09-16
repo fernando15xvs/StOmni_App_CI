@@ -74,9 +74,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       MaterialPageRoute(
         builder: (_) => route == SaasEntryRoute.passwordChangeRequired
             ? const CambiarPasswordPage(forzado: true)
-            : MobileSaasEntryGate(
-                initialTab: PreferencesService.startScreen,
-              ),
+            : MobileSaasEntryGate(initialTab: PreferencesService.startScreen),
       ),
     );
   }
@@ -183,7 +181,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     prefixIcon: Icon(Icons.lock_outline, color: subtitleColor),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                        _obscurePassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                         color: subtitleColor,
                       ),
                       onPressed: () {

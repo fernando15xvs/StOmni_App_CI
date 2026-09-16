@@ -31,7 +31,9 @@ class PreferencesService {
   static bool get notificationPermissionExplanationSeen =>
       _prefs.getBool('notificationPermissionExplanationSeen') ?? false;
 
-  static Future<void> setNotificationPermissionExplanationSeen(bool value) async {
+  static Future<void> setNotificationPermissionExplanationSeen(
+    bool value,
+  ) async {
     await _prefs.setBool('notificationPermissionExplanationSeen', value);
   }
 }

@@ -32,10 +32,7 @@ class GuiasRemisionRepository {
           .select()
           .eq('activo', true)
           .order('razon_social'),
-      _client
-          .from('gre_transportistas_agencias')
-          .select()
-          .order('nombre'),
+      _client.from('gre_transportistas_agencias').select().order('nombre'),
       _client
           .from('gre_conductores')
           .select()
@@ -147,9 +144,7 @@ class GuiasRemisionRepository {
   Future<void> eliminarBorrador(String guiaId) async {
     await _client.rpc(
       'eliminar_borrador_guia_v1',
-      params: {
-        'p_guia_id': guiaId,
-      },
+      params: {'p_guia_id': guiaId},
     );
   }
 

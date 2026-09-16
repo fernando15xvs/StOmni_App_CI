@@ -34,9 +34,10 @@ class SaasEntryRoutingPolicy {
         SaasEntryRoute.passwordChangeRequired,
       SessionValidationStatus.organizationSetupRequired =>
         SaasEntryRoute.organizationSetupRequired,
-      SessionValidationStatus.online => onboardingCompleted == true
-          ? SaasEntryRoute.authorized
-          : SaasEntryRoute.onboardingRequired,
+      SessionValidationStatus.online =>
+        onboardingCompleted == true
+            ? SaasEntryRoute.authorized
+            : SaasEntryRoute.onboardingRequired,
       SessionValidationStatus.offline => SaasEntryRoute.offlineAuthorized,
       _ => SaasEntryRoute.signedOut,
     };

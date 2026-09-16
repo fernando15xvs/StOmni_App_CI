@@ -38,18 +38,26 @@ void main() {
     expect(useCase, isNot(contains('supabase_flutter')));
     expect(mobileController, contains('package:connectivity_plus/'));
     expect(mobileController, contains('SyncPendingOperationsUseCase'));
-    expect(mobileController, contains('ref.read(syncPendingOperationsProvider)'));
+    expect(
+      mobileController,
+      contains('ref.read(syncPendingOperationsProvider)'),
+    );
     expect(mobileController, isNot(contains('supabase_flutter')));
     final composition = File(
       'lib/app/providers/sync_providers.dart',
     ).readAsStringSync();
     expect(composition, contains('auth.currentUser'));
     expect(composition, contains('revalidateCurrentSession()'));
-    expect(composition, contains('OfflineService.sincronizarVentasPendientes('));
+    expect(
+      composition,
+      contains('OfflineService.sincronizarVentasPendientes('),
+    );
   });
 
   test('offline y realtime no conocen estado ni lifecycle móviles', () {
-    final offline = coreFile('lib/services/offline_service.dart').readAsStringSync();
+    final offline = coreFile(
+      'lib/services/offline_service.dart',
+    ).readAsStringSync();
     final realtime = coreFile(
       'lib/sync/application/inventory_sync_coordinator.dart',
     ).readAsStringSync();

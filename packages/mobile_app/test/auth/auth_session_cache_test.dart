@@ -87,22 +87,25 @@ void main() {
     expect(cached, isNull);
   });
 
-  test('snapshot con timestamp significativamente futuro falla cerrado', () async {
-    SharedPreferences.setMockInitialValues(<String, Object>{
-      'auth_validated_session_v2': snapshot(
-        user: 'user-a',
-        role: 'admin',
-        validatedAt: '2026-08-21T10:10:01Z',
-      ),
-    });
+  test(
+    'snapshot con timestamp significativamente futuro falla cerrado',
+    () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        'auth_validated_session_v2': snapshot(
+          user: 'user-a',
+          role: 'admin',
+          validatedAt: '2026-08-21T10:10:01Z',
+        ),
+      });
 
-    final cached = await AuthSessionCache.loadForUser(
-      'user-a',
-      nowUtc: DateTime.parse('2026-08-21T10:00:00Z'),
-    );
+      final cached = await AuthSessionCache.loadForUser(
+        'user-a',
+        nowUtc: DateTime.parse('2026-08-21T10:00:00Z'),
+      );
 
-    expect(cached, isNull);
-  });
+      expect(cached, isNull);
+    },
+  );
 
   test('pequeña diferencia futura de reloj se tolera', () async {
     SharedPreferences.setMockInitialValues(<String, Object>{

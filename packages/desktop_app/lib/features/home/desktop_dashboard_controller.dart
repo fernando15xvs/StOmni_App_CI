@@ -13,7 +13,9 @@ class DesktopDashboardData {
   final ConfigurableDashboardSnapshot? configurableMetrics;
 }
 
-final desktopDashboardProvider = FutureProvider<DesktopDashboardData>((ref) async {
+final desktopDashboardProvider = FutureProvider<DesktopDashboardData>((
+  ref,
+) async {
   final repository = ref.watch(dashboardRepositoryProvider);
   final metrics = ref.watch(configurableMetricsUseCaseProvider);
   final now = AppTime.now();
@@ -23,7 +25,10 @@ final desktopDashboardProvider = FutureProvider<DesktopDashboardData>((ref) asyn
 
   ConfigurableDashboardSnapshot? configurableMetrics;
   try {
-    configurableMetrics = await metrics.dashboard(start: startMetrics, end: now);
+    configurableMetrics = await metrics.dashboard(
+      start: startMetrics,
+      end: now,
+    );
   } catch (_) {
     // El dashboard operativo base sigue disponible para roles sin reportes de utilidad.
     configurableMetrics = null;

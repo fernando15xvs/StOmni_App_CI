@@ -95,12 +95,14 @@ class SaleDetailPresentationMapper {
     if (rows is! List) {
       throw const FormatException('Los detalles de venta son inválidos.');
     }
-    return rows.map((row) {
-      if (row is! Map) {
-        throw const FormatException('Detalle de venta inválido.');
-      }
-      return restore(Map<String, dynamic>.from(row));
-    }).toList(growable: false);
+    return rows
+        .map((row) {
+          if (row is! Map) {
+            throw const FormatException('Detalle de venta inválido.');
+          }
+          return restore(Map<String, dynamic>.from(row));
+        })
+        .toList(growable: false);
   }
 
   static int _scaleFromStorage(int scale) {
@@ -109,7 +111,9 @@ class SaleDetailPresentationMapper {
       if (current == scale) return precision;
       current *= 10;
     }
-    throw const FormatException('La escala de inventario no es decimal válida.');
+    throw const FormatException(
+      'La escala de inventario no es decimal válida.',
+    );
   }
 
   static int _positiveInteger(Object? raw, String field) {

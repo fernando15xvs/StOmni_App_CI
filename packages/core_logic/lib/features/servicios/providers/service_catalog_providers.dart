@@ -6,12 +6,14 @@ import '../../../providers/supabase_provider.dart';
 import '../application/service_catalog_use_case.dart';
 import '../data/supabase_service_catalog_gateway.dart';
 
-final serviceCatalogGatewayProvider = Provider<ServiceCatalogGateway>((ref) =>
-    SupabaseServiceCatalogGateway(ref.watch(supabaseProvider)));
+final serviceCatalogGatewayProvider = Provider<ServiceCatalogGateway>(
+  (ref) => SupabaseServiceCatalogGateway(ref.watch(supabaseProvider)),
+);
 
-final serviceCatalogUseCaseProvider = Provider<ServiceCatalogUseCase>((ref) =>
-    ServiceCatalogUseCase(
-      gateway: ref.watch(serviceCatalogGatewayProvider),
-      businessProfile: ref.watch(businessProfileGatewayProvider),
-      authorizer: ref.watch(operationAuthorizerProvider),
-    ));
+final serviceCatalogUseCaseProvider = Provider<ServiceCatalogUseCase>(
+  (ref) => ServiceCatalogUseCase(
+    gateway: ref.watch(serviceCatalogGatewayProvider),
+    businessProfile: ref.watch(businessProfileGatewayProvider),
+    authorizer: ref.watch(operationAuthorizerProvider),
+  ),
+);

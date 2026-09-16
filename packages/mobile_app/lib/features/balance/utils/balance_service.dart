@@ -75,13 +75,16 @@ class BalanceService {
     }
 
     if (result?.outcome == PendingOperationsSyncOutcome.requireLogin ||
-        result?.outcome == PendingOperationsSyncOutcome.authorizationUnavailable ||
+        result?.outcome ==
+            PendingOperationsSyncOutcome.authorizationUnavailable ||
         (result?.outcome == PendingOperationsSyncOutcome.idle &&
             ref.read(supabaseProvider).auth.currentUser == null)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('No se pudo autorizar la sincronización. '
-              'Tus ventas siguen guardadas; verifica tu sesión e inténtalo de nuevo.'),
+          content: Text(
+            'No se pudo autorizar la sincronización. '
+            'Tus ventas siguen guardadas; verifica tu sesión e inténtalo de nuevo.',
+          ),
           backgroundColor: Colors.orange,
         ),
       );
@@ -91,8 +94,10 @@ class BalanceService {
     if (result?.inventoryRefreshPending == true) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Las ventas confirmadas se guardaron. '
-              'Falta actualizar la vista de inventario; vuelve a cargarla.'),
+          content: Text(
+            'Las ventas confirmadas se guardaron. '
+            'Falta actualizar la vista de inventario; vuelve a cargarla.',
+          ),
           backgroundColor: Colors.orange,
         ),
       );

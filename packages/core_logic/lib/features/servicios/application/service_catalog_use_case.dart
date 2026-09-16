@@ -32,23 +32,30 @@ class ServiceCatalogUseCase {
     await _requireEnabled();
     final code = draft.code.trim().toUpperCase();
     final name = draft.name.trim();
-    if (code.isEmpty || code.length > 80 || name.isEmpty || name.length > 200 ||
-        !draft.unitPrice.isFinite || draft.unitPrice < 0 ||
-        !draft.purchasePrice.isFinite || draft.purchasePrice < 0) {
+    if (code.isEmpty ||
+        code.length > 80 ||
+        name.isEmpty ||
+        name.length > 200 ||
+        !draft.unitPrice.isFinite ||
+        draft.unitPrice < 0 ||
+        !draft.purchasePrice.isFinite ||
+        draft.purchasePrice < 0) {
       throw const UserFacingException('Completa un servicio válido.');
     }
     final user = await _authorizer.require({
       draft.isNew ? AppPermission.productsCreate : AppPermission.productsUpdate,
       AppPermission.productsChangePrice,
     });
-    final saved = await _gateway.save(ServiceDraft(
-      serviceId: draft.serviceId,
-      code: code,
-      name: name,
-      description: draft.description.trim(),
-      unitPrice: draft.unitPrice,
-      purchasePrice: draft.purchasePrice,
-    ));
+    final saved = await _gateway.save(
+      ServiceDraft(
+        serviceId: draft.serviceId,
+        code: code,
+        name: name,
+        description: draft.description.trim(),
+        unitPrice: draft.unitPrice,
+        purchasePrice: draft.purchasePrice,
+      ),
+    );
     _checkSession(user);
     return saved;
   }
@@ -64,7 +71,9 @@ class ServiceCatalogUseCase {
   Future<void> _requireEnabled() async {
     final profile = await _businessProfile.load();
     if (!profile.capabilities.services) {
-      throw const UserFacingException('Los servicios no están habilitados para este negocio.');
+      throw const UserFacingException(
+        'Los servicios no están habilitados para este negocio.',
+      );
     }
   }
 

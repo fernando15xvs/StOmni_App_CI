@@ -4,7 +4,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:core_logic/core_logic.dart';
 
-final productoAdminRepositoryProvider = Provider<ProductoAdminRepository>((ref) {
+final productoAdminRepositoryProvider = Provider<ProductoAdminRepository>((
+  ref,
+) {
   return ProductoAdminRepository(ref.read(supabaseProvider));
 });
 

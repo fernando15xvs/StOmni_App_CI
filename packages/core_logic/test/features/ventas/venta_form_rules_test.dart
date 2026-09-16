@@ -62,12 +62,7 @@ void main() {
       contains('DNI de 8 dígitos'),
     );
     expect(
-      validar(
-        tipo: 'boleta',
-        total: 701,
-        pagado: 701,
-        documento: '12345678',
-      ),
+      validar(tipo: 'boleta', total: 701, pagado: 701, documento: '12345678'),
       contains('nombre completo'),
     );
     expect(
@@ -83,7 +78,10 @@ void main() {
   });
 
   test('pagos al contado deben cuadrar con el total', () {
-    expect(validar(total: 100, pagado: 99), contains('deben sumar exactamente'));
+    expect(
+      validar(total: 100, pagado: 99),
+      contains('deben sumar exactamente'),
+    );
   });
 
   test('factura no admite fecha futura ni más de tres días', () {
@@ -108,15 +106,9 @@ void main() {
   });
 
   test('descuento de 10 por ciento o más exige motivo', () {
+    expect(validar(descuentoPorcentaje: 10), contains('requieren un motivo'));
     expect(
-      validar(descuentoPorcentaje: 10),
-      contains('requieren un motivo'),
-    );
-    expect(
-      validar(
-        descuentoPorcentaje: 10,
-        motivo: 'Promoción autorizada',
-      ),
+      validar(descuentoPorcentaje: 10, motivo: 'Promoción autorizada'),
       isNull,
     );
   });

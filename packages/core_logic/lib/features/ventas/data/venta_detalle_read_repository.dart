@@ -18,7 +18,10 @@ class VentaDetalleReadRepository {
   final SupabaseClient _client;
 
   Future<Map<int, String>> obtenerNombresAlmacenesHistoricos() async {
-    final rows = await _client.from('almacenes').select('id, nombre').order('id');
+    final rows = await _client
+        .from('almacenes')
+        .select('id, nombre')
+        .order('id');
     return <int, String>{
       for (final row in rows)
         if (row['id'] is num)

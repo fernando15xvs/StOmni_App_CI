@@ -9,7 +9,10 @@ void main() {
   test('eliminar pago de gasto recalcula saldo dentro de la RPC', () {
     final sql = repositoryFile(migrationPath).readAsStringSync();
 
-    expect(sql, contains('CREATE OR REPLACE FUNCTION public.eliminar_pago_gasto_v1'));
+    expect(
+      sql,
+      contains('CREATE OR REPLACE FUNCTION public.eliminar_pago_gasto_v1'),
+    );
     expect(sql, contains('FOR UPDATE'));
     expect(sql, contains('DELETE FROM public.pagos_gasto'));
     expect(sql, contains('SELECT COALESCE(SUM(pg.monto), 0)'));
@@ -21,7 +24,10 @@ void main() {
   test('eliminar gasto usa una sola transaccion y cascade de pagos', () {
     final sql = repositoryFile(migrationPath).readAsStringSync();
 
-    expect(sql, contains('CREATE OR REPLACE FUNCTION public.eliminar_gasto_v1'));
+    expect(
+      sql,
+      contains('CREATE OR REPLACE FUNCTION public.eliminar_gasto_v1'),
+    );
     expect(sql, contains('FROM public.gastos AS g'));
     expect(sql, contains('FOR UPDATE'));
     expect(sql, contains('DELETE FROM public.gastos'));

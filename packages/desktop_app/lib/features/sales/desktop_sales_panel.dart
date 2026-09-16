@@ -16,7 +16,9 @@ class DesktopSalesPanel extends ConsumerStatefulWidget {
 
 class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
   final _searchController = TextEditingController();
-  final _customerNameController = TextEditingController(text: 'CLIENTE GENERAL');
+  final _customerNameController = TextEditingController(
+    text: 'CLIENTE GENERAL',
+  );
   final _customerDocumentController = TextEditingController();
   final _customerAddressController = TextEditingController();
   final _discountController = TextEditingController();
@@ -81,7 +83,9 @@ class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
     InventoryCatalogItem item,
     List<InventoryWarehouseRecord> warehouses,
   ) async {
-    final activeWarehouses = warehouses.where((warehouse) => warehouse.active).toList();
+    final activeWarehouses = warehouses
+        .where((warehouse) => warehouse.active)
+        .toList();
     if (activeWarehouses.isEmpty) {
       _showMessage('No hay almacenes activos disponibles.', error: true);
       return;
@@ -96,7 +100,9 @@ class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
     int selectedWarehouse = activeWarehouses.first.id;
     for (final stock in product.inventario) {
       if (stock.cantidad > 0 &&
-          activeWarehouses.any((warehouse) => warehouse.id == stock.almacenId)) {
+          activeWarehouses.any(
+            (warehouse) => warehouse.id == stock.almacenId,
+          )) {
         selectedWarehouse = stock.almacenId;
         break;
       }
@@ -137,7 +143,9 @@ class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
                     const SizedBox(height: 14),
                     DropdownButtonFormField<String>(
                       initialValue: presentationCode,
-                      decoration: const InputDecoration(labelText: 'Presentación'),
+                      decoration: const InputDecoration(
+                        labelText: 'Presentación',
+                      ),
                       items: profile.presentations
                           .map(
                             (presentation) => DropdownMenuItem(
@@ -221,7 +229,9 @@ class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
                     final quantity = double.tryParse(
                       quantityText.trim().replaceAll(',', '.'),
                     );
-                    if (quantity == null || !quantity.isFinite || quantity <= 0) {
+                    if (quantity == null ||
+                        !quantity.isFinite ||
+                        quantity <= 0) {
                       return;
                     }
                     try {
@@ -237,7 +247,8 @@ class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
                               warehouseId: selectedWarehouse,
                               warehouseName: activeWarehouses
                                   .firstWhere(
-                                    (warehouse) => warehouse.id == selectedWarehouse,
+                                    (warehouse) =>
+                                        warehouse.id == selectedWarehouse,
                                   )
                                   .name,
                               product: productSnapshot,
@@ -251,7 +262,9 @@ class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
                           baseQuantity - stock > 0.000001) {
                         if (dialogContext.mounted) {
                           ScaffoldMessenger.of(dialogContext).showSnackBar(
-                            const SnackBar(content: Text('Stock insuficiente.')),
+                            const SnackBar(
+                              content: Text('Stock insuficiente.'),
+                            ),
                           );
                         }
                         return;
@@ -285,9 +298,8 @@ class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
   double get _grossTotal => _cart.totalAmount;
 
   double get _discount {
-    final value = double.tryParse(
-          _discountController.text.trim().replaceAll(',', '.'),
-        ) ??
+    final value =
+        double.tryParse(_discountController.text.trim().replaceAll(',', '.')) ??
         0;
     if (!value.isFinite || value <= 0) return 0;
     return value > _grossTotal ? _grossTotal : value;
@@ -297,7 +309,8 @@ class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
 
   double get _downPayment {
     if (!_credit) return _netTotal;
-    final value = double.tryParse(
+    final value =
+        double.tryParse(
           _downPaymentController.text.trim().replaceAll(',', '.'),
         ) ??
         0;
@@ -418,7 +431,8 @@ class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
                     padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
                     child: TextField(
                       controller: _searchController,
-                      onChanged: (value) => setState(() => _query = value.trim()),
+                      onChanged: (value) =>
+                          setState(() => _query = value.trim()),
                       decoration: const InputDecoration(
                         labelText: 'Buscar producto',
                         prefixIcon: Icon(Icons.search),
@@ -466,9 +480,7 @@ class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
                         Expanded(
                           child: Text(
                             'Venta',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
+                            style: Theme.of(context).textTheme.headlineSmall
                                 ?.copyWith(fontWeight: FontWeight.w800),
                           ),
                         ),
@@ -496,9 +508,9 @@ class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
                             onChanged: _processing
                                 ? null
                                 : (value) => setState(
-                                      () => _documentType =
-                                          value ?? _documentType,
-                                    ),
+                                    () =>
+                                        _documentType = value ?? _documentType,
+                                  ),
                           ),
                         ),
                       ],
@@ -514,7 +526,9 @@ class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
                         Expanded(
                           child: TextField(
                             controller: _customerDocumentController,
-                            decoration: const InputDecoration(labelText: 'DNI/RUC'),
+                            decoration: const InputDecoration(
+                              labelText: 'DNI/RUC',
+                            ),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -534,10 +548,18 @@ class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
                         Expanded(
                           child: DropdownButtonFormField<String>(
                             initialValue: _paymentMethod,
-                            decoration: const InputDecoration(labelText: 'Pago'),
+                            decoration: const InputDecoration(
+                              labelText: 'Pago',
+                            ),
                             items: const [
-                              DropdownMenuItem(value: 'yape', child: Text('Yape')),
-                              DropdownMenuItem(value: 'plin', child: Text('Plin')),
+                              DropdownMenuItem(
+                                value: 'yape',
+                                child: Text('Yape'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'plin',
+                                child: Text('Plin'),
+                              ),
                               DropdownMenuItem(
                                 value: 'transferencia',
                                 child: Text('Transferencia'),
@@ -565,11 +587,11 @@ class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
                             onChanged: _processing
                                 ? null
                                 : (value) => setState(() {
-                                      _credit = value;
-                                      if (!value) {
-                                        _downPaymentController.clear();
-                                      }
-                                    }),
+                                    _credit = value;
+                                    if (!value) {
+                                      _downPaymentController.clear();
+                                    }
+                                  }),
                           ),
                         ),
                       ],
@@ -626,7 +648,9 @@ class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
                               separatorBuilder: (_, _) => const Divider(),
                               itemBuilder: (context, index) {
                                 final line = _cart.lines[index];
-                                final presentation = line.product.commercialProfile
+                                final presentation = line
+                                    .product
+                                    .commercialProfile
                                     .find(line.commercialUnit);
                                 return ListTile(
                                   contentPadding: EdgeInsets.zero,
@@ -639,16 +663,19 @@ class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
                                   trailing: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Text('S/ ${line.subtotal.toStringAsFixed(2)}'),
+                                      Text(
+                                        'S/ ${line.subtotal.toStringAsFixed(2)}',
+                                      ),
                                       IconButton(
                                         tooltip: 'Quitar',
                                         onPressed: _processing
                                             ? null
                                             : () => setState(
-                                                  () => _cart = _cart.removeProduct(
-                                                    line.productId,
-                                                  ),
-                                                ),
+                                                () =>
+                                                    _cart = _cart.removeProduct(
+                                                      line.productId,
+                                                    ),
+                                              ),
                                         icon: const Icon(Icons.delete_outline),
                                       ),
                                     ],
@@ -667,9 +694,7 @@ class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
                         const SizedBox(width: 18),
                         Text(
                           'Total S/ ${_netTotal.toStringAsFixed(2)}',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall
+                          style: Theme.of(context).textTheme.headlineSmall
                               ?.copyWith(fontWeight: FontWeight.w800),
                         ),
                       ],
@@ -685,18 +710,26 @@ class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
                     SizedBox(
                       height: 48,
                       child: FilledButton.icon(
-                        onPressed: _cart.isEmpty || _processing ? null : _submitSale,
+                        onPressed: _cart.isEmpty || _processing
+                            ? null
+                            : _submitSale,
                         icon: _processing
                             ? const SizedBox(
                                 width: 18,
                                 height: 18,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               )
                             : const Icon(Icons.point_of_sale),
                         label: Text(
                           _processing
                               ? 'Procesando...'
-                              : 'Procesar ${_documentType == 'ticket_interno' ? 'Ticket Interno' : _documentType == 'boleta' ? 'Boleta' : 'Factura'}',
+                              : 'Procesar ${_documentType == 'ticket_interno'
+                                    ? 'Ticket Interno'
+                                    : _documentType == 'boleta'
+                                    ? 'Boleta'
+                                    : 'Factura'}',
                         ),
                       ),
                     ),

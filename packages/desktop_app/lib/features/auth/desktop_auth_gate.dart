@@ -49,9 +49,7 @@ class _DesktopAuthGateState extends ConsumerState<DesktopAuthGate> {
   @override
   Widget build(BuildContext context) {
     if (_checkingSession) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final route = _routing.resolve(sessionStatus: _sessionStatus);
@@ -76,9 +74,8 @@ class _DesktopAuthGateState extends ConsumerState<DesktopAuthGate> {
   Widget _buildOnlineEntry() {
     final progress = ref.watch(guidedOnboardingProgressProvider);
     return progress.when(
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (error, stackTrace) => Scaffold(
         body: Center(
           child: Column(
@@ -111,8 +108,7 @@ class _DesktopAuthGateState extends ConsumerState<DesktopAuthGate> {
         }
         return DesktopGuidedOnboardingView(
           progress: value,
-          onCompleted: () =>
-              ref.invalidate(guidedOnboardingProgressProvider),
+          onCompleted: () => ref.invalidate(guidedOnboardingProgressProvider),
         );
       },
     );
@@ -120,10 +116,7 @@ class _DesktopAuthGateState extends ConsumerState<DesktopAuthGate> {
 }
 
 class DesktopLoginView extends ConsumerStatefulWidget {
-  const DesktopLoginView({
-    super.key,
-    required this.onSessionChanged,
-  });
+  const DesktopLoginView({super.key, required this.onSessionChanged});
 
   final VoidCallback onSessionChanged;
 
@@ -159,11 +152,7 @@ class _DesktopLoginViewState extends ConsumerState<DesktopLoginView> {
   Future<void> _submit() async {
     final success = await ref
         .read(authControllerProvider.notifier)
-        .signIn(
-          _emailController.text,
-          _passwordController.text,
-          _remember,
-        );
+        .signIn(_emailController.text, _passwordController.text, _remember);
     if (success && mounted) widget.onSessionChanged();
   }
 
@@ -254,8 +243,7 @@ class _DesktopLoginViewState extends ConsumerState<DesktopLoginView> {
                           prefixIcon: const Icon(Icons.lock_outline),
                           suffixIcon: IconButton(
                             onPressed: () => setState(
-                              () =>
-                                  _obscurePassword = !_obscurePassword,
+                              () => _obscurePassword = !_obscurePassword,
                             ),
                             icon: Icon(
                               _obscurePassword

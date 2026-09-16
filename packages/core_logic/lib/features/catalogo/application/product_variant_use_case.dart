@@ -15,9 +15,9 @@ class ProductVariantUseCase {
     required ProductVariantGateway gateway,
     required BusinessProfileGateway businessProfile,
     required OperationAuthorizer authorizer,
-  })  : _gateway = gateway,
-        _businessProfile = businessProfile,
-        _authorizer = authorizer;
+  }) : _gateway = gateway,
+       _businessProfile = businessProfile,
+       _authorizer = authorizer;
 
   final ProductVariantGateway _gateway;
   final BusinessProfileGateway _businessProfile;
@@ -28,7 +28,10 @@ class ProductVariantUseCase {
     return _gateway.list();
   }
 
-  Future<ProductVariantGroup> save(ProductVariantGroupDraft draft, {int? id}) async {
+  Future<ProductVariantGroup> save(
+    ProductVariantGroupDraft draft, {
+    int? id,
+  }) async {
     final normalized = _validate(draft);
     final user = await _requireAccess();
     final result = await _gateway.save(normalized, id: id);
@@ -55,7 +58,9 @@ class ProductVariantUseCase {
 
   void _checkSession(String user) {
     if (_authorizer.currentAuthUserId != user) {
-      throw const UserFacingException('La sesión cambió durante la gestión de variantes.');
+      throw const UserFacingException(
+        'La sesión cambió durante la gestión de variantes.',
+      );
     }
   }
 
@@ -68,15 +73,23 @@ class ProductVariantUseCase {
         .map((value) => value.trim().toLowerCase())
         .where((value) => value.isNotEmpty)
         .toList(growable: false);
-    if (attributes.isEmpty || attributes.length > 8 || attributes.toSet().length != attributes.length) {
-      throw ArgumentError('Define entre 1 y 8 atributos de variante sin duplicados.');
+    if (attributes.isEmpty ||
+        attributes.length > 8 ||
+        attributes.toSet().length != attributes.length) {
+      throw ArgumentError(
+        'Define entre 1 y 8 atributos de variante sin duplicados.',
+      );
     }
-    if (attributes.any((value) =>
-        value.length > 40 || !RegExp(r'^[a-z0-9_áéíóúñ -]+$').hasMatch(value))) {
+    if (attributes.any(
+      (value) =>
+          value.length > 40 || !RegExp(r'^[a-z0-9_áéíóúñ -]+$').hasMatch(value),
+    )) {
       throw ArgumentError('Uno de los atributos de variante no es válido.');
     }
     if (draft.members.length < 2 || draft.members.length > 200) {
-      throw ArgumentError('Un grupo requiere entre 2 y 200 productos variantes.');
+      throw ArgumentError(
+        'Un grupo requiere entre 2 y 200 productos variantes.',
+      );
     }
     final productIds = <int>{};
     final normalizedMembers = <ProductVariantMemberDraft>[];
@@ -84,22 +97,37 @@ class ProductVariantUseCase {
       if (member.productId <= 0 || !productIds.add(member.productId)) {
         throw ArgumentError('Un producto no puede repetirse en el grupo.');
       }
-      if (member.attributes.keys.toSet().difference(attributes.toSet()).isNotEmpty ||
-          attributes.any((key) => (member.attributes[key] ?? '').trim().isEmpty)) {
-        throw ArgumentError('Cada variante debe definir todos los atributos del grupo.');
+      if (member.attributes.keys
+              .toSet()
+              .difference(attributes.toSet())
+              .isNotEmpty ||
+          attributes.any(
+            (key) => (member.attributes[key] ?? '').trim().isEmpty,
+          )) {
+        throw ArgumentError(
+          'Cada variante debe definir todos los atributos del grupo.',
+        );
       }
-      normalizedMembers.add(ProductVariantMemberDraft(
-        productId: member.productId,
-        attributes: {
-          for (final key in attributes) key: member.attributes[key]!.trim(),
-        },
-      ));
+      normalizedMembers.add(
+        ProductVariantMemberDraft(
+          productId: member.productId,
+          attributes: {
+            for (final key in attributes) key: member.attributes[key]!.trim(),
+          },
+        ),
+      );
     }
     final signatures = normalizedMembers
-        .map((member) => attributes.map((key) => member.attributes[key]!.toLowerCase()).join('|'))
+        .map(
+          (member) => attributes
+              .map((key) => member.attributes[key]!.toLowerCase())
+              .join('|'),
+        )
         .toSet();
     if (signatures.length != normalizedMembers.length) {
-      throw ArgumentError('Dos variantes no pueden tener la misma combinación de atributos.');
+      throw ArgumentError(
+        'Dos variantes no pueden tener la misma combinación de atributos.',
+      );
     }
     return ProductVariantGroupDraft(
       name: name,

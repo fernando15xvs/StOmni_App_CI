@@ -12,7 +12,8 @@ enum OperationalAlertCategory {
   static OperationalAlertCategory parse(String raw) =>
       OperationalAlertCategory.values.firstWhere(
         (value) => value.databaseValue == raw.trim().toLowerCase(),
-        orElse: () => throw FormatException('Categoría de alerta desconocida: $raw'),
+        orElse: () =>
+            throw FormatException('Categoría de alerta desconocida: $raw'),
       );
 }
 
@@ -27,7 +28,8 @@ enum OperationalAlertSeverity {
   static OperationalAlertSeverity parse(String raw) =>
       OperationalAlertSeverity.values.firstWhere(
         (value) => value.databaseValue == raw.trim().toLowerCase(),
-        orElse: () => throw FormatException('Severidad de alerta desconocida: $raw'),
+        orElse: () =>
+            throw FormatException('Severidad de alerta desconocida: $raw'),
       );
 }
 
@@ -42,7 +44,8 @@ enum OperationalAlertStatus {
   static OperationalAlertStatus parse(String raw) =>
       OperationalAlertStatus.values.firstWhere(
         (value) => value.databaseValue == raw.trim().toLowerCase(),
-        orElse: () => throw FormatException('Estado de alerta desconocido: $raw'),
+        orElse: () =>
+            throw FormatException('Estado de alerta desconocido: $raw'),
       );
 }
 

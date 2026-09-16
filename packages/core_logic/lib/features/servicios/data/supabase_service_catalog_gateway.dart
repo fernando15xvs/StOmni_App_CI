@@ -10,9 +10,10 @@ class SupabaseServiceCatalogGateway implements ServiceCatalogGateway {
 
   @override
   Future<List<ServiceRecord>> list({bool includeInactive = false}) async {
-    final raw = await client.rpc('list_services_v1', params: {
-      'p_include_inactive': includeInactive,
-    });
+    final raw = await client.rpc(
+      'list_services_v1',
+      params: {'p_include_inactive': includeInactive},
+    );
     if (raw is! List) {
       throw const FormatException('El catálogo de servicios es inválido.');
     }
@@ -21,22 +22,26 @@ class SupabaseServiceCatalogGateway implements ServiceCatalogGateway {
 
   @override
   Future<ServiceRecord> save(ServiceDraft draft) async {
-    final raw = await client.rpc('save_service_v1', params: {
-      'p_service_id': draft.serviceId,
-      'p_code': draft.code,
-      'p_name': draft.name,
-      'p_description': draft.description,
-      'p_unit_price': draft.unitPrice,
-      'p_purchase_price': draft.purchasePrice,
-    });
+    final raw = await client.rpc(
+      'save_service_v1',
+      params: {
+        'p_service_id': draft.serviceId,
+        'p_code': draft.code,
+        'p_name': draft.name,
+        'p_description': draft.description,
+        'p_unit_price': draft.unitPrice,
+        'p_purchase_price': draft.purchasePrice,
+      },
+    );
     return _decode(raw);
   }
 
   @override
   Future<void> deactivate(int serviceId) async {
-    await client.rpc('deactivate_service_v1', params: {
-      'p_service_id': serviceId,
-    });
+    await client.rpc(
+      'deactivate_service_v1',
+      params: {'p_service_id': serviceId},
+    );
   }
 
   ServiceRecord _decode(Object? raw) {
@@ -51,8 +56,12 @@ class SupabaseServiceCatalogGateway implements ServiceCatalogGateway {
     final purchasePrice = map['purchase_price'] is num
         ? (map['purchase_price'] as num).toDouble()
         : double.tryParse(map['purchase_price']?.toString() ?? '');
-    if (id == null || id <= 0 || unitPrice == null || !unitPrice.isFinite ||
-        purchasePrice == null || !purchasePrice.isFinite) {
+    if (id == null ||
+        id <= 0 ||
+        unitPrice == null ||
+        !unitPrice.isFinite ||
+        purchasePrice == null ||
+        !purchasePrice.isFinite) {
       throw const FormatException('Contrato de servicio incompleto.');
     }
     return ServiceRecord(

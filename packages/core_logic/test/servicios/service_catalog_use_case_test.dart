@@ -8,8 +8,9 @@ class _ServiceGateway implements ServiceCatalogGateway {
   int writes = 0;
 
   @override
-  Future<List<ServiceRecord>> list({bool includeInactive = false}) async =>
-      rows.where((row) => includeInactive || row.active).toList(growable: false);
+  Future<List<ServiceRecord>> list({bool includeInactive = false}) async => rows
+      .where((row) => includeInactive || row.active)
+      .toList(growable: false);
 
   @override
   Future<ServiceRecord> save(ServiceDraft draft) async {
@@ -35,32 +36,37 @@ class _ServiceGateway implements ServiceCatalogGateway {
 }
 
 void main() {
-  test('servicio habilitado normaliza y guarda con permisos de producto', () async {
-    final profiles = TestBusinessProfiles()
-      ..profile = const BusinessProfile(
-        businessId: '1',
-        displayName: 'Pruebas',
-        capabilities: BusinessCapabilities(services: true),
-        revision: 1,
-        supportsCapabilitySettings: true,
+  test(
+    'servicio habilitado normaliza y guarda con permisos de producto',
+    () async {
+      final profiles = TestBusinessProfiles()
+        ..profile = const BusinessProfile(
+          businessId: '1',
+          displayName: 'Pruebas',
+          capabilities: BusinessCapabilities(services: true),
+          revision: 1,
+          supportsCapabilitySettings: true,
+        );
+      final gateway = _ServiceGateway();
+      final useCase = ServiceCatalogUseCase(
+        gateway: gateway,
+        businessProfile: profiles,
+        authorizer: TestOperationAuthorizer(),
       );
-    final gateway = _ServiceGateway();
-    final useCase = ServiceCatalogUseCase(
-      gateway: gateway,
-      businessProfile: profiles,
-      authorizer: TestOperationAuthorizer(),
-    );
 
-    final saved = await useCase.save(const ServiceDraft(
-      code: ' srv-01 ',
-      name: ' Instalación ',
-      unitPrice: 25,
-    ));
+      final saved = await useCase.save(
+        const ServiceDraft(
+          code: ' srv-01 ',
+          name: ' Instalación ',
+          unitPrice: 25,
+        ),
+      );
 
-    expect(saved.code, 'SRV-01');
-    expect(saved.name, 'Instalación');
-    expect(gateway.writes, 1);
-  });
+      expect(saved.code, 'SRV-01');
+      expect(saved.name, 'Instalación');
+      expect(gateway.writes, 1);
+    },
+  );
 
   test('servicios apagados fallan antes de escribir', () async {
     final gateway = _ServiceGateway();
@@ -71,7 +77,9 @@ void main() {
     );
 
     await expectLater(
-      useCase.save(const ServiceDraft(code: 'SRV', name: 'Servicio', unitPrice: 10)),
+      useCase.save(
+        const ServiceDraft(code: 'SRV', name: 'Servicio', unitPrice: 10),
+      ),
       throwsA(isA<UserFacingException>()),
     );
     expect(gateway.writes, 0);

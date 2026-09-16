@@ -34,10 +34,7 @@ void main() {
     expect(
       SaleCartSummaryFormatter.format(
         cart,
-        presentations: {
-          meter.code: meter,
-          roll.code: roll,
-        },
+        presentations: {meter.code: meter, roll.code: roll},
       ),
       '2.5 Metros · 3 Rollos',
     );

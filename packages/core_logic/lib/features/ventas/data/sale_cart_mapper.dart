@@ -13,7 +13,9 @@ class SaleCartMapper {
 
   static SaleProductSnapshot decodeProduct(Map<String, dynamic> row) =>
       SaleProductSnapshot(
-        unitConfiguration: ProductUnitConfigurationMapper.decodeNullable(row['unit_configuration']),
+        unitConfiguration: ProductUnitConfigurationMapper.decodeNullable(
+          row['unit_configuration'],
+        ),
         code: row['codigo']?.toString() ?? '',
         name: row['nombre']?.toString() ?? 'Producto',
         saleType: StockUtils.getTipoVentaFromMap(row),
@@ -49,13 +51,18 @@ class SaleCartMapper {
             snapshot.commercialProfile.baseUnit.code,
       ),
       product: snapshot,
-      commercialUnitPrice: _number(row['precio_unitario_comercial'] ?? row['precio']),
+      commercialUnitPrice: _number(
+        row['precio_unitario_comercial'] ?? row['precio'],
+      ),
       baseUnitPrice: _number(row['precio_unitario']),
       recordedBaseQuantity: row['piezas_reales'] == null
-          ? null : _number(row['piezas_reales']),
-      manualTotalWeightKg: row['usar_peso_especifico'] == true &&
+          ? null
+          : _number(row['piezas_reales']),
+      manualTotalWeightKg:
+          row['usar_peso_especifico'] == true &&
               row['peso_especifico_manual'] != null
-          ? _number(row['peso_especifico_manual']) : null,
+          ? _number(row['peso_especifico_manual'])
+          : null,
       serialNumbers: List<String>.unmodifiable(serials),
     );
   }
@@ -81,7 +88,8 @@ class SaleCartMapper {
       'serial_numbers': List<String>.unmodifiable(line.serialNumbers),
     'tipo_venta_snapshot': StockUtils.toDatabaseValue(line.product.saleType),
     'pcs_snapshot': line.product.unitsPerPackage,
-    'unidad_base_snapshot': line.product.commercialProfile.baseUnit.singularLabel,
+    'unidad_base_snapshot':
+        line.product.commercialProfile.baseUnit.singularLabel,
     if (line.manualTotalWeightKg != null) ...{
       'usar_peso_especifico': true,
       'peso_especifico_manual': line.manualTotalWeightKg,
@@ -97,13 +105,17 @@ class SaleCartMapper {
       'peso_kg': line.product.weightKg,
       'unidad_gre': line.product.dispatchUnit,
       if (line.product.unitConfiguration != null)
-        'unit_configuration': ProductUnitConfigurationMapper.encode(line.product.unitConfiguration!),
+        'unit_configuration': ProductUnitConfigurationMapper.encode(
+          line.product.unitConfiguration!,
+        ),
     },
   };
 
   static double _number(Object? value) {
     if (value == null) return 0;
-    final result = value is num ? value.toDouble() : double.tryParse(value.toString());
+    final result = value is num
+        ? value.toDouble()
+        : double.tryParse(value.toString());
     if (result == null || !result.isFinite) {
       throw const FormatException('El snapshot contiene un número inválido.');
     }
@@ -114,7 +126,9 @@ class SaleCartMapper {
     if (value == null) return fallback;
     final result = _number(value);
     if (result != result.roundToDouble()) {
-      throw const FormatException('El snapshot contiene un identificador o factor fraccionario.');
+      throw const FormatException(
+        'El snapshot contiene un identificador o factor fraccionario.',
+      );
     }
     return result.toInt();
   }

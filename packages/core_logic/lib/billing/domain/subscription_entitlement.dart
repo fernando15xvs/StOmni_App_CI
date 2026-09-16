@@ -15,17 +15,22 @@ class SubscriptionEntitlement {
   final int? limitValue;
   final String? unit;
 
-  factory SubscriptionEntitlement.fromJson(Map<String,dynamic> json) {
-    final key=json['key']?.toString()??'';
-    final rawKind=json['kind']?.toString()??'';
-    final kind=switch(rawKind){'feature'=>SubscriptionEntitlementKind.feature,'limit'=>SubscriptionEntitlementKind.limit,_=>null};
-    if(key.isEmpty||kind==null) throw const FormatException('Entitlement inválido.');
+  factory SubscriptionEntitlement.fromJson(Map<String, dynamic> json) {
+    final key = json['key']?.toString() ?? '';
+    final rawKind = json['kind']?.toString() ?? '';
+    final kind = switch (rawKind) {
+      'feature' => SubscriptionEntitlementKind.feature,
+      'limit' => SubscriptionEntitlementKind.limit,
+      _ => null,
+    };
+    if (key.isEmpty || kind == null)
+      throw const FormatException('Entitlement inválido.');
     return SubscriptionEntitlement(
-      key:key,
-      kind:kind,
-      enabled:json['enabled']==true,
-      limitValue:(json['limit_value'] as num?)?.toInt(),
-      unit:json['unit']?.toString(),
+      key: key,
+      kind: kind,
+      enabled: json['enabled'] == true,
+      limitValue: (json['limit_value'] as num?)?.toInt(),
+      unit: json['unit']?.toString(),
     );
   }
 }

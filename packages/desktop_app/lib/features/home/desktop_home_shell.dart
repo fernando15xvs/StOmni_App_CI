@@ -49,9 +49,9 @@ class _DesktopHomeShellState extends ConsumerState<DesktopHomeShell> {
 
   Future<void> _loadBusinessProfile() async {
     try {
-      final profile = await ref.read(businessProfileGatewayProvider).load(
-            allowOffline: widget.offlineAuthorization,
-          );
+      final profile = await ref
+          .read(businessProfileGatewayProvider)
+          .load(allowOffline: widget.offlineAuthorization);
       if (!mounted) return;
       _applyBusinessProfile(profile);
     } catch (_) {
@@ -210,28 +210,54 @@ class _DesktopHomeShellState extends ConsumerState<DesktopHomeShell> {
   Widget _panelFor(BusinessModule module, String role) {
     return switch (module) {
       BusinessModule.sales => const DesktopSalesPanel(key: ValueKey('sales')),
-      BusinessModule.catalog => const DesktopProductsPanel(key: ValueKey('products')),
-      BusinessModule.services => const DesktopServicesPanel(key: ValueKey('services')),
-      BusinessModule.traceability => const DesktopTraceabilityConfigPanel(key: ValueKey('traceability')),
-      BusinessModule.variants => const DesktopVariantsPanel(key: ValueKey('variants')),
-      BusinessModule.pricing => const DesktopPriceRulesPanel(key: ValueKey('pricing')),
-      BusinessModule.inventory => const DesktopInventoryPanel(key: ValueKey('inventory')),
-      BusinessModule.customers => const DesktopCustomersPanel(key: ValueKey('customers')),
-      BusinessModule.suppliers => const DesktopSuppliersPanel(key: ValueKey('suppliers')),
-      BusinessModule.purchases => const DesktopPurchasesPanel(key: ValueKey('purchases')),
-      BusinessModule.electronicDocuments => const DesktopDocumentsPanel(key: ValueKey('documents')),
-      BusinessModule.reports => const DesktopReportsPanel(key: ValueKey('reports')),
-      BusinessModule.metrics => const DesktopMetricsPanel(key: ValueKey('metrics')),
+      BusinessModule.catalog => const DesktopProductsPanel(
+        key: ValueKey('products'),
+      ),
+      BusinessModule.services => const DesktopServicesPanel(
+        key: ValueKey('services'),
+      ),
+      BusinessModule.traceability => const DesktopTraceabilityConfigPanel(
+        key: ValueKey('traceability'),
+      ),
+      BusinessModule.variants => const DesktopVariantsPanel(
+        key: ValueKey('variants'),
+      ),
+      BusinessModule.pricing => const DesktopPriceRulesPanel(
+        key: ValueKey('pricing'),
+      ),
+      BusinessModule.inventory => const DesktopInventoryPanel(
+        key: ValueKey('inventory'),
+      ),
+      BusinessModule.customers => const DesktopCustomersPanel(
+        key: ValueKey('customers'),
+      ),
+      BusinessModule.suppliers => const DesktopSuppliersPanel(
+        key: ValueKey('suppliers'),
+      ),
+      BusinessModule.purchases => const DesktopPurchasesPanel(
+        key: ValueKey('purchases'),
+      ),
+      BusinessModule.electronicDocuments => const DesktopDocumentsPanel(
+        key: ValueKey('documents'),
+      ),
+      BusinessModule.reports => const DesktopReportsPanel(
+        key: ValueKey('reports'),
+      ),
+      BusinessModule.metrics => const DesktopMetricsPanel(
+        key: ValueKey('metrics'),
+      ),
       BusinessModule.moduleSettings => DesktopBusinessModulesPanel(
-          key: const ValueKey('module-settings'),
-          onProfileSaved: _applyBusinessProfile,
-        ),
-      BusinessModule.permissions => const DesktopPermissionsPanel(key: ValueKey('permissions')),
+        key: const ValueKey('module-settings'),
+        onProfileSaved: _applyBusinessProfile,
+      ),
+      BusinessModule.permissions => const DesktopPermissionsPanel(
+        key: ValueKey('permissions'),
+      ),
       _ => DesktopDashboardPanel(
-          key: const ValueKey('overview'),
-          role: role,
-          offlineAuthorization: widget.offlineAuthorization,
-        ),
+        key: const ValueKey('overview'),
+        role: role,
+        offlineAuthorization: widget.offlineAuthorization,
+      ),
     };
   }
 
@@ -273,9 +299,8 @@ class _DesktopHomeShellState extends ConsumerState<DesktopHomeShell> {
                             BusinessBranding.fallbackDisplayName,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w800),
                       ),
                     ),
                   ],
@@ -299,12 +324,14 @@ class _DesktopHomeShellState extends ConsumerState<DesktopHomeShell> {
                 _DesktopTopBar(
                   role: role,
                   email: user?.email ?? '',
-                  businessName: branding?.effectiveDisplayName ??
+                  businessName:
+                      branding?.effectiveDisplayName ??
                       BusinessBranding.fallbackDisplayName,
                   signingOut: _signingOut,
                   onSignOut: _handleSignOut,
                 ),
-                if (_loadingProfile) const LinearProgressIndicator(minHeight: 2),
+                if (_loadingProfile)
+                  const LinearProgressIndicator(minHeight: 2),
                 if (widget.offlineAuthorization)
                   const MaterialBanner(
                     content: Text(
@@ -408,9 +435,9 @@ class _DesktopTopBar extends StatelessWidget {
                 businessName,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
               ),
             ),
             const SizedBox(width: 20),

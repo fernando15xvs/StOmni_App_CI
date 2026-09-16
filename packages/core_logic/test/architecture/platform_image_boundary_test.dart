@@ -51,7 +51,9 @@ void main() {
 
     expect(
       source,
-      contains('ImageSelectionService.configure(MobileImageSelectionAdapter())'),
+      contains(
+        'ImageSelectionService.configure(MobileImageSelectionAdapter())',
+      ),
     );
   });
 

@@ -7,7 +7,9 @@ import '../support/workspace_paths.dart';
 void main() {
   test('login usa pantalla puente y warm-up compartido', () {
     final login = File('lib/auth/pages/login_page.dart').readAsStringSync();
-    final bridge = File('lib/home/post_login_home_page.dart').readAsStringSync();
+    final bridge = File(
+      'lib/home/post_login_home_page.dart',
+    ).readAsStringSync();
     final coordinator = File(
       'lib/home/controllers/home_warmup_coordinator.dart',
     ).readAsStringSync();
@@ -20,10 +22,7 @@ void main() {
     expect(bridge, contains('homeWarmupCoordinatorProvider'));
     expect(bridge, contains('Duration(seconds: 6)'));
     expect(bridge, contains('coordinator.clearSessionCaches();'));
-    expect(
-      bridge,
-      contains('unawaited(_prepararAplicacion(coordinator));'),
-    );
+    expect(bridge, contains('unawaited(_prepararAplicacion(coordinator));'));
 
     // La lógica pesada vive en un coordinador común, no duplicada en widgets.
     expect(coordinator, contains('almacenNotifierProvider.future'));
@@ -31,7 +30,10 @@ void main() {
     expect(coordinator, contains("TendenciaRequest('egreso', 7)"));
     expect(coordinator, contains('almacenesCacheProvider.notifier'));
     expect(coordinator, contains('balanceCacheProvider.notifier'));
-    expect(coordinator, contains("'fecha_inicio': hoyInicio.toIso8601String()"));
+    expect(
+      coordinator,
+      contains("'fecha_inicio': hoyInicio.toIso8601String()"),
+    );
 
     expect(overlay, contains('Icons.storefront_outlined'));
     expect(overlay, contains('theme.colorScheme.primary'));
@@ -42,7 +44,9 @@ void main() {
   });
 
   test('post-login no modifica providers durante initState o build', () {
-    final bridge = File('lib/home/post_login_home_page.dart').readAsStringSync();
+    final bridge = File(
+      'lib/home/post_login_home_page.dart',
+    ).readAsStringSync();
 
     final initStart = bridge.indexOf('void initState()');
     final initEnd = bridge.indexOf('Future<void> _prepararAplicacion');

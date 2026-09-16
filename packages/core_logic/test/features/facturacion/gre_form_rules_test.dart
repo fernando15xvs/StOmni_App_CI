@@ -4,9 +4,7 @@ import 'package:core_logic/core_logic.dart';
 void main() {
   group('GreFormRules', () {
     test('convierte timestamptz UTC a hora de pared de Lima', () {
-      final value = GreFormRules.desdeSupabaseALima(
-        '2026-08-19T00:49:02.000Z',
-      );
+      final value = GreFormRules.desdeSupabaseALima('2026-08-19T00:49:02.000Z');
 
       expect(value, DateTime.utc(2026, 8, 18, 19, 49, 2));
     });
@@ -45,13 +43,16 @@ void main() {
       );
     });
 
-    test('redondeo UTC conserva UTC y no depende de la zona del dispositivo', () {
-      final value = DateTime.utc(2026, 8, 19, 18, 0, 48);
-      final rounded = GreFormRules.redondearHaciaArribaAlMinuto(value);
+    test(
+      'redondeo UTC conserva UTC y no depende de la zona del dispositivo',
+      () {
+        final value = DateTime.utc(2026, 8, 19, 18, 0, 48);
+        final rounded = GreFormRules.redondearHaciaArribaAlMinuto(value);
 
-      expect(rounded, DateTime.utc(2026, 8, 19, 18, 1));
-      expect(rounded.isUtc, isTrue);
-    });
+        expect(rounded, DateTime.utc(2026, 8, 19, 18, 1));
+        expect(rounded.isUtc, isTrue);
+      },
+    );
 
     test('inicio mínimo agrega un minuto completo', () {
       final ahora = DateTime(2026, 8, 18, 15, 30, 48);
@@ -61,15 +62,18 @@ void main() {
       );
     });
 
-    test('inicio mínimo UTC sigue siendo comparable con fecha GRE fake UTC', () {
-      final ahora = DateTime.utc(2026, 8, 19, 18, 0);
-      final minimo = GreFormRules.inicioTrasladoMinimo(ahora);
-      final traslado = DateTime.utc(2026, 8, 19, 20, 0);
+    test(
+      'inicio mínimo UTC sigue siendo comparable con fecha GRE fake UTC',
+      () {
+        final ahora = DateTime.utc(2026, 8, 19, 18, 0);
+        final minimo = GreFormRules.inicioTrasladoMinimo(ahora);
+        final traslado = DateTime.utc(2026, 8, 19, 20, 0);
 
-      expect(minimo, DateTime.utc(2026, 8, 19, 18, 1));
-      expect(minimo.isUtc, isTrue);
-      expect(traslado.isBefore(minimo), isFalse);
-    });
+        expect(minimo, DateTime.utc(2026, 8, 19, 18, 1));
+        expect(minimo.isUtc, isTrue);
+        expect(traslado.isBefore(minimo), isFalse);
+      },
+    );
 
     test('GRE transportista tiene flujo transportista', () {
       expect(

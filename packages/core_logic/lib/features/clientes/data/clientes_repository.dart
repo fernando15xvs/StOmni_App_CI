@@ -28,7 +28,9 @@ class ClientesRepository {
       request = request.or('nombre.ilike.%$q%,dni_ruc.ilike.%$q%');
     }
 
-    final response = await request.order('nombre').range(offset, offset + limit - 1);
+    final response = await request
+        .order('nombre')
+        .range(offset, offset + limit - 1);
     return List<Map<String, dynamic>>.from(response);
   }
 

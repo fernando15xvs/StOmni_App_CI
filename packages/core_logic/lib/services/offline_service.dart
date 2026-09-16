@@ -10,7 +10,8 @@ import 'sync_adapters.dart';
 class OfflineService {
   static const String _keyCatalogo = 'catalogo_cache';
   static const String _legacyVentasPendientesKey = 'ventas_pendientes';
-  static const String _queueMigrationKey = 'ventas_pendientes_sqlite_v1_migrated';
+  static const String _queueMigrationKey =
+      'ventas_pendientes_sqlite_v1_migrated';
 
   static final PendingSaleQueueStore _queueStore = PendingSaleQueueStore();
   static Future<List<Map<String, dynamic>>>? _syncVentasEnCurso;
@@ -55,9 +56,7 @@ class OfflineService {
         datosVenta['tipo_comprobante']?.toString().trim().toLowerCase() ??
         'ticket_interno';
     if (tipoComprobante != 'ticket_interno') {
-      throw ArgumentError(
-        'La cola offline acepta únicamente Ticket Interno.',
-      );
+      throw ArgumentError('La cola offline acepta únicamente Ticket Interno.');
     }
 
     final payload = Map<String, dynamic>.from(datosVenta);
@@ -119,8 +118,7 @@ class OfflineService {
     }
   }
 
-  static Future<List<Map<String, dynamic>>>
-  _sincronizarVentasPendientesInterno(
+  static Future<List<Map<String, dynamic>>> _sincronizarVentasPendientesInterno(
     PendingSaleSyncAdapter saleSyncAdapter,
   ) async {
     await _ensureQueueReady();
@@ -187,7 +185,9 @@ class OfflineService {
     if (legacyRaw != null && legacyRaw.trim().isNotEmpty) {
       final decoded = jsonDecode(legacyRaw);
       if (decoded is! List) {
-        throw const FormatException('La cola offline histórica no es una lista.');
+        throw const FormatException(
+          'La cola offline histórica no es una lista.',
+        );
       }
 
       for (final rawItem in decoded) {

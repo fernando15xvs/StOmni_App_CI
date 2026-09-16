@@ -9,7 +9,8 @@ class DesktopProductsPanel extends ConsumerStatefulWidget {
   const DesktopProductsPanel({super.key});
 
   @override
-  ConsumerState<DesktopProductsPanel> createState() => _DesktopProductsPanelState();
+  ConsumerState<DesktopProductsPanel> createState() =>
+      _DesktopProductsPanelState();
 }
 
 class _DesktopProductsPanelState extends ConsumerState<DesktopProductsPanel> {
@@ -57,12 +58,13 @@ class _DesktopProductsPanelState extends ConsumerState<DesktopProductsPanel> {
                   children: [
                     Text(
                       'Productos',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 5),
-                    const Text('Ficha comercial, precios y presentaciones configurables.'),
+                    const Text(
+                      'Ficha comercial, precios y presentaciones configurables.',
+                    ),
                   ],
                 ),
               ),

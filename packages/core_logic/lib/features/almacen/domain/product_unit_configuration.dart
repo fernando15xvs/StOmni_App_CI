@@ -179,9 +179,7 @@ class IntegerPresentationPolicy {
       );
     }
     final value = PresentationPolicy.baseQuantity(profile, code, quantity);
-    if (value <= 0 ||
-        value > maxQuantity ||
-        value != value.roundToDouble()) {
+    if (value <= 0 || value > maxQuantity || value != value.roundToDouble()) {
       throw ArgumentError('La cantidad base excede el rango del inventario.');
     }
     return value.toInt();

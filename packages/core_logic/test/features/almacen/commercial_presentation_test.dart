@@ -144,10 +144,7 @@ void main() {
 
       expect(profile.baseUnit.code, 'unidad');
       expect(profile.find('caja')?.baseQuantity, 12);
-      expect(
-        profile.toBaseQuantity(presentationCode: 'caja', quantity: 2),
-        24,
-      );
+      expect(profile.toBaseQuantity(presentationCode: 'caja', quantity: 2), 24);
       expect(profile.formatBaseQuantity(27), '2 Cajas y 3 Unidades');
     });
 

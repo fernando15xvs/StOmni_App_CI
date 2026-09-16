@@ -6,7 +6,8 @@ class _FakeGateway implements CustomerGateway {
   int _nextId = 1;
 
   @override
-  Future<void> delete(int id) async => records.removeWhere((row) => row.id == id);
+  Future<void> delete(int id) async =>
+      records.removeWhere((row) => row.id == id);
 
   @override
   Future<bool> documentExists(String document, {int? excludingId}) async =>
@@ -18,7 +19,12 @@ class _FakeGateway implements CustomerGateway {
     int offset = 0,
     String query = '',
   }) async => records
-      .where((row) => query.isEmpty || row.name.contains(query) || row.document.contains(query))
+      .where(
+        (row) =>
+            query.isEmpty ||
+            row.name.contains(query) ||
+            row.document.contains(query),
+      )
       .skip(offset)
       .take(limit)
       .toList();
@@ -69,17 +75,20 @@ void main() {
     );
   });
 
-  test('allows preserving the same document when editing the same customer', () async {
-    final gateway = _FakeGateway();
-    final useCase = CustomerUseCase(gateway);
-    final saved = await useCase.save(
-      const CustomerDraft(name: 'Uno', document: '123', address: ''),
-    );
-    final updated = await useCase.save(
-      const CustomerDraft(name: 'Uno Editado', document: '123', address: ''),
-      id: saved.id,
-    );
-    expect(updated.id, saved.id);
-    expect(updated.name, 'Uno Editado');
-  });
+  test(
+    'allows preserving the same document when editing the same customer',
+    () async {
+      final gateway = _FakeGateway();
+      final useCase = CustomerUseCase(gateway);
+      final saved = await useCase.save(
+        const CustomerDraft(name: 'Uno', document: '123', address: ''),
+      );
+      final updated = await useCase.save(
+        const CustomerDraft(name: 'Uno Editado', document: '123', address: ''),
+        id: saved.id,
+      );
+      expect(updated.id, saved.id);
+      expect(updated.name, 'Uno Editado');
+    },
+  );
 }

@@ -27,23 +27,34 @@ class SaleProductSnapshot {
   final String dispatchUnit;
   final ProductUnitConfiguration? unitConfiguration;
 
-  ProductUnitProfile get commercialProfile => unitConfiguration?.profile ??
+  ProductUnitProfile get commercialProfile =>
+      unitConfiguration?.profile ??
       StockUtils.legacyUnitProfile(saleType, unitsPerPackage: unitsPerPackage);
 
   String normalizeUnit(String code) => unitConfiguration != null
-      ? CommercialPresentation.normalizeCode(code) : StockUtils.normalizarTipoUnidad(code);
+      ? CommercialPresentation.normalizeCode(code)
+      : StockUtils.normalizarTipoUnidad(code);
 
   double defaultPrice(String code) {
     if (unitConfiguration == null) {
-      return StockUtils.precioComercialPredeterminado(tipoVenta: saleType,
-          tipoUnidad: code, precioUnidad: defaultUnitPrice,
-          precioCajaBase: defaultPackageBasePrice, pcs: unitsPerPackage);
+      return StockUtils.precioComercialPredeterminado(
+        tipoVenta: saleType,
+        tipoUnidad: code,
+        precioUnidad: defaultUnitPrice,
+        precioCajaBase: defaultPackageBasePrice,
+        pcs: unitsPerPackage,
+      );
     }
     final unit = commercialProfile.find(code);
-    if (unit == null) throw ArgumentError('La presentación no pertenece al producto.');
-    final basePrice = StockUtils.precioComercialPredeterminado(tipoVenta: saleType,
-        tipoUnidad: StockUtils.legacyUnitProfile(saleType).baseUnit.code,
-        precioUnidad: defaultUnitPrice, precioCajaBase: defaultPackageBasePrice, pcs: unitsPerPackage);
+    if (unit == null)
+      throw ArgumentError('La presentación no pertenece al producto.');
+    final basePrice = StockUtils.precioComercialPredeterminado(
+      tipoVenta: saleType,
+      tipoUnidad: StockUtils.legacyUnitProfile(saleType).baseUnit.code,
+      precioUnidad: defaultUnitPrice,
+      precioCajaBase: defaultPackageBasePrice,
+      pcs: unitsPerPackage,
+    );
     return basePrice * unit.baseQuantity;
   }
 }

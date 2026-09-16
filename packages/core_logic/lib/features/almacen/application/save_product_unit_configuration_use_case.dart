@@ -26,7 +26,8 @@ class SaveProductUnitConfigurationUseCase {
     }
     PresentationPolicy.validate(profile);
     final previous = current.configuration;
-    if (previous != null && previous.profile.baseUnit.code != profile.baseUnit.code) {
+    if (previous != null &&
+        previous.profile.baseUnit.code != profile.baseUnit.code) {
       throw const UserFacingException(
         'La unidad base no se puede sustituir: eso requiere convertir todo el inventario.',
       );

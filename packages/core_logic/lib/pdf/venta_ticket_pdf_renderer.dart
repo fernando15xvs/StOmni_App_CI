@@ -47,7 +47,8 @@ class VentaTicketPdfRenderer {
         '001 - ${documento['id']?.toString().padLeft(6, '0') ?? '000000'}';
     var tituloDoc = 'NOTA DE VENTA';
 
-    final rawComp = comprobante ??
+    final rawComp =
+        comprobante ??
         documento['comprobantes_electronicos'] ??
         documento['comprobante_electronico'];
     if (rawComp is Map) {
@@ -270,7 +271,10 @@ class VentaTicketPdfRenderer {
               alignment: pw.Alignment.centerLeft,
               child: pw.Text(
                 'Términos y Condiciones:',
-                style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                style: pw.TextStyle(
+                  fontSize: 8,
+                  fontWeight: pw.FontWeight.bold,
+                ),
               ),
             ),
             pw.SizedBox(height: 2),
@@ -414,8 +418,9 @@ class VentaTicketPdfRenderer {
             child: pw.Text(
               valor,
               style: const pw.TextStyle(fontSize: 7),
-              textAlign:
-                  alinearDerecha ? pw.TextAlign.right : pw.TextAlign.left,
+              textAlign: alinearDerecha
+                  ? pw.TextAlign.right
+                  : pw.TextAlign.left,
             ),
           ),
         ],

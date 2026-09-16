@@ -10,7 +10,8 @@ enum BusinessAssistantIntent {
   static BusinessAssistantIntent parse(String raw) =>
       BusinessAssistantIntent.values.firstWhere(
         (value) => value.databaseValue == raw.trim().toLowerCase(),
-        orElse: () => throw FormatException('Intención de asistente desconocida: $raw'),
+        orElse: () =>
+            throw FormatException('Intención de asistente desconocida: $raw'),
       );
 }
 
@@ -38,8 +39,8 @@ class BusinessAssistantContext {
     this.branchName,
     this.note,
   }) : items = List<Map<String, dynamic>>.unmodifiable(
-          items.map((item) => Map<String, dynamic>.unmodifiable(item)),
-        );
+         items.map((item) => Map<String, dynamic>.unmodifiable(item)),
+       );
 
   final BusinessAssistantIntent intent;
   final int periodDays;

@@ -39,40 +39,46 @@ void main() {
     expect(records.single.attempts, 0);
   });
 
-  test('procesamiento incrementa intentos y conserva el último error', () async {
-    await store.upsertPayload({
-      'request_id': 'req-2',
-      'tipo_comprobante': 'ticket_interno',
-    });
+  test(
+    'procesamiento incrementa intentos y conserva el último error',
+    () async {
+      await store.upsertPayload({
+        'request_id': 'req-2',
+        'tipo_comprobante': 'ticket_interno',
+      });
 
-    await store.markProcessing('req-2');
-    await store.markFailed('req-2', 'sin conexión');
+      await store.markProcessing('req-2');
+      await store.markFailed('req-2', 'sin conexión');
 
-    final record = (await store.list()).single;
-    expect(record.status, PendingSaleQueueStatus.failed);
-    expect(record.attempts, 1);
-    expect(record.lastAttemptAt, isNotNull);
-    expect(record.lastError, contains('sin conexión'));
-  });
+      final record = (await store.list()).single;
+      expect(record.status, PendingSaleQueueStatus.failed);
+      expect(record.attempts, 1);
+      expect(record.lastAttemptAt, isNotNull);
+      expect(record.lastError, contains('sin conexión'));
+    },
+  );
 
-  test('una venta interrumpida vuelve a pendiente para retry idempotente', () async {
-    await store.upsertPayload({
-      'request_id': 'req-3',
-      'tipo_comprobante': 'ticket_interno',
-    });
-    await store.markProcessing('req-3');
+  test(
+    'una venta interrumpida vuelve a pendiente para retry idempotente',
+    () async {
+      await store.upsertPayload({
+        'request_id': 'req-3',
+        'tipo_comprobante': 'ticket_interno',
+      });
+      await store.markProcessing('req-3');
 
-    expect(
-      (await store.list()).single.status,
-      PendingSaleQueueStatus.processing,
-    );
+      expect(
+        (await store.list()).single.status,
+        PendingSaleQueueStatus.processing,
+      );
 
-    await store.recoverInterruptedProcessing();
+      await store.recoverInterruptedProcessing();
 
-    final recovered = (await store.list()).single;
-    expect(recovered.status, PendingSaleQueueStatus.pending);
-    expect(recovered.attempts, 1);
-  });
+      final recovered = (await store.list()).single;
+      expect(recovered.status, PendingSaleQueueStatus.pending);
+      expect(recovered.attempts, 1);
+    },
+  );
 
   test('vista de cola expone estado, intentos y último error', () async {
     await store.upsertPayload({

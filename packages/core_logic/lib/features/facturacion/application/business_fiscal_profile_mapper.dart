@@ -41,7 +41,8 @@ class BusinessFiscalProfileMapper {
       pricesIncludeTax: _boolOrNull(
         raw['precios_incluyen_igv'] ?? raw['prices_include_tax'],
       ),
-      electronicDocumentsEnabled: _boolOrNull(
+      electronicDocumentsEnabled:
+          _boolOrNull(
             raw['facturacion_electronica_habilitada'] ??
                 raw['electronic_documents_enabled'],
           ) ??

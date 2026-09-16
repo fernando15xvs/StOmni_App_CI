@@ -22,10 +22,7 @@ Future<void> bootstrapDesktopApp() async {
       );
     }
 
-    await Supabase.initialize(
-      url: supabaseUrl,
-      anonKey: supabaseAnonKey,
-    );
+    await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
     await PreferencesService.init();
 
     FacturacionService.configure(SupabaseFacturacionGateway());

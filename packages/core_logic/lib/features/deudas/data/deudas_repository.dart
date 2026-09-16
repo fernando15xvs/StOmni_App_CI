@@ -6,7 +6,9 @@ import '../../ventas/data/ventas_repository.dart';
 import '../../gastos/data/gastos_repository.dart';
 import 'debt_payment_request_store.dart';
 
-final debtPaymentRequestStoreProvider = Provider<DebtPaymentRequestStore>((ref) {
+final debtPaymentRequestStoreProvider = Provider<DebtPaymentRequestStore>((
+  ref,
+) {
   return DebtPaymentRequestStore();
 });
 

@@ -183,9 +183,9 @@ class InventoryCatalogUseCase {
         case InventorySortField.price:
           return a.mainPrice.compareTo(b.mainPrice);
         case InventorySortField.name:
-          return a.product.nombre
-              .toLowerCase()
-              .compareTo(b.product.nombre.toLowerCase());
+          return a.product.nombre.toLowerCase().compareTo(
+            b.product.nombre.toLowerCase(),
+          );
       }
     }
 
@@ -227,7 +227,9 @@ class InventoryCatalogUseCase {
         : product.precioUnidad;
     if (product.unitConfiguration != null) {
       final baseCode = product.unitConfiguration!.profile.baseUnit.code;
-      final basePresentation = product.unitConfiguration!.profile.find(baseCode)!;
+      final basePresentation = product.unitConfiguration!.profile.find(
+        baseCode,
+      )!;
       return product.precioUnidad > 0
           ? product.precioUnidad
           : (basePresentation.baseQuantity > 0

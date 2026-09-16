@@ -23,9 +23,15 @@ class CajaCierrePdfService {
   }) async {
     final apertura = toLima(cajaInfo['fecha_apertura']);
     final cierre = toLima(cajaInfo['fecha_cierre']);
-    final movimientos = await _repository.getMovimientosByFechas(apertura, cierre);
+    final movimientos = await _repository.getMovimientosByFechas(
+      apertura,
+      cierre,
+    );
     final bytes = await CajaCierrePdfRenderer.generar(
-      cajaInfo, movimientos, branding: branding, ticketSize: ticketSize,
+      cajaInfo,
+      movimientos,
+      branding: branding,
+      ticketSize: ticketSize,
     );
     final fecha = cajaInfo['fecha_cierre']?.toString() ?? '';
     final suffix = fecha.length >= 10 ? fecha.substring(0, 10) : 'sin_fecha';

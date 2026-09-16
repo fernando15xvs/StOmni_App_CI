@@ -26,8 +26,9 @@ class ConfigAlmacenesPage extends ConsumerWidget {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: asyncState.when(
-        loading: () =>
-            Center(child: CircularProgressIndicator(color: AppColors.almacenes)),
+        loading: () => Center(
+          child: CircularProgressIndicator(color: AppColors.almacenes),
+        ),
         error: (err, _) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -45,9 +46,8 @@ class ConfigAlmacenesPage extends ConsumerWidget {
         data: (almacenes) => almacenes.isEmpty
             ? const Center(child: Text('No hay almacenes registrados.'))
             : RefreshIndicator(
-                onRefresh: () => ref
-                    .read(almacenAdminNotifierProvider.notifier)
-                    .recargar(),
+                onRefresh: () =>
+                    ref.read(almacenAdminNotifierProvider.notifier).recargar(),
                 child: ListView.separated(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
                   itemCount: almacenes.length,
@@ -57,10 +57,10 @@ class ConfigAlmacenesPage extends ConsumerWidget {
                     final activo = almacen['activo'] == true;
                     final completo =
                         (almacen['direccion']?.toString().trim().isNotEmpty ??
-                                false) &&
-                            RegExp(
-                              r'^[0-9]{6}$',
-                            ).hasMatch(almacen['ubigeo']?.toString() ?? '');
+                            false) &&
+                        RegExp(
+                          r'^[0-9]{6}$',
+                        ).hasMatch(almacen['ubigeo']?.toString() ?? '');
 
                     return Opacity(
                       opacity: activo ? 1 : 0.68,
@@ -76,10 +76,9 @@ class ConfigAlmacenesPage extends ConsumerWidget {
                             vertical: 10,
                           ),
                           leading: CircleAvatar(
-                            backgroundColor: (activo
-                                    ? AppColors.almacenes
-                                    : Colors.grey)
-                                .withValues(alpha: 0.12),
+                            backgroundColor:
+                                (activo ? AppColors.almacenes : Colors.grey)
+                                    .withValues(alpha: 0.12),
                             child: Icon(
                               activo
                                   ? Icons.storefront
@@ -239,8 +238,7 @@ class ConfigAlmacenesPage extends ConsumerWidget {
     final guardar = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(almacen == null ? 'Nuevo almacén' : 'Editar almacén'),
         content: SizedBox(
           width: 560,
@@ -250,8 +248,12 @@ class ConfigAlmacenesPage extends ConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _campo(nombre, 'Nombre del almacén', Icons.storefront,
-                      requerido: true),
+                  _campo(
+                    nombre,
+                    'Nombre del almacén',
+                    Icons.storefront,
+                    requerido: true,
+                  ),
                   const SizedBox(height: 10),
                   _campo(
                     direccion,
@@ -281,20 +283,32 @@ class ConfigAlmacenesPage extends ConsumerWidget {
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: _campo(codLocal, 'Código local', Icons.tag,
-                            requerido: true),
+                        child: _campo(
+                          codLocal,
+                          'Código local',
+                          Icons.tag,
+                          requerido: true,
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 10),
-                  _campo(departamento, 'Departamento', Icons.map_outlined,
-                      requerido: true),
+                  _campo(
+                    departamento,
+                    'Departamento',
+                    Icons.map_outlined,
+                    requerido: true,
+                  ),
                   const SizedBox(height: 10),
                   Row(
                     children: [
                       Expanded(
-                        child: _campo(provincia, 'Provincia', Icons.map,
-                            requerido: true),
+                        child: _campo(
+                          provincia,
+                          'Provincia',
+                          Icons.map,
+                          requerido: true,
+                        ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -346,8 +360,7 @@ class ConfigAlmacenesPage extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.almacenes,
             ),
-            child: const Text('GUARDAR',
-                style: TextStyle(color: Colors.white)),
+            child: const Text('GUARDAR', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -371,7 +384,9 @@ class ConfigAlmacenesPage extends ConsumerWidget {
     }
 
     try {
-      await ref.read(almacenAdminNotifierProvider.notifier).guardar(
+      await ref
+          .read(almacenAdminNotifierProvider.notifier)
+          .guardar(
             id: (almacen?['id'] as num?)?.toInt(),
             nombre: nombre.text,
             direccion: direccion.text,
@@ -422,8 +437,10 @@ class ConfigAlmacenesPage extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('DESACTIVAR',
-                style: TextStyle(color: Colors.red)),
+            child: const Text(
+              'DESACTIVAR',
+              style: TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
@@ -470,8 +487,10 @@ class ConfigAlmacenesPage extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('REACTIVAR',
-                style: TextStyle(color: Colors.green)),
+            child: const Text(
+              'REACTIVAR',
+              style: TextStyle(color: Colors.green),
+            ),
           ),
         ],
       ),

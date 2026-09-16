@@ -7,22 +7,22 @@ import 'desktop_product_admin.dart';
 
 class _UnitDraft {
   _UnitDraft(CommercialPresentation source)
-      : code = TextEditingController(text: source.code),
-        singular = TextEditingController(text: source.singularLabel),
-        plural = TextEditingController(text: source.pluralLabel),
-        factor = TextEditingController(
-          text: CommercialPresentation.formatNumber(source.baseQuantity),
-        ),
-        fiscal = TextEditingController(text: source.fiscalUnitCode ?? ''),
-        precision = source.quantityPrecision;
+    : code = TextEditingController(text: source.code),
+      singular = TextEditingController(text: source.singularLabel),
+      plural = TextEditingController(text: source.pluralLabel),
+      factor = TextEditingController(
+        text: CommercialPresentation.formatNumber(source.baseQuantity),
+      ),
+      fiscal = TextEditingController(text: source.fiscalUnitCode ?? ''),
+      precision = source.quantityPrecision;
 
   _UnitDraft.empty(int index)
-      : code = TextEditingController(text: 'presentacion_$index'),
-        singular = TextEditingController(text: 'Presentación'),
-        plural = TextEditingController(text: 'Presentaciones'),
-        factor = TextEditingController(text: '1'),
-        fiscal = TextEditingController(),
-        precision = 0;
+    : code = TextEditingController(text: 'presentacion_$index'),
+      singular = TextEditingController(text: 'Presentación'),
+      plural = TextEditingController(text: 'Presentaciones'),
+      factor = TextEditingController(text: '1'),
+      fiscal = TextEditingController(),
+      precision = 0;
 
   final TextEditingController code;
   final TextEditingController singular;
@@ -73,20 +73,25 @@ class _DesktopProductUnitsEditorState
   }
 
   double _factor(_UnitDraft row) =>
-      double.tryParse(row.factor.text.trim().replaceAll(',', '.')) ?? double.nan;
+      double.tryParse(row.factor.text.trim().replaceAll(',', '.')) ??
+      double.nan;
 
   ProductUnitProfile _profile() {
-    final presentations = _rows.map((row) {
-      final normalizedCode = CommercialPresentation.normalizeCode(row.code.text);
-      return CommercialPresentation(
-        code: normalizedCode,
-        singularLabel: row.singular.text.trim(),
-        pluralLabel: row.plural.text.trim(),
-        baseQuantity: normalizedCode == _baseCode ? 1 : _factor(row),
-        fiscalUnitCode: row.fiscal.text,
-        quantityPrecision: row.precision,
-      );
-    }).toList(growable: false);
+    final presentations = _rows
+        .map((row) {
+          final normalizedCode = CommercialPresentation.normalizeCode(
+            row.code.text,
+          );
+          return CommercialPresentation(
+            code: normalizedCode,
+            singularLabel: row.singular.text.trim(),
+            pluralLabel: row.plural.text.trim(),
+            baseQuantity: normalizedCode == _baseCode ? 1 : _factor(row),
+            fiscalUnitCode: row.fiscal.text,
+            quantityPrecision: row.precision,
+          );
+        })
+        .toList(growable: false);
     final base = presentations.where((row) => row.code == _baseCode).single;
     return ProductUnitProfile(baseUnit: base, presentations: presentations);
   }
@@ -110,9 +115,9 @@ class _DesktopProductUnitsEditorState
       Navigator.of(context).pop(saved);
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.toString())));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -153,7 +158,9 @@ class _DesktopProductUnitsEditorState
                     separatorBuilder: (_, _) => const Divider(height: 24),
                     itemBuilder: (context, index) {
                       final row = _rows[index];
-                      final isBase = CommercialPresentation.normalizeCode(row.code.text) == _baseCode;
+                      final isBase =
+                          CommercialPresentation.normalizeCode(row.code.text) ==
+                          _baseCode;
                       return Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -161,21 +168,42 @@ class _DesktopProductUnitsEditorState
                             child: TextField(
                               controller: row.code,
                               readOnly: isBase,
-                              decoration: InputDecoration(labelText: isBase ? 'Código base' : 'Código'),
+                              decoration: InputDecoration(
+                                labelText: isBase ? 'Código base' : 'Código',
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Expanded(child: TextField(controller: row.singular, decoration: const InputDecoration(labelText: 'Singular'))),
+                          Expanded(
+                            child: TextField(
+                              controller: row.singular,
+                              decoration: const InputDecoration(
+                                labelText: 'Singular',
+                              ),
+                            ),
+                          ),
                           const SizedBox(width: 8),
-                          Expanded(child: TextField(controller: row.plural, decoration: const InputDecoration(labelText: 'Plural'))),
+                          Expanded(
+                            child: TextField(
+                              controller: row.plural,
+                              decoration: const InputDecoration(
+                                labelText: 'Plural',
+                              ),
+                            ),
+                          ),
                           const SizedBox(width: 8),
                           SizedBox(
                             width: 105,
                             child: TextField(
                               controller: row.factor,
                               readOnly: isBase,
-                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              decoration: const InputDecoration(labelText: 'Factor'),
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
+                              decoration: const InputDecoration(
+                                labelText: 'Factor',
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -183,12 +211,19 @@ class _DesktopProductUnitsEditorState
                             width: 105,
                             child: DropdownButtonFormField<int>(
                               initialValue: row.precision,
-                              decoration: const InputDecoration(labelText: 'Dec.'),
+                              decoration: const InputDecoration(
+                                labelText: 'Dec.',
+                              ),
                               items: List.generate(
                                 FixedQuantity.maxScale + 1,
-                                (value) => DropdownMenuItem(value: value, child: Text('$value')),
+                                (value) => DropdownMenuItem(
+                                  value: value,
+                                  child: Text('$value'),
+                                ),
                               ),
-                              onChanged: (value) => setState(() => row.precision = value ?? row.precision),
+                              onChanged: (value) => setState(
+                                () => row.precision = value ?? row.precision,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -197,12 +232,16 @@ class _DesktopProductUnitsEditorState
                             child: TextField(
                               controller: row.fiscal,
                               textCapitalization: TextCapitalization.characters,
-                              decoration: const InputDecoration(labelText: 'Fiscal'),
+                              decoration: const InputDecoration(
+                                labelText: 'Fiscal',
+                              ),
                             ),
                           ),
                           const SizedBox(width: 4),
                           IconButton(
-                            tooltip: isBase ? 'La unidad base no se elimina' : 'Eliminar presentación',
+                            tooltip: isBase
+                                ? 'La unidad base no se elimina'
+                                : 'Eliminar presentación',
                             onPressed: isBase || _saving
                                 ? null
                                 : () {
@@ -223,7 +262,9 @@ class _DesktopProductUnitsEditorState
                   child: OutlinedButton.icon(
                     onPressed: _saving || _rows.length >= 20
                         ? null
-                        : () => setState(() => _rows.add(_UnitDraft.empty(_rows.length + 1))),
+                        : () => setState(
+                            () => _rows.add(_UnitDraft.empty(_rows.length + 1)),
+                          ),
                     icon: const Icon(Icons.add),
                     label: const Text('Agregar presentación'),
                   ),
@@ -234,13 +275,20 @@ class _DesktopProductUnitsEditorState
         ),
       ),
       actions: [
-        TextButton(onPressed: _saving ? null : () => Navigator.of(context).pop(), child: const Text('Cerrar')),
+        TextButton(
+          onPressed: _saving ? null : () => Navigator.of(context).pop(),
+          child: const Text('Cerrar'),
+        ),
         settings.maybeWhen(
           data: (current) => current.supported
               ? FilledButton.icon(
                   onPressed: _saving ? null : () => _save(current),
                   icon: _saving
-                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
                       : const Icon(Icons.save_outlined),
                   label: const Text('Guardar unidades'),
                 )

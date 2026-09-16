@@ -150,7 +150,9 @@ class _NuevoPagoEmpleadoPageState extends ConsumerState<NuevoPagoEmpleadoPage> {
         }
       }
 
-      await ref.read(empleadosRepositoryProvider).registrarPagoEmpleadoMixto(
+      await ref
+          .read(empleadosRepositoryProvider)
+          .registrarPagoEmpleadoMixto(
             empleadoId: (widget.empleado['id'] as num).toInt(),
             concepto: conceptoFinal,
             fechaIso: AppTime.toIsoLima(_fecha),
@@ -170,9 +172,9 @@ class _NuevoPagoEmpleadoPageState extends ConsumerState<NuevoPagoEmpleadoPage> {
 
   void _mostrarSnack(String mensaje, Color color) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensaje), backgroundColor: color),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(mensaje), backgroundColor: color));
   }
 
   Future<void> _seleccionarFecha() async {
@@ -226,9 +228,9 @@ class _NuevoPagoEmpleadoPageState extends ConsumerState<NuevoPagoEmpleadoPage> {
             const SizedBox(height: 8),
             Text(
               'Concepto',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             Wrap(
@@ -266,9 +268,9 @@ class _NuevoPagoEmpleadoPageState extends ConsumerState<NuevoPagoEmpleadoPage> {
             const SizedBox(height: 28),
             Text(
               'Métodos de pago',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             Container(
@@ -280,9 +282,11 @@ class _NuevoPagoEmpleadoPageState extends ConsumerState<NuevoPagoEmpleadoPage> {
               ),
               child: Column(
                 children: [
-                  for (var index = 0;
-                      index < _pagosAnadidos.length;
-                      index++) ...[
+                  for (
+                    var index = 0;
+                    index < _pagosAnadidos.length;
+                    index++
+                  ) ...[
                     _buildPagoRow(index, isDark, colorTema),
                     if (index < _pagosAnadidos.length - 1)
                       const Divider(height: 22),

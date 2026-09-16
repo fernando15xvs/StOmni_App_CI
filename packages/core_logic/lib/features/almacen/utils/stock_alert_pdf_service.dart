@@ -11,41 +11,41 @@ class StockAlertPdfService {
     required List<Map<String, dynamic>> almacenes,
     required Map<dynamic, String> mapaMarcas,
   }) async {
-      final pdf = pw.Document();
+    final pdf = pw.Document();
 
-      // Map para buscar el nombre del almacén por su ID rápidamente
-      final Map<int, String> mapaAlmacenes = {};
-      for (var a in almacenes) {
-        if (a['id'] != null) {
-          mapaAlmacenes[a['id'] as int] =
-              a['nombre']?.toString() ?? 'Almacén ${a['id']}';
-        }
+    // Map para buscar el nombre del almacén por su ID rápidamente
+    final Map<int, String> mapaAlmacenes = {};
+    for (var a in almacenes) {
+      if (a['id'] != null) {
+        mapaAlmacenes[a['id'] as int] =
+            a['nombre']?.toString() ?? 'Almacén ${a['id']}';
       }
+    }
 
-      final now = DateTime.now();
-      final fechaStr = DateFormat('dd/MM/yyyy HH:mm').format(now);
+    final now = DateTime.now();
+    final fechaStr = DateFormat('dd/MM/yyyy HH:mm').format(now);
 
-      pdf.addPage(
-        pw.MultiPage(
-          pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.all(32),
-          build: (pw.Context context) {
-            return [
-              _buildHeader(fechaStr),
-              pw.SizedBox(height: 20),
-              ...productos.map(
-                (p) => _buildProductoItem(p, mapaMarcas, mapaAlmacenes),
-              ),
-            ];
-          },
-        ),
-      );
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(32),
+        build: (pw.Context context) {
+          return [
+            _buildHeader(fechaStr),
+            pw.SizedBox(height: 20),
+            ...productos.map(
+              (p) => _buildProductoItem(p, mapaMarcas, mapaAlmacenes),
+            ),
+          ];
+        },
+      ),
+    );
 
-      return GeneratedDocument(
-        bytes: await pdf.save(),
-        fileName: 'alerta_stock_${DateFormat('yyyyMMdd').format(now)}.pdf',
-        kind: DocumentKind.pdf,
-      );
+    return GeneratedDocument(
+      bytes: await pdf.save(),
+      fileName: 'alerta_stock_${DateFormat('yyyyMMdd').format(now)}.pdf',
+      kind: DocumentKind.pdf,
+    );
   }
 
   static pw.Widget _buildHeader(String fecha) {

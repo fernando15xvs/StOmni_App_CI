@@ -79,9 +79,9 @@ class AlmacenRepository {
         .eq('activo', true)
         .order('id');
     await _localDb.insertaralmacenes(
-      List<Map<String, dynamic>>.from(almacenesData)
-          .map(AlmacenSyncContract.almacenParaCache)
-          .toList(growable: false),
+      List<Map<String, dynamic>>.from(
+        almacenesData,
+      ).map(AlmacenSyncContract.almacenParaCache).toList(growable: false),
     );
 
     final proveedoresData = await _client
@@ -89,9 +89,9 @@ class AlmacenRepository {
         .select(AlmacenSyncContract.proveedorSelect)
         .order('id');
     await _localDb.insertarProveedores(
-      List<Map<String, dynamic>>.from(proveedoresData)
-          .map(AlmacenSyncContract.proveedorParaCache)
-          .toList(growable: false),
+      List<Map<String, dynamic>>.from(
+        proveedoresData,
+      ).map(AlmacenSyncContract.proveedorParaCache).toList(growable: false),
     );
 
     final todosLosProductos = <Map<String, dynamic>>[];
@@ -117,8 +117,9 @@ class AlmacenRepository {
       if (batch.isEmpty) break;
 
       todosLosProductos.addAll(
-        (await SupabaseProductUnitConfigurationGateway(_client).attach(batch))
-            .map(AlmacenSyncContract.productoParaCache),
+        (await SupabaseProductUnitConfigurationGateway(
+          _client,
+        ).attach(batch)).map(AlmacenSyncContract.productoParaCache),
       );
       ultimoId = AlmacenSyncContract.nextProductCursor(batch);
 
@@ -167,8 +168,9 @@ class AlmacenRepository {
 
       await _localDb.upsertProductoUnico(
         AlmacenSyncContract.productoParaCache(
-          (await SupabaseProductUnitConfigurationGateway(_client).attach([data]))
-              .single,
+          (await SupabaseProductUnitConfigurationGateway(
+            _client,
+          ).attach([data])).single,
         ),
       );
     } catch (e) {
@@ -480,7 +482,9 @@ class AlmacenRepository {
     }
     final fileName =
         '$organizationId/products/producto_${DateTime.now().millisecondsSinceEpoch}.jpg';
-    await _client.storage.from('imagenes_productos').upload(fileName, imagenFile);
+    await _client.storage
+        .from('imagenes_productos')
+        .upload(fileName, imagenFile);
     return _client.storage.from('imagenes_productos').getPublicUrl(fileName);
   }
 

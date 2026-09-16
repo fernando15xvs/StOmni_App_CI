@@ -34,7 +34,10 @@ String _repositoryPath(Directory root, String relativePath) {
 Iterable<File> _dartFiles(Directory directory) sync* {
   if (!directory.existsSync()) return;
 
-  for (final entity in directory.listSync(recursive: true, followLinks: false)) {
+  for (final entity in directory.listSync(
+    recursive: true,
+    followLinks: false,
+  )) {
     if (entity is File && entity.path.endsWith('.dart')) {
       yield entity;
     }
@@ -58,7 +61,9 @@ String _withoutComments(String source) {
 }
 
 Set<String> _clientPackageNames(Directory repositoryRoot) {
-  final packagesDirectory = Directory(_repositoryPath(repositoryRoot, 'packages'));
+  final packagesDirectory = Directory(
+    _repositoryPath(repositoryRoot, 'packages'),
+  );
   final clientPackages = <String>{
     // Protege tambien contra nombres usados antes de convertir el proyecto
     // en un workspace, aunque ya no existan como paquetes locales.
@@ -72,8 +77,10 @@ Set<String> _clientPackageNames(Directory repositoryRoot) {
     final pubspec = File('${entity.path}${Platform.pathSeparator}pubspec.yaml');
     if (!pubspec.existsSync()) continue;
 
-    final match = RegExp(r'^\s*name\s*:\s*([A-Za-z0-9_-]+)\s*$', multiLine: true)
-        .firstMatch(pubspec.readAsStringSync());
+    final match = RegExp(
+      r'^\s*name\s*:\s*([A-Za-z0-9_-]+)\s*$',
+      multiLine: true,
+    ).firstMatch(pubspec.readAsStringSync());
     final packageName = match?.group(1);
     if (packageName != null && packageName != 'core_logic') {
       clientPackages.add(packageName);
@@ -105,7 +112,9 @@ bool _belongsToReusableLayer(String relativePath) {
 
 void main() {
   final repositoryRoot = _findRepositoryRoot();
-  final coreLib = Directory(_repositoryPath(repositoryRoot, 'packages/core_logic/lib'));
+  final coreLib = Directory(
+    _repositoryPath(repositoryRoot, 'packages/core_logic/lib'),
+  );
 
   test('todo core_logic queda libre de UI y plugins exclusivamente móviles', () {
     final forbidden = RegExp(
@@ -167,7 +176,9 @@ void main() {
       ),
       'navegacion Flutter': RegExp(r'\bNavigator(?:\.of)?\b'),
       'dialogo Flutter': RegExp(r'\b(?:showDialog|showModalBottomSheet)\b'),
-      'feedback Flutter': RegExp(r'\b(?:ScaffoldMessenger|SnackBar|AlertDialog)\b'),
+      'feedback Flutter': RegExp(
+        r'\b(?:ScaffoldMessenger|SnackBar|AlertDialog)\b',
+      ),
       'app Flutter': RegExp(r'\b(?:MaterialApp|CupertinoApp)\b'),
       'contexto visual': RegExp(r'\b(?:Theme|MediaQuery)\.of\b'),
       'import Supabase': RegExp(r'package:supabase_flutter/'),

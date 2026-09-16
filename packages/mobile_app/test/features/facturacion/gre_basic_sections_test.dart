@@ -28,7 +28,9 @@ void main() {
     expect(emisiones, 1);
   });
 
-  testWidgets('GreFormActions bloquea acciones mientras guarda', (tester) async {
+  testWidgets('GreFormActions bloquea acciones mientras guarda', (
+    tester,
+  ) async {
     var acciones = 0;
 
     await tester.pumpWidget(

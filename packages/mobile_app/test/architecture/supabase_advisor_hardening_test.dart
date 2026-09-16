@@ -13,10 +13,7 @@ void main() {
   });
 
   test('helpers mutables fijan search_path y cierran RPC innecesaria', () {
-    expect(
-      sql,
-      contains('ALTER FUNCTION public.set_facturacion_updated_at()'),
-    );
+    expect(sql, contains('ALTER FUNCTION public.set_facturacion_updated_at()'));
     expect(
       sql,
       contains('ALTER FUNCTION public.set_vendedor_observaciones_kardex()'),
@@ -41,9 +38,7 @@ void main() {
     expect(
       sql,
       isNot(
-        contains(
-          'REVOKE EXECUTE ON FUNCTION public._gre_empleado_activo()',
-        ),
+        contains('REVOKE EXECUTE ON FUNCTION public._gre_empleado_activo()'),
       ),
     );
     expect(sql, contains('public.app_empleado_activo()'));

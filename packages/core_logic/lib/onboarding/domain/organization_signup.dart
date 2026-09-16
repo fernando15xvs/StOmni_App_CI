@@ -28,7 +28,9 @@ class OrganizationSignupState {
       'attached' => OrganizationSignupStateKind.attached,
       'legacy_identity_requires_migration' =>
         OrganizationSignupStateKind.legacyIdentityRequiresMigration,
-      _ => throw FormatException('Estado de alta de empresa desconocido: $rawState'),
+      _ => throw FormatException(
+        'Estado de alta de empresa desconocido: $rawState',
+      ),
     };
     return OrganizationSignupState(
       kind: kind,

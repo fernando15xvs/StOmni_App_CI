@@ -32,8 +32,7 @@ class IngresoMercaderiaState {
 class IngresoMercaderiaNotifier extends StateNotifier<IngresoMercaderiaState> {
   final Ref _ref;
 
-  IngresoMercaderiaNotifier(this._ref)
-      : super(const IngresoMercaderiaState());
+  IngresoMercaderiaNotifier(this._ref) : super(const IngresoMercaderiaState());
 
   Future<void> registrar({
     required String requestId,
@@ -49,58 +48,53 @@ class IngresoMercaderiaNotifier extends StateNotifier<IngresoMercaderiaState> {
     required double ingresoPCaja,
     required double ingresoPCComp,
   }) async {
-    state = state.copyWith(
-      guardando: true,
-      clearError: true,
-      clearExito: true,
-    );
+    state = state.copyWith(guardando: true, clearError: true, clearExito: true);
 
     try {
-      final allocations = almacenes.map((warehouse) {
-        final rawWarehouseId = warehouse['almacen_id'];
-        final rawBaseQuantity = warehouse['cantidad_base'];
-        final warehouseId = rawWarehouseId is num
-            ? rawWarehouseId.toInt()
-            : int.tryParse(rawWarehouseId?.toString() ?? '');
-        final baseQuantity = rawBaseQuantity is num
-            ? rawBaseQuantity.toDouble()
-            : double.tryParse(rawBaseQuantity?.toString() ?? '');
-        if (warehouseId == null ||
-            warehouseId <= 0 ||
-            baseQuantity == null ||
-            !baseQuantity.isFinite ||
-            baseQuantity <= 0) {
-          throw StateError('La distribución por almacén es inválida.');
-        }
-        return MerchandiseWarehouseAllocation(
-          warehouseId: warehouseId,
-          baseQuantity: baseQuantity,
-        );
-      }).toList(growable: false);
+      final allocations = almacenes
+          .map((warehouse) {
+            final rawWarehouseId = warehouse['almacen_id'];
+            final rawBaseQuantity = warehouse['cantidad_base'];
+            final warehouseId = rawWarehouseId is num
+                ? rawWarehouseId.toInt()
+                : int.tryParse(rawWarehouseId?.toString() ?? '');
+            final baseQuantity = rawBaseQuantity is num
+                ? rawBaseQuantity.toDouble()
+                : double.tryParse(rawBaseQuantity?.toString() ?? '');
+            if (warehouseId == null ||
+                warehouseId <= 0 ||
+                baseQuantity == null ||
+                !baseQuantity.isFinite ||
+                baseQuantity <= 0) {
+              throw StateError('La distribución por almacén es inválida.');
+            }
+            return MerchandiseWarehouseAllocation(
+              warehouseId: warehouseId,
+              baseQuantity: baseQuantity,
+            );
+          })
+          .toList(growable: false);
 
       await _ref.read(registerMerchandiseEntryUseCaseProvider)(
-            MerchandiseEntryCommand(
-              requestId: requestId,
-              productId: productoId,
-              date: fecha,
-              entryType: tipoIngreso,
-              document: documento,
-              supplierId: proveedorId,
-              observations: observaciones,
-              warehouses: allocations,
-              cost: ingresoCosto,
-              unitPrice: ingresoPUnit,
-              boxPrice: ingresoPCaja,
-              comparativeBoxPrice: ingresoPCComp,
-            ),
-          );
+        MerchandiseEntryCommand(
+          requestId: requestId,
+          productId: productoId,
+          date: fecha,
+          entryType: tipoIngreso,
+          document: documento,
+          supplierId: proveedorId,
+          observations: observaciones,
+          warehouses: allocations,
+          cost: ingresoCosto,
+          unitPrice: ingresoPUnit,
+          boxPrice: ingresoPCaja,
+          comparativeBoxPrice: ingresoPCComp,
+        ),
+      );
 
       state = state.copyWith(guardando: false, exito: true);
     } catch (e) {
-      state = state.copyWith(
-        guardando: false,
-        error: ErrorMapper.map(e),
-      );
+      state = state.copyWith(guardando: false, error: ErrorMapper.map(e));
     }
   }
 
@@ -109,7 +103,8 @@ class IngresoMercaderiaNotifier extends StateNotifier<IngresoMercaderiaState> {
   }
 }
 
-final ingresoMercaderiaNotifierProvider = StateNotifierProvider.autoDispose<
-    IngresoMercaderiaNotifier, IngresoMercaderiaState>(
-  (ref) => IngresoMercaderiaNotifier(ref),
-);
+final ingresoMercaderiaNotifierProvider =
+    StateNotifierProvider.autoDispose<
+      IngresoMercaderiaNotifier,
+      IngresoMercaderiaState
+    >((ref) => IngresoMercaderiaNotifier(ref));

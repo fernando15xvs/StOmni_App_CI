@@ -15,7 +15,10 @@ class SupabaseSubscriptionPlanGateway implements SubscriptionPlanGateway {
       throw const FormatException('El catálogo de planes es inválido.');
     }
     return raw
-        .map((row) => SubscriptionPlan.fromJson(Map<String, dynamic>.from(row as Map)))
+        .map(
+          (row) =>
+              SubscriptionPlan.fromJson(Map<String, dynamic>.from(row as Map)),
+        )
         .toList(growable: false);
   }
 }

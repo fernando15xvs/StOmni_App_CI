@@ -62,19 +62,19 @@ void main() {
     expect(validator, contains('exitCode = 2;'));
     expect(workflow, contains('dart run scripts/validate_client_env.dart'));
 
-    expect(RegExp(r'^\s*-\s*\.env\s*$', multiLine: true).hasMatch(pubspec), isFalse);
+    expect(
+      RegExp(r'^\s*-\s*\.env\s*$', multiLine: true).hasMatch(pubspec),
+      isFalse,
+    );
     expect(pubspec, isNot(contains('flutter_dotenv:')));
 
-    expect(bootstrap, isNot(contains('package:flutter_dotenv/flutter_dotenv.dart')));
+    expect(
+      bootstrap,
+      isNot(contains('package:flutter_dotenv/flutter_dotenv.dart')),
+    );
     expect(bootstrap, isNot(contains('dotenv.')));
-    expect(
-      bootstrap,
-      contains("String.fromEnvironment('SUPABASE_URL')"),
-    );
-    expect(
-      bootstrap,
-      contains("String.fromEnvironment('SUPABASE_ANON_KEY')"),
-    );
+    expect(bootstrap, contains("String.fromEnvironment('SUPABASE_URL')"));
+    expect(bootstrap, contains("String.fromEnvironment('SUPABASE_ANON_KEY')"));
     expect(bootstrap, isNot(contains('SUPABASE_SERVICE_ROLE_KEY')));
     expect(bootstrap, isNot(contains('SERVICE_ROLE_KEY')));
     expect(bootstrap, isNot(contains('APIS_PERU_TOKEN')));

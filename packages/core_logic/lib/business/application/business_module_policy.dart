@@ -18,7 +18,7 @@ enum BusinessModule {
   permissions,
   moduleSettings,
   balance,
-  stockTransfers;
+  stockTransfers,
 }
 
 class BusinessModulePolicy {
@@ -39,7 +39,8 @@ class BusinessModulePolicy {
       BusinessModule.traceability => c.inventoryEnabled,
       BusinessModule.variants => c.variants,
       BusinessModule.pricing => true,
-      BusinessModule.inventory || BusinessModule.stockTransfers => c.inventoryEnabled,
+      BusinessModule.inventory ||
+      BusinessModule.stockTransfers => c.inventoryEnabled,
       BusinessModule.suppliers => c.supplierManagement,
       BusinessModule.purchases => c.purchaseManagement,
       BusinessModule.electronicDocuments => c.electronicInvoicing,

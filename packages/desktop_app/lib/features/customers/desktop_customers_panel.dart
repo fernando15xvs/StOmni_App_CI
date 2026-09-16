@@ -4,21 +4,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final desktopCustomerUseCaseProvider = Provider<CustomerUseCase>(
-  (ref) => CustomerUseCase(
-    SupabaseCustomerGateway(Supabase.instance.client),
-  ),
+  (ref) => CustomerUseCase(SupabaseCustomerGateway(Supabase.instance.client)),
 );
 
 final _desktopCustomersProvider = FutureProvider.autoDispose
     .family<List<CustomerRecord>, String>((ref, query) {
-  return ref.watch(desktopCustomerUseCaseProvider).list(query: query);
-});
+      return ref.watch(desktopCustomerUseCaseProvider).list(query: query);
+    });
 
 class DesktopCustomersPanel extends ConsumerStatefulWidget {
   const DesktopCustomersPanel({super.key});
 
   @override
-  ConsumerState<DesktopCustomersPanel> createState() => _DesktopCustomersPanelState();
+  ConsumerState<DesktopCustomersPanel> createState() =>
+      _DesktopCustomersPanelState();
 }
 
 class _DesktopCustomersPanelState extends ConsumerState<DesktopCustomersPanel> {
@@ -48,34 +47,59 @@ class _DesktopCustomersPanelState extends ConsumerState<DesktopCustomersPanel> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextField(controller: name, decoration: const InputDecoration(labelText: 'Nombre / razón social')),
+                  TextField(
+                    controller: name,
+                    decoration: const InputDecoration(
+                      labelText: 'Nombre / razón social',
+                    ),
+                  ),
                   const SizedBox(height: 12),
-                  TextField(controller: document, decoration: const InputDecoration(labelText: 'DNI / RUC')),
+                  TextField(
+                    controller: document,
+                    decoration: const InputDecoration(labelText: 'DNI / RUC'),
+                  ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
                     initialValue: documentType.isEmpty ? null : documentType,
-                    decoration: const InputDecoration(labelText: 'Tipo de documento'),
+                    decoration: const InputDecoration(
+                      labelText: 'Tipo de documento',
+                    ),
                     items: const [
                       DropdownMenuItem(value: '1', child: Text('DNI')),
                       DropdownMenuItem(value: '6', child: Text('RUC')),
-                      DropdownMenuItem(value: '0', child: Text('Otro / sin documento')),
+                      DropdownMenuItem(
+                        value: '0',
+                        child: Text('Otro / sin documento'),
+                      ),
                     ],
-                    onChanged: (value) => setDialogState(() => documentType = value ?? ''),
+                    onChanged: (value) =>
+                        setDialogState(() => documentType = value ?? ''),
                   ),
                   const SizedBox(height: 12),
-                  TextField(controller: address, decoration: const InputDecoration(labelText: 'Dirección')),
+                  TextField(
+                    controller: address,
+                    decoration: const InputDecoration(labelText: 'Dirección'),
+                  ),
                   const SizedBox(height: 12),
-                  TextField(controller: phone, decoration: const InputDecoration(labelText: 'Teléfono')),
+                  TextField(
+                    controller: phone,
+                    decoration: const InputDecoration(labelText: 'Teléfono'),
+                  ),
                 ],
               ),
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Cancelar')),
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Cancelar'),
+            ),
             FilledButton(
               onPressed: () async {
                 try {
-                  await ref.read(desktopCustomerUseCaseProvider).save(
+                  await ref
+                      .read(desktopCustomerUseCaseProvider)
+                      .save(
                         CustomerDraft(
                           name: name.text,
                           document: document.text,
@@ -88,9 +112,9 @@ class _DesktopCustomersPanelState extends ConsumerState<DesktopCustomersPanel> {
                   if (dialogContext.mounted) Navigator.pop(dialogContext, true);
                 } catch (error) {
                   if (!dialogContext.mounted) return;
-                  ScaffoldMessenger.of(dialogContext).showSnackBar(
-                    SnackBar(content: Text(error.toString())),
-                  );
+                  ScaffoldMessenger.of(
+                    dialogContext,
+                  ).showSnackBar(SnackBar(content: Text(error.toString())));
                 }
               },
               child: const Text('Guardar'),
@@ -111,10 +135,18 @@ class _DesktopCustomersPanelState extends ConsumerState<DesktopCustomersPanel> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Eliminar cliente'),
-        content: Text('¿Eliminar a ${customer.name}? Si tiene historial relacionado, el servidor puede impedirlo.'),
+        content: Text(
+          '¿Eliminar a ${customer.name}? Si tiene historial relacionado, el servidor puede impedirlo.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Eliminar')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Eliminar'),
+          ),
         ],
       ),
     );
@@ -124,7 +156,9 @@ class _DesktopCustomersPanelState extends ConsumerState<DesktopCustomersPanel> {
       ref.invalidate(_desktopCustomersProvider(_query));
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.toString())));
     }
   }
 
@@ -138,9 +172,18 @@ class _DesktopCustomersPanelState extends ConsumerState<DesktopCustomersPanel> {
           child: Row(
             children: [
               Expanded(
-                child: Text('Clientes', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
+                child: Text(
+                  'Clientes',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               ),
-              FilledButton.icon(onPressed: () => _edit(), icon: const Icon(Icons.person_add_alt_1), label: const Text('Nuevo cliente')),
+              FilledButton.icon(
+                onPressed: () => _edit(),
+                icon: const Icon(Icons.person_add_alt_1),
+                label: const Text('Nuevo cliente'),
+              ),
             ],
           ),
         ),
@@ -148,7 +191,10 @@ class _DesktopCustomersPanelState extends ConsumerState<DesktopCustomersPanel> {
           padding: const EdgeInsets.fromLTRB(28, 0, 28, 16),
           child: TextField(
             controller: _searchController,
-            decoration: const InputDecoration(prefixIcon: Icon(Icons.search), hintText: 'Buscar por nombre, DNI o RUC'),
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Icons.search),
+              hintText: 'Buscar por nombre, DNI o RUC',
+            ),
             onChanged: (value) => setState(() => _query = value.trim()),
           ),
         ),
@@ -166,16 +212,29 @@ class _DesktopCustomersPanelState extends ConsumerState<DesktopCustomersPanel> {
                       final row = rows[index];
                       return Card(
                         child: ListTile(
-                          title: Text(row.name, style: const TextStyle(fontWeight: FontWeight.w700)),
-                          subtitle: Text([
-                            if (row.document.isNotEmpty) row.document,
-                            if (row.phone?.isNotEmpty == true) row.phone!,
-                            if (row.address.isNotEmpty) row.address,
-                          ].join(' · ')),
+                          title: Text(
+                            row.name,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                          subtitle: Text(
+                            [
+                              if (row.document.isNotEmpty) row.document,
+                              if (row.phone?.isNotEmpty == true) row.phone!,
+                              if (row.address.isNotEmpty) row.address,
+                            ].join(' · '),
+                          ),
                           trailing: Wrap(
                             children: [
-                              IconButton(tooltip: 'Editar', onPressed: () => _edit(row), icon: const Icon(Icons.edit_outlined)),
-                              IconButton(tooltip: 'Eliminar', onPressed: () => _delete(row), icon: const Icon(Icons.delete_outline)),
+                              IconButton(
+                                tooltip: 'Editar',
+                                onPressed: () => _edit(row),
+                                icon: const Icon(Icons.edit_outlined),
+                              ),
+                              IconButton(
+                                tooltip: 'Eliminar',
+                                onPressed: () => _delete(row),
+                                icon: const Icon(Icons.delete_outline),
+                              ),
                             ],
                           ),
                         ),

@@ -6,7 +6,8 @@ import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'save_document_stub.dart'
-    if (dart.library.io) 'save_document_io.dart' as files;
+    if (dart.library.io) 'save_document_io.dart'
+    as files;
 
 DocumentOutputGateway documentOutputFor(BuildContext context) {
   final box = context.findRenderObject();
@@ -32,24 +33,35 @@ class MobileDocumentOutput implements DocumentOutputGateway {
       }
       final format = document.pageWidthPoints == null
           ? PdfPageFormat.a4
-          : PdfPageFormat(document.pageWidthPoints!, document.pageHeightPoints ?? PdfPageFormat.a4.height);
+          : PdfPageFormat(
+              document.pageWidthPoints!,
+              document.pageHeightPoints ?? PdfPageFormat.a4.height,
+            );
       final printed = await Printing.layoutPdf(
         onLayout: (_) async => document.bytes,
         name: document.fileName,
         format: format,
       );
-      return printed ? DocumentOutputResult.printed : DocumentOutputResult.cancelled;
+      return printed
+          ? DocumentOutputResult.printed
+          : DocumentOutputResult.cancelled;
     }
-    final desktop = !kIsWeb && (
-      defaultTargetPlatform == TargetPlatform.windows ||
-      defaultTargetPlatform == TargetPlatform.linux ||
-      defaultTargetPlatform == TargetPlatform.macOS
-    );
+    final desktop =
+        !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.windows ||
+            defaultTargetPlatform == TargetPlatform.linux ||
+            defaultTargetPlatform == TargetPlatform.macOS);
     if (action == DocumentOutputAction.export && desktop) {
       return files.saveDocument(document);
     }
     final result = await Share.shareXFiles(
-      [XFile.fromData(document.bytes, mimeType: document.mimeType, name: document.fileName)],
+      [
+        XFile.fromData(
+          document.bytes,
+          mimeType: document.mimeType,
+          name: document.fileName,
+        ),
+      ],
       fileNameOverrides: [document.fileName],
       sharePositionOrigin: sharePositionOrigin,
     );

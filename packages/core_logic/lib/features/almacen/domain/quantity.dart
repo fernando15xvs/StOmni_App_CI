@@ -46,10 +46,7 @@ class FixedQuantity implements Comparable<FixedQuantity> {
     _validateScale(newScale);
     if (newScale == scale) return this;
     if (newScale > scale) {
-      return FixedQuantity._(
-        minorUnits * _factor(newScale - scale),
-        newScale,
-      );
+      return FixedQuantity._(minorUnits * _factor(newScale - scale), newScale);
     }
     final divisor = _factor(scale - newScale);
     if (minorUnits % divisor != 0) {
@@ -89,9 +86,9 @@ class FixedQuantity implements Comparable<FixedQuantity> {
   @override
   int compareTo(FixedQuantity other) {
     final targetScale = scale >= other.scale ? scale : other.scale;
-    return rescale(targetScale).minorUnits.compareTo(
-      other.rescale(targetScale).minorUnits,
-    );
+    return rescale(
+      targetScale,
+    ).minorUnits.compareTo(other.rescale(targetScale).minorUnits);
   }
 
   @override

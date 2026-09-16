@@ -129,7 +129,8 @@ class DebtPaymentRequestStore {
         final intent = DebtPaymentRequestIntent.fromJson(
           Map<String, dynamic>.from(entry.value as Map),
         );
-        if (intent.requestId.isEmpty || intent.fingerprint != entry.key) continue;
+        if (intent.requestId.isEmpty || intent.fingerprint != entry.key)
+          continue;
         result[entry.key.toString()] = intent;
       }
       return result;

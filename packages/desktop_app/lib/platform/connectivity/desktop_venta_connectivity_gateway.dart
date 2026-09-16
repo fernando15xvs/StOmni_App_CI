@@ -17,7 +17,8 @@ class DesktopVentaConnectivityGateway implements VentaConnectivityGateway {
       final addresses = await InternetAddress.lookup(
         'supabase.com',
       ).timeout(const Duration(seconds: 3));
-      return addresses.isNotEmpty && addresses.any((address) => address.rawAddress.isNotEmpty);
+      return addresses.isNotEmpty &&
+          addresses.any((address) => address.rawAddress.isNotEmpty);
     } on SocketException {
       return false;
     } on TimeoutException {

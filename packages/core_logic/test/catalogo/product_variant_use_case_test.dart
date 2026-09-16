@@ -13,19 +13,23 @@ class _Gateway implements ProductVariantGateway {
   Future<List<ProductVariantGroup>> list() async => const [];
 
   @override
-  Future<ProductVariantGroup> save(ProductVariantGroupDraft draft, {int? id}) async {
+  Future<ProductVariantGroup> save(
+    ProductVariantGroupDraft draft, {
+    int? id,
+  }) async {
     saves++;
     return ProductVariantGroup(
       id: id ?? 1,
       name: draft.name,
       attributeNames: draft.attributeNames,
-      members: draft.members
-          .map((member) => ProductVariantMember(
-                productId: member.productId,
-                productName: 'P${member.productId}',
-                productCode: '',
-                attributes: member.attributes,
-              )),
+      members: draft.members.map(
+        (member) => ProductVariantMember(
+          productId: member.productId,
+          productName: 'P${member.productId}',
+          productCode: '',
+          attributes: member.attributes,
+        ),
+      ),
     );
   }
 
@@ -38,7 +42,8 @@ class _Business implements BusinessProfileGateway {
   final bool enabled;
 
   @override
-  Future<BusinessProfile> load({bool allowOffline = false}) async => BusinessProfile(
+  Future<BusinessProfile> load({bool allowOffline = false}) async =>
+      BusinessProfile(
         businessId: '1',
         displayName: 'StOmni',
         capabilities: BusinessCapabilities(variants: enabled),
@@ -60,7 +65,10 @@ class _Authorizer implements OperationAuthorizer {
   Set<AppPermission> required = const {};
 
   @override
-  Future<String> require(Set<AppPermission> permissions, {bool allowOffline = false}) async {
+  Future<String> require(
+    Set<AppPermission> permissions, {
+    bool allowOffline = false,
+  }) async {
     required = permissions;
     return currentAuthUserId!;
   }
@@ -75,20 +83,22 @@ void main() {
       businessProfile: _Business(),
       authorizer: authorizer,
     );
-    final result = await useCase.save(ProductVariantGroupDraft(
-      name: 'Camiseta',
-      attributeNames: const [' Color ', 'Talla'],
-      members: [
-        ProductVariantMemberDraft(
-          productId: 1,
-          attributes: const {'color': 'Azul', 'talla': 'M'},
-        ),
-        ProductVariantMemberDraft(
-          productId: 2,
-          attributes: const {'color': 'Azul', 'talla': 'L'},
-        ),
-      ],
-    ));
+    final result = await useCase.save(
+      ProductVariantGroupDraft(
+        name: 'Camiseta',
+        attributeNames: const [' Color ', 'Talla'],
+        members: [
+          ProductVariantMemberDraft(
+            productId: 1,
+            attributes: const {'color': 'Azul', 'talla': 'M'},
+          ),
+          ProductVariantMemberDraft(
+            productId: 2,
+            attributes: const {'color': 'Azul', 'talla': 'L'},
+          ),
+        ],
+      ),
+    );
 
     expect(result.attributeNames, ['color', 'talla']);
     expect(authorizer.required, {AppPermission.productsUpdate});
@@ -102,20 +112,22 @@ void main() {
       authorizer: _Authorizer(),
     );
     await expectLater(
-      useCase.save(ProductVariantGroupDraft(
-        name: 'Camiseta',
-        attributeNames: const ['color', 'talla'],
-        members: [
-          ProductVariantMemberDraft(
-            productId: 1,
-            attributes: const {'color': 'Azul', 'talla': 'M'},
-          ),
-          ProductVariantMemberDraft(
-            productId: 2,
-            attributes: const {'color': 'azul', 'talla': 'm'},
-          ),
-        ],
-      )),
+      useCase.save(
+        ProductVariantGroupDraft(
+          name: 'Camiseta',
+          attributeNames: const ['color', 'talla'],
+          members: [
+            ProductVariantMemberDraft(
+              productId: 1,
+              attributes: const {'color': 'Azul', 'talla': 'M'},
+            ),
+            ProductVariantMemberDraft(
+              productId: 2,
+              attributes: const {'color': 'azul', 'talla': 'm'},
+            ),
+          ],
+        ),
+      ),
       throwsArgumentError,
     );
   });

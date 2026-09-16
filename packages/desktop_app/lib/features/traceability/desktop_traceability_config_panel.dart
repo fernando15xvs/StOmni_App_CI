@@ -50,7 +50,9 @@ class _DesktopTraceabilityConfigPanelState
     final c = current.capabilities;
     setState(() => _savingCapabilities = true);
     try {
-      final saved = await ref.read(updateBusinessCapabilitiesUseCaseProvider).execute(
+      final saved = await ref
+          .read(updateBusinessCapabilitiesUseCaseProvider)
+          .execute(
             current,
             BusinessCapabilities(
               inventoryEnabled: c.inventoryEnabled,
@@ -105,7 +107,9 @@ class _DesktopTraceabilityConfigPanelState
     if (config == null || _saving) return;
     setState(() => _saving = true);
     try {
-      final saved = await ref.read(inventoryTraceabilityUseCaseProvider).saveConfig(
+      final saved = await ref
+          .read(inventoryTraceabilityUseCaseProvider)
+          .saveConfig(
             productId: config.productId,
             expectedRevision: config.revision,
             mode: config.mode,
@@ -135,7 +139,9 @@ class _DesktopTraceabilityConfigPanelState
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(child: Text(ErrorMapper.map(error))),
         data: (snapshot) {
-          final products = snapshot.products.where((row) => row.active).toList();
+          final products = snapshot.products
+              .where((row) => row.active)
+              .toList();
           final caps = _profile?.capabilities;
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -143,8 +149,8 @@ class _DesktopTraceabilityConfigPanelState
               Text(
                 'Trazabilidad de productos',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
+                  fontWeight: FontWeight.w800,
+                ),
               ),
               const SizedBox(height: 6),
               const Text(
@@ -169,10 +175,12 @@ class _DesktopTraceabilityConfigPanelState
                                 onChanged: _savingCapabilities
                                     ? null
                                     : (value) => _saveCapabilities(
-                                          lot: value,
-                                          expiry: value ? caps.expiryTracking : false,
-                                          serial: caps.serialNumberTracking,
-                                        ),
+                                        lot: value,
+                                        expiry: value
+                                            ? caps.expiryTracking
+                                            : false,
+                                        serial: caps.serialNumberTracking,
+                                      ),
                               ),
                             ),
                             SizedBox(
@@ -182,13 +190,14 @@ class _DesktopTraceabilityConfigPanelState
                                 title: const Text('Vencimientos'),
                                 subtitle: const Text('Requiere lotes'),
                                 value: caps.expiryTracking,
-                                onChanged: _savingCapabilities || !caps.lotTracking
+                                onChanged:
+                                    _savingCapabilities || !caps.lotTracking
                                     ? null
                                     : (value) => _saveCapabilities(
-                                          lot: caps.lotTracking,
-                                          expiry: value,
-                                          serial: caps.serialNumberTracking,
-                                        ),
+                                        lot: caps.lotTracking,
+                                        expiry: value,
+                                        serial: caps.serialNumberTracking,
+                                      ),
                               ),
                             ),
                             SizedBox(
@@ -200,10 +209,10 @@ class _DesktopTraceabilityConfigPanelState
                                 onChanged: _savingCapabilities
                                     ? null
                                     : (value) => _saveCapabilities(
-                                          lot: caps.lotTracking,
-                                          expiry: caps.expiryTracking,
-                                          serial: value,
-                                        ),
+                                        lot: caps.lotTracking,
+                                        expiry: caps.expiryTracking,
+                                        serial: value,
+                                      ),
                               ),
                             ),
                           ],
@@ -268,17 +277,19 @@ class _DesktopTraceabilityConfigPanelState
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   title: const Text('Exigir fecha de vencimiento'),
-                  subtitle: const Text('Disponible sólo para seguimiento por lote.'),
+                  subtitle: const Text(
+                    'Disponible sólo para seguimiento por lote.',
+                  ),
                   value: _config!.expiryRequired,
                   onChanged: _config!.mode == ProductTraceabilityMode.lot
                       ? (value) => setState(() {
-                            _config = ProductTraceabilityConfig(
-                              productId: _config!.productId,
-                              mode: _config!.mode,
-                              expiryRequired: value,
-                              revision: _config!.revision,
-                            );
-                          })
+                          _config = ProductTraceabilityConfig(
+                            productId: _config!.productId,
+                            mode: _config!.mode,
+                            expiryRequired: value,
+                            revision: _config!.revision,
+                          );
+                        })
                       : null,
                 ),
                 const Spacer(),

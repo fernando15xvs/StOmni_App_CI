@@ -46,26 +46,28 @@ class SupabaseInventoryTraceabilityGateway
     int? productId,
     int? warehouseId,
   }) async {
-    final raw = await _client.rpc('list_inventory_lots_v1', params: {
-      'p_product_id': productId,
-      'p_warehouse_id': warehouseId,
-    });
+    final raw = await _client.rpc(
+      'list_inventory_lots_v1',
+      params: {'p_product_id': productId, 'p_warehouse_id': warehouseId},
+    );
     if (raw is! List) {
       throw const FormatException('Listado de lotes inválido.');
     }
-    return raw.map((item) {
-      final row = _map(item, 'lote');
-      return LotStockRecord(
-        id: _int(row['id'], 'id'),
-        productId: _int(row['product_id'], 'product_id'),
-        productName: row['product_name']?.toString() ?? '',
-        warehouseId: _int(row['warehouse_id'], 'warehouse_id'),
-        warehouseName: row['warehouse_name']?.toString() ?? '',
-        lotCode: row['lot_code']?.toString() ?? '',
-        baseQuantity: _double(row['base_quantity'], 'base_quantity'),
-        expiryDate: _date(row['expiry_date']),
-      );
-    }).toList(growable: false);
+    return raw
+        .map((item) {
+          final row = _map(item, 'lote');
+          return LotStockRecord(
+            id: _int(row['id'], 'id'),
+            productId: _int(row['product_id'], 'product_id'),
+            productName: row['product_name']?.toString() ?? '',
+            warehouseId: _int(row['warehouse_id'], 'warehouse_id'),
+            warehouseName: row['warehouse_name']?.toString() ?? '',
+            lotCode: row['lot_code']?.toString() ?? '',
+            baseQuantity: _double(row['base_quantity'], 'base_quantity'),
+            expiryDate: _date(row['expiry_date']),
+          );
+        })
+        .toList(growable: false);
   }
 
   @override
@@ -73,65 +75,76 @@ class SupabaseInventoryTraceabilityGateway
     int? productId,
     int? warehouseId,
   }) async {
-    final raw = await _client.rpc('list_inventory_serials_v1', params: {
-      'p_product_id': productId,
-      'p_warehouse_id': warehouseId,
-    });
+    final raw = await _client.rpc(
+      'list_inventory_serials_v1',
+      params: {'p_product_id': productId, 'p_warehouse_id': warehouseId},
+    );
     if (raw is! List) {
       throw const FormatException('Listado de series inválido.');
     }
-    return raw.map((item) {
-      final row = _map(item, 'serie');
-      return SerialStockRecord(
-        id: _int(row['id'], 'id'),
-        productId: _int(row['product_id'], 'product_id'),
-        productName: row['product_name']?.toString() ?? '',
-        warehouseId: _int(row['warehouse_id'], 'warehouse_id'),
-        warehouseName: row['warehouse_name']?.toString() ?? '',
-        serialNumber: row['serial_number']?.toString() ?? '',
-        status: row['status']?.toString() ?? '',
-      );
-    }).toList(growable: false);
+    return raw
+        .map((item) {
+          final row = _map(item, 'serie');
+          return SerialStockRecord(
+            id: _int(row['id'], 'id'),
+            productId: _int(row['product_id'], 'product_id'),
+            productName: row['product_name']?.toString() ?? '',
+            warehouseId: _int(row['warehouse_id'], 'warehouse_id'),
+            warehouseName: row['warehouse_name']?.toString() ?? '',
+            serialNumber: row['serial_number']?.toString() ?? '',
+            status: row['status']?.toString() ?? '',
+          );
+        })
+        .toList(growable: false);
   }
 
   @override
   Future<void> registerReceipt(TraceableReceiptCommand command) async {
     final config = await loadConfig(command.productId);
     final allocations = switch (config.mode) {
-      ProductTraceabilityMode.lot => command.lots
-          .map((lot) => <String, dynamic>{
+      ProductTraceabilityMode.lot =>
+        command.lots
+            .map(
+              (lot) => <String, dynamic>{
                 'lot_code': lot.lotCode.trim(),
                 'base_quantity': lot.baseQuantity,
                 'expiry_date': lot.expiryDate == null
                     ? null
                     : '${lot.expiryDate!.year.toString().padLeft(4, '0')}-'
-                        '${lot.expiryDate!.month.toString().padLeft(2, '0')}-'
-                        '${lot.expiryDate!.day.toString().padLeft(2, '0')}',
-              })
-          .toList(growable: false),
-      ProductTraceabilityMode.serial => command.serials
-          .map((serial) => <String, dynamic>{
+                          '${lot.expiryDate!.month.toString().padLeft(2, '0')}-'
+                          '${lot.expiryDate!.day.toString().padLeft(2, '0')}',
+              },
+            )
+            .toList(growable: false),
+      ProductTraceabilityMode.serial =>
+        command.serials
+            .map(
+              (serial) => <String, dynamic>{
                 'serial_number': serial.serialNumber.trim(),
-              })
-          .toList(growable: false),
+              },
+            )
+            .toList(growable: false),
       ProductTraceabilityMode.none => const <Map<String, dynamic>>[],
     };
-    await _client.rpc('register_traceable_merchandise_receipt_v1', params: {
-      'p_request_id': command.requestId,
-      'p_product_id': command.productId,
-      'p_warehouse_id': command.warehouseId,
-      'p_total_base_quantity': command.totalBaseQuantity,
-      'p_received_at': AppTime.toIsoLima(AppTime.now()),
-      'p_entry_type': 'Ingreso trazable',
-      'p_document': '',
-      'p_supplier_id': null,
-      'p_observations': '',
-      'p_unit_cost': 0,
-      'p_unit_price': 0,
-      'p_box_price': 0,
-      'p_comparative_box_price': 0,
-      'p_allocations': allocations,
-    });
+    await _client.rpc(
+      'register_traceable_merchandise_receipt_v1',
+      params: {
+        'p_request_id': command.requestId,
+        'p_product_id': command.productId,
+        'p_warehouse_id': command.warehouseId,
+        'p_total_base_quantity': command.totalBaseQuantity,
+        'p_received_at': AppTime.toIsoLima(AppTime.now()),
+        'p_entry_type': 'Ingreso trazable',
+        'p_document': '',
+        'p_supplier_id': null,
+        'p_observations': '',
+        'p_unit_cost': 0,
+        'p_unit_price': 0,
+        'p_box_price': 0,
+        'p_comparative_box_price': 0,
+        'p_allocations': allocations,
+      },
+    );
   }
 
   ProductTraceabilityConfig _decodeConfig(Object? raw) {
@@ -165,7 +178,8 @@ class SupabaseInventoryTraceabilityGateway
 
   int _int(Object? value, String field) {
     final parsed = value is num ? value.toInt() : int.tryParse('$value');
-    if (parsed == null || parsed <= 0) throw FormatException('$field inválido.');
+    if (parsed == null || parsed <= 0)
+      throw FormatException('$field inválido.');
     return parsed;
   }
 
@@ -180,7 +194,8 @@ class SupabaseInventoryTraceabilityGateway
   DateTime? _date(Object? value) {
     if (value == null) return null;
     final parsed = DateTime.tryParse(value.toString());
-    if (parsed == null) throw const FormatException('Fecha de vencimiento inválida.');
+    if (parsed == null)
+      throw const FormatException('Fecha de vencimiento inválida.');
     return parsed;
   }
 }

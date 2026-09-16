@@ -61,9 +61,9 @@ class _BusinessCapabilitiesPageState
         _profile = saved;
         _draft = saved.capabilities;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Capacidades guardadas.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Capacidades guardadas.')));
     } catch (error) {
       if (mounted) setState(() => _error = ErrorMapper.map(error));
     } finally {
@@ -78,7 +78,8 @@ class _BusinessCapabilitiesPageState
     final isAdmin = ref
         .watch(appPermissionsProvider)
         .contains(AppPermission.businessConfigure);
-    final canSave = !_saving &&
+    final canSave =
+        !_saving &&
         !_loading &&
         profile != null &&
         profile.supportsCapabilitySettings &&
@@ -125,10 +126,8 @@ class _BusinessCapabilitiesPageState
                     value: draft.creditSales,
                     onChanged: canSave
                         ? (value) => setState(
-                              () => _draft = draft.withSales(
-                                creditSales: value,
-                              ),
-                            )
+                            () => _draft = draft.withSales(creditSales: value),
+                          )
                         : null,
                   ),
                   SwitchListTile(
@@ -136,10 +135,10 @@ class _BusinessCapabilitiesPageState
                     value: draft.electronicInvoicing,
                     onChanged: canSave
                         ? (value) => setState(
-                              () => _draft = draft.withSales(
-                                electronicInvoicing: value,
-                              ),
-                            )
+                            () => _draft = draft.withSales(
+                              electronicInvoicing: value,
+                            ),
+                          )
                         : null,
                   ),
                   const SizedBox(height: 16),

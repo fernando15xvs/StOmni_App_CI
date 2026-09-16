@@ -11,9 +11,7 @@ final guidedOnboardingGatewayProvider = Provider<GuidedOnboardingGateway>(
 );
 
 final guidedOnboardingUseCaseProvider = Provider<GuidedOnboardingUseCase>(
-  (ref) => GuidedOnboardingUseCase(
-    ref.watch(guidedOnboardingGatewayProvider),
-  ),
+  (ref) => GuidedOnboardingUseCase(ref.watch(guidedOnboardingGatewayProvider)),
 );
 
 /// El progreso nunca sobrevive sin listeners: evita reutilizar el onboarding

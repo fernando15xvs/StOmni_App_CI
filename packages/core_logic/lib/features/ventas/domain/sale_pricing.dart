@@ -19,7 +19,8 @@ class SalePriceQuote {
 
   bool get hasRule => ruleId != null;
   double get discountAmount => catalogPrice > price ? catalogPrice - price : 0;
-  double get discountPercent => catalogPrice <= 0 ? 0 : (discountAmount / catalogPrice) * 100;
+  double get discountPercent =>
+      catalogPrice <= 0 ? 0 : (discountAmount / catalogPrice) * 100;
 }
 
 class SalePriceRule {

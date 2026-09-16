@@ -12,11 +12,7 @@ Widget _badge(String text, Color color) {
     ),
     child: Text(
       text,
-      style: TextStyle(
-        fontSize: 9,
-        fontWeight: FontWeight.bold,
-        color: color,
-      ),
+      style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: color),
     ),
   );
 }
@@ -25,28 +21,29 @@ class ProductoCardMobile extends StatelessWidget {
   final Map<String, dynamic> p;
   final Function(Map<String, dynamic>) onTap;
 
-  const ProductoCardMobile({
-    super.key,
-    required this.p,
-    required this.onTap,
-  });
+  const ProductoCardMobile({super.key, required this.p, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final int totalUnidades = p['_totalStock'] as int? ?? 0;
     final urlImagen = p['imagen_path'];
-    final tieneImagen = urlImagen != null && urlImagen.toString().startsWith('http');
+    final tieneImagen =
+        urlImagen != null && urlImagen.toString().startsWith('http');
     final nombreMarca = p['_marcaNombre'] ?? 'Genérico';
     final int pcs = (p['cantidad_por_caja'] as num?)?.toInt() ?? 1;
     final tipoVenta = StockUtils.getTipoVentaFromMap(p);
-    final bool muestraContenido = StockUtils.usaContenidoInformativo(tipoVenta, pcs);
+    final bool muestraContenido = StockUtils.usaContenidoInformativo(
+      tipoVenta,
+      pcs,
+    );
     final stockMostrado = StockUtils.formatStock(totalUnidades, pcs, tipoVenta);
     final threshold = (p['stock_minimo'] as num?)?.toInt() ?? 0;
     final bool stockBajo = totalUnidades <= threshold && totalUnidades > 0;
 
     final Color colorDorado = const Color(0xFFF59E0B);
     final Color colorNaranja = Colors.deepOrange;
-    final Color colorTexto = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final Color colorTexto =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
 
     final primaryTexto = Theme.of(context).brightness == Brightness.dark
         ? Colors.greenAccent
@@ -206,35 +203,36 @@ class ProductoCardMobile extends StatelessWidget {
         ),
       ),
     );
-    }
+  }
 }
 
 class ProductoCardDesktop extends StatelessWidget {
   final Map<String, dynamic> p;
   final Function(Map<String, dynamic>) onTap;
 
-  const ProductoCardDesktop({
-    super.key,
-    required this.p,
-    required this.onTap,
-  });
+  const ProductoCardDesktop({super.key, required this.p, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final int totalUnidades = p['_totalStock'] as int? ?? 0;
     final urlImagen = p['imagen_path'];
-    final tieneImagen = urlImagen != null && urlImagen.toString().startsWith('http');
+    final tieneImagen =
+        urlImagen != null && urlImagen.toString().startsWith('http');
     final nombreMarca = p['_marcaNombre'] ?? 'Genérico';
     final int pcs = (p['cantidad_por_caja'] as num?)?.toInt() ?? 1;
     final tipoVenta = StockUtils.getTipoVentaFromMap(p);
-    final bool muestraContenido = StockUtils.usaContenidoInformativo(tipoVenta, pcs);
+    final bool muestraContenido = StockUtils.usaContenidoInformativo(
+      tipoVenta,
+      pcs,
+    );
     final stockMostrado = StockUtils.formatStock(totalUnidades, pcs, tipoVenta);
     final threshold = (p['stock_minimo'] as num?)?.toInt() ?? 0;
     final bool stockBajo = totalUnidades <= threshold && totalUnidades > 0;
 
     final Color colorDorado = const Color(0xFFF59E0B);
     final Color colorNaranja = Colors.deepOrange;
-    final Color colorTexto = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final Color colorTexto =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
 
     final primaryTexto = Theme.of(context).brightness == Brightness.dark
         ? Colors.greenAccent
@@ -401,5 +399,5 @@ class ProductoCardDesktop extends StatelessWidget {
         ),
       ),
     );
-    }
+  }
 }

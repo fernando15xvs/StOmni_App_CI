@@ -138,9 +138,7 @@ class GreTransporteSection extends StatelessWidget {
             const SizedBox(height: 10),
             _dropdown(
               context: context,
-              label: indTransbordo
-                  ? 'Conductor del primer tramo'
-                  : 'Conductor',
+              label: indTransbordo ? 'Conductor del primer tramo' : 'Conductor',
               value: conductorId,
               items: conductores,
               text: (item) {
@@ -154,9 +152,7 @@ class GreTransporteSection extends StatelessWidget {
             const SizedBox(height: 10),
             _dropdown(
               context: context,
-              label: indTransbordo
-                  ? 'Vehículo del primer tramo'
-                  : 'Vehículo',
+              label: indTransbordo ? 'Vehículo del primer tramo' : 'Vehículo',
               value: vehiculoId,
               items: vehiculos,
               text: (item) {

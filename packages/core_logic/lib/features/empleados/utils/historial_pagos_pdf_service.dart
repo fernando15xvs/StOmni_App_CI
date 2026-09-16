@@ -58,9 +58,7 @@ class HistorialPagosPdfService {
               padding: const pw.EdgeInsets.all(15),
               decoration: pw.BoxDecoration(
                 color: PdfColors.grey100,
-                borderRadius: const pw.BorderRadius.all(
-                  pw.Radius.circular(10),
-                ),
+                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(10)),
                 border: pw.Border.all(color: PdfColors.grey300),
               ),
               child: pw.Row(
@@ -115,10 +113,10 @@ class HistorialPagosPdfService {
                   'Monto (S/)',
                 ],
                 data: pagos.map((p) {
-                  final empNombre =
-                      p['empleados']?['nombre'] ?? 'Desconocido';
-                  final fechaFormateada =
-                      AppFormatters.limaDateTimeLong(p['fecha']);
+                  final empNombre = p['empleados']?['nombre'] ?? 'Desconocido';
+                  final fechaFormateada = AppFormatters.limaDateTimeLong(
+                    p['fecha'],
+                  );
                   return [
                     fechaFormateada,
                     empNombre,
@@ -138,6 +136,10 @@ class HistorialPagosPdfService {
     final nombreArchivo =
         "Pagos_Personal_${DateFormat('ddMMyyyy_HHmm').format(DateTime.now())}.pdf";
 
-    return GeneratedDocument(bytes: bytes, fileName: nombreArchivo, kind: DocumentKind.pdf);
+    return GeneratedDocument(
+      bytes: bytes,
+      fileName: nombreArchivo,
+      kind: DocumentKind.pdf,
+    );
   }
 }

@@ -95,10 +95,7 @@ class CajaCierrePdfRenderer {
                   style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                 ),
               ),
-              pw.Align(
-                alignment: pw.Alignment.centerLeft,
-                child: pw.Text(obs),
-              ),
+              pw.Align(alignment: pw.Alignment.centerLeft, child: pw.Text(obs)),
             ],
             if (movimientos.isNotEmpty) ...[
               pw.SizedBox(height: 15),
@@ -183,7 +180,8 @@ class CajaCierrePdfRenderer {
   ) {
     final esIngreso = movimiento['tipo'] == 'ingreso';
     final fecha = toLima(movimiento['fecha']);
-    final descripcion = movimiento['descripcion']?.toString() ??
+    final descripcion =
+        movimiento['descripcion']?.toString() ??
         (esIngreso ? 'Ingreso Efectivo' : 'Egreso Efectivo');
     final monto = (movimiento['monto'] as num).toDouble();
 

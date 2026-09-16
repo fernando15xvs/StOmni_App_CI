@@ -6,14 +6,13 @@ void main() {
   late String sql;
 
   setUpAll(() {
-    sql = repositoryFile('scripts/fase5_stock_reconciliation.sql').readAsStringSync();
+    sql = repositoryFile(
+      'scripts/fase5_stock_reconciliation.sql',
+    ).readAsStringSync();
   });
 
   test('conciliacion usa id como orden estable y no fecha', () {
-    expect(
-      sql,
-      contains('ORDER BY m.producto_id, m.almacen_id, m.id DESC'),
-    );
+    expect(sql, contains('ORDER BY m.producto_id, m.almacen_id, m.id DESC'));
     expect(
       sql,
       isNot(contains('ORDER BY m.producto_id, m.almacen_id, m.fecha DESC')),

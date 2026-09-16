@@ -82,7 +82,8 @@ class ErrorMapper {
     // Reglas de negocio conocidas que pueden llegar encapsuladas por PostgREST.
     // Se traducen aquí para que ninguna pantalla inspeccione ni muestre el error
     // técnico completo recibido desde PostgreSQL.
-    if (text.contains('caja está cerrada') || text.contains('caja esta cerrada')) {
+    if (text.contains('caja está cerrada') ||
+        text.contains('caja esta cerrada')) {
       return 'La caja está cerrada. Ábrela primero desde Caja Chica para continuar.';
     }
     if (text.contains('saldo insuficiente en caja chica')) {

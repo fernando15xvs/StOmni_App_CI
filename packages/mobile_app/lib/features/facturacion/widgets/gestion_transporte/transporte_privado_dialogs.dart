@@ -57,23 +57,29 @@ Future<bool?> mostrarConductorDialog(
                               final data = await ref
                                   .read(personaLookupRepositoryProvider)
                                   .consultar(numero: value, tipo: 'dni');
-                              if (data == null || !dialogContext.mounted) return;
+                              if (data == null || !dialogContext.mounted)
+                                return;
 
                               var nombresApi =
                                   data['nombres']?.toString().trim() ?? '';
                               var apellidosApi = [
-                                data['apellido_paterno']?.toString().trim() ?? '',
-                                data['apellido_materno']?.toString().trim() ?? '',
+                                data['apellido_paterno']?.toString().trim() ??
+                                    '',
+                                data['apellido_materno']?.toString().trim() ??
+                                    '',
                               ].where((value) => value.isNotEmpty).join(' ');
 
                               if (nombresApi.isEmpty) {
                                 final completo =
-                                    data['nombre_completo']?.toString().trim() ?? '';
+                                    data['nombre_completo']
+                                        ?.toString()
+                                        .trim() ??
+                                    '';
                                 final parsed =
                                     GreTransporteCatalogRules.separarNombreLegacy(
-                                  completo,
-                                  '',
-                                );
+                                      completo,
+                                      '',
+                                    );
                                 nombresApi = parsed.nombres;
                                 if (apellidosApi.isEmpty) {
                                   apellidosApi = parsed.apellidos;
@@ -81,7 +87,8 @@ Future<bool?> mostrarConductorDialog(
                               }
 
                               setDialogState(() {
-                                if (nombresApi.isNotEmpty) nombres.text = nombresApi;
+                                if (nombresApi.isNotEmpty)
+                                  nombres.text = nombresApi;
                                 if (apellidosApi.isNotEmpty) {
                                   apellidos.text = apellidosApi;
                                 }
@@ -92,7 +99,9 @@ Future<bool?> mostrarConductorDialog(
                               );
                               debugPrintStack(stackTrace: st);
                               if (dialogContext.mounted) {
-                                ScaffoldMessenger.of(dialogContext).showSnackBar(
+                                ScaffoldMessenger.of(
+                                  dialogContext,
+                                ).showSnackBar(
                                   SnackBar(
                                     content: Text(ErrorMapper.map(e)),
                                     backgroundColor: Colors.red,
@@ -160,7 +169,9 @@ Future<bool?> mostrarConductorDialog(
                 return;
               }
               try {
-                await ref.read(guiasRemisionRepositoryProvider).guardarConductor(
+                await ref
+                    .read(guiasRemisionRepositoryProvider)
+                    .guardarConductor(
                       id: (item?['id'] as num?)?.toInt(),
                       tipoDocumento: '1',
                       numeroDocumento: doc.text.trim(),
@@ -279,7 +290,9 @@ Future<bool?> mostrarVehiculoDialog(
               return;
             }
             try {
-              await ref.read(guiasRemisionRepositoryProvider).guardarVehiculo(
+              await ref
+                  .read(guiasRemisionRepositoryProvider)
+                  .guardarVehiculo(
                     id: (item?['id'] as num?)?.toInt(),
                     placa: placa.text.trim().toUpperCase(),
                     marca: marca.text.trim(),

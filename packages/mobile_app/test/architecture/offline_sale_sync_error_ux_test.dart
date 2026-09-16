@@ -13,7 +13,9 @@ void main() {
     expect(source, contains('debugPrintStack(stackTrace: st);'));
     expect(
       source,
-      isNot(contains("content: Text('Error general al sincronizar: \$syncError')")),
+      isNot(
+        contains("content: Text('Error general al sincronizar: \$syncError')"),
+      ),
     );
   });
 }

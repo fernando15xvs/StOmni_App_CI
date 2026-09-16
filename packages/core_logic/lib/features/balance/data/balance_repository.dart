@@ -113,10 +113,7 @@ class BalanceRepository {
     return List<Map<String, dynamic>>.from(data);
   }
 
-  Future<void> abrirCaja(
-    double montoApertura, {
-    String? cashRegisterId,
-  }) async {
+  Future<void> abrirCaja(double montoApertura, {String? cashRegisterId}) async {
     await _client.from('sesiones_caja').insert({
       'monto_apertura': montoApertura,
       'usuario_id': _client.auth.currentUser?.id,

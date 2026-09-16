@@ -50,10 +50,8 @@ class SaleCart {
   bool get isNotEmpty => lines.isNotEmpty;
   int get lineCount => lines.length;
 
-  double get totalAmount => lines.fold<double>(
-    0,
-    (total, line) => total + line.subtotal,
-  );
+  double get totalAmount =>
+      lines.fold<double>(0, (total, line) => total + line.subtotal);
 
   bool containsProduct(int productId) {
     return lines.any((line) => line.productId == productId);
@@ -80,13 +78,12 @@ class SaleCart {
     return quantitiesByUnit[key] ?? 0;
   }
 
-  SaleCart replaceProductLines(
-    int productId,
-    Iterable<SaleCartLine> newLines,
-  ) {
+  SaleCart replaceProductLines(int productId, Iterable<SaleCartLine> newLines) {
     final replacements = List<SaleCartLine>.of(newLines);
     if (replacements.any((line) => line.productId != productId)) {
-      throw ArgumentError('Las líneas deben pertenecer al producto reemplazado.');
+      throw ArgumentError(
+        'Las líneas deben pertenecer al producto reemplazado.',
+      );
     }
     return SaleCart([
       ...lines.where((line) => line.productId != productId),

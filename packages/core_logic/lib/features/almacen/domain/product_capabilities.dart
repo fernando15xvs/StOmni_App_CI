@@ -53,7 +53,9 @@ class ProductCapabilities {
         allowedPresentationCodes.contains(normalized);
   }
 
-  List<CommercialPresentation> allowedPresentations(ProductUnitProfile profile) {
+  List<CommercialPresentation> allowedPresentations(
+    ProductUnitProfile profile,
+  ) {
     return profile.presentations
         .where((presentation) => supportsPresentation(presentation.code))
         .toList(growable: false);

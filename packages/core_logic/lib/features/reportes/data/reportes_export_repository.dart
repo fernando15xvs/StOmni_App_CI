@@ -6,10 +6,11 @@ export '../domain/reportes_excel_snapshot.dart';
 import '../../../providers/supabase_provider.dart';
 import '../../../utils/app_time.dart';
 
-final reportesExportRepositoryProvider = Provider<ReportesExportRepository>((ref) {
+final reportesExportRepositoryProvider = Provider<ReportesExportRepository>((
+  ref,
+) {
   return ReportesExportRepository(ref.read(supabaseProvider));
 });
-
 
 class ReportesExportRepository {
   ReportesExportRepository(this._client);
@@ -56,7 +57,9 @@ class ReportesExportRepository {
     var pagosPersonal = <Map<String, dynamic>>[];
 
     if (incluirVentas) {
-      final almacenesData = await _client.from('almacenes').select('id, nombre');
+      final almacenesData = await _client
+          .from('almacenes')
+          .select('id, nombre');
       almacenes = <int, String>{
         for (final item in almacenesData)
           (item['id'] as num).toInt(): item['nombre'].toString(),
@@ -74,10 +77,7 @@ class ReportesExportRepository {
             .range(desde, hasta),
       );
       detallesVentas = await _cargarDetalles(
-        ventas
-            .map((v) => (v['id'] as num?)?.toInt())
-            .whereType<int>()
-            .toList(),
+        ventas.map((v) => (v['id'] as num?)?.toInt()).whereType<int>().toList(),
       );
     }
 

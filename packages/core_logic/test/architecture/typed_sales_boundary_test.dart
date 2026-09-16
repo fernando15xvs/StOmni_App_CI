@@ -31,7 +31,10 @@ void main() {
 
       expect(source, contains('Future<VentaProcessingResult> processSale('));
       expect(source, contains('VentaProcessingRequest request'));
-      expect(source, isNot(contains('Future<Map<String, dynamic>> processSale')));
+      expect(
+        source,
+        isNot(contains('Future<Map<String, dynamic>> processSale')),
+      );
       expect(source, isNot(contains('List<Map<String, dynamic>> detalles')));
       expect(source, isNot(contains('List<Map<String, dynamic>> pagos')));
     });
@@ -45,14 +48,17 @@ void main() {
       expect(source, isNot(contains('carritoLegacy')));
     });
 
-    test('application mapper returns typed lines without serializing RPC maps', () {
-      final source = _read(
-        'lib/features/ventas/application/legacy_sale_line_mapper.dart',
-      );
+    test(
+      'application mapper returns typed lines without serializing RPC maps',
+      () {
+        final source = _read(
+          'lib/features/ventas/application/legacy_sale_line_mapper.dart',
+        );
 
-      expect(source, contains('static SaleProcessingLine map('));
-      expect(source, isNot(contains('toPersistenceMap')));
-    });
+        expect(source, contains('static SaleProcessingLine map('));
+        expect(source, isNot(contains('toPersistenceMap')));
+      },
+    );
 
     test('submission coordinator consumes typed processing results', () {
       final source = _read(

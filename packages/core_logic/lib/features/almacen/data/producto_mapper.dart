@@ -11,7 +11,8 @@ class ProductoMapper {
       json['unit_configuration'],
     );
     final unitLabel = json['unidad_medida']?.toString() ?? '';
-    final legacyService = json['es_servicio'] == true ||
+    final legacyService =
+        json['es_servicio'] == true ||
         json['es_servicio'] == 1 ||
         unitLabel.trim().toLowerCase() == 'servicios';
     final itemType = CatalogItemType.fromCode(
@@ -20,27 +21,33 @@ class ProductoMapper {
     );
     final isInventoriable = itemType.isInventoriable;
     final invList = json['inventario_almacen'] as List<dynamic>? ?? [];
-    final inventario = invList.map((raw) {
-      if (raw is! Map) {
-        throw const FormatException('El inventario del producto está dañado.');
-      }
-      final row = Map<String, dynamic>.from(raw);
-      final rawWarehouseId = row['almacen_id'];
-      if (rawWarehouseId is! num ||
-          rawWarehouseId != rawWarehouseId.roundToDouble()) {
-        throw const FormatException('El almacén del inventario es inválido.');
-      }
-      final stored = row['cantidad'] as num? ?? 0;
-      final visible = !isInventoriable
-          ? 0.0
-          : configuration == null
+    final inventario = invList
+        .map((raw) {
+          if (raw is! Map) {
+            throw const FormatException(
+              'El inventario del producto está dañado.',
+            );
+          }
+          final row = Map<String, dynamic>.from(raw);
+          final rawWarehouseId = row['almacen_id'];
+          if (rawWarehouseId is! num ||
+              rawWarehouseId != rawWarehouseId.roundToDouble()) {
+            throw const FormatException(
+              'El almacén del inventario es inválido.',
+            );
+          }
+          final stored = row['cantidad'] as num? ?? 0;
+          final visible = !isInventoriable
+              ? 0.0
+              : configuration == null
               ? stored.toDouble()
               : configuration.fromStoredBaseQuantity(stored);
-      return InventarioAlmacen(
-        almacenId: rawWarehouseId.toInt(),
-        cantidad: visible,
-      );
-    }).toList(growable: false);
+          return InventarioAlmacen(
+            almacenId: rawWarehouseId.toInt(),
+            cantidad: visible,
+          );
+        })
+        .toList(growable: false);
 
     return Producto(
       id: (json['id'] as num).toInt(),
@@ -95,10 +102,12 @@ class ProductoMapper {
       'stock_minimo': !isInventoriable
           ? 0
           : configuration == null
-              ? product.stockMinimo
-              : configuration.toStoredBaseQuantity(product.stockMinimo),
+          ? product.stockMinimo
+          : configuration.toStoredBaseQuantity(product.stockMinimo),
       if (configuration != null)
-        'unit_configuration': ProductUnitConfigurationMapper.encode(configuration),
+        'unit_configuration': ProductUnitConfigurationMapper.encode(
+          configuration,
+        ),
       'inventario_almacen': product.inventario
           .map(
             (entry) => {
@@ -106,8 +115,8 @@ class ProductoMapper {
               'cantidad': !isInventoriable
                   ? 0
                   : configuration == null
-                      ? entry.cantidad
-                      : configuration.toStoredBaseQuantity(entry.cantidad),
+                  ? entry.cantidad
+                  : configuration.toStoredBaseQuantity(entry.cantidad),
             },
           )
           .toList(growable: false),

@@ -93,10 +93,12 @@ class _DesktopInventoryPanelState extends ConsumerState<DesktopInventoryPanel> {
                   initialValue: warehouseId,
                   decoration: const InputDecoration(labelText: 'Almacén'),
                   items: active
-                      .map((warehouse) => DropdownMenuItem(
-                            value: warehouse.id,
-                            child: Text(warehouse.name),
-                          ))
+                      .map(
+                        (warehouse) => DropdownMenuItem(
+                          value: warehouse.id,
+                          child: Text(warehouse.name),
+                        ),
+                      )
                       .toList(),
                   onChanged: (value) {
                     if (value != null) {
@@ -182,30 +184,29 @@ class _DesktopInventoryPanelState extends ConsumerState<DesktopInventoryPanel> {
     setState(() => _mutating = true);
     try {
       await ref.read(desktopRegisterMerchandiseEntryUseCaseProvider)(
-            MerchandiseEntryCommand(
-              requestId: const Uuid().v4(),
-              productId: item.product.id,
-              date: AppTime.now(),
-              entryType: adjustment ? 'Ajuste de Inventario' : 'Compra',
-              document: document.text.trim(),
-              supplierId: item.product.proveedorId,
-              observations: observations.text.trim(),
-              warehouses: [
-                MerchandiseWarehouseAllocation(
-                  warehouseId: warehouseId,
-                  baseQuantity: parsed,
-                ),
-              ],
-              cost: item.product.precioCompra,
-              unitPrice: item.product.precioUnidad,
-              boxPrice: item.product.precioCaja ?? 0,
-              comparativeBoxPrice: (item.product.precioCaja ?? 0) > 0
-                  ? (item.product.precioCaja ?? 0) *
-                      (item.product.cantidadPorCaja ?? 1)
-                  : item.product.precioUnidad *
-                      (item.product.cantidadPorCaja ?? 1),
+        MerchandiseEntryCommand(
+          requestId: const Uuid().v4(),
+          productId: item.product.id,
+          date: AppTime.now(),
+          entryType: adjustment ? 'Ajuste de Inventario' : 'Compra',
+          document: document.text.trim(),
+          supplierId: item.product.proveedorId,
+          observations: observations.text.trim(),
+          warehouses: [
+            MerchandiseWarehouseAllocation(
+              warehouseId: warehouseId,
+              baseQuantity: parsed,
             ),
-          );
+          ],
+          cost: item.product.precioCompra,
+          unitPrice: item.product.precioUnidad,
+          boxPrice: item.product.precioCaja ?? 0,
+          comparativeBoxPrice: (item.product.precioCaja ?? 0) > 0
+              ? (item.product.precioCaja ?? 0) *
+                    (item.product.cantidadPorCaja ?? 1)
+              : item.product.precioUnidad * (item.product.cantidadPorCaja ?? 1),
+        ),
+      );
       if (!mounted) return;
       _message('Ingreso registrado correctamente.');
       _refresh();
@@ -261,10 +262,12 @@ class _DesktopInventoryPanelState extends ConsumerState<DesktopInventoryPanel> {
                     initialValue: sourceId,
                     decoration: const InputDecoration(labelText: 'Origen'),
                     items: active
-                        .map((warehouse) => DropdownMenuItem(
-                              value: warehouse.id,
-                              child: Text(warehouse.name),
-                            ))
+                        .map(
+                          (warehouse) => DropdownMenuItem(
+                            value: warehouse.id,
+                            child: Text(warehouse.name),
+                          ),
+                        )
                         .toList(),
                     onChanged: (value) {
                       if (value == null) return;
@@ -293,10 +296,12 @@ class _DesktopInventoryPanelState extends ConsumerState<DesktopInventoryPanel> {
                       decoration: const InputDecoration(labelText: 'Destino'),
                       items: active
                           .where((warehouse) => warehouse.id != sourceId)
-                          .map((warehouse) => DropdownMenuItem(
-                                value: warehouse.id,
-                                child: Text(warehouse.name),
-                              ))
+                          .map(
+                            (warehouse) => DropdownMenuItem(
+                              value: warehouse.id,
+                              child: Text(warehouse.name),
+                            ),
+                          )
                           .toList(),
                       onChanged: (value) =>
                           setDialogState(() => destinationId = value),
@@ -308,7 +313,9 @@ class _DesktopInventoryPanelState extends ConsumerState<DesktopInventoryPanel> {
                     keyboardType: TextInputType.numberWithOptions(
                       decimal: base.quantityPrecision > 0,
                     ),
-                    inputFormatters: [_quantityFormatter(base.quantityPrecision)],
+                    inputFormatters: [
+                      _quantityFormatter(base.quantityPrecision),
+                    ],
                     decoration: InputDecoration(
                       labelText: 'Cantidad (${base.pluralLabel})',
                     ),
@@ -369,16 +376,16 @@ class _DesktopInventoryPanelState extends ConsumerState<DesktopInventoryPanel> {
     setState(() => _mutating = true);
     try {
       await ref.read(desktopRegisterStockMovementUseCaseProvider)(
-            RegisterStockMovementCommand(
-              requestId: const Uuid().v4(),
-              productId: item.product.id,
-              quantity: parsed,
-              sourceWarehouseId: sourceId,
-              destinationWarehouseId: waste ? null : destinationId,
-              isWaste: waste,
-              reason: reason.text.trim(),
-            ),
-          );
+        RegisterStockMovementCommand(
+          requestId: const Uuid().v4(),
+          productId: item.product.id,
+          quantity: parsed,
+          sourceWarehouseId: sourceId,
+          destinationWarehouseId: waste ? null : destinationId,
+          isWaste: waste,
+          reason: reason.text.trim(),
+        ),
+      );
       if (!mounted) return;
       _message(waste ? 'Merma registrada.' : 'Traslado registrado.');
       _refresh();
@@ -418,9 +425,8 @@ class _DesktopInventoryPanelState extends ConsumerState<DesktopInventoryPanel> {
                   children: [
                     Text(
                       'Inventario',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 5),
                     const Text(
@@ -462,16 +468,12 @@ class _DesktopInventoryPanelState extends ConsumerState<DesktopInventoryPanel> {
         Expanded(
           child: inventory.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, _) => _InventoryError(
-              error: error.toString(),
-              onRetry: _refresh,
-            ),
+            error: (error, _) =>
+                _InventoryError(error: error.toString(), onRetry: _refresh),
             data: (items) => snapshot.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => _InventoryError(
-                error: error.toString(),
-                onRetry: _refresh,
-              ),
+              error: (error, _) =>
+                  _InventoryError(error: error.toString(), onRetry: _refresh),
               data: (catalog) {
                 if (items.isEmpty) {
                   return Center(
@@ -532,9 +534,9 @@ class _DesktopInventoryPanelState extends ConsumerState<DesktopInventoryPanel> {
                               onPressed: _mutating
                                   ? null
                                   : () => _registerEntry(
-                                        item,
-                                        catalog.warehouses,
-                                      ),
+                                      item,
+                                      catalog.warehouses,
+                                    ),
                               icon: const Icon(Icons.add_box_outlined),
                               label: const Text('Ingreso'),
                             ),
@@ -542,9 +544,9 @@ class _DesktopInventoryPanelState extends ConsumerState<DesktopInventoryPanel> {
                               onPressed: _mutating
                                   ? null
                                   : () => _registerMovement(
-                                        item,
-                                        catalog.warehouses,
-                                      ),
+                                      item,
+                                      catalog.warehouses,
+                                    ),
                               icon: const Icon(Icons.swap_horiz),
                               label: const Text('Mover'),
                             ),

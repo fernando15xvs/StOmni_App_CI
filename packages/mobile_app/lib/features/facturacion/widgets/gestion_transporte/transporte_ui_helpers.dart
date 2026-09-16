@@ -76,10 +76,7 @@ class TransporteEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Text(text),
-    );
+    return Padding(padding: const EdgeInsets.all(16), child: Text(text));
   }
 }
 
@@ -111,10 +108,7 @@ class TransporteCatalogCard extends StatelessWidget {
       ),
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text(subtitle),
         isThreeLine: subtitle.contains('\n'),
         trailing: Row(
@@ -122,12 +116,18 @@ class TransporteCatalogCard extends StatelessWidget {
           children: [
             IconButton(
               tooltip: 'Editar',
-              icon: Icon(Icons.edit, color: Theme.of(context).colorScheme.primary),
+              icon: Icon(
+                Icons.edit,
+                color: Theme.of(context).colorScheme.primary,
+              ),
               onPressed: onEdit,
             ),
             IconButton(
               tooltip: 'Eliminar',
-              icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
+              icon: Icon(
+                Icons.delete,
+                color: Theme.of(context).colorScheme.error,
+              ),
               onPressed: onDelete,
             ),
           ],

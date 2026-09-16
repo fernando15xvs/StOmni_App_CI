@@ -28,10 +28,7 @@ class _ProcessingGateway implements VentaProcessingGateway {
     VentaProcessingRequest request,
   ) async {
     lastRequest = request;
-    return const VentaProcessingResult(
-      idempotent: false,
-      comprobanteId: '77',
-    );
+    return const VentaProcessingResult(idempotent: false, comprobanteId: '77');
   }
 }
 

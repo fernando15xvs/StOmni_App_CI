@@ -7,10 +7,7 @@ import 'detalle_deudas_actor_page.dart';
 class DeudasPage extends ConsumerStatefulWidget {
   final int initialTabIndex;
 
-  const DeudasPage({
-    super.key,
-    this.initialTabIndex = 0,
-  });
+  const DeudasPage({super.key, this.initialTabIndex = 0});
 
   @override
   ConsumerState<DeudasPage> createState() => _DeudasPageState();

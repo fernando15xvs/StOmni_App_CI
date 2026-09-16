@@ -15,8 +15,15 @@ class MobilePdfActions {
     List<Map<String, dynamic>> details,
     Map<String, dynamic>? customer, [
     Map<String, dynamic>? electronicDocument,
-  ]) => _deliver(context, type, document, details, customer,
-      electronicDocument: electronicDocument, action: DocumentOutputAction.print);
+  ]) => _deliver(
+    context,
+    type,
+    document,
+    details,
+    customer,
+    electronicDocument: electronicDocument,
+    action: DocumentOutputAction.print,
+  );
 
   static Future<void> compartir(
     BuildContext context,
@@ -25,8 +32,15 @@ class MobilePdfActions {
     List<Map<String, dynamic>> details,
     Map<String, dynamic>? customer, [
     Map<String, dynamic>? electronicDocument,
-  ]) => _deliver(context, type, document, details, customer,
-      electronicDocument: electronicDocument, action: DocumentOutputAction.share);
+  ]) => _deliver(
+    context,
+    type,
+    document,
+    details,
+    customer,
+    electronicDocument: electronicDocument,
+    action: DocumentOutputAction.share,
+  );
 
   static Future<void> _deliver(
     BuildContext context,
@@ -42,8 +56,12 @@ class MobilePdfActions {
       final ticketSize = PreferencesService.ticketSize;
       final branding = await PdfBrandingLoader.load();
       final bytes = await PdfGeneratorService.generarPdf(
-        type, document, details, customer,
-        comprobante: electronicDocument, branding: branding,
+        type,
+        document,
+        details,
+        customer,
+        comprobante: electronicDocument,
+        branding: branding,
         ticketSize: ticketSize,
       );
       if (!context.mounted) return;
@@ -51,18 +69,21 @@ class MobilePdfActions {
       final format = type == TipoDocumento.cotizacion
           ? PdfPageFormat.a4
           : PdfDocumentTheme.ticketFormat(size: ticketSize);
-      await output.deliver(GeneratedDocument(
-        bytes: bytes,
-        fileName: '${prefix}_${document['id']}.pdf',
-        kind: DocumentKind.pdf,
-        pageWidthPoints: format.width,
-        pageHeightPoints: format.height,
-      ), action: action);
+      await output.deliver(
+        GeneratedDocument(
+          bytes: bytes,
+          fileName: '${prefix}_${document['id']}.pdf',
+          kind: DocumentKind.pdf,
+          pageWidthPoints: format.width,
+          pageHeightPoints: format.height,
+        ),
+        action: action,
+      );
     } catch (error) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(ErrorMapper.map(error))),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(ErrorMapper.map(error))));
       }
     }
   }

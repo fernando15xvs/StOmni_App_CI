@@ -1,4 +1,3 @@
-
 import 'package:excel/excel.dart';
 import 'package:intl/intl.dart';
 
@@ -243,6 +242,10 @@ class ReporteExcelService {
     final nombreArchivo =
         'Reportes_Financieros_${DateFormat('ddMMyyyy_HHmm').format(DateTime.now())}.xlsx';
 
-    return GeneratedDocument(bytes: bytes, fileName: nombreArchivo, kind: DocumentKind.xlsx);
+    return GeneratedDocument(
+      bytes: bytes,
+      fileName: nombreArchivo,
+      kind: DocumentKind.xlsx,
+    );
   }
 }

@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DesktopBusinessModulesPanel extends ConsumerStatefulWidget {
-  const DesktopBusinessModulesPanel({
-    super.key,
-    this.onProfileSaved,
-  });
+  const DesktopBusinessModulesPanel({super.key, this.onProfileSaved});
 
   final ValueChanged<BusinessProfile>? onProfileSaved;
 
@@ -56,19 +53,22 @@ class _DesktopBusinessModulesPanelState
     return BusinessCapabilities(
       inventoryEnabled: inventory,
       multipleBranches: multipleBranches ?? c.multipleBranches,
-      multipleWarehouses:
-          inventory ? (multipleWarehouses ?? c.multipleWarehouses) : false,
+      multipleWarehouses: inventory
+          ? (multipleWarehouses ?? c.multipleWarehouses)
+          : false,
       creditSales: creditSales ?? c.creditSales,
       electronicInvoicing: electronicInvoicing ?? c.electronicInvoicing,
       supplierManagement: c.supplierManagement,
-      purchaseManagement:
-          inventory ? (purchaseManagement ?? c.purchaseManagement) : false,
+      purchaseManagement: inventory
+          ? (purchaseManagement ?? c.purchaseManagement)
+          : false,
       lotTracking: inventory ? (lotTracking ?? c.lotTracking) : false,
       expiryTracking: inventory ? (expiryTracking ?? c.expiryTracking) : false,
       variants: variants ?? c.variants,
       services: services ?? c.services,
-      serialNumberTracking:
-          inventory ? (serialNumberTracking ?? c.serialNumberTracking) : false,
+      serialNumberTracking: inventory
+          ? (serialNumberTracking ?? c.serialNumberTracking)
+          : false,
     );
   }
 
@@ -105,7 +105,9 @@ class _DesktopBusinessModulesPanelState
     if (_loading) return const Center(child: CircularProgressIndicator());
     final profile = _profile;
     if (profile == null) {
-      return const Center(child: Text('No se pudo cargar la configuración de módulos.'));
+      return const Center(
+        child: Text('No se pudo cargar la configuración de módulos.'),
+      );
     }
     final c = profile.capabilities;
 
@@ -128,9 +130,9 @@ class _DesktopBusinessModulesPanelState
       children: [
         Text(
           'Módulos del negocio',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 8),
         const Text(
@@ -199,12 +201,12 @@ class _DesktopBusinessModulesPanelState
                 value: c.lotTracking,
                 onChanged: c.inventoryEnabled
                     ? (value) => _save(
-                          _copy(
-                            c,
-                            lotTracking: value,
-                            expiryTracking: value ? c.expiryTracking : false,
-                          ),
-                        )
+                        _copy(
+                          c,
+                          lotTracking: value,
+                          expiryTracking: value ? c.expiryTracking : false,
+                        ),
+                      )
                     : null,
               ),
               toggle(

@@ -30,7 +30,9 @@ class ProcesarVentaUseCase {
 
   ValidatedSale validateCommand(ProcesarVentaCommand command) {
     final validated = const ValidateSaleUseCase().execute(command);
-    final document = fiscalPolicy.documentFor(command.tipoComprobanteNormalizado);
+    final document = fiscalPolicy.documentFor(
+      command.tipoComprobanteNormalizado,
+    );
     if (document == null) {
       throw StateError('El tipo de comprobante no está habilitado.');
     }
@@ -57,8 +59,10 @@ class ProcesarVentaUseCase {
   ) async {
     final validated = validateCommand(command);
     final tipoComprobanteNormalizado = command.tipoComprobanteNormalizado;
-    final expectedUser = command.expectedAuthUserId ?? _context.currentAuthUserId;
-    if (expectedUser == null || expectedUser.trim().isEmpty ||
+    final expectedUser =
+        command.expectedAuthUserId ?? _context.currentAuthUserId;
+    if (expectedUser == null ||
+        expectedUser.trim().isEmpty ||
         expectedUser != _context.currentAuthUserId) {
       throw StateError('La sesión cambió antes de procesar la venta.');
     }
@@ -69,10 +73,12 @@ class ProcesarVentaUseCase {
     });
     await businessPolicy.validate(
       isCredit: command.esCredito,
-      requiresElectronicEmission: fiscalPolicy.documentFor(tipoComprobanteNormalizado)!
+      requiresElectronicEmission: fiscalPolicy
+          .documentFor(tipoComprobanteNormalizado)!
           .requiresElectronicEmission,
     );
-    if (authorizedUser != expectedUser || expectedUser != _context.currentAuthUserId) {
+    if (authorizedUser != expectedUser ||
+        expectedUser != _context.currentAuthUserId) {
       throw StateError('La sesión cambió al autorizar la venta.');
     }
 
@@ -89,7 +95,9 @@ class ProcesarVentaUseCase {
     );
 
     if (expectedUser != _context.currentAuthUserId) {
-      throw StateError('La sesión cambió durante el procesamiento de la venta.');
+      throw StateError(
+        'La sesión cambió durante el procesamiento de la venta.',
+      );
     }
 
     return _processing.processSale(
@@ -113,5 +121,4 @@ class ProcesarVentaUseCase {
       ),
     );
   }
-
 }

@@ -244,6 +244,10 @@ class AlmacenExcelService {
         nombreArchivoPersonalizado ??
         "Inventario_${DateFormat('ddMMyyyy_HHmm').format(DateTime.now())}.xlsx";
 
-    return GeneratedDocument(bytes: bytes, fileName: nombreArchivo, kind: DocumentKind.xlsx);
+    return GeneratedDocument(
+      bytes: bytes,
+      fileName: nombreArchivo,
+      kind: DocumentKind.xlsx,
+    );
   }
 }

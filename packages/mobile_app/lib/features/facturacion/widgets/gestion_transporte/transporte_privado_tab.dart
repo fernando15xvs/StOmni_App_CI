@@ -138,8 +138,8 @@ class _TransportePrivadoTabState extends ConsumerState<TransportePrivadoTab> {
           else
             ..._conductores.map(
               (item) => TransporteCatalogCard(
-                title:
-                    '${item['nombres'] ?? ''} ${item['apellidos'] ?? ''}'.trim(),
+                title: '${item['nombres'] ?? ''} ${item['apellidos'] ?? ''}'
+                    .trim(),
                 subtitle:
                     'DNI: ${item['numero_documento'] ?? ''}\nLicencia: ${item['numero_licencia'] ?? '-'}',
                 onEdit: () => _editarConductor(item),

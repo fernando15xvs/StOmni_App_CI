@@ -83,7 +83,9 @@ class _DocumentosElectronicosPageState
 
     try {
       final paginaSolicitada = reiniciar ? 0 : _pagina + 1;
-      final data = await ref.read(electronicDocumentUseCaseProvider).list(
+      final data = await ref
+          .read(electronicDocumentUseCaseProvider)
+          .list(
             start: _dateFilter.fechaInicio,
             end: _dateFilter.fechaFin,
             page: paginaSolicitada,
@@ -99,9 +101,7 @@ class _DocumentosElectronicosPageState
               .toSet();
           _documentos = [
             ..._documentos,
-            ...data.where(
-              (row) => existing.add('${row.category}:${row.id}'),
-            ),
+            ...data.where((row) => existing.add('${row.category}:${row.id}')),
           ];
         }
         _pagina = paginaSolicitada;
@@ -130,10 +130,12 @@ class _DocumentosElectronicosPageState
 
   List<ElectronicDocumentRecord> get _filtrados {
     final query = _buscarCtrl.text.trim().toLowerCase();
-    return _documentos.where((document) {
-      if (_filtro != 'todos' && document.category != _filtro) return false;
-      return query.isEmpty || document.searchableText.contains(query);
-    }).toList(growable: false);
+    return _documentos
+        .where((document) {
+          if (_filtro != 'todos' && document.category != _filtro) return false;
+          return query.isEmpty || document.searchableText.contains(query);
+        })
+        .toList(growable: false);
   }
 
   Future<void> _abrirDocumento(ElectronicDocumentRecord document) async {
@@ -193,16 +195,16 @@ class _DocumentosElectronicosPageState
   }
 
   Future<void> _nuevaGuia() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const NuevaGuiaRemisionPage()),
-    );
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const NuevaGuiaRemisionPage()));
     if (mounted) await _cargar();
   }
 
   Future<void> _abrirProcesos() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const GestionTributariaPage()),
-    );
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const GestionTributariaPage()));
     if (mounted) await _cargar();
   }
 
@@ -232,7 +234,8 @@ class _DocumentosElectronicosPageState
     );
   }
 
-  IconData _icon(ElectronicDocumentRecord document) => switch (document.category) {
+  IconData _icon(ElectronicDocumentRecord document) =>
+      switch (document.category) {
         'factura' => Icons.receipt_long,
         'boleta' => Icons.receipt_outlined,
         'nota' => Icons.assignment_return_outlined,
@@ -276,9 +279,18 @@ class _DocumentosElectronicosPageState
                 if (value == 'rango') _seleccionarRango();
               },
               itemBuilder: (_) => const [
-                PopupMenuItem(value: 'guia', child: Text('Nueva guía de remisión')),
-                PopupMenuItem(value: 'procesos', child: Text('Gestión tributaria')),
-                PopupMenuItem(value: 'rango', child: Text('Rango personalizado')),
+                PopupMenuItem(
+                  value: 'guia',
+                  child: Text('Nueva guía de remisión'),
+                ),
+                PopupMenuItem(
+                  value: 'procesos',
+                  child: Text('Gestión tributaria'),
+                ),
+                PopupMenuItem(
+                  value: 'rango',
+                  child: Text('Rango personalizado'),
+                ),
               ],
             ),
         ],
@@ -318,102 +330,117 @@ class _DocumentosElectronicosPageState
             child: _cargando
                 ? const Center(child: CircularProgressIndicator())
                 : _error != null
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(_error!, textAlign: TextAlign.center),
-                              const SizedBox(height: 12),
-                              FilledButton.icon(
-                                onPressed: _cargar,
-                                icon: const Icon(Icons.refresh),
-                                label: const Text('Reintentar'),
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(_error!, textAlign: TextAlign.center),
+                          const SizedBox(height: 12),
+                          FilledButton.icon(
+                            onPressed: _cargar,
+                            icon: const Icon(Icons.refresh),
+                            label: const Text('Reintentar'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: _cargar,
+                    child: documents.isEmpty
+                        ? ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: const [
+                              SizedBox(height: 180),
+                              Center(
+                                child: Text(
+                                  'No hay documentos para este filtro.',
+                                ),
                               ),
                             ],
-                          ),
-                        ),
-                      )
-                    : RefreshIndicator(
-                        onRefresh: _cargar,
-                        child: documents.isEmpty
-                            ? ListView(
-                                physics: const AlwaysScrollableScrollPhysics(),
-                                children: const [
-                                  SizedBox(height: 180),
-                                  Center(child: Text('No hay documentos para este filtro.')),
-                                ],
-                              )
-                            : ListView.builder(
-                                physics: const AlwaysScrollableScrollPhysics(),
-                                padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-                                itemCount: documents.length + (_hayMas ? 1 : 0),
-                                itemBuilder: (context, index) {
-                                  if (index == documents.length) {
-                                    return Padding(
-                                      padding: const EdgeInsets.all(16),
-                                      child: Center(
-                                        child: _cargandoMas
-                                            ? const CircularProgressIndicator()
-                                            : OutlinedButton.icon(
-                                                onPressed: _cargarMas,
-                                                icon: const Icon(Icons.expand_more),
-                                                label: const Text('Cargar más'),
-                                              ),
-                                      ),
-                                    );
-                                  }
-                                  final document = documents[index];
-                                  return Card(
-                                    margin: const EdgeInsets.only(bottom: 10),
-                                    child: ListTile(
-                                      onTap: () => _abrirDocumento(document),
-                                      leading: CircleAvatar(child: Icon(_icon(document))),
-                                      title: Text(
-                                        '${document.typeLabel} · ${document.number}',
-                                        style: const TextStyle(fontWeight: FontWeight.bold),
-                                      ),
-                                      subtitle: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          if (document.party.isNotEmpty) Text(document.party),
-                                          if (document.sunatDescription?.isNotEmpty == true)
-                                            Text(
-                                              document.sunatDescription!,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          const SizedBox(height: 5),
-                                          EstadoTributarioBadge(estado: document.status),
-                                        ],
-                                      ),
-                                      trailing: PopupMenuButton<String>(
-                                        enabled: !_accionando,
-                                        onSelected: (value) {
-                                          if (value == 'consultar') {
-                                            _accion(document, reintentar: false);
-                                          } else if (value == 'reintentar') {
-                                            _accion(document, reintentar: true);
-                                          }
-                                        },
-                                        itemBuilder: (_) => [
-                                          const PopupMenuItem(
-                                            value: 'consultar',
-                                            child: Text('Consultar estado'),
+                          )
+                        : ListView.builder(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+                            itemCount: documents.length + (_hayMas ? 1 : 0),
+                            itemBuilder: (context, index) {
+                              if (index == documents.length) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Center(
+                                    child: _cargandoMas
+                                        ? const CircularProgressIndicator()
+                                        : OutlinedButton.icon(
+                                            onPressed: _cargarMas,
+                                            icon: const Icon(Icons.expand_more),
+                                            label: const Text('Cargar más'),
                                           ),
-                                          if (document.status != 'aceptado')
-                                            const PopupMenuItem(
-                                              value: 'reintentar',
-                                              child: Text('Reintentar envío'),
-                                            ),
-                                        ],
-                                      ),
+                                  ),
+                                );
+                              }
+                              final document = documents[index];
+                              return Card(
+                                margin: const EdgeInsets.only(bottom: 10),
+                                child: ListTile(
+                                  onTap: () => _abrirDocumento(document),
+                                  leading: CircleAvatar(
+                                    child: Icon(_icon(document)),
+                                  ),
+                                  title: Text(
+                                    '${document.typeLabel} · ${document.number}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                  );
-                                },
-                              ),
-                      ),
+                                  ),
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      if (document.party.isNotEmpty)
+                                        Text(document.party),
+                                      if (document
+                                              .sunatDescription
+                                              ?.isNotEmpty ==
+                                          true)
+                                        Text(
+                                          document.sunatDescription!,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      const SizedBox(height: 5),
+                                      EstadoTributarioBadge(
+                                        estado: document.status,
+                                      ),
+                                    ],
+                                  ),
+                                  trailing: PopupMenuButton<String>(
+                                    enabled: !_accionando,
+                                    onSelected: (value) {
+                                      if (value == 'consultar') {
+                                        _accion(document, reintentar: false);
+                                      } else if (value == 'reintentar') {
+                                        _accion(document, reintentar: true);
+                                      }
+                                    },
+                                    itemBuilder: (_) => [
+                                      const PopupMenuItem(
+                                        value: 'consultar',
+                                        child: Text('Consultar estado'),
+                                      ),
+                                      if (document.status != 'aceptado')
+                                        const PopupMenuItem(
+                                          value: 'reintentar',
+                                          child: Text('Reintentar envío'),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                  ),
           ),
         ],
       ),

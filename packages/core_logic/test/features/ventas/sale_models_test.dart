@@ -28,7 +28,12 @@ void main() {
       ),
       pagos: const [SalePayment(metodo: 'Efectivo', monto: 20)],
       detalles: SaleCart(const [
-        SaleCartLine(productId: 5, quantity: 2, subtotal: 130, commercialUnit: 'unidad'),
+        SaleCartLine(
+          productId: 5,
+          quantity: 2,
+          subtotal: 130,
+          commercialUnit: 'unidad',
+        ),
       ]),
     );
 
@@ -70,7 +75,10 @@ void main() {
     });
 
     expect(restored.tipoComprobante, 'ticket_interno');
-    expect(PendingSaleMapper.encode(restored)['tipo_comprobante'], 'ticket_interno');
+    expect(
+      PendingSaleMapper.encode(restored)['tipo_comprobante'],
+      'ticket_interno',
+    );
   });
 
   test('usaEfectivo detecta pago efectivo positivo', () {

@@ -375,7 +375,9 @@ class _NuevoProductoPageState extends ConsumerState<NuevoProductoPage> {
 
     final pcs = int.tryParse(cantCajaController.text) ?? 0;
     if (pcs < 1) {
-      _mostrarError('Para ventas por caja, la cantidad por empaque debe ser al menos 1.');
+      _mostrarError(
+        'Para ventas por caja, la cantidad por empaque debe ser al menos 1.',
+      );
       return;
     }
 
@@ -564,98 +566,89 @@ class _NuevoProductoPageState extends ConsumerState<NuevoProductoPage> {
       primaryColor: colorVerde,
       contenido: Column(
         children: [
-              TextField(
-                controller: codigoController,
-                textInputAction: TextInputAction.next,
-                textCapitalization: TextCapitalization.characters,
-                decoration: _decoracionInput(
-                  'Código del Producto',
-                  Icons.qr_code_2,
-                  hint: 'Ej. FOC-001',
-                ),
-                inputFormatters: [
-                  UpperCaseTextFormatter(),
-                  FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9._/-]')),
-                  LengthLimitingTextInputFormatter(50),
-                ],
-              ),
-              const SizedBox(height: 15),
-              TextField(
-                controller: nombreController,
-                textInputAction: TextInputAction.next,
-                decoration: _decoracionInput(
-                  'Nombre del Producto',
-                  Icons.label,
-                ),
-                inputFormatters: [LengthLimitingTextInputFormatter(100)],
-              ),
-              const SizedBox(height: 15),
-              DropdownButtonFormField<String>(
-                isExpanded: true,
-                initialValue: _proveedorSeleccionadoId,
-                decoration: _decoracionInput(
-                  'Marca / Proveedor',
-                  Icons.business,
-                ),
-                items: ref
-                    .watch(
-                      nuevoProductoControllerProvider.select(
-                        (s) => s.proveedores,
-                      ),
-                    )
-                    .map(
-                      (prov) => DropdownMenuItem<String>(
-                        value: prov['id'].toString(),
-                        child: Text(
-                          prov['nombre'],
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (val) =>
-                    setState(() => _proveedorSeleccionadoId = val),
-              ),
-              const SizedBox(height: 15),
-              DropdownButtonFormField<SaleUnitType>(
-                initialValue: _tipoVenta,
-                decoration: _decoracionInput('Tipo de Venta', Icons.sell),
-                items: const [
-                  DropdownMenuItem(
-                    value: SaleUnitType.paquete,
-                    child: Text('Paquetes'),
+          TextField(
+            controller: codigoController,
+            textInputAction: TextInputAction.next,
+            textCapitalization: TextCapitalization.characters,
+            decoration: _decoracionInput(
+              'Código del Producto',
+              Icons.qr_code_2,
+              hint: 'Ej. FOC-001',
+            ),
+            inputFormatters: [
+              UpperCaseTextFormatter(),
+              FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9._/-]')),
+              LengthLimitingTextInputFormatter(50),
+            ],
+          ),
+          const SizedBox(height: 15),
+          TextField(
+            controller: nombreController,
+            textInputAction: TextInputAction.next,
+            decoration: _decoracionInput('Nombre del Producto', Icons.label),
+            inputFormatters: [LengthLimitingTextInputFormatter(100)],
+          ),
+          const SizedBox(height: 15),
+          DropdownButtonFormField<String>(
+            isExpanded: true,
+            initialValue: _proveedorSeleccionadoId,
+            decoration: _decoracionInput('Marca / Proveedor', Icons.business),
+            items: ref
+                .watch(
+                  nuevoProductoControllerProvider.select((s) => s.proveedores),
+                )
+                .map(
+                  (prov) => DropdownMenuItem<String>(
+                    value: prov['id'].toString(),
+                    child: Text(
+                      prov['nombre'],
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  DropdownMenuItem(
-                    value: SaleUnitType.cajaPaquetes,
-                    child: Text('Caja + Paquetes'),
-                  ),
-                  DropdownMenuItem(
-                    value: SaleUnitType.cajaUnidades,
-                    child: Text('Caja + Unidades'),
-                  ),
-                ],
-                onChanged: (nuevo) {
-                  if (nuevo != null) {
-                    setState(() {
-                      _tipoVenta = nuevo;
+                )
+                .toList(),
+            onChanged: (val) => setState(() => _proveedorSeleccionadoId = val),
+          ),
+          const SizedBox(height: 15),
+          DropdownButtonFormField<SaleUnitType>(
+            initialValue: _tipoVenta,
+            decoration: _decoracionInput('Tipo de Venta', Icons.sell),
+            items: const [
+              DropdownMenuItem(
+                value: SaleUnitType.paquete,
+                child: Text('Paquetes'),
+              ),
+              DropdownMenuItem(
+                value: SaleUnitType.cajaPaquetes,
+                child: Text('Caja + Paquetes'),
+              ),
+              DropdownMenuItem(
+                value: SaleUnitType.cajaUnidades,
+                child: Text('Caja + Unidades'),
+              ),
+            ],
+            onChanged: (nuevo) {
+              if (nuevo != null) {
+                setState(() {
+                  _tipoVenta = nuevo;
 
-                      // PAQUETES no tiene venta suelta por unidad/paquete
-                      // adicional; su precio completo se calcula con precioCaja × PCS.
-                      if (_tipoVenta == SaleUnitType.paquete) {
-                        precioUnidadController.clear();
-                      }
-
-                      for (var c in _stockCajasControllers.values) {
-                        c.clear();
-                      }
-                      for (var c in _stockUnidadesControllers.values) {
-                        c.clear();
-                      }
-                      _recalcularTotalesVivo();
-                    });
+                  // PAQUETES no tiene venta suelta por unidad/paquete
+                  // adicional; su precio completo se calcula con precioCaja × PCS.
+                  if (_tipoVenta == SaleUnitType.paquete) {
+                    precioUnidadController.clear();
                   }
-                },
-              ),
+
+                  for (var c in _stockCajasControllers.values) {
+                    c.clear();
+                  }
+                  for (var c in _stockUnidadesControllers.values) {
+                    c.clear();
+                  }
+                  _recalcularTotalesVivo();
+                });
+              }
+            },
+          ),
         ],
       ),
     );
@@ -669,141 +662,136 @@ class _NuevoProductoPageState extends ConsumerState<NuevoProductoPage> {
       primaryColor: colorVerde,
       contenido: Column(
         children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ✅ MOSTRAR PRECIO UNIDAD SOLO SI ES "UNIDAD" O "AMBOS"
-                  if (_tipoVenta == SaleUnitType.cajaPaquetes ||
-                      _tipoVenta == SaleUnitType.cajaUnidades)
-                    Expanded(
-                      child: TextField(
-                        controller: precioUnidadController,
-                        textInputAction: TextInputAction.next,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(
-                            RegExp(r'^\d+\.?\d{0,2}'),
-                          ),
-                        ],
-                        decoration: _decoracionInput(
-                          _labelPrecioUnidad,
-                          Icons.attach_money,
-                        ),
-                        onChanged: (_) => setState(() {}),
-                      ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ✅ MOSTRAR PRECIO UNIDAD SOLO SI ES "UNIDAD" O "AMBOS"
+              if (_tipoVenta == SaleUnitType.cajaPaquetes ||
+                  _tipoVenta == SaleUnitType.cajaUnidades)
+                Expanded(
+                  child: TextField(
+                    controller: precioUnidadController,
+                    textInputAction: TextInputAction.next,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
                     ),
-
-                  if (_tipoVenta == SaleUnitType.cajaPaquetes ||
-                      _tipoVenta == SaleUnitType.cajaUnidades)
-                    const SizedBox(width: 10),
-
-                  // ✅ MOSTRAR PRECIO CAJA SOLO SI ES "CAJA" O "AMBOS"
-                  if (_tipoVenta == SaleUnitType.paquete ||
-                      _tipoVenta == SaleUnitType.cajaPaquetes ||
-                      _tipoVenta == SaleUnitType.cajaUnidades)
-                    Expanded(
-                      child: TextField(
-                        controller: precioCajaController,
-                        textInputAction: TextInputAction.next,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(
-                            RegExp(r'^\d+\.?\d{0,2}'),
-                          ),
-                        ],
-                        decoration: _decoracionInput(
-                          _labelPrecioCaja,
-                          Icons.inventory_2_outlined,
-                        ),
-                        onChanged: (_) => setState(() {}),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 15),
-              TextField(
-                controller: precioCompraController,
-                textInputAction: TextInputAction.next,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-                ],
-                decoration: _decoracionInput('Costo (S/)', Icons.shopping_cart),
-              ),
-              const SizedBox(height: 15),
-              TextField(
-                controller: cantCajaController,
-                focusNode: _pcsFocusNode,
-                textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.number,
-                readOnly: widget.productoEditar != null,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(4),
-                ],
-                decoration: _decoracionInput(_labelPcs, Icons.apps).copyWith(
-                  fillColor: widget.productoEditar != null
-                      ? (Theme.of(context).brightness == Brightness.dark
-                            ? Colors.grey[800]
-                            : Colors.grey[200])
-                      : (Theme.of(context).brightness == Brightness.dark
-                            ? Colors.grey.shade900
-                            : Colors.white),
-                ),
-                onChanged: (value) {
-                  setState(() {});
-                  if (value.isNotEmpty && int.tryParse(value) == 0) {
-                    cantCajaController.text = '';
-                  }
-                  _onPcsChanged(value);
-                },
-              ),
-              if (_precioEmpaqueCompleto > 0) ...[
-                const SizedBox(height: 12),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.greenAccent.withValues(alpha: 0.08)
-                        : colorVerde.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.greenAccent.withValues(alpha: 0.20)
-                          : colorVerde.withValues(alpha: 0.20),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _labelPrecioCompleto,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        AppFormatters.currency(_precioEmpaqueCompleto),
-                        style: TextStyle(
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? Colors.greenAccent
-                              : colorVerde,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d+\.?\d{0,2}'),
                       ),
                     ],
+                    decoration: _decoracionInput(
+                      _labelPrecioUnidad,
+                      Icons.attach_money,
+                    ),
+                    onChanged: (_) => setState(() {}),
                   ),
                 ),
-              ],
+
+              if (_tipoVenta == SaleUnitType.cajaPaquetes ||
+                  _tipoVenta == SaleUnitType.cajaUnidades)
+                const SizedBox(width: 10),
+
+              // ✅ MOSTRAR PRECIO CAJA SOLO SI ES "CAJA" O "AMBOS"
+              if (_tipoVenta == SaleUnitType.paquete ||
+                  _tipoVenta == SaleUnitType.cajaPaquetes ||
+                  _tipoVenta == SaleUnitType.cajaUnidades)
+                Expanded(
+                  child: TextField(
+                    controller: precioCajaController,
+                    textInputAction: TextInputAction.next,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d+\.?\d{0,2}'),
+                      ),
+                    ],
+                    decoration: _decoracionInput(
+                      _labelPrecioCaja,
+                      Icons.inventory_2_outlined,
+                    ),
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 15),
+          TextField(
+            controller: precioCompraController,
+            textInputAction: TextInputAction.next,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+            ],
+            decoration: _decoracionInput('Costo (S/)', Icons.shopping_cart),
+          ),
+          const SizedBox(height: 15),
+          TextField(
+            controller: cantCajaController,
+            focusNode: _pcsFocusNode,
+            textInputAction: TextInputAction.next,
+            keyboardType: TextInputType.number,
+            readOnly: widget.productoEditar != null,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(4),
+            ],
+            decoration: _decoracionInput(_labelPcs, Icons.apps).copyWith(
+              fillColor: widget.productoEditar != null
+                  ? (Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey[800]
+                        : Colors.grey[200])
+                  : (Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey.shade900
+                        : Colors.white),
+            ),
+            onChanged: (value) {
+              setState(() {});
+              if (value.isNotEmpty && int.tryParse(value) == 0) {
+                cantCajaController.text = '';
+              }
+              _onPcsChanged(value);
+            },
+          ),
+          if (_precioEmpaqueCompleto > 0) ...[
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.greenAccent.withValues(alpha: 0.08)
+                    : colorVerde.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.greenAccent.withValues(alpha: 0.20)
+                      : colorVerde.withValues(alpha: 0.20),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    _labelPrecioCompleto,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    AppFormatters.currency(_precioEmpaqueCompleto),
+                    style: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.greenAccent
+                          : colorVerde,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );

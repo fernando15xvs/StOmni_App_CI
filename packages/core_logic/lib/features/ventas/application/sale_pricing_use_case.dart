@@ -25,8 +25,10 @@ class ResolveSalePriceUseCase {
     required double quantity,
     DateTime? at,
   }) {
-    if (productId <= 0 || presentationCode.trim().isEmpty ||
-        !quantity.isFinite || quantity <= 0) {
+    if (productId <= 0 ||
+        presentationCode.trim().isEmpty ||
+        !quantity.isFinite ||
+        quantity <= 0) {
       throw ArgumentError('Producto, presentación o cantidad inválidos.');
     }
     return _gateway.resolve(
@@ -42,7 +44,8 @@ class ManageSalePriceRulesUseCase {
   const ManageSalePriceRulesUseCase({
     required SalePricingGateway gateway,
     required OperationAuthorizer authorizer,
-  }) : _gateway = gateway, _authorizer = authorizer;
+  }) : _gateway = gateway,
+       _authorizer = authorizer;
 
   final SalePricingGateway _gateway;
   final OperationAuthorizer _authorizer;
@@ -72,8 +75,10 @@ class ManageSalePriceRulesUseCase {
   }
 
   void _validate(SalePriceRuleDraft draft) {
-    if (draft.name.trim().isEmpty || draft.productId <= 0 ||
-        !draft.minQuantity.isFinite || draft.minQuantity <= 0) {
+    if (draft.name.trim().isEmpty ||
+        draft.productId <= 0 ||
+        !draft.minQuantity.isFinite ||
+        draft.minQuantity <= 0) {
       throw ArgumentError('La regla de precio está incompleta.');
     }
     final hasFixed = draft.fixedPrice != null;
@@ -84,13 +89,18 @@ class ManageSalePriceRulesUseCase {
     if (hasFixed && (!draft.fixedPrice!.isFinite || draft.fixedPrice! < 0)) {
       throw ArgumentError('El precio fijo no es válido.');
     }
-    if (hasDiscount && (!draft.discountPercent!.isFinite ||
-        draft.discountPercent! <= 0 || draft.discountPercent! > 100)) {
+    if (hasDiscount &&
+        (!draft.discountPercent!.isFinite ||
+            draft.discountPercent! <= 0 ||
+            draft.discountPercent! > 100)) {
       throw ArgumentError('El porcentaje no es válido.');
     }
-    if (draft.endsAt != null && draft.startsAt != null &&
+    if (draft.endsAt != null &&
+        draft.startsAt != null &&
         !draft.endsAt!.isAfter(draft.startsAt!)) {
-      throw ArgumentError('El fin de la promoción debe ser posterior al inicio.');
+      throw ArgumentError(
+        'El fin de la promoción debe ser posterior al inicio.',
+      );
     }
   }
 }

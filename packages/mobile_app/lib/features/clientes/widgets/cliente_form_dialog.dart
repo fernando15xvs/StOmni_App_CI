@@ -133,7 +133,9 @@ class _ClienteFormDialogState extends ConsumerState<ClienteFormDialog> {
     setState(() => _guardando = true);
 
     try {
-      await ref.read(customerUseCaseProvider).save(
+      await ref
+          .read(customerUseCaseProvider)
+          .save(
             CustomerDraft(
               name: nombreFinal,
               document: dniRuc,
@@ -330,10 +332,7 @@ class _ClienteFormDialogState extends ConsumerState<ClienteFormDialog> {
                     color: Colors.white,
                   ),
                 )
-              : const Text(
-                  'Guardar',
-                  style: TextStyle(color: Colors.white),
-                ),
+              : const Text('Guardar', style: TextStyle(color: Colors.white)),
         ),
       ],
     );

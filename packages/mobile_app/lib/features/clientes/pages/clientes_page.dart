@@ -74,11 +74,9 @@ class _ClientesPageState extends ConsumerState<ClientesPage> {
     });
 
     try {
-      final data = await ref.read(customerUseCaseProvider).list(
-            limit: _limit,
-            offset: _offset,
-            query: _query,
-          );
+      final data = await ref
+          .read(customerUseCaseProvider)
+          .list(limit: _limit, offset: _offset, query: _query);
 
       if (!mounted) return;
       setState(() {
@@ -99,11 +97,9 @@ class _ClientesPageState extends ConsumerState<ClientesPage> {
     setState(() => _cargandoMas = true);
 
     try {
-      final data = await ref.read(customerUseCaseProvider).list(
-            limit: _limit,
-            offset: _offset,
-            query: _query,
-          );
+      final data = await ref
+          .read(customerUseCaseProvider)
+          .list(limit: _limit, offset: _offset, query: _query);
 
       if (!mounted) return;
       setState(() {
@@ -132,10 +128,8 @@ class _ClientesPageState extends ConsumerState<ClientesPage> {
   void _mostrarDialogoCliente([CustomerRecord? cliente]) {
     showDialog<void>(
       context: context,
-      builder: (ctx) => ClienteFormDialog(
-        cliente: cliente,
-        onSaved: _cargarInicial,
-      ),
+      builder: (ctx) =>
+          ClienteFormDialog(cliente: cliente, onSaved: _cargarInicial),
     );
   }
 

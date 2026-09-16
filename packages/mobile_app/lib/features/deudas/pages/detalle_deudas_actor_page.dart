@@ -358,9 +358,7 @@ class _DetalleDeudasActorPageState
                           );
                         },
                         child: Text(
-                          widget.esCobro
-                              ? "CONFIRMAR COBRO"
-                              : "CONFIRMAR PAGO",
+                          widget.esCobro ? "CONFIRMAR COBRO" : "CONFIRMAR PAGO",
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,

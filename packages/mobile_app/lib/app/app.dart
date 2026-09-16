@@ -28,9 +28,7 @@ class StOmniApp extends ConsumerWidget {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        supportedLocales: const [
-          Locale('es', 'ES'),
-        ],
+        supportedLocales: const [Locale('es', 'ES')],
         themeMode: themeMode,
         theme: ThemeData(
           primaryColor: AppColors.primary,

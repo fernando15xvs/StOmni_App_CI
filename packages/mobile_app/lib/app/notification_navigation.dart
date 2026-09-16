@@ -58,9 +58,7 @@ class _StockAlertNotificationHostState
 
     if (widget.enabled && !_openingStockAlert) {
       notificationNavigation.registerStockAlertHandler(_handler);
-      unawaited(
-        NotificationPermissionService.maybeExplainAndRequest(context),
-      );
+      unawaited(NotificationPermissionService.maybeExplainAndRequest(context));
     } else {
       notificationNavigation.unregisterStockAlertHandler(_handler);
     }
@@ -118,7 +116,8 @@ class _StockAlertNotificationHostState
 
     Map<String, dynamic>? product;
     for (final candidate in state.productosCompletos) {
-      final id = (candidate['id'] as num?)?.toInt() ??
+      final id =
+          (candidate['id'] as num?)?.toInt() ??
           int.tryParse(candidate['id']?.toString() ?? '');
       if (id == productId) {
         product = candidate;

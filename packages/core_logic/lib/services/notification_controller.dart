@@ -5,10 +5,7 @@ class NotificationNavigationController {
   int? _pendingProductId;
   StockAlertNavigationHandler? _stockAlertHandler;
 
-  bool requestFromNotification({
-    Map<String, dynamic>? data,
-    String? title,
-  }) {
+  bool requestFromNotification({Map<String, dynamic>? data, String? title}) {
     if (!isStockAlertNotification(data: data, title: title)) {
       return false;
     }

@@ -20,9 +20,7 @@ class SupabaseProductUnitConfigurationGateway
 
   void _checkUser(String user) {
     if (client.auth.currentUser?.id != user) {
-      throw const UserFacingException(
-        'La sesión cambió durante la operación.',
-      );
+      throw const UserFacingException('La sesión cambió durante la operación.');
     }
   }
 
@@ -57,10 +55,7 @@ class SupabaseProductUnitConfigurationGateway
       _checkUser(user);
       if (error.code == 'PGRST202' &&
           error.message.contains('get_product_unit_profiles_v1')) {
-        return (
-          supported: false,
-          profiles: <int, ProductUnitConfiguration>{},
-        );
+        return (supported: false, profiles: <int, ProductUnitConfiguration>{});
       }
       rethrow;
     }
@@ -89,15 +84,17 @@ class SupabaseProductUnitConfigurationGateway
       if (!result.supported) return products;
       profiles.addAll(result.profiles);
     }
-    return products.map((row) {
-      final configuration = profiles[(row['id'] as num).toInt()];
-      return <String, dynamic>{
-        ...row,
-        'unit_configuration': configuration == null
-            ? null
-            : ProductUnitConfigurationMapper.encode(configuration),
-      };
-    }).toList(growable: false);
+    return products
+        .map((row) {
+          final configuration = profiles[(row['id'] as num).toInt()];
+          return <String, dynamic>{
+            ...row,
+            'unit_configuration': configuration == null
+                ? null
+                : ProductUnitConfigurationMapper.encode(configuration),
+          };
+        })
+        .toList(growable: false);
   }
 
   @override
@@ -110,11 +107,14 @@ class SupabaseProductUnitConfigurationGateway
     PresentationPolicy.validate(profile);
     final encoded = ProductUnitConfigurationMapper.encodeProfile(profile);
     try {
-      final raw = await client.rpc('save_product_unit_profile_v6', params: {
-        'p_product_id': productId,
-        'p_expected_revision': expectedRevision,
-        'p_profile': encoded,
-      });
+      final raw = await client.rpc(
+        'save_product_unit_profile_v6',
+        params: {
+          'p_product_id': productId,
+          'p_expected_revision': expectedRevision,
+          'p_profile': encoded,
+        },
+      );
       _checkUser(user);
       return ProductUnitConfigurationMapper.decodeNullable(raw) ??
           (throw const FormatException('No se recibió el perfil guardado.'));

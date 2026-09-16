@@ -306,7 +306,9 @@ class _ListaCotizacionesPageState extends ConsumerState<ListaCotizacionesPage> {
                                 ),
                                 const SizedBox(width: 5),
                                 Text(
-                                  AppFormatters.limaDateTimeText(cotizacion['fecha']),
+                                  AppFormatters.limaDateTimeText(
+                                    cotizacion['fecha'],
+                                  ),
                                   style: TextStyle(
                                     color: Colors.grey.shade600,
                                     fontSize: 13,

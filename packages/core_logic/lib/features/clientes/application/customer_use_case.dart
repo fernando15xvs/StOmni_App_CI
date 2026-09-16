@@ -47,14 +47,19 @@ class CustomerUseCase {
   const CustomerUseCase(this._gateway);
   final CustomerGateway _gateway;
 
-  Future<List<CustomerRecord>> list({String query = '', int limit = 50, int offset = 0}) =>
-      _gateway.list(query: query.trim(), limit: limit, offset: offset);
+  Future<List<CustomerRecord>> list({
+    String query = '',
+    int limit = 50,
+    int offset = 0,
+  }) => _gateway.list(query: query.trim(), limit: limit, offset: offset);
 
   Future<CustomerRecord> save(CustomerDraft draft, {int? id}) async {
     final name = draft.name.trim();
     final document = draft.document.trim();
-    if (name.isEmpty) throw ArgumentError('El nombre del cliente es obligatorio.');
-    if (document.isNotEmpty && await _gateway.documentExists(document, excludingId: id)) {
+    if (name.isEmpty)
+      throw ArgumentError('El nombre del cliente es obligatorio.');
+    if (document.isNotEmpty &&
+        await _gateway.documentExists(document, excludingId: id)) {
       throw StateError('Ya existe un cliente con ese documento.');
     }
     return _gateway.save(

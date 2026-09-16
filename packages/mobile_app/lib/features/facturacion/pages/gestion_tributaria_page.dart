@@ -345,7 +345,9 @@ class _GestionTributariaPageState extends ConsumerState<GestionTributariaPage> {
                             ? const SizedBox(
                                 width: 18,
                                 height: 18,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               )
                             : const Icon(Icons.cloud_sync, size: 18),
                         const SizedBox(width: 10),
@@ -370,10 +372,7 @@ class _GestionTributariaPageState extends ConsumerState<GestionTributariaPage> {
                   children: [
                     const Icon(Icons.cloud_off_outlined, size: 48),
                     const SizedBox(height: 14),
-                    Text(
-                      _errorCarga!,
-                      textAlign: TextAlign.center,
-                    ),
+                    Text(_errorCarga!, textAlign: TextAlign.center),
                     const SizedBox(height: 18),
                     FilledButton.icon(
                       onPressed: _reintentarCarga,

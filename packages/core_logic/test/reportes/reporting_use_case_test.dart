@@ -57,10 +57,7 @@ void main() {
     final result = await LoadReportingSnapshotUseCase(
       gateway: gateway,
       authorizer: _Authorizer(),
-    ).execute(
-      start: DateTime(2026, 9, 1),
-      end: DateTime(2026, 9, 5),
-    );
+    ).execute(start: DateTime(2026, 9, 1), end: DateTime(2026, 9, 5));
 
     expect(result.income, 150);
     expect(result.expenses, 40);
@@ -88,10 +85,7 @@ void main() {
       authorizer: _Authorizer(allowed: false),
     );
     await expectLater(
-      useCase.execute(
-        start: DateTime(2026, 9, 1),
-        end: DateTime(2026, 9, 5),
-      ),
+      useCase.execute(start: DateTime(2026, 9, 1), end: DateTime(2026, 9, 5)),
       throwsStateError,
     );
   });

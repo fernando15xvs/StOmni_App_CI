@@ -51,21 +51,24 @@ class _BalancePageState extends ConsumerState<BalancePage>
     );
 
     _fabAnimationController.forward();
-    
+
     final cache = ref.read(balanceCacheProvider);
     if (cache != null) {
-      _totalIngresos = (cache['resumen']['ventas_hoy'] as num?)?.toDouble() ?? 0.0;
-      _totalEgresos = (cache['resumen']['gastos_hoy'] as num?)?.toDouble() ?? 0.0;
+      _totalIngresos =
+          (cache['resumen']['ventas_hoy'] as num?)?.toDouble() ?? 0.0;
+      _totalEgresos =
+          (cache['resumen']['gastos_hoy'] as num?)?.toDouble() ?? 0.0;
       _ingresos = cache['ingresos'];
       _egresos = cache['egresos'];
       final ventasList = cache['ventas'] as List<Map<String, dynamic>>;
       _totalDescuentos = ventasList.fold(0.0, (sum, v) {
-        final double d = (v['descuento_global_monto'] as num?)?.toDouble() ?? 0.0;
+        final double d =
+            (v['descuento_global_monto'] as num?)?.toDouble() ?? 0.0;
         return sum + d;
       });
       _cargando = false;
     }
-    
+
     _cargarMovimientos(silent: cache != null);
   }
 

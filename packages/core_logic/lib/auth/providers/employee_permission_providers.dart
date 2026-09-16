@@ -10,7 +10,7 @@ final employeePermissionGatewayProvider = Provider<EmployeePermissionGateway>(
 
 final manageEmployeePermissionsUseCaseProvider =
     Provider<ManageEmployeePermissionsUseCase>(
-  (ref) => ManageEmployeePermissionsUseCase(
-    ref.watch(employeePermissionGatewayProvider),
-  ),
-);
+      (ref) => ManageEmployeePermissionsUseCase(
+        ref.watch(employeePermissionGatewayProvider),
+      ),
+    );

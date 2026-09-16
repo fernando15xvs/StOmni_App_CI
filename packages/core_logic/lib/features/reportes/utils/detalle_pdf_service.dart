@@ -5,7 +5,6 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:intl/intl.dart';
 
 class DetallePdfService {
-
   static Future<GeneratedDocument> generar({
     required DateTime fechaInicio,
     required DateTime fechaFin,
@@ -175,7 +174,11 @@ class DetallePdfService {
     final nombreArchivo =
         "Balance_${DateFormat('ddMMyyyy_HHmm').format(DateTime.now())}.pdf";
 
-    return GeneratedDocument(bytes: bytes, fileName: nombreArchivo, kind: DocumentKind.pdf);
+    return GeneratedDocument(
+      bytes: bytes,
+      fileName: nombreArchivo,
+      kind: DocumentKind.pdf,
+    );
   }
 
   static pw.Widget _buildCajaResumen(

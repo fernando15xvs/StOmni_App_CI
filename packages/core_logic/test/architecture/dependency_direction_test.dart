@@ -18,7 +18,10 @@ Directory _findRepositoryRoot() {
 }
 
 Iterable<File> _dartFiles(Directory directory) sync* {
-  for (final entity in directory.listSync(recursive: true, followLinks: false)) {
+  for (final entity in directory.listSync(
+    recursive: true,
+    followLinks: false,
+  )) {
     if (entity is File && entity.path.endsWith('.dart')) yield entity;
   }
 }
@@ -36,7 +39,9 @@ String? _resolveCoreTarget(Directory coreLib, File source, String target) {
     return target.substring('package:core_logic/'.length);
   }
   if (target.contains(':')) return null;
-  final base = Uri.directory('${source.parent.absolute.path}${Platform.pathSeparator}');
+  final base = Uri.directory(
+    '${source.parent.absolute.path}${Platform.pathSeparator}',
+  );
   final resolved = base.resolve(target).toFilePath();
   return _relative(coreLib, resolved);
 }
@@ -89,7 +94,8 @@ void main() {
     expect(
       violations,
       isEmpty,
-      reason: 'domain/application/usecases deben ser framework-free.\n'
+      reason:
+          'domain/application/usecases deben ser framework-free.\n'
           '${violations.join('\n')}',
     );
   });

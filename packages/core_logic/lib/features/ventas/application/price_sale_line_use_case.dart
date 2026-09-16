@@ -18,7 +18,9 @@ class PriceSaleLineUseCase {
     if (!commercialUnitPrice.isFinite ||
         commercialUnitPrice < 0 ||
         (configuration == null && line.product.unitsPerPackage <= 0)) {
-      throw StateError('El precio o la equivalencia del producto no es válido.');
+      throw StateError(
+        'El precio o la equivalencia del producto no es válido.',
+      );
     }
 
     final unit = line.product.normalizeUnit(line.commercialUnit);

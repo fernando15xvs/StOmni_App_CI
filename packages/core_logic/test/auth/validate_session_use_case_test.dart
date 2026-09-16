@@ -62,10 +62,7 @@ void main() {
 
       final result = await useCase.execute();
 
-      expect(
-        result.status,
-        SessionValidationStatus.organizationSetupRequired,
-      );
+      expect(result.status, SessionValidationStatus.organizationSetupRequired);
       expect(result.requiresOrganizationSetup, isTrue);
       expect(result.isAuthorized, isFalse);
       expect(gateway.currentAuthUserId, 'user-1');
@@ -114,15 +111,18 @@ void main() {
     expect(gateway.calls, ['remote', 'clear', 'signup', 'invalidate']);
   });
 
-  test('offline vigente permite arrancar sin renovar la autorización', () async {
-    gateway.remoteError = const SessionValidationUnavailable();
-    gateway.cached = cached();
-    final result = await useCase.execute();
-    expect(result.isAuthorized, isTrue);
-    expect(result.isOffline, isTrue);
-    expect(gateway.saved, isNull);
-    expect(gateway.calls, ['remote', 'cache']);
-  });
+  test(
+    'offline vigente permite arrancar sin renovar la autorización',
+    () async {
+      gateway.remoteError = const SessionValidationUnavailable();
+      gateway.cached = cached();
+      final result = await useCase.execute();
+      expect(result.isAuthorized, isTrue);
+      expect(result.isOffline, isTrue);
+      expect(gateway.saved, isNull);
+      expect(gateway.calls, ['remote', 'cache']);
+    },
+  );
 
   test('sync exige validación online aunque haya cache', () async {
     gateway.remoteError = const SessionValidationUnavailable();
@@ -133,24 +133,27 @@ void main() {
     expect(gateway.calls, ['remote']);
   });
 
-  test('cache expirado, futuro, ajeno o con rol inválido falla cerrado', () async {
-    gateway.remoteError = const SessionValidationUnavailable();
-    for (final snapshot in [
-      cached(age: const Duration(hours: 24)),
-      cached(age: const Duration(minutes: -6)),
-      cached(user: 'other'),
-      cached(role: 'unknown'),
-      null,
-    ]) {
-      gateway.cached = snapshot;
-      final result = await useCase.execute();
-      expect(
-        result.status,
-        SessionValidationStatus.offlineAuthorizationMissing,
-      );
-      expect(result.isAuthorized, isFalse);
-    }
-  });
+  test(
+    'cache expirado, futuro, ajeno o con rol inválido falla cerrado',
+    () async {
+      gateway.remoteError = const SessionValidationUnavailable();
+      for (final snapshot in [
+        cached(age: const Duration(hours: 24)),
+        cached(age: const Duration(minutes: -6)),
+        cached(user: 'other'),
+        cached(role: 'unknown'),
+        null,
+      ]) {
+        gateway.cached = snapshot;
+        final result = await useCase.execute();
+        expect(
+          result.status,
+          SessionValidationStatus.offlineAuthorizationMissing,
+        );
+        expect(result.isAuthorized, isFalse);
+      }
+    },
+  );
 
   test('un error desconocido no habilita cache offline', () async {
     gateway.remoteError = StateError('server configuration');
@@ -160,17 +163,20 @@ void main() {
     expect(gateway.calls, ['remote']);
   });
 
-  test('respuesta tardía de otro usuario no concede rol ni guarda cache', () async {
-    final gate = Completer<void>();
-    gateway.remoteGate = gate.future;
-    final pending = useCase.execute();
-    gateway.currentAuthUserId = 'user-2';
-    gate.complete();
-    final result = await pending;
-    expect(result.status, SessionValidationStatus.sessionChanged);
-    expect(result.isAuthorized, isFalse);
-    expect(gateway.saved, isNull);
-  });
+  test(
+    'respuesta tardía de otro usuario no concede rol ni guarda cache',
+    () async {
+      final gate = Completer<void>();
+      gateway.remoteGate = gate.future;
+      final pending = useCase.execute();
+      gateway.currentAuthUserId = 'user-2';
+      gate.complete();
+      final result = await pending;
+      expect(result.status, SessionValidationStatus.sessionChanged);
+      expect(result.isAuthorized, isFalse);
+      expect(gateway.saved, isNull);
+    },
+  );
 
   test('cambio obligatorio de contraseña no concede autorización', () async {
     gateway.requiresPasswordChange = true;

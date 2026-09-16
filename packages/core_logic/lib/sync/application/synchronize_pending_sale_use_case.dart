@@ -18,7 +18,8 @@ class SynchronizePendingSaleUseCase implements PendingSaleSyncAdapter {
   @override
   Future<void> sincronizarVenta(PendingSale sale) async {
     final currentUser = context.currentAuthUserId?.trim();
-    if (currentUser == null || currentUser.isEmpty ||
+    if (currentUser == null ||
+        currentUser.isEmpty ||
         !PendingSaleSessionPolicy.puedeSincronizar(
           authUserIdOrigen: sale.authUserId,
           authUserIdActual: currentUser,

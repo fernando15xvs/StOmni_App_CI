@@ -25,29 +25,37 @@ class OrganizationSubscription {
 
   bool get isUsable => status == 'active' || status == 'trialing';
 
-  factory OrganizationSubscription.fromJson(Map<String,dynamic> json) {
-    final organizationId=json['organization_id']?.toString()??'';
-    final planId=json['plan_id']?.toString()??'';
-    final planCode=json['plan_code']?.toString()??'';
-    final planName=json['plan_name']?.toString()??'';
-    final status=json['status']?.toString()??'';
-    final assignmentReason=json['assignment_reason']?.toString()??'';
-    final revision=(json['revision'] as num?)?.toInt();
-    if(organizationId.isEmpty||planId.isEmpty||planCode.isEmpty||planName.isEmpty||status.isEmpty||revision==null){
-      throw const FormatException('La suscripción de la organización es inválida.');
+  factory OrganizationSubscription.fromJson(Map<String, dynamic> json) {
+    final organizationId = json['organization_id']?.toString() ?? '';
+    final planId = json['plan_id']?.toString() ?? '';
+    final planCode = json['plan_code']?.toString() ?? '';
+    final planName = json['plan_name']?.toString() ?? '';
+    final status = json['status']?.toString() ?? '';
+    final assignmentReason = json['assignment_reason']?.toString() ?? '';
+    final revision = (json['revision'] as num?)?.toInt();
+    if (organizationId.isEmpty ||
+        planId.isEmpty ||
+        planCode.isEmpty ||
+        planName.isEmpty ||
+        status.isEmpty ||
+        revision == null) {
+      throw const FormatException(
+        'La suscripción de la organización es inválida.',
+      );
     }
-    DateTime? parseDate(Object? raw)=>raw==null?null:DateTime.tryParse(raw.toString());
+    DateTime? parseDate(Object? raw) =>
+        raw == null ? null : DateTime.tryParse(raw.toString());
     return OrganizationSubscription(
-      organizationId:organizationId,
-      planId:planId,
-      planCode:planCode,
-      planName:planName,
-      status:status,
-      assignmentReason:assignmentReason,
-      currentPeriodStart:parseDate(json['current_period_start']),
-      currentPeriodEnd:parseDate(json['current_period_end']),
-      cancelAtPeriodEnd:json['cancel_at_period_end']==true,
-      revision:revision,
+      organizationId: organizationId,
+      planId: planId,
+      planCode: planCode,
+      planName: planName,
+      status: status,
+      assignmentReason: assignmentReason,
+      currentPeriodStart: parseDate(json['current_period_start']),
+      currentPeriodEnd: parseDate(json['current_period_end']),
+      cancelAtPeriodEnd: json['cancel_at_period_end'] == true,
+      revision: revision,
     );
   }
 }

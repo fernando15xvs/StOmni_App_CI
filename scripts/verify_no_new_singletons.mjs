@@ -14,7 +14,7 @@ const LEGACY_SQL_EXCEPTION = '-- saas-legacy-singleton-exception: legacy-backfil
 // No son autoridad de tenant: Flutter queda detrás de RLS y los helpers Edge
 // usan un cliente service_role tenant-scoped. El hash impide que la deuda crezca.
 const LEGACY_RUNTIME_FILES = new Map([
-  ['packages/core_logic/lib/features/facturacion/data/guias_remision_repository.dart', 'c0800d1d7478da0965502cc1886541afc1f59401'],
+  ['packages/core_logic/lib/features/facturacion/data/guias_remision_repository.dart', '9a433b8aa0eeec0a756aeb4d551d40eaf9f0129e'],
   ['supabase/functions/_shared/proceso_tributario_common.ts', 'daedc9e7027f07ec25af3f4f4f12c31bdcd6315b'],
   ['supabase/functions/_shared/guia_remision_common.ts', 'bdd2b6d7a2c5ea46391e892952cf8c819ae61706'],
 ]);

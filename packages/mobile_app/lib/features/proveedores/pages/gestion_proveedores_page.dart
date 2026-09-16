@@ -77,7 +77,10 @@ class _GestionProveedoresPageState
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Desactivar', style: TextStyle(color: Colors.red)),
+            child: const Text(
+              'Desactivar',
+              style: TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
@@ -88,9 +91,9 @@ class _GestionProveedoresPageState
       await ref.read(supplierUseCaseProvider).deactivate(supplier.id);
       await _cargarProveedores();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Proveedor desactivado')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Proveedor desactivado')));
       }
     } catch (e) {
       _mostrarError(e);
@@ -115,7 +118,9 @@ class _GestionProveedoresPageState
             final doc = documentoCtrl.text.trim();
             if (doc.length != 8 && doc.length != 11) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('El RUC/DNI debe tener 8 u 11 dígitos')),
+                const SnackBar(
+                  content: Text('El RUC/DNI debe tener 8 u 11 dígitos'),
+                ),
               );
               return;
             }
@@ -132,11 +137,15 @@ class _GestionProveedoresPageState
               if (data != null && context.mounted) {
                 setDialogState(() {
                   if (tipo == 'dni') {
-                    nombreCtrl.text = [
-                      data['nombres'],
-                      data['apellido_paterno'],
-                      data['apellido_materno'],
-                    ].map((value) => value?.toString().trim() ?? '').where((value) => value.isNotEmpty).join(' ');
+                    nombreCtrl.text =
+                        [
+                              data['nombres'],
+                              data['apellido_paterno'],
+                              data['apellido_materno'],
+                            ]
+                            .map((value) => value?.toString().trim() ?? '')
+                            .where((value) => value.isNotEmpty)
+                            .join(' ');
                   } else {
                     nombreCtrl.text = data['razon_social']?.toString() ?? '';
                   }
@@ -151,9 +160,9 @@ class _GestionProveedoresPageState
               }
             } catch (e) {
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(ErrorMapper.map(e))),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(ErrorMapper.map(e))));
               }
             } finally {
               if (context.mounted) setDialogState(() => consulting = false);
@@ -161,7 +170,9 @@ class _GestionProveedoresPageState
           }
 
           return AlertDialog(
-            title: Text(supplier == null ? 'Nuevo Proveedor' : 'Editar Proveedor'),
+            title: Text(
+              supplier == null ? 'Nuevo Proveedor' : 'Editar Proveedor',
+            ),
             content: SizedBox(
               width: 520,
               child: SingleChildScrollView(
@@ -189,7 +200,9 @@ class _GestionProveedoresPageState
                               ? const SizedBox(
                                   width: 22,
                                   height: 22,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
                                 )
                               : const Icon(Icons.search),
                           tooltip: 'Consultar SUNAT/RENIEC',
@@ -214,8 +227,10 @@ class _GestionProveedoresPageState
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              if (estadoSunat != null) Text('Estado SUNAT: $estadoSunat'),
-                              if (condicionSunat != null) Text('Condición: $condicionSunat'),
+                              if (estadoSunat != null)
+                                Text('Estado SUNAT: $estadoSunat'),
+                              if (condicionSunat != null)
+                                Text('Condición: $condicionSunat'),
                             ],
                           ),
                         ),
@@ -243,9 +258,12 @@ class _GestionProveedoresPageState
                     const SizedBox(height: 8),
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: Text(active ? 'Proveedor activo' : 'Proveedor inactivo'),
+                      title: Text(
+                        active ? 'Proveedor activo' : 'Proveedor inactivo',
+                      ),
                       value: active,
-                      onChanged: (value) => setDialogState(() => active = value),
+                      onChanged: (value) =>
+                          setDialogState(() => active = value),
                     ),
                   ],
                 ),
@@ -260,7 +278,9 @@ class _GestionProveedoresPageState
                 onPressed: () async {
                   try {
                     final document = documentoCtrl.text.trim();
-                    await ref.read(supplierUseCaseProvider).save(
+                    await ref
+                        .read(supplierUseCaseProvider)
+                        .save(
                           SupplierDraft(
                             name: nombreCtrl.text,
                             document: document,
@@ -300,7 +320,10 @@ class _GestionProveedoresPageState
   void _mostrarError(Object error) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(ErrorMapper.map(error)), backgroundColor: Colors.red),
+      SnackBar(
+        content: Text(ErrorMapper.map(error)),
+        backgroundColor: Colors.red,
+      ),
     );
   }
 
@@ -335,42 +358,58 @@ class _GestionProveedoresPageState
                             physics: const AlwaysScrollableScrollPhysics(),
                             children: const [
                               SizedBox(height: 180),
-                              Center(child: Text('No hay proveedores para mostrar.')),
+                              Center(
+                                child: Text('No hay proveedores para mostrar.'),
+                              ),
                             ],
                           )
                         : ListView.separated(
                             padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
                             itemCount: _proveedores.length,
-                            separatorBuilder: (_, _) => const SizedBox(height: 8),
+                            separatorBuilder: (_, _) =>
+                                const SizedBox(height: 8),
                             itemBuilder: (context, index) {
                               final supplier = _proveedores[index];
                               return Card(
                                 child: ListTile(
                                   leading: CircleAvatar(
                                     child: Icon(
-                                      supplier.active ? Icons.business : Icons.business_outlined,
+                                      supplier.active
+                                          ? Icons.business
+                                          : Icons.business_outlined,
                                     ),
                                   ),
                                   title: Text(supplier.name),
-                                  subtitle: Text([
-                                    if (supplier.document.isNotEmpty) supplier.document,
-                                    supplier.active ? 'Activo' : 'Inactivo',
-                                    if (supplier.address?.isNotEmpty == true) supplier.address!,
-                                  ].join(' · ')),
-                                  onTap: () => _mostrarDialogoProveedor(supplier),
+                                  subtitle: Text(
+                                    [
+                                      if (supplier.document.isNotEmpty)
+                                        supplier.document,
+                                      supplier.active ? 'Activo' : 'Inactivo',
+                                      if (supplier.address?.isNotEmpty == true)
+                                        supplier.address!,
+                                    ].join(' · '),
+                                  ),
+                                  onTap: () =>
+                                      _mostrarDialogoProveedor(supplier),
                                   trailing: Wrap(
                                     children: [
                                       if (supplier.phone?.isNotEmpty == true)
                                         IconButton(
                                           tooltip: 'Llamar',
-                                          onPressed: () => _llamar(supplier.phone),
-                                          icon: const Icon(Icons.phone_outlined),
+                                          onPressed: () =>
+                                              _llamar(supplier.phone),
+                                          icon: const Icon(
+                                            Icons.phone_outlined,
+                                          ),
                                         ),
                                       if (supplier.active)
                                         IconButton(
                                           tooltip: 'Desactivar',
-                                          onPressed: () => _desactivar(supplier),
-                                          icon: const Icon(Icons.person_off_outlined),
+                                          onPressed: () =>
+                                              _desactivar(supplier),
+                                          icon: const Icon(
+                                            Icons.person_off_outlined,
+                                          ),
                                         ),
                                     ],
                                   ),

@@ -47,19 +47,17 @@ class ConnectivitySyncState {
     int syncedCount,
     int pendingCount, {
     String? message,
-  }) =>
-      ConnectivitySyncState(
-        type: SyncResultType.success,
-        syncedCount: syncedCount,
-        pendingCount: pendingCount,
-        message: message,
-      );
+  }) => ConnectivitySyncState(
+    type: SyncResultType.success,
+    syncedCount: syncedCount,
+    pendingCount: pendingCount,
+    message: message,
+  );
 }
 
 /// Adaptador móvil: escucha el estado de red y traduce el resultado del caso
 /// de uso a estado de presentación. Las reglas de coordinación viven en Core.
-class ConnectivitySyncController
-    extends StateNotifier<ConnectivitySyncState> {
+class ConnectivitySyncController extends StateNotifier<ConnectivitySyncState> {
   final Connectivity _connectivity;
   final SyncPendingOperationsUseCase _syncPendingOperations;
   StreamSubscription<List<ConnectivityResult>>? _subscription;
@@ -72,8 +70,7 @@ class ConnectivitySyncController
     SyncPendingOperationsUseCase? syncPendingOperations,
   }) : _connectivity = connectivity ?? Connectivity(),
        _syncPendingOperations =
-           syncPendingOperations ??
-           ref.read(syncPendingOperationsProvider),
+           syncPendingOperations ?? ref.read(syncPendingOperationsProvider),
        super(ConnectivitySyncState.idle()) {
     _subscription = _connectivity.onConnectivityChanged.listen(
       _handleConnectivityChanged,
@@ -175,7 +172,7 @@ class ConnectivitySyncController
   }
 }
 
-final connectivitySyncControllerProvider = StateNotifierProvider<
-  ConnectivitySyncController,
-  ConnectivitySyncState
->((ref) => ConnectivitySyncController(ref));
+final connectivitySyncControllerProvider =
+    StateNotifierProvider<ConnectivitySyncController, ConnectivitySyncState>(
+      (ref) => ConnectivitySyncController(ref),
+    );

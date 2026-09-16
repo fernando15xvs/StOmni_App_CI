@@ -14,7 +14,9 @@ class PdfBrandingLoader {
     final uri = BusinessBranding.parseLogoUri(profile?.logoUrl ?? '');
     if (uri != null) {
       try {
-        final response = await http.get(uri).timeout(const Duration(seconds: 3));
+        final response = await http
+            .get(uri)
+            .timeout(const Duration(seconds: 3));
         final contentType = response.headers['content-type'] ?? '';
         if (response.statusCode == 200 &&
             contentType.toLowerCase().startsWith('image/') &&
@@ -29,7 +31,10 @@ class PdfBrandingLoader {
     if (logo == null) {
       try {
         final asset = await rootBundle.load('assets/imagenes/slf_logo.png');
-        logo = asset.buffer.asUint8List(asset.offsetInBytes, asset.lengthInBytes);
+        logo = asset.buffer.asUint8List(
+          asset.offsetInBytes,
+          asset.lengthInBytes,
+        );
       } catch (_) {
         // Un documento sigue siendo válido aunque tampoco exista el asset base.
       }

@@ -34,9 +34,7 @@ class BusinessBranding {
     if (uri.scheme.toLowerCase() == 'https') return uri;
     if (uri.scheme.toLowerCase() != 'http') return null;
     final host = uri.host.toLowerCase();
-    return host == 'localhost' ||
-            host == '127.0.0.1' ||
-            host == '::1'
+    return host == 'localhost' || host == '127.0.0.1' || host == '::1'
         ? uri
         : null;
   }

@@ -10,8 +10,8 @@ import '../widgets/purchase_traceability_dialog.dart';
 
 class _MobilePurchaseLineDraft {
   _MobilePurchaseLineDraft(this.product)
-      : quantity = TextEditingController(),
-        cost = TextEditingController();
+    : quantity = TextEditingController(),
+      cost = TextEditingController();
 
   final ProductoBusqueda product;
   final TextEditingController quantity;
@@ -39,19 +39,25 @@ class _ComprasPageState extends ConsumerState<ComprasPage> {
   }
 
   String _status(PurchaseOrderStatus status) => switch (status) {
-        PurchaseOrderStatus.draft => 'Borrador',
-        PurchaseOrderStatus.ordered => 'Ordenada',
-        PurchaseOrderStatus.partiallyReceived => 'Parcial',
-        PurchaseOrderStatus.received => 'Recibida',
-        PurchaseOrderStatus.cancelled => 'Anulada',
-      };
+    PurchaseOrderStatus.draft => 'Borrador',
+    PurchaseOrderStatus.ordered => 'Ordenada',
+    PurchaseOrderStatus.partiallyReceived => 'Parcial',
+    PurchaseOrderStatus.received => 'Recibida',
+    PurchaseOrderStatus.cancelled => 'Anulada',
+  };
 
   Future<void> _create() async {
     final catalog = await ref.read(purchaseCatalogProvider.future);
-    final allProducts = await ref.read(purchaseProductSearchProvider('').future);
+    final allProducts = await ref.read(
+      purchaseProductSearchProvider('').future,
+    );
     if (!mounted) return;
-    final products = allProducts.where((row) => row.activo).toList(growable: false);
-    if (catalog.activeSuppliers.isEmpty || catalog.warehouses.isEmpty || products.isEmpty) {
+    final products = allProducts
+        .where((row) => row.activo)
+        .toList(growable: false);
+    if (catalog.activeSuppliers.isEmpty ||
+        catalog.warehouses.isEmpty ||
+        products.isEmpty) {
       _message('Necesitas proveedor, almacén y producto activos.', error: true);
       return;
     }
@@ -67,8 +73,11 @@ class _ComprasPageState extends ConsumerState<ComprasPage> {
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) {
           void addProduct() {
-            if (lines.any((line) => line.product.id == selectedProductId)) return;
-            final product = products.firstWhere((row) => row.id == selectedProductId);
+            if (lines.any((line) => line.product.id == selectedProductId))
+              return;
+            final product = products.firstWhere(
+              (row) => row.id == selectedProductId,
+            );
             setDialogState(() => lines.add(_MobilePurchaseLineDraft(product)));
           }
 
@@ -85,22 +94,36 @@ class _ComprasPageState extends ConsumerState<ComprasPage> {
                       isExpanded: true,
                       decoration: const InputDecoration(labelText: 'Proveedor'),
                       items: catalog.activeSuppliers
-                          .map((row) => DropdownMenuItem(value: row.id, child: Text(row.name)))
+                          .map(
+                            (row) => DropdownMenuItem(
+                              value: row.id,
+                              child: Text(row.name),
+                            ),
+                          )
                           .toList(),
                       onChanged: (value) {
-                        if (value != null) setDialogState(() => supplierId = value);
+                        if (value != null)
+                          setDialogState(() => supplierId = value);
                       },
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<int>(
                       initialValue: warehouseId,
                       isExpanded: true,
-                      decoration: const InputDecoration(labelText: 'Almacén de recepción'),
+                      decoration: const InputDecoration(
+                        labelText: 'Almacén de recepción',
+                      ),
                       items: catalog.warehouses
-                          .map((row) => DropdownMenuItem(value: row.id, child: Text(row.name)))
+                          .map(
+                            (row) => DropdownMenuItem(
+                              value: row.id,
+                              child: Text(row.name),
+                            ),
+                          )
                           .toList(),
                       onChanged: (value) {
-                        if (value != null) setDialogState(() => warehouseId = value);
+                        if (value != null)
+                          setDialogState(() => warehouseId = value);
                       },
                     ),
                     const SizedBox(height: 12),
@@ -110,12 +133,19 @@ class _ComprasPageState extends ConsumerState<ComprasPage> {
                           child: DropdownButtonFormField<int>(
                             initialValue: selectedProductId,
                             isExpanded: true,
-                            decoration: const InputDecoration(labelText: 'Producto'),
+                            decoration: const InputDecoration(
+                              labelText: 'Producto',
+                            ),
                             items: products
-                                .map((row) => DropdownMenuItem(
-                                      value: row.id,
-                                      child: Text(row.nombre, overflow: TextOverflow.ellipsis),
-                                    ))
+                                .map(
+                                  (row) => DropdownMenuItem(
+                                    value: row.id,
+                                    child: Text(
+                                      row.nombre,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                )
                                 .toList(),
                             onChanged: (value) {
                               if (value != null) {
@@ -153,7 +183,9 @@ class _ComprasPageState extends ConsumerState<ComprasPage> {
                                     Expanded(
                                       child: Text(
                                         line.product.nombre,
-                                        style: const TextStyle(fontWeight: FontWeight.w700),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                        ),
                                       ),
                                     ),
                                     IconButton(
@@ -168,14 +200,24 @@ class _ComprasPageState extends ConsumerState<ComprasPage> {
                                 ),
                                 TextField(
                                   controller: line.quantity,
-                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                  decoration: const InputDecoration(labelText: 'Cantidad en unidad base'),
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                      ),
+                                  decoration: const InputDecoration(
+                                    labelText: 'Cantidad en unidad base',
+                                  ),
                                 ),
                                 const SizedBox(height: 8),
                                 TextField(
                                   controller: line.cost,
-                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                  decoration: const InputDecoration(labelText: 'Costo por unidad base'),
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                      ),
+                                  decoration: const InputDecoration(
+                                    labelText: 'Costo por unidad base',
+                                  ),
                                 ),
                               ],
                             ),
@@ -207,7 +249,10 @@ class _ComprasPageState extends ConsumerState<ComprasPage> {
                           final cost = double.tryParse(
                             line.cost.text.trim().replaceAll(',', '.'),
                           );
-                          if (quantity == null || quantity <= 0 || cost == null || cost < 0) {
+                          if (quantity == null ||
+                              quantity <= 0 ||
+                              cost == null ||
+                              cost < 0) {
                             return;
                           }
                         }
@@ -224,7 +269,9 @@ class _ComprasPageState extends ConsumerState<ComprasPage> {
     if (accepted == true && mounted) {
       setState(() => _mutating = true);
       try {
-        await ref.read(purchaseOrderUseCaseProvider).create(
+        await ref
+            .read(purchaseOrderUseCaseProvider)
+            .create(
               PurchaseOrderDraft(
                 requestId: const Uuid().v4(),
                 supplierId: supplierId,
@@ -263,7 +310,9 @@ class _ComprasPageState extends ConsumerState<ComprasPage> {
   }
 
   Future<void> _receive(PurchaseOrderRecord order) async {
-    final pending = order.lines.where((line) => line.pendingBaseQuantity > 0).toList();
+    final pending = order.lines
+        .where((line) => line.pendingBaseQuantity > 0)
+        .toList();
     if (pending.isEmpty) return;
     final quantities = <int, TextEditingController>{
       for (final line in pending) line.id: TextEditingController(),
@@ -291,14 +340,20 @@ class _ComprasPageState extends ConsumerState<ComprasPage> {
                   ),
                   TextField(
                     controller: quantities[line.id],
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(labelText: 'Cantidad recibida'),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: const InputDecoration(
+                      labelText: 'Cantidad recibida',
+                    ),
                   ),
                   const SizedBox(height: 12),
                 ],
                 TextField(
                   controller: document,
-                  decoration: const InputDecoration(labelText: 'Documento proveedor'),
+                  decoration: const InputDecoration(
+                    labelText: 'Documento proveedor',
+                  ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
@@ -319,10 +374,15 @@ class _ComprasPageState extends ConsumerState<ComprasPage> {
             onPressed: () {
               var hasQuantity = false;
               for (final line in pending) {
-                final raw = quantities[line.id]!.text.trim().replaceAll(',', '.');
+                final raw = quantities[line.id]!.text.trim().replaceAll(
+                  ',',
+                  '.',
+                );
                 if (raw.isEmpty) continue;
                 final value = double.tryParse(raw);
-                if (value == null || value <= 0 || value > line.pendingBaseQuantity + 1e-7) {
+                if (value == null ||
+                    value <= 0 ||
+                    value > line.pendingBaseQuantity + 1e-7) {
                   return;
                 }
                 hasQuantity = true;
@@ -353,7 +413,9 @@ class _ComprasPageState extends ConsumerState<ComprasPage> {
         }
         if (!mounted) return;
         setState(() => _mutating = true);
-        await ref.read(purchaseOrderUseCaseProvider).receive(
+        await ref
+            .read(purchaseOrderUseCaseProvider)
+            .receive(
               ReceivePurchaseOrderCommand(
                 requestId: const Uuid().v4(),
                 purchaseOrderId: order.id,
@@ -398,7 +460,8 @@ class _ComprasPageState extends ConsumerState<ComprasPage> {
           ),
           FilledButton(
             onPressed: () {
-              if (reason.text.trim().isNotEmpty) Navigator.pop(dialogContext, true);
+              if (reason.text.trim().isNotEmpty)
+                Navigator.pop(dialogContext, true);
             },
             child: const Text('Anular'),
           ),
@@ -408,10 +471,9 @@ class _ComprasPageState extends ConsumerState<ComprasPage> {
     if (accepted == true && mounted) {
       setState(() => _mutating = true);
       try {
-        await ref.read(purchaseOrderUseCaseProvider).cancel(
-              order.id,
-              reason: reason.text,
-            );
+        await ref
+            .read(purchaseOrderUseCaseProvider)
+            .cancel(order.id, reason: reason.text);
         if (mounted) {
           _message('Orden anulada.');
           _refresh();
@@ -458,7 +520,10 @@ class _ComprasPageState extends ConsumerState<ComprasPage> {
               const SizedBox(height: 180),
               Padding(
                 padding: const EdgeInsets.all(24),
-                child: Text(ErrorMapper.map(error), textAlign: TextAlign.center),
+                child: Text(
+                  ErrorMapper.map(error),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ],
           ),
@@ -487,13 +552,17 @@ class _ComprasPageState extends ConsumerState<ComprasPage> {
                             if (order.canReceive)
                               IconButton(
                                 tooltip: 'Recibir mercadería',
-                                onPressed: _mutating ? null : () => _receive(order),
+                                onPressed: _mutating
+                                    ? null
+                                    : () => _receive(order),
                                 icon: const Icon(Icons.inventory_2_outlined),
                               ),
                             if (order.status == PurchaseOrderStatus.ordered)
                               IconButton(
                                 tooltip: 'Anular orden',
-                                onPressed: _mutating ? null : () => _cancel(order),
+                                onPressed: _mutating
+                                    ? null
+                                    : () => _cancel(order),
                                 icon: const Icon(Icons.cancel_outlined),
                               ),
                           ],
@@ -506,7 +575,9 @@ class _ComprasPageState extends ConsumerState<ComprasPage> {
                               subtitle: Text(
                                 'Pedido ${CommercialPresentation.formatNumber(line.orderedBaseQuantity)} · recibido ${CommercialPresentation.formatNumber(line.receivedBaseQuantity)}',
                               ),
-                              trailing: Text(AppFormatters.currency(line.orderedAmount)),
+                              trailing: Text(
+                                AppFormatters.currency(line.orderedAmount),
+                              ),
                             ),
                         ],
                       ),

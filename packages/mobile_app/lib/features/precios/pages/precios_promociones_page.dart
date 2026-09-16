@@ -6,17 +6,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../almacen/presentation/providers/inventory_use_case_providers.dart';
 
-final mobilePriceRulesProvider = FutureProvider.autoDispose<List<SalePriceRule>>((ref) =>
-    ref.watch(manageSalePriceRulesUseCaseProvider).list());
+final mobilePriceRulesProvider =
+    FutureProvider.autoDispose<List<SalePriceRule>>(
+      (ref) => ref.watch(manageSalePriceRulesUseCaseProvider).list(),
+    );
 
 class PreciosPromocionesPage extends ConsumerStatefulWidget {
   const PreciosPromocionesPage({super.key});
 
   @override
-  ConsumerState<PreciosPromocionesPage> createState() => _PreciosPromocionesPageState();
+  ConsumerState<PreciosPromocionesPage> createState() =>
+      _PreciosPromocionesPageState();
 }
 
-class _PreciosPromocionesPageState extends ConsumerState<PreciosPromocionesPage> {
+class _PreciosPromocionesPageState
+    extends ConsumerState<PreciosPromocionesPage> {
   Future<void> _create() async {
     final products = await ref.read(searchProductsUseCaseProvider).call('');
     final active = products.where((p) => p.activo).toList(growable: false);
@@ -34,53 +38,83 @@ class _PreciosPromocionesPageState extends ConsumerState<PreciosPromocionesPage>
         builder: (context, setDialogState) => AlertDialog(
           title: const Text('Nueva regla de precio'),
           content: SingleChildScrollView(
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              TextField(controller: name, decoration: const InputDecoration(labelText: 'Nombre')),
-              const SizedBox(height: 10),
-              DropdownButtonFormField<int>(
-                initialValue: productId,
-                isExpanded: true,
-                decoration: const InputDecoration(labelText: 'Producto'),
-                items: active.map((p) => DropdownMenuItem(
-                  value: p.id,
-                  child: Text(p.nombre, overflow: TextOverflow.ellipsis),
-                )).toList(growable: false),
-                onChanged: (v) { if (v != null) setDialogState(() => productId = v); },
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: presentation,
-                decoration: const InputDecoration(
-                  labelText: 'Presentación (opcional)',
-                  helperText: 'Ej.: unidad, caja, kg. Vacío = todas.',
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: name,
+                  decoration: const InputDecoration(labelText: 'Nombre'),
                 ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: quantity,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'Cantidad mínima'),
-              ),
-              const SizedBox(height: 10),
-              SegmentedButton<bool>(
-                segments: const [
-                  ButtonSegment(value: false, label: Text('% descuento')),
-                  ButtonSegment(value: true, label: Text('Precio fijo')),
-                ],
-                selected: {fixedMode},
-                onSelectionChanged: (v) => setDialogState(() => fixedMode = v.first),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: value,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(labelText: fixedMode ? 'Precio autorizado' : 'Descuento %'),
-              ),
-            ]),
+                const SizedBox(height: 10),
+                DropdownButtonFormField<int>(
+                  initialValue: productId,
+                  isExpanded: true,
+                  decoration: const InputDecoration(labelText: 'Producto'),
+                  items: active
+                      .map(
+                        (p) => DropdownMenuItem(
+                          value: p.id,
+                          child: Text(
+                            p.nombre,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      )
+                      .toList(growable: false),
+                  onChanged: (v) {
+                    if (v != null) setDialogState(() => productId = v);
+                  },
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: presentation,
+                  decoration: const InputDecoration(
+                    labelText: 'Presentación (opcional)',
+                    helperText: 'Ej.: unidad, caja, kg. Vacío = todas.',
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: quantity,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: 'Cantidad mínima',
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SegmentedButton<bool>(
+                  segments: const [
+                    ButtonSegment(value: false, label: Text('% descuento')),
+                    ButtonSegment(value: true, label: Text('Precio fijo')),
+                  ],
+                  selected: {fixedMode},
+                  onSelectionChanged: (v) =>
+                      setDialogState(() => fixedMode = v.first),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: value,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: fixedMode ? 'Precio autorizado' : 'Descuento %',
+                  ),
+                ),
+              ],
+            ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Cancelar')),
-            FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('Guardar')),
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('Guardar'),
+            ),
           ],
         ),
       ),
@@ -89,21 +123,30 @@ class _PreciosPromocionesPageState extends ConsumerState<PreciosPromocionesPage>
     if (accepted == true && mounted) {
       try {
         final parsed = double.parse(value.text.trim().replaceAll(',', '.'));
-        await ref.read(manageSalePriceRulesUseCaseProvider).save(SalePriceRuleDraft(
-          name: name.text,
-          productId: productId,
-          presentationCode: presentation.text.trim().isEmpty ? null : presentation.text,
-          minQuantity: double.parse(quantity.text.trim().replaceAll(',', '.')),
-          priority: 0,
-          active: true,
-          fixedPrice: fixedMode ? parsed : null,
-          discountPercent: fixedMode ? null : parsed,
-        ));
+        await ref
+            .read(manageSalePriceRulesUseCaseProvider)
+            .save(
+              SalePriceRuleDraft(
+                name: name.text,
+                productId: productId,
+                presentationCode: presentation.text.trim().isEmpty
+                    ? null
+                    : presentation.text,
+                minQuantity: double.parse(
+                  quantity.text.trim().replaceAll(',', '.'),
+                ),
+                priority: 0,
+                active: true,
+                fixedPrice: fixedMode ? parsed : null,
+                discountPercent: fixedMode ? null : parsed,
+              ),
+            );
         ref.invalidate(mobilePriceRulesProvider);
       } catch (error) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(ErrorMapper.map(error))),
-        );
+        if (mounted)
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(ErrorMapper.map(error))));
       }
     }
     name.dispose();
@@ -119,8 +162,14 @@ class _PreciosPromocionesPageState extends ConsumerState<PreciosPromocionesPage>
         title: const Text('Eliminar regla'),
         content: Text('¿Eliminar “${rule.name}”?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Eliminar')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Eliminar'),
+          ),
         ],
       ),
     );
@@ -129,9 +178,10 @@ class _PreciosPromocionesPageState extends ConsumerState<PreciosPromocionesPage>
       await ref.read(manageSalePriceRulesUseCaseProvider).delete(rule.id);
       ref.invalidate(mobilePriceRulesProvider);
     } catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(ErrorMapper.map(error))),
-      );
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(ErrorMapper.map(error))));
     }
   }
 
@@ -147,10 +197,12 @@ class _PreciosPromocionesPageState extends ConsumerState<PreciosPromocionesPage>
       ),
       body: rules.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(ErrorMapper.map(e), textAlign: TextAlign.center),
-        )),
+        error: (e, _) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(ErrorMapper.map(e), textAlign: TextAlign.center),
+          ),
+        ),
         data: (rows) => rows.isEmpty
             ? const Center(child: Text('No hay reglas de precio configuradas.'))
             : ListView.separated(
@@ -162,16 +214,20 @@ class _PreciosPromocionesPageState extends ConsumerState<PreciosPromocionesPage>
                   final value = row.fixedPrice != null
                       ? 'S/ ${row.fixedPrice!.toStringAsFixed(2)}'
                       : '${row.discountPercent!.toStringAsFixed(2)}%';
-                  return Card(child: ListTile(
-                    leading: const Icon(Icons.sell_outlined),
-                    title: Text(row.name),
-                    subtitle: Text('${row.productName} · desde ${CommercialPresentation.formatNumber(row.minQuantity)} · $value'),
-                    trailing: IconButton(
-                      tooltip: 'Eliminar',
-                      onPressed: () => _delete(row),
-                      icon: const Icon(Icons.delete_outline),
+                  return Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.sell_outlined),
+                      title: Text(row.name),
+                      subtitle: Text(
+                        '${row.productName} · desde ${CommercialPresentation.formatNumber(row.minQuantity)} · $value',
+                      ),
+                      trailing: IconButton(
+                        tooltip: 'Eliminar',
+                        onPressed: () => _delete(row),
+                        icon: const Icon(Icons.delete_outline),
+                      ),
                     ),
-                  ));
+                  );
                 },
               ),
       ),

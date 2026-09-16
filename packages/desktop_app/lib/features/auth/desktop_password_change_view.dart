@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DesktopPasswordChangeView extends ConsumerStatefulWidget {
-  const DesktopPasswordChangeView({
-    super.key,
-    required this.onSessionChanged,
-  });
+  const DesktopPasswordChangeView({super.key, required this.onSessionChanged});
 
   final VoidCallback onSessionChanged;
 
@@ -104,8 +101,8 @@ class _DesktopPasswordChangeViewState
                           labelText: 'Confirmar contraseña',
                           suffixIcon: IconButton(
                             onPressed: () => setState(
-                              () => _obscureConfirmation =
-                                  !_obscureConfirmation,
+                              () =>
+                                  _obscureConfirmation = !_obscureConfirmation,
                             ),
                             icon: Icon(
                               _obscureConfirmation

@@ -158,8 +158,9 @@ class VentasRepository {
           .select('*, inventario_almacen(almacen_id, cantidad)')
           .eq('activo', true)
           .order('nombre');
-      final productos = await SupabaseProductUnitConfigurationGateway(_client)
-          .attach(List<Map<String, dynamic>>.from(productosRaw));
+      final productos = await SupabaseProductUnitConfigurationGateway(
+        _client,
+      ).attach(List<Map<String, dynamic>>.from(productosRaw));
       final proveedores = await _client
           .from('proveedores')
           .select('id, nombre');
@@ -203,27 +204,34 @@ class VentasRepository {
       'p_fecha': AppTime.toIsoLima(fecha),
       'p_observaciones': observaciones.trim(),
       'p_validez_dias': validezDias,
-      'p_detalles': detalles.map((line) => <String, dynamic>{
-        'producto_id': line.productId,
-        'cantidad': line.quantity,
-        'piezas_reales': line.storedBaseQuantity,
-        'cantidad_base_comercial': line.baseQuantity,
-        'stock_scale': line.storageScale,
-        'precio_unitario': line.baseUnitPrice,
-        'precio_unitario_comercial': line.commercialUnitPrice,
-        'subtotal': line.subtotal,
-        'almacen_id': line.warehouseId,
-        'tipo_unidad': line.unitCode,
-        if (line.presentationRevision != null)
-          'unit_profile_revision': line.presentationRevision,
-        if (line.commercialUnitLabel != null)
-          'commercial_unit_label': line.commercialUnitLabel,
-      }).toList(growable: false),
+      'p_detalles': detalles
+          .map(
+            (line) => <String, dynamic>{
+              'producto_id': line.productId,
+              'cantidad': line.quantity,
+              'piezas_reales': line.storedBaseQuantity,
+              'cantidad_base_comercial': line.baseQuantity,
+              'stock_scale': line.storageScale,
+              'precio_unitario': line.baseUnitPrice,
+              'precio_unitario_comercial': line.commercialUnitPrice,
+              'subtotal': line.subtotal,
+              'almacen_id': line.warehouseId,
+              'tipo_unidad': line.unitCode,
+              if (line.presentationRevision != null)
+                'unit_profile_revision': line.presentationRevision,
+              if (line.commercialUnitLabel != null)
+                'commercial_unit_label': line.commercialUnitLabel,
+            },
+          )
+          .toList(growable: false),
     };
 
     try {
       final response = usesConfiguredUnits
-          ? await _client.rpc('guardar_cotizacion_with_units_v2', params: params)
+          ? await _client.rpc(
+              'guardar_cotizacion_with_units_v2',
+              params: params,
+            )
           : await _client.rpc('guardar_cotizacion_v2', params: params);
       if (response is! Map) {
         throw StateError('$rpcLabel devolvió una respuesta inválida.');
@@ -266,9 +274,8 @@ class VentasRepository {
     }
   }
 
-  SaleCart construirCarritoDesdeCotizacion(
-    Map<String, dynamic> cotizacion,
-  ) => QuotationSaleCartMapper.decode(cotizacion);
+  SaleCart construirCarritoDesdeCotizacion(Map<String, dynamic> cotizacion) =>
+      QuotationSaleCartMapper.decode(cotizacion);
 
   Future<Map<String, dynamic>> convertirCotizacionEnVenta({
     required int cotizacionId,

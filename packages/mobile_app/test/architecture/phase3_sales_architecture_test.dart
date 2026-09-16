@@ -147,7 +147,9 @@ void main() {
   });
 
   test('cola de ventas usa store SQLite y conserva migración histórica', () {
-    final service = core('lib/services/offline_service.dart').readAsStringSync();
+    final service = core(
+      'lib/services/offline_service.dart',
+    ).readAsStringSync();
     final store = core(
       'lib/database/pending_sale_queue_store.dart',
     ).readAsStringSync();
@@ -155,29 +157,32 @@ void main() {
       'lib/features/ventas/application/venta_submission_coordinator.dart',
     ).readAsStringSync();
     expect(service, contains('PendingSaleQueueStore'));
-    expect(service, contains("_legacyVentasPendientesKey = 'ventas_pendientes'"));
+    expect(
+      service,
+      contains("_legacyVentasPendientesKey = 'ventas_pendientes'"),
+    );
     expect(service, contains('recoverInterruptedProcessing'));
     expect(service, contains("tipoComprobante != 'ticket_interno'"));
-    expect(
-      coordinator,
-      contains('_procesarVenta.fiscalPolicy.documentFor'),
-    );
+    expect(coordinator, contains('_procesarVenta.fiscalPolicy.documentFor'));
     expect(store, contains('request_id TEXT PRIMARY KEY'));
     expect(store, contains('intentos INTEGER NOT NULL DEFAULT 0'));
     expect(store, contains('ultimo_error TEXT'));
   });
 
-  test('diálogo de pendientes elimina por request_id y muestra diagnóstico', () {
-    final dialog = mobile(
-      'lib/features/balance/widgets/ventas_pendientes_dialog.dart',
-    ).readAsStringSync();
-    expect(dialog, contains('eliminarVentaOfflinePorRequestId'));
-    expect(dialog.contains('eliminarVentaOffline(index)'), isFalse);
-    expect(dialog, contains("venta['_queue_estado']"));
-    expect(dialog, contains("venta['_queue_intentos']"));
-    expect(dialog, contains("venta['_queue_ultimo_error']"));
-    expect(dialog, contains("venta['request_id']"));
-  });
+  test(
+    'diálogo de pendientes elimina por request_id y muestra diagnóstico',
+    () {
+      final dialog = mobile(
+        'lib/features/balance/widgets/ventas_pendientes_dialog.dart',
+      ).readAsStringSync();
+      expect(dialog, contains('eliminarVentaOfflinePorRequestId'));
+      expect(dialog.contains('eliminarVentaOffline(index)'), isFalse);
+      expect(dialog, contains("venta['_queue_estado']"));
+      expect(dialog, contains("venta['_queue_intentos']"));
+      expect(dialog, contains("venta['_queue_ultimo_error']"));
+      expect(dialog, contains("venta['request_id']"));
+    },
+  );
 
   test('refresh global ya no usa ValueNotifier como mecanismo de estado', () {
     final legacy = mobile('lib/home/home_notifier.dart').readAsStringSync();
@@ -189,18 +194,21 @@ void main() {
     expect(controller, contains('homeRefreshRevisionProvider'));
   });
 
-  test('kit documental movil usa gateway vía Riverpod y no acceso estático', () {
-    final kit = mobile(
-      'lib/core/widgets/document_form_kit.dart',
-    ).readAsStringSync();
-    expect(kit, isNot(contains('supabase_flutter')));
-    expect(kit, isNot(contains('Supabase.instance')));
-    expect(kit, isNot(contains('class ClienteService')));
-    expect(kit, isNot(contains('ClienteService.')));
-    expect(kit, isNot(contains('DocumentDataAccess.gateway')));
-    expect(kit, contains('documentDataGatewayProvider'));
-    expect(kit, contains('ConsumerStatefulWidget'));
-  });
+  test(
+    'kit documental movil usa gateway vía Riverpod y no acceso estático',
+    () {
+      final kit = mobile(
+        'lib/core/widgets/document_form_kit.dart',
+      ).readAsStringSync();
+      expect(kit, isNot(contains('supabase_flutter')));
+      expect(kit, isNot(contains('Supabase.instance')));
+      expect(kit, isNot(contains('class ClienteService')));
+      expect(kit, isNot(contains('ClienteService.')));
+      expect(kit, isNot(contains('DocumentDataAccess.gateway')));
+      expect(kit, contains('documentDataGatewayProvider'));
+      expect(kit, contains('ConsumerStatefulWidget'));
+    },
+  );
 
   test('Dashboard obtiene resumen por repositorio y escucha Riverpod', () {
     final dashboard = mobile(
@@ -227,7 +235,9 @@ void main() {
     expect(useCase, contains('sale.usaEfectivo'));
     expect(useCase, contains('cajaChicaAbierta()'));
     expect(saleModels, contains('final String? authUserId;'));
-    final codec = core('lib/features/ventas/data/pending_sale_mapper.dart').readAsStringSync();
+    final codec = core(
+      'lib/features/ventas/data/pending_sale_mapper.dart',
+    ).readAsStringSync();
     expect(codec, contains("'auth_user_id': sale.authUserId"));
   });
 }

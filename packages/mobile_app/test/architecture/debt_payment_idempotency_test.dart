@@ -9,12 +9,18 @@ void main() {
   test('migracion v2 protege pagos con request_id persistente', () {
     final sql = repositoryFile(migrationPath).readAsStringSync();
 
-    expect(sql, contains('CREATE TABLE IF NOT EXISTS public.pagos_deuda_requests'));
+    expect(
+      sql,
+      contains('CREATE TABLE IF NOT EXISTS public.pagos_deuda_requests'),
+    );
     expect(sql, contains('request_id uuid PRIMARY KEY'));
     expect(sql, contains('ADD COLUMN IF NOT EXISTS request_id uuid'));
     expect(sql, contains('pagos_venta_request_id_uidx'));
     expect(sql, contains('pagos_gasto_request_id_uidx'));
-    expect(sql, contains('CREATE OR REPLACE FUNCTION public.procesar_pago_deuda_v2'));
+    expect(
+      sql,
+      contains('CREATE OR REPLACE FUNCTION public.procesar_pago_deuda_v2'),
+    );
     expect(sql, contains('ON CONFLICT (request_id) DO NOTHING'));
     expect(sql, contains('FOR UPDATE'));
     expect(sql, contains("IN ('admin', 'operador')"));
@@ -32,10 +38,7 @@ void main() {
     expect(sql, contains('v_egresos_personal'));
     expect(sql, contains('Saldo insuficiente en Caja Chica'));
     expect(sql, contains('LIMIT 1 FOR UPDATE;'));
-    expect(
-      sql,
-      contains('no puede ser anterior a la apertura de la caja'),
-    );
+    expect(sql, contains('no puede ser anterior a la apertura de la caja'));
   });
 
   test('flag de Caja Chica solo aplica a proveedor en efectivo', () {

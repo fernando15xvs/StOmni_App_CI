@@ -9,5 +9,7 @@ final sessionValidationGatewayProvider = Provider<SessionValidationGateway>(
 );
 
 final validateSessionUseCaseProvider = Provider<ValidateSessionUseCase>(
-  (ref) => ValidateSessionUseCase(gateway: ref.watch(sessionValidationGatewayProvider)),
+  (ref) => ValidateSessionUseCase(
+    gateway: ref.watch(sessionValidationGatewayProvider),
+  ),
 );

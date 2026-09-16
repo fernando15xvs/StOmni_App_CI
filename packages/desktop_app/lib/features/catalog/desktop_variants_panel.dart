@@ -16,15 +16,17 @@ final desktopVariantUseCaseProvider = Provider<ProductVariantUseCase>((ref) {
   );
 });
 
-final desktopVariantGroupsProvider = FutureProvider.autoDispose<List<ProductVariantGroup>>((ref) {
-  return ref.watch(desktopVariantUseCaseProvider).list();
-});
+final desktopVariantGroupsProvider =
+    FutureProvider.autoDispose<List<ProductVariantGroup>>((ref) {
+      return ref.watch(desktopVariantUseCaseProvider).list();
+    });
 
 class DesktopVariantsPanel extends ConsumerStatefulWidget {
   const DesktopVariantsPanel({super.key});
 
   @override
-  ConsumerState<DesktopVariantsPanel> createState() => _DesktopVariantsPanelState();
+  ConsumerState<DesktopVariantsPanel> createState() =>
+      _DesktopVariantsPanelState();
 }
 
 class _DesktopVariantsPanelState extends ConsumerState<DesktopVariantsPanel> {
@@ -37,7 +39,10 @@ class _DesktopVariantsPanelState extends ConsumerState<DesktopVariantsPanel> {
     if (!mounted) return;
     final products = inventory.products.where((row) => row.active).toList();
     if (products.length < 2) {
-      _message('Necesitas al menos dos productos activos para crear variantes.', error: true);
+      _message(
+        'Necesitas al menos dos productos activos para crear variantes.',
+        error: true,
+      );
       return;
     }
 
@@ -49,7 +54,9 @@ class _DesktopVariantsPanelState extends ConsumerState<DesktopVariantsPanel> {
     final values = <int, TextEditingController>{};
     for (final member in group?.members ?? const <ProductVariantMember>[]) {
       values[member.productId] = TextEditingController(
-        text: group!.attributeNames.map((key) => member.attributes[key] ?? '').join(', '),
+        text: group!.attributeNames
+            .map((key) => member.attributes[key] ?? '')
+            .join(', '),
       );
     }
 
@@ -66,7 +73,9 @@ class _DesktopVariantsPanelState extends ConsumerState<DesktopVariantsPanel> {
             values.putIfAbsent(id, TextEditingController.new);
           }
           return AlertDialog(
-            title: Text(group == null ? 'Nuevo grupo de variantes' : 'Editar variantes'),
+            title: Text(
+              group == null ? 'Nuevo grupo de variantes' : 'Editar variantes',
+            ),
             content: SizedBox(
               width: 760,
               height: 560,
@@ -74,7 +83,9 @@ class _DesktopVariantsPanelState extends ConsumerState<DesktopVariantsPanel> {
                 children: [
                   TextField(
                     controller: name,
-                    decoration: const InputDecoration(labelText: 'Nombre del grupo'),
+                    decoration: const InputDecoration(
+                      labelText: 'Nombre del grupo',
+                    ),
                   ),
                   const SizedBox(height: 12),
                   TextField(
@@ -94,18 +105,26 @@ class _DesktopVariantsPanelState extends ConsumerState<DesktopVariantsPanel> {
                         final isSelected = selected.contains(product.id);
                         return Card(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             child: Column(
                               children: [
                                 CheckboxListTile(
                                   contentPadding: EdgeInsets.zero,
                                   title: Text(product.nombre),
-                                  subtitle: Text(product.codigo ?? 'Sin código'),
+                                  subtitle: Text(
+                                    product.codigo ?? 'Sin código',
+                                  ),
                                   value: isSelected,
                                   onChanged: (value) => setDialogState(() {
                                     if (value == true) {
                                       selected.add(product.id);
-                                      values.putIfAbsent(product.id, TextEditingController.new);
+                                      values.putIfAbsent(
+                                        product.id,
+                                        TextEditingController.new,
+                                      );
                                     } else {
                                       selected.remove(product.id);
                                     }
@@ -118,7 +137,9 @@ class _DesktopVariantsPanelState extends ConsumerState<DesktopVariantsPanel> {
                                       labelText: keys.isEmpty
                                           ? 'Valores'
                                           : 'Valores: ${keys.join(', ')}',
-                                      hintText: keys.map((key) => '<$key>').join(', '),
+                                      hintText: keys
+                                          .map((key) => '<$key>')
+                                          .join(', '),
                                     ),
                                   ),
                               ],
@@ -141,8 +162,13 @@ class _DesktopVariantsPanelState extends ConsumerState<DesktopVariantsPanel> {
                     ? null
                     : () {
                         for (final id in selected) {
-                          final parts = values[id]!.text.split(',').map((e) => e.trim()).toList();
-                          if (parts.length != keys.length || parts.any((value) => value.isEmpty)) return;
+                          final parts = values[id]!.text
+                              .split(',')
+                              .map((e) => e.trim())
+                              .toList();
+                          if (parts.length != keys.length ||
+                              parts.any((value) => value.isEmpty))
+                            return;
                         }
                         Navigator.pop(dialogContext, true);
                       },
@@ -162,12 +188,17 @@ class _DesktopVariantsPanelState extends ConsumerState<DesktopVariantsPanel> {
           .toList();
       setState(() => _mutating = true);
       try {
-        await ref.read(desktopVariantUseCaseProvider).save(
+        await ref
+            .read(desktopVariantUseCaseProvider)
+            .save(
               ProductVariantGroupDraft(
                 name: name.text,
                 attributeNames: keys,
                 members: selected.map((id) {
-                  final parts = values[id]!.text.split(',').map((e) => e.trim()).toList();
+                  final parts = values[id]!.text
+                      .split(',')
+                      .map((e) => e.trim())
+                      .toList();
                   return ProductVariantMemberDraft(
                     productId: id,
                     attributes: {
@@ -205,8 +236,14 @@ class _DesktopVariantsPanelState extends ConsumerState<DesktopVariantsPanel> {
           '¿Eliminar “${group.name}”? Los productos, inventarios y ventas no se eliminan.',
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Eliminar')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Eliminar'),
+          ),
         ],
       ),
     );
@@ -247,12 +284,13 @@ class _DesktopVariantsPanelState extends ConsumerState<DesktopVariantsPanel> {
                   children: [
                     Text(
                       'Variantes',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 5),
-                    const Text('Agrupa productos existentes por atributos sin duplicar inventario.'),
+                    const Text(
+                      'Agrupa productos existentes por atributos sin duplicar inventario.',
+                    ),
                   ],
                 ),
               ),
@@ -262,7 +300,10 @@ class _DesktopVariantsPanelState extends ConsumerState<DesktopVariantsPanel> {
                 label: const Text('Nuevo grupo'),
               ),
               const SizedBox(width: 8),
-              IconButton.filledTonal(onPressed: _mutating ? null : _refresh, icon: const Icon(Icons.refresh)),
+              IconButton.filledTonal(
+                onPressed: _mutating ? null : _refresh,
+                icon: const Icon(Icons.refresh),
+              ),
             ],
           ),
           const SizedBox(height: 18),
@@ -271,7 +312,9 @@ class _DesktopVariantsPanelState extends ConsumerState<DesktopVariantsPanel> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) => Center(child: Text(ErrorMapper.map(error))),
               data: (rows) => rows.isEmpty
-                  ? const Center(child: Text('Todavía no hay grupos de variantes.'))
+                  ? const Center(
+                      child: Text('Todavía no hay grupos de variantes.'),
+                    )
                   : ListView.separated(
                       itemCount: rows.length,
                       separatorBuilder: (_, _) => const SizedBox(height: 8),
@@ -285,12 +328,16 @@ class _DesktopVariantsPanelState extends ConsumerState<DesktopVariantsPanel> {
                               children: [
                                 IconButton(
                                   tooltip: 'Editar',
-                                  onPressed: _mutating ? null : () => _edit(group),
+                                  onPressed: _mutating
+                                      ? null
+                                      : () => _edit(group),
                                   icon: const Icon(Icons.edit_outlined),
                                 ),
                                 IconButton(
                                   tooltip: 'Eliminar grupo',
-                                  onPressed: _mutating ? null : () => _delete(group),
+                                  onPressed: _mutating
+                                      ? null
+                                      : () => _delete(group),
                                   icon: const Icon(Icons.delete_outline),
                                 ),
                               ],
@@ -302,7 +349,10 @@ class _DesktopVariantsPanelState extends ConsumerState<DesktopVariantsPanel> {
                                   title: Text(member.productName),
                                   subtitle: Text(
                                     group.attributeNames
-                                        .map((key) => '$key: ${member.attributes[key] ?? '—'}')
+                                        .map(
+                                          (key) =>
+                                              '$key: ${member.attributes[key] ?? '—'}',
+                                        )
                                         .join(' · '),
                                   ),
                                 ),

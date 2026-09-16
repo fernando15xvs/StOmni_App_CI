@@ -12,8 +12,8 @@ final businessBrandingGatewayProvider = Provider<BusinessBrandingGateway>(
   ),
 );
 
-final businessBrandingProvider =
-    FutureProvider.autoDispose.family<BusinessBranding, bool>(
+final businessBrandingProvider = FutureProvider.autoDispose
+    .family<BusinessBranding, bool>(
       (ref, allowOffline) => ref
           .watch(businessBrandingGatewayProvider)
           .load(allowOffline: allowOffline),

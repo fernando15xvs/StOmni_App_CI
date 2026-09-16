@@ -44,7 +44,10 @@ const domainGates = [
 ];
 
 const internalContracts = [
-  'supabase/migrations/20260818220125_internal_rpc_surface_hardening.sql',
+  // This hardening predates the consolidated bootstrap and therefore lives in
+  // migration_sources/pre_bootstrap. It remains part of the static RPC audit
+  // corpus, but is no longer an executable post-bootstrap migration.
+  'supabase/migration_sources/pre_bootstrap/20260818220125_internal_rpc_surface_hardening.sql',
   'supabase/migrations/20260908024500_saas_fiscal_internal_rpc_scope.sql',
   'supabase/migrations/20260908024800_saas_fiscal_reconciliation_scope.sql',
   'supabase/migrations/20260908025100_saas_deferred_operational_rpc_fail_closed.sql',

@@ -160,8 +160,7 @@ class ValidateSessionUseCase {
       return result(SessionValidationStatus.sessionChanged);
     }
 
-    final permissions =
-        remotePermissions ?? RolePermissionPolicy.forRole(role);
+    final permissions = remotePermissions ?? RolePermissionPolicy.forRole(role);
     final base = RolePermissionPolicy.forRole(role);
     if (!base.containsAll(permissions)) {
       return result(SessionValidationStatus.failed);

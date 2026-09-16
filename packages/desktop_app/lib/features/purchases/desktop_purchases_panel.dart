@@ -10,10 +10,10 @@ import 'desktop_purchase_traceability_dialog.dart';
 
 class _PurchaseLineDraftState {
   _PurchaseLineDraftState(this.item)
-      : quantity = TextEditingController(),
-        cost = TextEditingController(
-          text: CommercialPresentation.formatNumber(item.product.precioCompra),
-        );
+    : quantity = TextEditingController(),
+      cost = TextEditingController(
+        text: CommercialPresentation.formatNumber(item.product.precioCompra),
+      );
 
   final DesktopInventoryItem item;
   final TextEditingController quantity;
@@ -29,7 +29,8 @@ class DesktopPurchasesPanel extends ConsumerStatefulWidget {
   const DesktopPurchasesPanel({super.key});
 
   @override
-  ConsumerState<DesktopPurchasesPanel> createState() => _DesktopPurchasesPanelState();
+  ConsumerState<DesktopPurchasesPanel> createState() =>
+      _DesktopPurchasesPanelState();
 }
 
 class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
@@ -41,27 +42,35 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
   }
 
   String _status(PurchaseOrderStatus status) => switch (status) {
-        PurchaseOrderStatus.draft => 'Borrador',
-        PurchaseOrderStatus.ordered => 'Ordenada',
-        PurchaseOrderStatus.partiallyReceived => 'Recepción parcial',
-        PurchaseOrderStatus.received => 'Recibida',
-        PurchaseOrderStatus.cancelled => 'Anulada',
-      };
+    PurchaseOrderStatus.draft => 'Borrador',
+    PurchaseOrderStatus.ordered => 'Ordenada',
+    PurchaseOrderStatus.partiallyReceived => 'Recepción parcial',
+    PurchaseOrderStatus.received => 'Recibida',
+    PurchaseOrderStatus.cancelled => 'Anulada',
+  };
 
   Future<void> _createOrder(
     InventoryCatalogSnapshot inventory,
     List<SupplierRecord> suppliers,
   ) async {
     final warehouses = inventory.warehouses.where((row) => row.active).toList();
-    final products = inventory.products.where((row) => row.active).map(DesktopInventoryItem.new).toList();
+    final products = inventory.products
+        .where((row) => row.active)
+        .map(DesktopInventoryItem.new)
+        .toList();
     if (suppliers.isEmpty || warehouses.isEmpty || products.isEmpty) {
-      _message('Necesitas proveedores, almacenes y productos activos para crear una compra.', error: true);
+      _message(
+        'Necesitas proveedores, almacenes y productos activos para crear una compra.',
+        error: true,
+      );
       return;
     }
 
     var supplierId = suppliers.first.id;
     var warehouseId = warehouses.first.id;
-    InventoryCatalogItem selected = inventory.products.firstWhere((row) => row.active);
+    InventoryCatalogItem selected = inventory.products.firstWhere(
+      (row) => row.active,
+    );
     final lines = <_PurchaseLineDraftState>[];
     final notes = TextEditingController();
 
@@ -70,8 +79,15 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) {
           void addLine() {
-            if (lines.any((line) => line.item.product.id == selected.product.id)) return;
-            setDialogState(() => lines.add(_PurchaseLineDraftState(DesktopInventoryItem(selected))));
+            if (lines.any(
+              (line) => line.item.product.id == selected.product.id,
+            ))
+              return;
+            setDialogState(
+              () => lines.add(
+                _PurchaseLineDraftState(DesktopInventoryItem(selected)),
+              ),
+            );
           }
 
           return AlertDialog(
@@ -86,15 +102,23 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
                       Expanded(
                         child: DropdownButtonFormField<int>(
                           initialValue: supplierId,
-                          decoration: const InputDecoration(labelText: 'Proveedor'),
+                          decoration: const InputDecoration(
+                            labelText: 'Proveedor',
+                          ),
                           items: suppliers
-                              .map((supplier) => DropdownMenuItem(
-                                    value: supplier.id,
-                                    child: Text(supplier.name, overflow: TextOverflow.ellipsis),
-                                  ))
+                              .map(
+                                (supplier) => DropdownMenuItem(
+                                  value: supplier.id,
+                                  child: Text(
+                                    supplier.name,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              )
                               .toList(),
                           onChanged: (value) {
-                            if (value != null) setDialogState(() => supplierId = value);
+                            if (value != null)
+                              setDialogState(() => supplierId = value);
                           },
                         ),
                       ),
@@ -102,15 +126,20 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
                       Expanded(
                         child: DropdownButtonFormField<int>(
                           initialValue: warehouseId,
-                          decoration: const InputDecoration(labelText: 'Almacén de recepción'),
+                          decoration: const InputDecoration(
+                            labelText: 'Almacén de recepción',
+                          ),
                           items: warehouses
-                              .map((warehouse) => DropdownMenuItem(
-                                    value: warehouse.id,
-                                    child: Text(warehouse.name),
-                                  ))
+                              .map(
+                                (warehouse) => DropdownMenuItem(
+                                  value: warehouse.id,
+                                  child: Text(warehouse.name),
+                                ),
+                              )
                               .toList(),
                           onChanged: (value) {
-                            if (value != null) setDialogState(() => warehouseId = value);
+                            if (value != null)
+                              setDialogState(() => warehouseId = value);
                           },
                         ),
                       ),
@@ -122,17 +151,26 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
                       Expanded(
                         child: DropdownButtonFormField<int>(
                           initialValue: selected.product.id,
-                          decoration: const InputDecoration(labelText: 'Agregar producto'),
+                          decoration: const InputDecoration(
+                            labelText: 'Agregar producto',
+                          ),
                           items: products
-                              .map((item) => DropdownMenuItem(
-                                    value: item.product.id,
-                                    child: Text(item.product.nombre, overflow: TextOverflow.ellipsis),
-                                  ))
+                              .map(
+                                (item) => DropdownMenuItem(
+                                  value: item.product.id,
+                                  child: Text(
+                                    item.product.nombre,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              )
                               .toList(),
                           onChanged: (id) {
                             if (id == null) return;
                             setDialogState(() {
-                              selected = inventory.products.firstWhere((row) => row.product.id == id);
+                              selected = inventory.products.firstWhere(
+                                (row) => row.product.id == id,
+                              );
                             });
                           },
                         ),
@@ -148,7 +186,11 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
                   const SizedBox(height: 14),
                   Expanded(
                     child: lines.isEmpty
-                        ? const Center(child: Text('Agrega los productos que deseas solicitar.'))
+                        ? const Center(
+                            child: Text(
+                              'Agrega los productos que deseas solicitar.',
+                            ),
+                          )
                         : ListView.separated(
                             itemCount: lines.length,
                             separatorBuilder: (_, _) => const Divider(),
@@ -157,17 +199,22 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
                               final base = line.item.basePresentation;
                               return Row(
                                 children: [
-                                  Expanded(flex: 3, child: Text(line.item.product.nombre)),
+                                  Expanded(
+                                    flex: 3,
+                                    child: Text(line.item.product.nombre),
+                                  ),
                                   const SizedBox(width: 8),
                                   SizedBox(
                                     width: 150,
                                     child: TextField(
                                       controller: line.quantity,
-                                      keyboardType: TextInputType.numberWithOptions(
-                                        decimal: base.quantityPrecision > 0,
-                                      ),
+                                      keyboardType:
+                                          TextInputType.numberWithOptions(
+                                            decimal: base.quantityPrecision > 0,
+                                          ),
                                       decoration: InputDecoration(
-                                        labelText: 'Cantidad (${base.pluralLabel})',
+                                        labelText:
+                                            'Cantidad (${base.pluralLabel})',
                                       ),
                                     ),
                                   ),
@@ -176,8 +223,13 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
                                     width: 130,
                                     child: TextField(
                                       controller: line.cost,
-                                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                      decoration: const InputDecoration(labelText: 'Costo unitario'),
+                                      keyboardType:
+                                          const TextInputType.numberWithOptions(
+                                            decimal: true,
+                                          ),
+                                      decoration: const InputDecoration(
+                                        labelText: 'Costo unitario',
+                                      ),
                                     ),
                                   ),
                                   IconButton(
@@ -196,22 +248,33 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
                   TextField(
                     controller: notes,
                     maxLines: 2,
-                    decoration: const InputDecoration(labelText: 'Notas (opcional)'),
+                    decoration: const InputDecoration(
+                      labelText: 'Notas (opcional)',
+                    ),
                   ),
                 ],
               ),
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Cancelar')),
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: const Text('Cancelar'),
+              ),
               FilledButton(
                 onPressed: lines.isEmpty
                     ? null
                     : () {
                         try {
                           for (final line in lines) {
-                            final quantity = double.parse(line.quantity.text.trim().replaceAll(',', '.'));
-                            final cost = double.parse(line.cost.text.trim().replaceAll(',', '.'));
-                            line.item.basePresentation.commercialQuantity(quantity);
+                            final quantity = double.parse(
+                              line.quantity.text.trim().replaceAll(',', '.'),
+                            );
+                            final cost = double.parse(
+                              line.cost.text.trim().replaceAll(',', '.'),
+                            );
+                            line.item.basePresentation.commercialQuantity(
+                              quantity,
+                            );
                             if (quantity <= 0 || cost < 0) return;
                           }
                           Navigator.pop(dialogContext, true);
@@ -230,7 +293,9 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
     if (accepted == true && mounted) {
       setState(() => _mutating = true);
       try {
-        await ref.read(desktopPurchaseOrderUseCaseProvider).create(
+        await ref
+            .read(desktopPurchaseOrderUseCaseProvider)
+            .create(
               PurchaseOrderDraft(
                 requestId: const Uuid().v4(),
                 supplierId: supplierId,
@@ -238,11 +303,17 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
                 orderedAt: AppTime.now(),
                 notes: notes.text.trim(),
                 lines: lines
-                    .map((line) => PurchaseOrderLineDraft(
-                          productId: line.item.product.id,
-                          baseQuantity: double.parse(line.quantity.text.trim().replaceAll(',', '.')),
-                          unitCost: double.parse(line.cost.text.trim().replaceAll(',', '.')),
-                        ))
+                    .map(
+                      (line) => PurchaseOrderLineDraft(
+                        productId: line.item.product.id,
+                        baseQuantity: double.parse(
+                          line.quantity.text.trim().replaceAll(',', '.'),
+                        ),
+                        unitCost: double.parse(
+                          line.cost.text.trim().replaceAll(',', '.'),
+                        ),
+                      ),
+                    )
                     .toList(growable: false),
               ),
             );
@@ -265,7 +336,9 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
 
   Future<void> _receive(PurchaseOrderRecord order) async {
     final controllers = <int, TextEditingController>{
-      for (final line in order.lines.where((line) => line.pendingBaseQuantity > 0))
+      for (final line in order.lines.where(
+        (line) => line.pendingBaseQuantity > 0,
+      ))
         line.id: TextEditingController(),
     };
     final document = TextEditingController();
@@ -280,42 +353,67 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                for (final line in order.lines.where((line) => line.pendingBaseQuantity > 0)) ...[
+                for (final line in order.lines.where(
+                  (line) => line.pendingBaseQuantity > 0,
+                )) ...[
                   Row(
                     children: [
                       Expanded(child: Text(line.productName)),
                       const SizedBox(width: 8),
-                      Text('Pendiente: ${CommercialPresentation.formatNumber(line.pendingBaseQuantity)}'),
+                      Text(
+                        'Pendiente: ${CommercialPresentation.formatNumber(line.pendingBaseQuantity)}',
+                      ),
                       const SizedBox(width: 12),
                       SizedBox(
                         width: 130,
                         child: TextField(
                           controller: controllers[line.id],
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          decoration: const InputDecoration(labelText: 'Recibir'),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          decoration: const InputDecoration(
+                            labelText: 'Recibir',
+                          ),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 10),
                 ],
-                TextField(controller: document, decoration: const InputDecoration(labelText: 'Documento / factura proveedor')),
+                TextField(
+                  controller: document,
+                  decoration: const InputDecoration(
+                    labelText: 'Documento / factura proveedor',
+                  ),
+                ),
                 const SizedBox(height: 10),
-                TextField(controller: notes, maxLines: 2, decoration: const InputDecoration(labelText: 'Observaciones')),
+                TextField(
+                  controller: notes,
+                  maxLines: 2,
+                  decoration: const InputDecoration(labelText: 'Observaciones'),
+                ),
               ],
             ),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancelar'),
+          ),
           FilledButton(
             onPressed: () {
               var hasQuantity = false;
               for (final line in order.lines) {
-                final raw = controllers[line.id]?.text.trim().replaceAll(',', '.') ?? '';
+                final raw =
+                    controllers[line.id]?.text.trim().replaceAll(',', '.') ??
+                    '';
                 if (raw.isEmpty) continue;
                 final value = double.tryParse(raw);
-                if (value == null || value <= 0 || value > line.pendingBaseQuantity + 1e-7) return;
+                if (value == null ||
+                    value <= 0 ||
+                    value > line.pendingBaseQuantity + 1e-7)
+                  return;
                 hasQuantity = true;
               }
               if (hasQuantity) Navigator.pop(dialogContext, true);
@@ -330,7 +428,8 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
       try {
         final receiptLines = <PurchaseReceiptLine>[];
         for (final line in order.lines) {
-          final raw = controllers[line.id]?.text.trim().replaceAll(',', '.') ?? '';
+          final raw =
+              controllers[line.id]?.text.trim().replaceAll(',', '.') ?? '';
           if (raw.isEmpty) continue;
           final value = double.tryParse(raw);
           if (value == null || value <= 0) continue;
@@ -345,7 +444,9 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
         }
         if (!mounted) return;
         setState(() => _mutating = true);
-        await ref.read(desktopPurchaseOrderUseCaseProvider).receive(
+        await ref
+            .read(desktopPurchaseOrderUseCaseProvider)
+            .receive(
               ReceivePurchaseOrderCommand(
                 requestId: const Uuid().v4(),
                 purchaseOrderId: order.id,
@@ -385,10 +486,14 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
           decoration: const InputDecoration(labelText: 'Motivo de anulación'),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Volver')),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Volver'),
+          ),
           FilledButton(
             onPressed: () {
-              if (reason.text.trim().isNotEmpty) Navigator.pop(dialogContext, true);
+              if (reason.text.trim().isNotEmpty)
+                Navigator.pop(dialogContext, true);
             },
             child: const Text('Anular'),
           ),
@@ -398,7 +503,9 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
     if (accepted == true && mounted) {
       setState(() => _mutating = true);
       try {
-        await ref.read(desktopPurchaseOrderUseCaseProvider).cancel(order.id, reason: reason.text);
+        await ref
+            .read(desktopPurchaseOrderUseCaseProvider)
+            .cancel(order.id, reason: reason.text);
         if (mounted) {
           _message('Orden anulada.');
           _refresh();
@@ -438,9 +545,15 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Compras', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
+                    Text(
+                      'Compras',
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
                     const SizedBox(height: 5),
-                    const Text('Órdenes de proveedor y recepción transaccional hacia inventario.'),
+                    const Text(
+                      'Órdenes de proveedor y recepción transaccional hacia inventario.',
+                    ),
                   ],
                 ),
               ),
@@ -449,7 +562,8 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
                     ? null
                     : inventory.maybeWhen(
                         data: (catalog) => suppliers.maybeWhen(
-                          data: (rows) => () => _createOrder(catalog, rows),
+                          data: (rows) =>
+                              () => _createOrder(catalog, rows),
                           orElse: () => null,
                         ),
                         orElse: () => null,
@@ -458,16 +572,26 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
                 label: const Text('Nueva orden'),
               ),
               const SizedBox(width: 8),
-              IconButton.filledTonal(onPressed: _mutating ? null : _refresh, icon: const Icon(Icons.refresh)),
+              IconButton.filledTonal(
+                onPressed: _mutating ? null : _refresh,
+                icon: const Icon(Icons.refresh),
+              ),
             ],
           ),
           const SizedBox(height: 18),
           Expanded(
             child: orders.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => Center(child: Text(ErrorMapper.map(error), textAlign: TextAlign.center)),
+              error: (error, _) => Center(
+                child: Text(
+                  ErrorMapper.map(error),
+                  textAlign: TextAlign.center,
+                ),
+              ),
               data: (rows) => rows.isEmpty
-                  ? const Center(child: Text('Todavía no hay órdenes de compra.'))
+                  ? const Center(
+                      child: Text('Todavía no hay órdenes de compra.'),
+                    )
                   : ListView.separated(
                       itemCount: rows.length,
                       separatorBuilder: (_, _) => const SizedBox(height: 8),
@@ -475,21 +599,34 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
                         final order = rows[index];
                         return Card(
                           child: ExpansionTile(
-                            title: Text('OC #${order.id} · ${order.supplierName}', style: const TextStyle(fontWeight: FontWeight.w700)),
-                            subtitle: Text('${_status(order.status)} · ${order.warehouseName} · ${AppFormatters.currency(order.total)}'),
+                            title: Text(
+                              'OC #${order.id} · ${order.supplierName}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            subtitle: Text(
+                              '${_status(order.status)} · ${order.warehouseName} · ${AppFormatters.currency(order.total)}',
+                            ),
                             trailing: Wrap(
                               spacing: 8,
                               children: [
                                 if (order.canReceive)
                                   OutlinedButton.icon(
-                                    onPressed: _mutating ? null : () => _receive(order),
-                                    icon: const Icon(Icons.inventory_2_outlined),
+                                    onPressed: _mutating
+                                        ? null
+                                        : () => _receive(order),
+                                    icon: const Icon(
+                                      Icons.inventory_2_outlined,
+                                    ),
                                     label: const Text('Recibir'),
                                   ),
                                 if (order.status == PurchaseOrderStatus.ordered)
                                   IconButton(
                                     tooltip: 'Anular',
-                                    onPressed: _mutating ? null : () => _cancel(order),
+                                    onPressed: _mutating
+                                        ? null
+                                        : () => _cancel(order),
                                     icon: const Icon(Icons.cancel_outlined),
                                   ),
                               ],
@@ -502,7 +639,9 @@ class _DesktopPurchasesPanelState extends ConsumerState<DesktopPurchasesPanel> {
                                   subtitle: Text(
                                     'Pedido ${CommercialPresentation.formatNumber(line.orderedBaseQuantity)} · recibido ${CommercialPresentation.formatNumber(line.receivedBaseQuantity)}',
                                   ),
-                                  trailing: Text(AppFormatters.currency(line.orderedAmount)),
+                                  trailing: Text(
+                                    AppFormatters.currency(line.orderedAmount),
+                                  ),
                                 ),
                             ],
                           ),

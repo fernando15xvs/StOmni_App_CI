@@ -176,11 +176,7 @@ class StockUtils {
           ],
         );
       case SaleUnitType.caja:
-        final base = unit(
-          code: 'caja',
-          singular: 'Caja',
-          plural: 'Cajas',
-        );
+        final base = unit(code: 'caja', singular: 'Caja', plural: 'Cajas');
         return ProductUnitProfile(baseUnit: base, presentations: [base]);
       case SaleUnitType.unidad:
         final base = unit(
@@ -336,10 +332,7 @@ class StockUtils {
     required SaleUnitType tipoVenta,
     required int pcs,
   }) {
-    final profile = legacyUnitProfile(
-      tipoVenta,
-      unitsPerPackage: pcs,
-    );
+    final profile = legacyUnitProfile(tipoVenta, unitsPerPackage: pcs);
 
     switch (tipoVenta) {
       case SaleUnitType.paquete:
@@ -379,10 +372,7 @@ class StockUtils {
     required int pcs,
   }) {
     final unidad = normalizarTipoUnidad(tipoUnidad);
-    final profile = legacyUnitProfile(
-      tipoVenta,
-      unitsPerPackage: pcs,
-    );
+    final profile = legacyUnitProfile(tipoVenta, unitsPerPackage: pcs);
     if (!profile.supports(unidad)) {
       throw ArgumentError(
         '${displayName(tipoVenta)} no permite venta por $tipoUnidad.',
@@ -430,10 +420,7 @@ class StockUtils {
     required int pcs,
   }) {
     final unidad = normalizarTipoUnidad(tipoUnidad);
-    final profile = legacyUnitProfile(
-      tipoVenta,
-      unitsPerPackage: pcs,
-    );
+    final profile = legacyUnitProfile(tipoVenta, unitsPerPackage: pcs);
     final presentation = profile.find(unidad);
 
     if (presentation != null && presentation.baseQuantity > 1) {

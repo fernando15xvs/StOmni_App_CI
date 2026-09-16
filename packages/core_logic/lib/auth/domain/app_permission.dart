@@ -42,15 +42,16 @@ enum AppPermission {
 class RolePermissionPolicy {
   const RolePermissionPolicy._();
 
-  static Set<AppPermission> forRole(String? role) => switch (AppRoles.normalize(role)) {
-    AppRoles.admin => Set<AppPermission>.unmodifiable(AppPermission.values),
-    AppRoles.operador => const {
-      AppPermission.inventoryReceive,
-      AppPermission.salesCreate,
-      AppPermission.salesDiscount,
-    },
-    _ => const {},
-  };
+  static Set<AppPermission> forRole(String? role) =>
+      switch (AppRoles.normalize(role)) {
+        AppRoles.admin => Set<AppPermission>.unmodifiable(AppPermission.values),
+        AppRoles.operador => const {
+          AppPermission.inventoryReceive,
+          AppPermission.salesCreate,
+          AppPermission.salesDiscount,
+        },
+        _ => const {},
+      };
 
   static bool allows(String? role, AppPermission permission) =>
       forRole(role).contains(permission);

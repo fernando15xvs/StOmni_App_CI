@@ -86,7 +86,7 @@ function verify(sources) {
   need(
     errors,
     sources.providers,
-    /FutureProvider\.autoDispose\.family<BusinessBranding, bool>/,
+    /FutureProvider\.autoDispose\s*\.family<BusinessBranding,\s*bool>/,
     'provider visual se descarta entre shells/sesiones',
   );
 
@@ -238,7 +238,7 @@ function selfTest() {
       {
         ...valid,
         providers: valid.providers.replace(
-          'FutureProvider.autoDispose.family',
+          /FutureProvider\.autoDispose\s*\.family/,
           'FutureProvider.family',
         ),
       },

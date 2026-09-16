@@ -63,10 +63,11 @@ class _DetalleCotizacionPageState extends ConsumerState<DetalleCotizacionPage> {
     return null;
   }
 
-  List<SaleProcessingLine> _construirDetalles() =>
-      widget.carritoConPreciosFinales.lines
-          .map((line) => LegacySaleLineMapper.map(line, requireExactTotals: true))
-          .toList(growable: false);
+  List<SaleProcessingLine> _construirDetalles() => widget
+      .carritoConPreciosFinales
+      .lines
+      .map((line) => LegacySaleLineMapper.map(line, requireExactTotals: true))
+      .toList(growable: false);
 
   Future<void> _procesarCotizacion() async {
     if (_guardando) return;
@@ -84,10 +85,10 @@ class _DetalleCotizacionPageState extends ConsumerState<DetalleCotizacionPage> {
       final clienteId = await ref
           .read(documentDataGatewayProvider)
           .resolverCliente(
-        ruc: _rucCtrl.text,
-        nombre: _nombreClienteCtrl.text,
-        direccion: _direccionCtrl.text,
-      );
+            ruc: _rucCtrl.text,
+            nombre: _nombreClienteCtrl.text,
+            direccion: _direccionCtrl.text,
+          );
 
       final cotizacionId = await ref
           .read(ventasRepositoryProvider)
@@ -266,7 +267,9 @@ class _DetalleCotizacionPageState extends ConsumerState<DetalleCotizacionPage> {
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(16),
-                border: Theme.of(context).brightness == Brightness.dark ? null : Border.all(color: Colors.grey.shade200),
+                border: Theme.of(context).brightness == Brightness.dark
+                    ? null
+                    : Border.all(color: Colors.grey.shade200),
               ),
               child: Column(
                 children: [
@@ -301,14 +304,18 @@ class _DetalleCotizacionPageState extends ConsumerState<DetalleCotizacionPage> {
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade900 : Colors.white,
-          boxShadow: Theme.of(context).brightness == Brightness.dark ? [] : const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 10,
-              offset: Offset(0, -5),
-            ),
-          ],
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.grey.shade900
+              : Colors.white,
+          boxShadow: Theme.of(context).brightness == Brightness.dark
+              ? []
+              : const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 10,
+                    offset: Offset(0, -5),
+                  ),
+                ],
         ),
         child: SafeArea(
           child: SizedBox(

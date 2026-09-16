@@ -32,7 +32,9 @@ class SupabaseOrganizationSignupGateway implements OrganizationSignupGateway {
       },
     );
     if (raw is! Map) {
-      throw const FormatException('El resultado del alta de empresa es inválido.');
+      throw const FormatException(
+        'El resultado del alta de empresa es inválido.',
+      );
     }
     return OrganizationSignupResult.fromJson(Map<String, dynamic>.from(raw));
   }

@@ -52,7 +52,8 @@ class QuotationSaleCartMapper {
       'etiqueta visual',
     );
     final originalName =
-        display['producto_nombre_snapshot']?.toString().trim().isNotEmpty == true
+        display['producto_nombre_snapshot']?.toString().trim().isNotEmpty ==
+            true
         ? display['producto_nombre_snapshot'].toString().trim()
         : (display['productos'] is Map
                   ? (display['productos'] as Map)['nombre']?.toString().trim()
@@ -246,11 +247,15 @@ class QuotationSaleCartMapper {
     if (raw is! List) {
       throw const FormatException('La cotización contiene detalles inválidos.');
     }
-    return raw.map((row) {
-      if (row is Map<String, dynamic>) return row;
-      if (row is Map) return Map<String, dynamic>.from(row);
-      throw const FormatException('La cotización contiene un detalle inválido.');
-    }).toList(growable: false);
+    return raw
+        .map((row) {
+          if (row is Map<String, dynamic>) return row;
+          if (row is Map) return Map<String, dynamic>.from(row);
+          throw const FormatException(
+            'La cotización contiene un detalle inválido.',
+          );
+        })
+        .toList(growable: false);
   }
 
   static double _basePrice(

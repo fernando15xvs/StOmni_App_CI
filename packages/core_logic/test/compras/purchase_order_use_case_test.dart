@@ -12,8 +12,10 @@ class _Gateway implements PurchaseOrderGateway {
   int receiveCalls = 0;
 
   @override
-  Future<List<PurchaseOrderRecord>> list({PurchaseOrderStatus? status, int limit = 100}) async =>
-      record == null ? const [] : [record!];
+  Future<List<PurchaseOrderRecord>> list({
+    PurchaseOrderStatus? status,
+    int limit = 100,
+  }) async => record == null ? const [] : [record!];
 
   @override
   Future<PurchaseOrderRecord> create(PurchaseOrderDraft draft) async {
@@ -22,13 +24,18 @@ class _Gateway implements PurchaseOrderGateway {
   }
 
   @override
-  Future<PurchaseOrderRecord> receive(ReceivePurchaseOrderCommand command) async {
+  Future<PurchaseOrderRecord> receive(
+    ReceivePurchaseOrderCommand command,
+  ) async {
     receiveCalls++;
     return record!;
   }
 
   @override
-  Future<PurchaseOrderRecord> cancel(int purchaseOrderId, {required String reason}) async => record!;
+  Future<PurchaseOrderRecord> cancel(
+    int purchaseOrderId, {
+    required String reason,
+  }) async => record!;
 }
 
 class _Business implements BusinessProfileGateway {
@@ -36,7 +43,8 @@ class _Business implements BusinessProfileGateway {
   bool enabled;
 
   @override
-  Future<BusinessProfile> load({bool allowOffline = false}) async => BusinessProfile(
+  Future<BusinessProfile> load({bool allowOffline = false}) async =>
+      BusinessProfile(
         businessId: '1',
         displayName: 'StOmni',
         capabilities: BusinessCapabilities(purchaseManagement: enabled),
@@ -58,34 +66,37 @@ class _Authorizer implements OperationAuthorizer {
   String? currentAuthUserId = 'u1';
 
   @override
-  Future<String> require(Set<AppPermission> permissions, {bool allowOffline = false}) async {
+  Future<String> require(
+    Set<AppPermission> permissions, {
+    bool allowOffline = false,
+  }) async {
     lastRequired = permissions;
     return currentAuthUserId!;
   }
 }
 
 PurchaseOrderRecord _record() => PurchaseOrderRecord(
-      id: 1,
-      requestId: 'r1',
-      supplierId: 2,
-      supplierName: 'Proveedor',
-      warehouseId: 3,
-      warehouseName: 'Principal',
-      status: PurchaseOrderStatus.ordered,
-      orderedAt: DateTime(2026, 9, 5),
-      expectedAt: null,
-      notes: '',
-      lines: const [
-        PurchaseOrderLine(
-          id: 10,
-          productId: 20,
-          productName: 'Producto',
-          orderedBaseQuantity: 2.5,
-          receivedBaseQuantity: 0,
-          unitCost: 4,
-        ),
-      ],
-    );
+  id: 1,
+  requestId: 'r1',
+  supplierId: 2,
+  supplierName: 'Proveedor',
+  warehouseId: 3,
+  warehouseName: 'Principal',
+  status: PurchaseOrderStatus.ordered,
+  orderedAt: DateTime(2026, 9, 5),
+  expectedAt: null,
+  notes: '',
+  lines: const [
+    PurchaseOrderLine(
+      id: 10,
+      productId: 20,
+      productName: 'Producto',
+      orderedBaseQuantity: 2.5,
+      receivedBaseQuantity: 0,
+      unitCost: 4,
+    ),
+  ],
+);
 
 void main() {
   test('crear exige capacidad y purchases.manage', () async {
@@ -97,15 +108,17 @@ void main() {
       authorizer: authorizer,
     );
 
-    await useCase.create(PurchaseOrderDraft(
-      requestId: 'r1',
-      supplierId: 2,
-      warehouseId: 3,
-      orderedAt: DateTime(2026, 9, 5),
-      lines: const [
-        PurchaseOrderLineDraft(productId: 20, baseQuantity: 2.5, unitCost: 4),
-      ],
-    ));
+    await useCase.create(
+      PurchaseOrderDraft(
+        requestId: 'r1',
+        supplierId: 2,
+        warehouseId: 3,
+        orderedAt: DateTime(2026, 9, 5),
+        lines: const [
+          PurchaseOrderLineDraft(productId: 20, baseQuantity: 2.5, unitCost: 4),
+        ],
+      ),
+    );
 
     expect(gateway.createCalls, 1);
     expect(authorizer.lastRequired, {AppPermission.purchasesManage});
@@ -120,14 +133,16 @@ void main() {
       authorizer: authorizer,
     );
 
-    await useCase.receive(ReceivePurchaseOrderCommand(
-      requestId: 'receipt-1',
-      purchaseOrderId: 1,
-      receivedAt: DateTime(2026, 9, 5),
-      lines: [
-        PurchaseReceiptLine(purchaseOrderLineId: 10, baseQuantity: 1.25),
-      ],
-    ));
+    await useCase.receive(
+      ReceivePurchaseOrderCommand(
+        requestId: 'receipt-1',
+        purchaseOrderId: 1,
+        receivedAt: DateTime(2026, 9, 5),
+        lines: [
+          PurchaseReceiptLine(purchaseOrderLineId: 10, baseQuantity: 1.25),
+        ],
+      ),
+    );
 
     expect(gateway.receiveCalls, 1);
     expect(authorizer.lastRequired, {
@@ -144,10 +159,7 @@ void main() {
       authorizer: _Authorizer(),
     );
 
-    await expectLater(
-      useCase.list(),
-      throwsA(isA<Exception>()),
-    );
+    await expectLater(useCase.list(), throwsA(isA<Exception>()));
   });
 
   test('rechaza productos duplicados en la misma orden', () async {
@@ -157,16 +169,18 @@ void main() {
       authorizer: _Authorizer(),
     );
     await expectLater(
-      useCase.create(PurchaseOrderDraft(
-        requestId: 'r2',
-        supplierId: 2,
-        warehouseId: 3,
-        orderedAt: DateTime(2026, 9, 5),
-        lines: const [
-          PurchaseOrderLineDraft(productId: 20, baseQuantity: 1, unitCost: 4),
-          PurchaseOrderLineDraft(productId: 20, baseQuantity: 2, unitCost: 4),
-        ],
-      )),
+      useCase.create(
+        PurchaseOrderDraft(
+          requestId: 'r2',
+          supplierId: 2,
+          warehouseId: 3,
+          orderedAt: DateTime(2026, 9, 5),
+          lines: const [
+            PurchaseOrderLineDraft(productId: 20, baseQuantity: 1, unitCost: 4),
+            PurchaseOrderLineDraft(productId: 20, baseQuantity: 2, unitCost: 4),
+          ],
+        ),
+      ),
       throwsArgumentError,
     );
   });

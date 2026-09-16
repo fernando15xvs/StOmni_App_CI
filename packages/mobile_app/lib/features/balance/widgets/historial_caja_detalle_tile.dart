@@ -46,15 +46,19 @@ class _HistorialCajaDetalleTileState
       final service = ref.read(cajaCierrePdfServiceProvider);
       final branding = await PdfBrandingLoader.load();
       final document = await service.generar(
-        widget.s, branding: branding, ticketSize: PreferencesService.ticketSize,
+        widget.s,
+        branding: branding,
+        ticketSize: PreferencesService.ticketSize,
       );
       if (!mounted) return;
-      await documentOutputFor(context).deliver(document, action: DocumentOutputAction.print);
+      await documentOutputFor(
+        context,
+      ).deliver(document, action: DocumentOutputAction.print);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(ErrorMapper.map(e))),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(ErrorMapper.map(e))));
       }
     } finally {
       if (mounted) setState(() => _imprimiendo = false);
@@ -225,7 +229,9 @@ class _HistorialCajaDetalleTileState
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.receipt_long),
-                    label: Text(_imprimiendo ? 'Preparando...' : 'Imprimir Ticket'),
+                    label: Text(
+                      _imprimiendo ? 'Preparando...' : 'Imprimir Ticket',
+                    ),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(

@@ -33,9 +33,7 @@ class GreDestinatarioData {
             .trim() ??
         '';
 
-    final ubigeo = RegExp(r'^[0-9]{6}$').hasMatch(ubigeoRaw)
-        ? ubigeoRaw
-        : '';
+    final ubigeo = RegExp(r'^[0-9]{6}$').hasMatch(ubigeoRaw) ? ubigeoRaw : '';
 
     return GreDestinatarioData(
       tipoDocumentoSunat: tipo == 'dni' ? '1' : '6',

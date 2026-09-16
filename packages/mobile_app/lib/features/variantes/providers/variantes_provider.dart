@@ -15,9 +15,10 @@ final productVariantUseCaseProvider = Provider<ProductVariantUseCase>((ref) {
   );
 });
 
-final productVariantGroupsProvider = FutureProvider.autoDispose<List<ProductVariantGroup>>((ref) {
-  return ref.watch(productVariantUseCaseProvider).list();
-});
+final productVariantGroupsProvider =
+    FutureProvider.autoDispose<List<ProductVariantGroup>>((ref) {
+      return ref.watch(productVariantUseCaseProvider).list();
+    });
 
 final variantProductCatalogProvider = FutureProvider.autoDispose((ref) {
   return ref.watch(inventoryCatalogUseCaseProvider).loadInitial();

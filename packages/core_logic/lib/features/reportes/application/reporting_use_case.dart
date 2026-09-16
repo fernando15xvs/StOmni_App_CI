@@ -69,8 +69,12 @@ class ReportingSnapshot {
     required Iterable<FinancialMovementRecord> financialMovements,
     required Iterable<InventoryMovementRecord> inventoryMovements,
     required this.totalDiscounts,
-  })  : financialMovements = List<FinancialMovementRecord>.unmodifiable(financialMovements),
-        inventoryMovements = List<InventoryMovementRecord>.unmodifiable(inventoryMovements);
+  }) : financialMovements = List<FinancialMovementRecord>.unmodifiable(
+         financialMovements,
+       ),
+       inventoryMovements = List<InventoryMovementRecord>.unmodifiable(
+         inventoryMovements,
+       );
 
   final List<FinancialMovementRecord> financialMovements;
   final List<InventoryMovementRecord> inventoryMovements;
@@ -98,8 +102,8 @@ class LoadReportingSnapshotUseCase {
   const LoadReportingSnapshotUseCase({
     required ReportingGateway gateway,
     required OperationAuthorizer authorizer,
-  })  : _gateway = gateway,
-        _authorizer = authorizer;
+  }) : _gateway = gateway,
+       _authorizer = authorizer;
 
   final ReportingGateway _gateway;
   final OperationAuthorizer _authorizer;
@@ -109,7 +113,9 @@ class LoadReportingSnapshotUseCase {
     required DateTime end,
   }) async {
     if (end.isBefore(start)) {
-      throw ArgumentError('El fin del periodo no puede ser anterior al inicio.');
+      throw ArgumentError(
+        'El fin del periodo no puede ser anterior al inicio.',
+      );
     }
     final authorizedUser = await _authorizer.require({
       AppPermission.reportsViewProfit,

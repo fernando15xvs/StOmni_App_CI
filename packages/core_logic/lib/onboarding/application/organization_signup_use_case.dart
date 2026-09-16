@@ -16,19 +16,27 @@ class OrganizationSignupUseCase {
     final legalName = request.legalName?.trim();
 
     if (displayName.isEmpty || displayName.length > 160) {
-      throw const FormatException('El nombre comercial es obligatorio y debe tener hasta 160 caracteres.');
+      throw const FormatException(
+        'El nombre comercial es obligatorio y debe tener hasta 160 caracteres.',
+      );
     }
     if (!RegExp(r'^[A-Z]{2}$').hasMatch(countryCode)) {
-      throw const FormatException('El país debe usar un código ISO de 2 letras.');
+      throw const FormatException(
+        'El país debe usar un código ISO de 2 letras.',
+      );
     }
     if (!RegExp(r'^[A-Z]{3}$').hasMatch(currencyCode)) {
-      throw const FormatException('La moneda debe usar un código ISO de 3 letras.');
+      throw const FormatException(
+        'La moneda debe usar un código ISO de 3 letras.',
+      );
     }
     if (timezone.isEmpty || timezone.length > 80) {
       throw const FormatException('La zona horaria IANA es obligatoria.');
     }
     if (legalName != null && legalName.isNotEmpty && legalName.length > 200) {
-      throw const FormatException('La razón social debe tener hasta 200 caracteres.');
+      throw const FormatException(
+        'La razón social debe tener hasta 200 caracteres.',
+      );
     }
 
     return gateway.createOrganization(

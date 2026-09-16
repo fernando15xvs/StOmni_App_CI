@@ -26,7 +26,10 @@ void main() {
     expect(source, contains('e is FacturacionServiceException'));
     expect(source, contains('e.message.trim()'));
     expect(source, contains('_esErrorTrasladoVencido(mensajeDominio)'));
-    expect(source, contains("title: const Text('Actualiza el inicio del traslado')"));
+    expect(
+      source,
+      contains("title: const Text('Actualiza el inicio del traslado')"),
+    );
     expect(source, contains("'CORREGIR GUÍA'"));
   });
 

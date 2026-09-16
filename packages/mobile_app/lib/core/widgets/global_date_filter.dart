@@ -37,35 +37,18 @@ class GlobalDateFilterState {
   }
 
   DateTime get fechaFin {
-    final base =
-        filtroTipo == 'Diario'
-            ? fechaEspecifica
-            : AppTime.now();
+    final base = filtroTipo == 'Diario' ? fechaEspecifica : AppTime.now();
 
     if (filtroTipo == 'Personalizado') {
       final end = rangoPersonalizado?.end ?? base;
 
       // El DateRangePicker entrega el último día a las 00:00.
       // Lo normalizamos al último segundo del día seleccionado.
-      return DateTime(
-        end.year,
-        end.month,
-        end.day,
-        23,
-        59,
-        59,
-      );
+      return DateTime(end.year, end.month, end.day, 23, 59, 59);
     }
 
     if (filtroTipo == 'Diario') {
-      return DateTime(
-        base.year,
-        base.month,
-        base.day,
-        23,
-        59,
-        59,
-      );
+      return DateTime(base.year, base.month, base.day, 23, 59, 59);
     }
 
     return base;

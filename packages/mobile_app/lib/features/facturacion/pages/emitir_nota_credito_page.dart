@@ -166,7 +166,8 @@ class _EmitirNotaCreditoPageState extends ConsumerState<EmitirNotaCreditoPage> {
         final id = (detalle['detalle_venta_id'] as num).toInt();
         if (!_seleccionados.contains(id)) continue;
 
-        final cantidad = double.tryParse(
+        final cantidad =
+            double.tryParse(
               (_cantidadCtrls[id]?.text ?? '').trim().replaceAll(',', '.'),
             ) ??
             0;

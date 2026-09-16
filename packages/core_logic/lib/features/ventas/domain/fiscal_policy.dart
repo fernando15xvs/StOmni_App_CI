@@ -36,7 +36,9 @@ abstract interface class FiscalPolicy {
 class InternalTicketFiscalPolicy implements FiscalPolicy {
   const InternalTicketFiscalPolicy();
   static const document = FiscalDocumentType(
-    code: 'ticket_interno', requiresElectronicEmission: false, allowsOffline: true,
+    code: 'ticket_interno',
+    requiresElectronicEmission: false,
+    allowsOffline: true,
   );
 
   @override
@@ -46,6 +48,6 @@ class InternalTicketFiscalPolicy implements FiscalPolicy {
   @override
   String? validate(FiscalSaleDraft sale, {required DateTime now}) =>
       documentFor(sale.documentCode) == null
-          ? 'El tipo de comprobante no es válido.'
-          : null;
+      ? 'El tipo de comprobante no es válido.'
+      : null;
 }

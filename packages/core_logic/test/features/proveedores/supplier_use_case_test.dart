@@ -31,7 +31,12 @@ class _FakeGateway implements SupplierGateway {
     bool activeOnly = false,
   }) async => records
       .where((row) => !activeOnly || row.active)
-      .where((row) => query.isEmpty || row.name.contains(query) || row.document.contains(query))
+      .where(
+        (row) =>
+            query.isEmpty ||
+            row.name.contains(query) ||
+            row.document.contains(query),
+      )
       .toList();
 
   @override
@@ -77,12 +82,17 @@ void main() {
     );
   });
 
-  test('deactivation keeps supplier record but removes it from active list', () async {
-    final gateway = _FakeGateway();
-    final useCase = SupplierUseCase(gateway);
-    final saved = await useCase.save(const SupplierDraft(name: 'Uno', document: '123'));
-    await useCase.deactivate(saved.id);
-    expect(await useCase.list(), hasLength(1));
-    expect(await useCase.list(activeOnly: true), isEmpty);
-  });
+  test(
+    'deactivation keeps supplier record but removes it from active list',
+    () async {
+      final gateway = _FakeGateway();
+      final useCase = SupplierUseCase(gateway);
+      final saved = await useCase.save(
+        const SupplierDraft(name: 'Uno', document: '123'),
+      );
+      await useCase.deactivate(saved.id);
+      expect(await useCase.list(), hasLength(1));
+      expect(await useCase.list(activeOnly: true), isEmpty);
+    },
+  );
 }

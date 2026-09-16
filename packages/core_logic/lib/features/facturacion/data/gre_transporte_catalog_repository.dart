@@ -20,11 +20,7 @@ class GreTransporteCatalogRepository {
           .select()
           .eq('activo', true)
           .order('nombres'),
-      _client
-          .from('gre_vehiculos')
-          .select()
-          .eq('activo', true)
-          .order('placa'),
+      _client.from('gre_vehiculos').select().eq('activo', true).order('placa'),
     ]);
 
     return GreTransportePrivadoCatalog(

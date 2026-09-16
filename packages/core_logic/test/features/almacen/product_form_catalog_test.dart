@@ -22,9 +22,7 @@ void main() {
           ProductWarehouseOption(id: 1, name: 'Principal'),
           ProductWarehouseOption(id: 2, name: 'Sucursal Norte'),
         ],
-        suppliers: const [
-          ProductSupplierOption(id: 10, name: 'Proveedor A'),
-        ],
+        suppliers: const [ProductSupplierOption(id: 10, name: 'Proveedor A')],
       );
       final gateway = _FakeCatalogGateway(catalog);
       final useCase = LoadProductFormCatalogUseCase(gateway);

@@ -5,20 +5,19 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('revalida antes de leer y procesar la cola', () async {
-    final gateway = _FakeGateway(
-      queuedCount: 3,
-      remainingCount: 0,
-    );
+    final gateway = _FakeGateway(queuedCount: 3, remainingCount: 0);
 
     final result = await SyncPendingOperationsUseCase(gateway).execute();
 
     expect(result.outcome, PendingOperationsSyncOutcome.success);
     expect(result.syncedCount, 3);
     expect(result.pendingCount, 0);
-    expect(
-      gateway.calls,
-      ['revalidate', 'count', 'synchronize', 'refreshInventory'],
-    );
+    expect(gateway.calls, [
+      'revalidate',
+      'count',
+      'synchronize',
+      'refreshInventory',
+    ]);
   });
 
   test('autorización denegada no toca la cola y requiere login', () async {
@@ -46,19 +45,19 @@ void main() {
     expect(gateway.calls, ['revalidate']);
   });
 
-  test('sincronización parcial reporta cantidades y refresca inventario', () async {
-    final gateway = _FakeGateway(
-      queuedCount: 5,
-      remainingCount: 2,
-    );
+  test(
+    'sincronización parcial reporta cantidades y refresca inventario',
+    () async {
+      final gateway = _FakeGateway(queuedCount: 5, remainingCount: 2);
 
-    final result = await SyncPendingOperationsUseCase(gateway).execute();
+      final result = await SyncPendingOperationsUseCase(gateway).execute();
 
-    expect(result.outcome, PendingOperationsSyncOutcome.partial);
-    expect(result.syncedCount, 3);
-    expect(result.pendingCount, 2);
-    expect(gateway.refreshCount, 1);
-  });
+      expect(result.outcome, PendingOperationsSyncOutcome.partial);
+      expect(result.syncedCount, 3);
+      expect(result.pendingCount, 2);
+      expect(gateway.refreshCount, 1);
+    },
+  );
 
   test('sin sesión autenticada no revalida ni toca la cola', () async {
     final gateway = _FakeGateway(hasAuthenticatedSession: false);
@@ -83,14 +82,17 @@ void main() {
     expect(gateway.refreshCount, 1);
   });
 
-  test('fallo de cache no convierte ventas confirmadas en pendientes', () async {
-    final gateway = _FakeGateway(queuedCount: 2, failRefresh: true);
-    final result = await SyncPendingOperationsUseCase(gateway).execute();
-    expect(result.outcome, PendingOperationsSyncOutcome.success);
-    expect(result.syncedCount, 2);
-    expect(result.pendingCount, 0);
-    expect(result.inventoryRefreshPending, isTrue);
-  });
+  test(
+    'fallo de cache no convierte ventas confirmadas en pendientes',
+    () async {
+      final gateway = _FakeGateway(queuedCount: 2, failRefresh: true);
+      final result = await SyncPendingOperationsUseCase(gateway).execute();
+      expect(result.outcome, PendingOperationsSyncOutcome.success);
+      expect(result.syncedCount, 2);
+      expect(result.pendingCount, 0);
+      expect(result.inventoryRefreshPending, isTrue);
+    },
+  );
 
   test('un fallo libera single-flight para un nuevo intento', () async {
     final gateway = _FakeGateway(queuedCount: 1, failSync: true);

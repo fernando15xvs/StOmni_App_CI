@@ -1,10 +1,11 @@
 import 'package:flutter/widgets.dart';
 
-typedef ResultadoInciertoDialogHandler = Future<bool> Function({
-  required BuildContext context,
-  required String tipoDocumento,
-  required String documentoId,
-});
+typedef ResultadoInciertoDialogHandler =
+    Future<bool> Function({
+      required BuildContext context,
+      required String tipoDocumento,
+      required String documentoId,
+    });
 
 ResultadoInciertoDialogHandler? _handler;
 

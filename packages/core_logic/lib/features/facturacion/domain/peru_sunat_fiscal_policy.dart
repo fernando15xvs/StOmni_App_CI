@@ -8,15 +8,20 @@ class PeruSunatFiscalPolicy implements FiscalPolicy {
   static const _documents = <String, FiscalDocumentType>{
     'ticket_interno': InternalTicketFiscalPolicy.document,
     'boleta': FiscalDocumentType(
-      code: 'boleta', requiresElectronicEmission: true, allowsOffline: false,
+      code: 'boleta',
+      requiresElectronicEmission: true,
+      allowsOffline: false,
     ),
     'factura': FiscalDocumentType(
-      code: 'factura', requiresElectronicEmission: true, allowsOffline: false,
+      code: 'factura',
+      requiresElectronicEmission: true,
+      allowsOffline: false,
     ),
   };
 
   @override
-  FiscalDocumentType? documentFor(String code) => _documents[code.trim().toLowerCase()];
+  FiscalDocumentType? documentFor(String code) =>
+      _documents[code.trim().toLowerCase()];
 
   @override
   String? validate(FiscalSaleDraft sale, {required DateTime now}) {
@@ -43,10 +48,12 @@ class PeruSunatFiscalPolicy implements FiscalPolicy {
       if (!RegExp(r'^\d{11}$').hasMatch(identity)) {
         return 'Para emitir factura, el RUC debe tener 11 dígitos.';
       }
-      if (name.isEmpty) return 'La factura requiere la razón social del cliente.';
+      if (name.isEmpty)
+        return 'La factura requiere la razón social del cliente.';
     }
     if (type.code == 'boleta') {
-      if (identity.isNotEmpty && identity != '00000000' &&
+      if (identity.isNotEmpty &&
+          identity != '00000000' &&
           !RegExp(r'^\d{8}$').hasMatch(identity)) {
         return 'Para emitir boleta, ingresa un DNI de 8 dígitos '
             'o deja el documento vacío.';

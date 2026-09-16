@@ -31,7 +31,10 @@ void main() {
       onboardingCompleted: false,
     );
 
-    expect(policy.requiresGuidedOnboarding(SessionValidationStatus.online), isTrue);
+    expect(
+      policy.requiresGuidedOnboarding(SessionValidationStatus.online),
+      isTrue,
+    );
     expect(route, SaasEntryRoute.onboardingRequired);
     expect(route.opensBusinessHome, isFalse);
   });

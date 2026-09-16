@@ -20,8 +20,8 @@ class ProductVariantGroup {
     required this.name,
     required Iterable<String> attributeNames,
     required Iterable<ProductVariantMember> members,
-  })  : attributeNames = List<String>.unmodifiable(attributeNames),
-        members = List<ProductVariantMember>.unmodifiable(members);
+  }) : attributeNames = List<String>.unmodifiable(attributeNames),
+       members = List<ProductVariantMember>.unmodifiable(members);
 
   final int id;
   final String name;
@@ -44,8 +44,8 @@ class ProductVariantGroupDraft {
     required this.name,
     required Iterable<String> attributeNames,
     required Iterable<ProductVariantMemberDraft> members,
-  })  : attributeNames = List<String>.unmodifiable(attributeNames),
-        members = List<ProductVariantMemberDraft>.unmodifiable(members);
+  }) : attributeNames = List<String>.unmodifiable(attributeNames),
+       members = List<ProductVariantMemberDraft>.unmodifiable(members);
 
   final String name;
   final List<String> attributeNames;

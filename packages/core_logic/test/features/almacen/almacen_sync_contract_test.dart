@@ -79,8 +79,14 @@ void main() {
 
       // Estas columnas siguen existiendo nullable en SQLite por compatibilidad
       // histórica, pero no existen en el esquema remoto actual inspeccionado.
-      expect(AlmacenSyncContract.productoSelect, isNot(contains('codigo_barras')));
-      expect(AlmacenSyncContract.productoSelect, isNot(contains('descripcion')));
+      expect(
+        AlmacenSyncContract.productoSelect,
+        isNot(contains('codigo_barras')),
+      );
+      expect(
+        AlmacenSyncContract.productoSelect,
+        isNot(contains('descripcion')),
+      );
       expect(AlmacenSyncContract.productoSelect, isNot(contains('categoria')));
     });
   });

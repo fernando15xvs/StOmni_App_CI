@@ -73,14 +73,8 @@ class PreferenciasPage extends ConsumerWidget {
                       title: Text('Balance (Punto de Venta)'),
                       value: 1,
                     ),
-                    RadioListTile<int>(
-                      title: Text('Almacén'),
-                      value: 2,
-                    ),
-                    RadioListTile<int>(
-                      title: Text('Movimientos'),
-                      value: 3,
-                    ),
+                    RadioListTile<int>(title: Text('Almacén'), value: 2),
+                    RadioListTile<int>(title: Text('Movimientos'), value: 3),
                   ],
                 ),
               ),

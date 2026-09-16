@@ -304,9 +304,9 @@ class _KardexPageState extends ConsumerState<KardexPage> {
                                 : Icons.radio_button_unchecked,
                             color: state.dateFilter.filtroTipo == f
                                 ? (Theme.of(context).brightness ==
-                                        Brightness.dark
-                                    ? Colors.blueAccent
-                                    : colorPrincipal)
+                                          Brightness.dark
+                                      ? Colors.blueAccent
+                                      : colorPrincipal)
                                 : Colors.grey,
                             size: 18,
                           ),
@@ -616,9 +616,9 @@ class _KardexPageState extends ConsumerState<KardexPage> {
                                   return Row(
                                     children: [
                                       _buildDataCell(
-                                        DateFormat('yyyy-MM-dd HH:mm').format(
-                                          toLima(item['fecha']),
-                                        ),
+                                        DateFormat(
+                                          'yyyy-MM-dd HH:mm',
+                                        ).format(toLima(item['fecha'])),
                                         width: 110,
                                         isOdd: isOdd,
                                       ),

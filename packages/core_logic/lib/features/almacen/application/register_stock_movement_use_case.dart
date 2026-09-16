@@ -57,7 +57,9 @@ class RegisterStockMovementUseCase {
     if (!command.isWaste &&
         (command.destinationWarehouseId == null ||
             command.destinationWarehouseId == command.sourceWarehouseId)) {
-      throw ArgumentError('El traslado requiere un almacén de destino diferente.');
+      throw ArgumentError(
+        'El traslado requiere un almacén de destino diferente.',
+      );
     }
     if (command.isWaste && command.reason.trim().isEmpty) {
       throw ArgumentError('La merma requiere un motivo.');

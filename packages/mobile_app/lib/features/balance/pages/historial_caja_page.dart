@@ -185,10 +185,7 @@ class _HistorialCajaPageState extends ConsumerState<HistorialCajaPage> {
                   children: [
                     const Icon(Icons.cloud_off_outlined, size: 52),
                     const SizedBox(height: 16),
-                    Text(
-                      _errorCarga!,
-                      textAlign: TextAlign.center,
-                    ),
+                    Text(_errorCarga!, textAlign: TextAlign.center),
                     const SizedBox(height: 20),
                     FilledButton.icon(
                       onPressed: _cargarHistorial,

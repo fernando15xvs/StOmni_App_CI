@@ -95,7 +95,9 @@ class ConfiguracionService {
 
       final loadedProfile = fiscalProfile;
       if (loadedProfile == null || !loadedProfile.key.isValid) {
-        throw const FormatException('El perfil fiscal no contiene un ID válido.');
+        throw const FormatException(
+          'El perfil fiscal no contiene un ID válido.',
+        );
       }
 
       if (expectedKey != null &&
@@ -156,13 +158,12 @@ class ConfiguracionService {
       }
 
       final nuevaConfiguracion = Map<String, dynamic>.from(raw);
-      _setActiveConfiguration(
-        nuevaConfiguracion,
-        authUserId: authUserId,
-      );
+      _setActiveConfiguration(nuevaConfiguracion, authUserId: authUserId);
       final updatedProfile = fiscalProfile;
       if (updatedProfile == null || !updatedProfile.key.isValid) {
-        throw StateError('La configuración actualizada no contiene un perfil válido.');
+        throw StateError(
+          'La configuración actualizada no contiene un perfil válido.',
+        );
       }
 
       final logoNuevo = updatedProfile.logoUrl.trim();
@@ -237,7 +238,8 @@ class ConfiguracionService {
     if (authUserId.isEmpty || _client.auth.currentUser?.id != authUserId) {
       throw StateError('La sesión cambió antes de activar la configuración.');
     }
-    final organizationId = configuration['organization_id']?.toString().trim() ?? '';
+    final organizationId =
+        configuration['organization_id']?.toString().trim() ?? '';
     if (!_isUuid(organizationId)) {
       throw const FormatException(
         'La configuración del negocio no contiene un organization_id válido.',
@@ -246,7 +248,9 @@ class ConfiguracionService {
 
     final loadedProfile = BusinessFiscalProfileMapper.fromLegacy(configuration);
     if (loadedProfile == null || !loadedProfile.key.isValid) {
-      throw const FormatException('La configuración no contiene un perfil fiscal válido.');
+      throw const FormatException(
+        'La configuración no contiene un perfil fiscal válido.',
+      );
     }
     negocioData = configuration;
     _activeProfileKey = loadedProfile.key.normalized();

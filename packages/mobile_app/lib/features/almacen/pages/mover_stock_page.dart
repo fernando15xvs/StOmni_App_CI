@@ -87,7 +87,9 @@ class _MoverStockPageState extends ConsumerState<MoverStockPage> {
 
   Future<void> _cargarAlmacenes() async {
     try {
-      final rows = await ref.read(almacenRepositoryProvider).obtenerAlmacenesDirecto();
+      final rows = await ref
+          .read(almacenRepositoryProvider)
+          .obtenerAlmacenesDirecto();
       if (!mounted) return;
       final data = List<Map<String, dynamic>>.from(rows);
       setState(() {
@@ -106,9 +108,9 @@ class _MoverStockPageState extends ConsumerState<MoverStockPage> {
     } catch (error) {
       if (!mounted) return;
       setState(() => _cargando = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(ErrorMapper.map(error))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(ErrorMapper.map(error))));
     }
   }
 
@@ -163,7 +165,9 @@ class _MoverStockPageState extends ConsumerState<MoverStockPage> {
     if (product == null) return null;
     final config = _configuration(product);
     if (config != null) {
-      final value = double.tryParse(_cantidadCtrl.text.trim().replaceAll(',', '.'));
+      final value = double.tryParse(
+        _cantidadCtrl.text.trim().replaceAll(',', '.'),
+      );
       if (value == null || !value.isFinite || value <= 0) return null;
       try {
         config.toStoredBaseQuantity(value);
@@ -209,7 +213,9 @@ class _MoverStockPageState extends ConsumerState<MoverStockPage> {
       return;
     }
 
-    await ref.read(moverStockNotifierProvider.notifier).registrarMovimiento(
+    await ref
+        .read(moverStockNotifierProvider.notifier)
+        .registrarMovimiento(
           requestId: _requestId,
           productoId: (product['id'] as num).toInt(),
           cantidad: quantity,
@@ -221,9 +227,9 @@ class _MoverStockPageState extends ConsumerState<MoverStockPage> {
   }
 
   void _mensaje(String value) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(value), backgroundColor: Colors.red),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(value), backgroundColor: Colors.red));
   }
 
   Future<void> _preguntarCrearGuia(int transferenciaId) async {
@@ -231,7 +237,9 @@ class _MoverStockPageState extends ConsumerState<MoverStockPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Traslado registrado'),
-        content: const Text('¿Deseas crear ahora la guía de remisión de este traslado?'),
+        content: const Text(
+          '¿Deseas crear ahora la guía de remisión de este traslado?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -247,7 +255,8 @@ class _MoverStockPageState extends ConsumerState<MoverStockPage> {
     if (create == true && mounted) {
       await Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => NuevaGuiaRemisionPage(transferenciaId: transferenciaId),
+          builder: (_) =>
+              NuevaGuiaRemisionPage(transferenciaId: transferenciaId),
         ),
       );
     }
@@ -371,31 +380,37 @@ class _MoverStockPageState extends ConsumerState<MoverStockPage> {
                 DropdownButtonFormField<int>(
                   initialValue: _origenId,
                   decoration: InputDecoration(
-                    labelText: _merma ? 'Almacén a descontar' : 'Almacén origen',
+                    labelText: _merma
+                        ? 'Almacén a descontar'
+                        : 'Almacén origen',
                     border: const OutlineInputBorder(),
                   ),
                   items: _almacenes
-                      .map((row) => DropdownMenuItem<int>(
-                            value: (row['id'] as num).toInt(),
-                            child: Text(row['nombre']?.toString() ?? 'Almacén'),
-                          ))
+                      .map(
+                        (row) => DropdownMenuItem<int>(
+                          value: (row['id'] as num).toInt(),
+                          child: Text(row['nombre']?.toString() ?? 'Almacén'),
+                        ),
+                      )
                       .toList(),
                   onChanged: state.guardando
                       ? null
                       : (value) => setState(() {
-                            _origenId = value;
-                            if (_destinoId == value) {
-                              _destinoId = _almacenes
-                                  .map((e) => (e['id'] as num).toInt())
-                                  .where((id) => id != value)
-                                  .firstOrNull;
-                            }
-                          }),
+                          _origenId = value;
+                          if (_destinoId == value) {
+                            _destinoId = _almacenes
+                                .map((e) => (e['id'] as num).toInt())
+                                .where((id) => id != value)
+                                .firstOrNull;
+                          }
+                        }),
                 ),
                 if (_origenId != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
-                    child: Text('Disponible: ${_stockText(_stockActual(_origenId!))}'),
+                    child: Text(
+                      'Disponible: ${_stockText(_stockActual(_origenId!))}',
+                    ),
                   ),
                 if (!_merma) ...[
                   const SizedBox(height: 16),
@@ -407,10 +422,12 @@ class _MoverStockPageState extends ConsumerState<MoverStockPage> {
                     ),
                     items: _almacenes
                         .where((row) => (row['id'] as num).toInt() != _origenId)
-                        .map((row) => DropdownMenuItem<int>(
-                              value: (row['id'] as num).toInt(),
-                              child: Text(row['nombre']?.toString() ?? 'Almacén'),
-                            ))
+                        .map(
+                          (row) => DropdownMenuItem<int>(
+                            value: (row['id'] as num).toInt(),
+                            child: Text(row['nombre']?.toString() ?? 'Almacén'),
+                          ),
+                        )
                         .toList(),
                     onChanged: state.guardando
                         ? null
@@ -425,7 +442,9 @@ class _MoverStockPageState extends ConsumerState<MoverStockPage> {
                   enabled: !state.guardando,
                   maxLines: 2,
                   decoration: InputDecoration(
-                    labelText: _merma ? 'Motivo de la merma' : 'Motivo (opcional)',
+                    labelText: _merma
+                        ? 'Motivo de la merma'
+                        : 'Motivo (opcional)',
                     border: const OutlineInputBorder(),
                   ),
                 ),
@@ -438,12 +457,16 @@ class _MoverStockPageState extends ConsumerState<MoverStockPage> {
                           height: 18,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : Icon(_merma ? Icons.delete_sweep : Icons.local_shipping),
-                  label: Text(state.guardando
-                      ? 'Procesando...'
-                      : _merma
-                          ? 'Registrar merma'
-                          : 'Confirmar traslado'),
+                      : Icon(
+                          _merma ? Icons.delete_sweep : Icons.local_shipping,
+                        ),
+                  label: Text(
+                    state.guardando
+                        ? 'Procesando...'
+                        : _merma
+                        ? 'Registrar merma'
+                        : 'Confirmar traslado',
+                  ),
                 ),
               ],
             ),

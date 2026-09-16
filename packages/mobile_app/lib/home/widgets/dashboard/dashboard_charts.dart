@@ -58,7 +58,10 @@ class DashboardCharts extends ConsumerWidget {
   }
 
   Future<void> _reintentarGrafico(
-      BuildContext context, WidgetRef ref, TendenciaRequest req) async {
+    BuildContext context,
+    WidgetRef ref,
+    TendenciaRequest req,
+  ) async {
     final messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(
@@ -286,7 +289,10 @@ class DashboardCharts extends ConsumerWidget {
               const SizedBox(width: 12),
               if (total > 0 || variacion != 0)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: variacion >= 0
                         ? Colors.green.shade50
@@ -363,7 +369,9 @@ class DashboardCharts extends ConsumerWidget {
       ),
       titlesData: FlTitlesData(
         topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        rightTitles: const AxisTitles(
+          sideTitles: SideTitles(showTitles: false),
+        ),
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,

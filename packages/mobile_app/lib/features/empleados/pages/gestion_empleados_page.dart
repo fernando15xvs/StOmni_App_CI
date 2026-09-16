@@ -613,7 +613,8 @@ class _GestionEmpleadosPageState extends ConsumerState<GestionEmpleadosPage> {
                         decoration: BoxDecoration(
                           color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(20),
-                          boxShadow: Theme.of(context).brightness == Brightness.dark
+                          boxShadow:
+                              Theme.of(context).brightness == Brightness.dark
                               ? []
                               : [
                                   BoxShadow(
@@ -666,7 +667,9 @@ class _GestionEmpleadosPageState extends ConsumerState<GestionEmpleadosPage> {
                                             fontSize: 17,
                                             fontWeight: FontWeight.bold,
                                             color: isActivo
-                                                ? (Theme.of(context).brightness ==
+                                                ? (Theme.of(
+                                                            context,
+                                                          ).brightness ==
                                                           Brightness.dark
                                                       ? Colors.white
                                                       : Colors.black87)

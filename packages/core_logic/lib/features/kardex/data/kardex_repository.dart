@@ -16,7 +16,8 @@ class KardexRepository {
     final requestIds = movimientos
         .where((item) {
           final observacion = item['observaciones']?.toString() ?? '';
-          return observacion.startsWith('Venta #') && item['request_id'] != null;
+          return observacion.startsWith('Venta #') &&
+              item['request_id'] != null;
         })
         .map((item) => item['request_id'].toString())
         .toSet()
@@ -109,7 +110,7 @@ class KardexRepository {
 
     final nuevosRaw = List<Map<String, dynamic>>.from(raw as List);
     if (nuevosRaw.isEmpty) return [];
-    
+
     return enriquecerVentasCredito(nuevosRaw);
   }
 }

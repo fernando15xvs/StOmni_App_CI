@@ -24,19 +24,16 @@ class ElectronicDocumentRecord {
   final double? total;
 
   String get searchableText => [
-        number,
-        typeLabel,
-        party,
-        status,
-        sunatDescription ?? '',
-      ].join(' ').toLowerCase();
+    number,
+    typeLabel,
+    party,
+    status,
+    sunatDescription ?? '',
+  ].join(' ').toLowerCase();
 }
 
 class ElectronicDocumentActionResult {
-  const ElectronicDocumentActionResult({
-    required this.status,
-    this.message,
-  });
+  const ElectronicDocumentActionResult({required this.status, this.message});
 
   final String status;
   final String? message;

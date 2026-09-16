@@ -45,7 +45,9 @@ class VentaContextRepository {
   Future<bool> cajaChicaAbierta() async {
     final response = await _client.rpc('get_estado_caja_chica');
     if (response is! Map) {
-      throw StateError('La verificación de Caja Chica devolvió datos inválidos.');
+      throw StateError(
+        'La verificación de Caja Chica devolvió datos inválidos.',
+      );
     }
     return response['estado']?.toString().toUpperCase() == 'ABIERTA';
   }

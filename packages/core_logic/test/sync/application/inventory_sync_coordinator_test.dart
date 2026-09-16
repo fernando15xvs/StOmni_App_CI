@@ -37,22 +37,25 @@ void main() {
     expect(events.single.requiereRecargaKardex, isTrue);
   });
 
-  test('un fallo no impide publicar los otros productos y se reintenta', () async {
-    inventory.failIds.add(1);
-    coordinator.productChanged(1, affectsLedger: true);
-    coordinator.productChanged(2);
-    await coordinator.flush();
-    await Future<void>.delayed(Duration.zero);
-    expect(events.single.productosActualizados, {2});
-    expect(events.single.requiereRecargaKardex, isFalse);
+  test(
+    'un fallo no impide publicar los otros productos y se reintenta',
+    () async {
+      inventory.failIds.add(1);
+      coordinator.productChanged(1, affectsLedger: true);
+      coordinator.productChanged(2);
+      await coordinator.flush();
+      await Future<void>.delayed(Duration.zero);
+      expect(events.single.productosActualizados, {2});
+      expect(events.single.requiereRecargaKardex, isFalse);
 
-    inventory.failIds.clear();
-    await coordinator.flush();
-    await Future<void>.delayed(Duration.zero);
-    expect(inventory.ids, [1, 2, 1]);
-    expect(events.last.productosActualizados, {1});
-    expect(events.last.requiereRecargaKardex, isTrue);
-  });
+      inventory.failIds.clear();
+      await coordinator.flush();
+      await Future<void>.delayed(Duration.zero);
+      expect(inventory.ids, [1, 2, 1]);
+      expect(events.last.productosActualizados, {1});
+      expect(events.last.requiereRecargaKardex, isTrue);
+    },
+  );
 
   test('los reintentos automáticos tienen límite', () async {
     inventory.failIds.add(1);
@@ -77,31 +80,37 @@ void main() {
     expect(inventory.ids, [1, 2]);
   });
 
-  test('refresh completo no borra eventos que llegaron mientras esperaba', () async {
-    final gate = Completer<void>();
-    inventory.fullGate = gate.future;
-    final refresh = coordinator.refreshAll();
-    coordinator.productChanged(7);
-    gate.complete();
-    await refresh;
-    await coordinator.flush();
-    expect(inventory.ids, [7]);
-    expect(inventory.fullRefreshes, 1);
-  });
+  test(
+    'refresh completo no borra eventos que llegaron mientras esperaba',
+    () async {
+      final gate = Completer<void>();
+      inventory.fullGate = gate.future;
+      final refresh = coordinator.refreshAll();
+      coordinator.productChanged(7);
+      gate.complete();
+      await refresh;
+      await coordinator.flush();
+      expect(inventory.ids, [7]);
+      expect(inventory.fullRefreshes, 1);
+    },
+  );
 
-  test('dispose durante una petición no publica ni programa más trabajo', () async {
-    final gate = Completer<void>();
-    inventory.productGate = gate.future;
-    coordinator.productChanged(1);
-    final pending = coordinator.flush();
-    coordinator.dispose();
-    gate.complete();
-    await pending;
-    coordinator.productChanged(2);
-    await coordinator.flush();
-    expect(inventory.ids, [1]);
-    expect(events, isEmpty);
-  });
+  test(
+    'dispose durante una petición no publica ni programa más trabajo',
+    () async {
+      final gate = Completer<void>();
+      inventory.productGate = gate.future;
+      coordinator.productChanged(1);
+      final pending = coordinator.flush();
+      coordinator.dispose();
+      gate.complete();
+      await pending;
+      coordinator.productChanged(2);
+      await coordinator.flush();
+      expect(inventory.ids, [1]);
+      expect(events, isEmpty);
+    },
+  );
 }
 
 class _Inventory implements InventorySyncAdapter {
@@ -115,7 +124,8 @@ class _Inventory implements InventorySyncAdapter {
   Future<void> sincronizarProducto(int productoId) async {
     ids.add(productoId);
     if (productGate != null) await productGate;
-    if (failIds.contains(productoId)) throw StateError('temporarily unavailable');
+    if (failIds.contains(productoId))
+      throw StateError('temporarily unavailable');
   }
 
   @override

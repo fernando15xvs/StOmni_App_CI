@@ -84,6 +84,7 @@ class SupabaseSupplierGateway implements SupplierGateway {
       final text = value?.toString().trim() ?? '';
       return text.isEmpty ? null : text;
     }
+
     final status = map['estado']?.toString().trim().toLowerCase();
     return SupplierRecord(
       id: id,

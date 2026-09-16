@@ -11,9 +11,8 @@ final organizationSignupGatewayProvider = Provider<OrganizationSignupGateway>(
 );
 
 final organizationSignupUseCaseProvider = Provider<OrganizationSignupUseCase>(
-  (ref) => OrganizationSignupUseCase(
-    ref.watch(organizationSignupGatewayProvider),
-  ),
+  (ref) =>
+      OrganizationSignupUseCase(ref.watch(organizationSignupGatewayProvider)),
 );
 
 /// La elegibilidad pre-tenant pertenece exclusivamente a la sesión Auth actual.

@@ -37,7 +37,9 @@ class ConfigurableMetricsUseCase {
     _validateDefinitions(definitions);
     final saved = await _metrics.saveDefinitions(definitions);
     if (_authorizer.currentAuthUserId != user) {
-      throw const UserFacingException('La sesión cambió mientras se guardaban las métricas.');
+      throw const UserFacingException(
+        'La sesión cambió mientras se guardaban las métricas.',
+      );
     }
     return saved;
   }
@@ -60,7 +62,9 @@ class ConfigurableMetricsUseCase {
       branchId: branchId,
     );
     if (_authorizer.currentAuthUserId != user) {
-      throw const UserFacingException('La sesión cambió mientras se calculaba el dashboard.');
+      throw const UserFacingException(
+        'La sesión cambió mientras se calculaba el dashboard.',
+      );
     }
     return snapshot;
   }
@@ -70,7 +74,11 @@ class ConfigurableMetricsUseCase {
     required DateTime end,
     String? branchId,
   }) async {
-    final snapshot = await dashboard(start: start, end: end, branchId: branchId);
+    final snapshot = await dashboard(
+      start: start,
+      end: end,
+      branchId: branchId,
+    );
     return snapshot.metrics;
   }
 
@@ -87,7 +95,9 @@ class ConfigurableMetricsUseCase {
           definition.position > 100 ||
           definition.label.trim().isEmpty ||
           definition.label.trim().length > 80) {
-        throw const UserFacingException('La configuración de métricas contiene duplicados o datos inválidos.');
+        throw const UserFacingException(
+          'La configuración de métricas contiene duplicados o datos inválidos.',
+        );
       }
     }
   }

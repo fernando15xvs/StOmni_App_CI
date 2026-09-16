@@ -12,7 +12,9 @@ import '../connectivity/connectivity_sync_controller.dart';
 final reportesInventarioRevisionProvider = StateProvider<int>((ref) => 0);
 final reportesFinancierosRevisionProvider = StateProvider<int>((ref) => 0);
 
-final realtimeSyncServiceProvider = Provider<RealtimeInventorySyncService>((ref) {
+final realtimeSyncServiceProvider = Provider<RealtimeInventorySyncService>((
+  ref,
+) {
   final service = RealtimeInventorySyncService(
     ref,
     ref.read(supabaseProvider),
@@ -24,8 +26,8 @@ final realtimeSyncServiceProvider = Provider<RealtimeInventorySyncService>((ref)
 
 final inventoryRealtimeEventStreamProvider =
     StreamProvider<InventoryRealtimeEvent>((ref) {
-  return ref.watch(realtimeSyncServiceProvider).eventStream;
-});
+      return ref.watch(realtimeSyncServiceProvider).eventStream;
+    });
 
 /// Adapta canales y lifecycle al motor reutilizable de core_logic.
 class RealtimeInventorySyncService {
@@ -35,9 +37,11 @@ class RealtimeInventorySyncService {
         _ref.read(reportesInventarioRevisionProvider.notifier).state++;
       }
     });
-    _lifecycle = AppLifecycleListener(onResume: () {
-      unawaited(_recover());
-    });
+    _lifecycle = AppLifecycleListener(
+      onResume: () {
+        unawaited(_recover());
+      },
+    );
     _connect();
   }
 
@@ -53,7 +57,11 @@ class RealtimeInventorySyncService {
 
   void _connect() {
     _channel = _client.channel('public:inventario_global');
-    for (final table in ['productos', 'inventario_almacen', 'inventario_movimientos']) {
+    for (final table in [
+      'productos',
+      'inventario_almacen',
+      'inventario_movimientos',
+    ]) {
       final ledger = table == 'inventario_movimientos';
       final key = table == 'productos' ? 'id' : 'producto_id';
       _channel!.onPostgresChanges(
@@ -83,9 +91,11 @@ class RealtimeInventorySyncService {
       final result = await _ref
           .read(connectivitySyncControllerProvider.notifier)
           .syncPendingSales();
-      if (_disposed || result == null ||
+      if (_disposed ||
+          result == null ||
           result.outcome == PendingOperationsSyncOutcome.requireLogin ||
-          result.outcome == PendingOperationsSyncOutcome.authorizationUnavailable) {
+          result.outcome ==
+              PendingOperationsSyncOutcome.authorizationUnavailable) {
         return;
       }
       await _coordinator.refreshAll();
@@ -120,18 +130,21 @@ class RealtimeInventorySyncService {
 
 final realtimeFinancialSyncServiceProvider =
     Provider<RealtimeFinancialSyncService>((ref) {
-  final service = RealtimeFinancialSyncService(ref, ref.read(supabaseProvider));
-  ref.listen<int>(pendingSalesRevisionProvider, (_, _) {
-    service.emitManualRefresh();
-  });
-  ref.onDispose(service.dispose);
-  return service;
-});
+      final service = RealtimeFinancialSyncService(
+        ref,
+        ref.read(supabaseProvider),
+      );
+      ref.listen<int>(pendingSalesRevisionProvider, (_, _) {
+        service.emitManualRefresh();
+      });
+      ref.onDispose(service.dispose);
+      return service;
+    });
 
 final financialRealtimeEventStreamProvider =
     StreamProvider<FinancialRealtimeEvent>((ref) {
-  return ref.watch(realtimeFinancialSyncServiceProvider).eventStream;
-});
+      return ref.watch(realtimeFinancialSyncServiceProvider).eventStream;
+    });
 
 class RealtimeFinancialSyncService {
   RealtimeFinancialSyncService(this._ref, this._client) {
@@ -164,9 +177,9 @@ class RealtimeFinancialSyncService {
 
   void emitManualRefresh() {
     if (_disposed) return;
-    _events.add(const FinancialRealtimeEvent(
-      requiereRecargaReportesFinancieros: true,
-    ));
+    _events.add(
+      const FinancialRealtimeEvent(requiereRecargaReportesFinancieros: true),
+    );
     _ref.read(reportesFinancierosRevisionProvider.notifier).state++;
   }
 
@@ -182,7 +195,10 @@ class RealtimeFinancialSyncService {
   }
 }
 
-Future<void> _removeChannel(SupabaseClient client, RealtimeChannel channel) async {
+Future<void> _removeChannel(
+  SupabaseClient client,
+  RealtimeChannel channel,
+) async {
   try {
     await client.removeChannel(channel);
   } catch (error) {

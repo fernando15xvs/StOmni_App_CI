@@ -45,7 +45,9 @@ class _ExportarReportesPageState extends ConsumerState<ExportarReportesPage> {
     );
 
     try {
-      final snapshot = await ref.read(reportesExportRepositoryProvider).cargarExcel(
+      final snapshot = await ref
+          .read(reportesExportRepositoryProvider)
+          .cargarExcel(
             fechaInicio: widget.fechaInicio,
             fechaFin: widget.fechaFin,
             incluirVentas: _ventas,

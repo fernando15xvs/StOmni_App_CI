@@ -48,27 +48,27 @@ void main() {
 
   test('extrae producto_id numérico o texto y rechaza ids inválidos', () {
     expect(
-      NotificationNavigationController.productIdFromData(
-        const {'producto_id': 42},
-      ),
+      NotificationNavigationController.productIdFromData(const {
+        'producto_id': 42,
+      }),
       42,
     );
     expect(
-      NotificationNavigationController.productIdFromData(
-        const {'producto_id': '57'},
-      ),
+      NotificationNavigationController.productIdFromData(const {
+        'producto_id': '57',
+      }),
       57,
     );
     expect(
-      NotificationNavigationController.productIdFromData(
-        const {'producto_id': 0},
-      ),
+      NotificationNavigationController.productIdFromData(const {
+        'producto_id': 0,
+      }),
       isNull,
     );
     expect(
-      NotificationNavigationController.productIdFromData(
-        const {'producto_id': 'abc'},
-      ),
+      NotificationNavigationController.productIdFromData(const {
+        'producto_id': 'abc',
+      }),
       isNull,
     );
   });
@@ -136,9 +136,13 @@ void main() {
   test('integración enfoca producto usando el inventario local-first', () {
     final bootstrap = File('lib/app/bootstrap.dart').readAsStringSync();
     final splash = File('lib/splash/splash_screen.dart').readAsStringSync();
-    final postLogin = File('lib/home/post_login_home_page.dart').readAsStringSync();
+    final postLogin = File(
+      'lib/home/post_login_home_page.dart',
+    ).readAsStringSync();
     final router = File('lib/app/app_router.dart').readAsStringSync();
-    final navigation = File('lib/app/notification_navigation.dart').readAsStringSync();
+    final navigation = File(
+      'lib/app/notification_navigation.dart',
+    ).readAsStringSync();
 
     expect(bootstrap, contains('OneSignal.Notifications.addClickListener'));
     expect(bootstrap, contains('requestFromNotification'));

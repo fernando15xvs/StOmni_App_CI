@@ -83,9 +83,9 @@ class _SeleccionProductosV2State extends ConsumerState<SeleccionProductosV2> {
         cart = SaleCart(priced);
       } catch (error) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(ErrorMapper.map(error))),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(ErrorMapper.map(error))));
         return;
       }
     }

@@ -16,6 +16,9 @@ void main() {
     expect(source, contains("'No hay turnos cerrados en este periodo.'"));
 
     expect(source, isNot(contains("'Error al cargar historial: \$e'")));
-    expect(source, isNot(contains('SnackBar(content: Text(\'Error al cargar historial')));
+    expect(
+      source,
+      isNot(contains('SnackBar(content: Text(\'Error al cargar historial')),
+    );
   });
 }

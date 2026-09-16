@@ -7,10 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DesktopOrganizationSetupView extends ConsumerStatefulWidget {
-  const DesktopOrganizationSetupView({
-    super.key,
-    required this.onReady,
-  });
+  const DesktopOrganizationSetupView({super.key, required this.onReady});
 
   final VoidCallback onReady;
 
@@ -184,9 +181,10 @@ class _DesktopOrganizationSetupViewState
                                   labelText: 'País ISO',
                                   hintText: 'PE',
                                 ),
-                                validator: (value) => RegExp(
-                                  r'^[A-Za-z]{2}$',
-                                ).hasMatch(value?.trim() ?? '')
+                                validator: (value) =>
+                                    RegExp(
+                                      r'^[A-Za-z]{2}$',
+                                    ).hasMatch(value?.trim() ?? '')
                                     ? null
                                     : 'Usa 2 letras.',
                               ),
@@ -202,9 +200,10 @@ class _DesktopOrganizationSetupViewState
                                   labelText: 'Moneda ISO',
                                   hintText: 'PEN',
                                 ),
-                                validator: (value) => RegExp(
-                                  r'^[A-Za-z]{3}$',
-                                ).hasMatch(value?.trim() ?? '')
+                                validator: (value) =>
+                                    RegExp(
+                                      r'^[A-Za-z]{3}$',
+                                    ).hasMatch(value?.trim() ?? '')
                                     ? null
                                     : 'Usa 3 letras.',
                               ),
@@ -262,9 +261,8 @@ class _DesktopOrganizationSetupViewState
     );
   }
 
-  String? _required(String? value) => value == null || value.trim().isEmpty
-      ? 'Campo obligatorio.'
-      : null;
+  String? _required(String? value) =>
+      value == null || value.trim().isEmpty ? 'Campo obligatorio.' : null;
 }
 
 class DesktopGuidedOnboardingView extends ConsumerStatefulWidget {

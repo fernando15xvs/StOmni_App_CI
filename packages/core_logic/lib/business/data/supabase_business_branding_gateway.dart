@@ -37,8 +37,7 @@ class SupabaseBusinessBrandingGateway implements BusinessBrandingGateway {
     }
   }
 
-  String _cacheKey(String user) =>
-      'business_branding_v1:$cacheNamespace:$user';
+  String _cacheKey(String user) => 'business_branding_v1:$cacheNamespace:$user';
 
   @override
   Future<BusinessBranding> load({bool allowOffline = false}) async {

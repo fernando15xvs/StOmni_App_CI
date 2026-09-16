@@ -156,9 +156,9 @@ class _DashboardContent extends StatelessWidget {
           const SizedBox(height: 30),
           Text(
             'Indicadores configurables · últimos 30 días',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
           ),
           if (configurable.scopeNote?.trim().isNotEmpty == true) ...[
             const SizedBox(height: 6),
@@ -210,18 +210,19 @@ class _DashboardContent extends StatelessWidget {
   }
 
   static IconData _metricIcon(MetricSource source) => switch (source) {
-        MetricSource.income || MetricSource.salesRevenue => Icons.trending_up,
-        MetricSource.expenses => Icons.trending_down,
-        MetricSource.netCashFlow || MetricSource.cashPerformancePercent => Icons.insights_outlined,
-        MetricSource.discounts => Icons.percent,
-        MetricSource.salesCount => Icons.receipt_long_outlined,
-        MetricSource.inventoryEntries => Icons.add_box_outlined,
-        MetricSource.inventoryExits => Icons.indeterminate_check_box_outlined,
-        MetricSource.grossMargin => Icons.show_chart,
-        MetricSource.inventoryTurnover => Icons.sync,
-        MetricSource.deadInventoryItems => Icons.inventory_2_outlined,
-        MetricSource.accountsReceivable => Icons.account_balance_wallet_outlined,
-      };
+    MetricSource.income || MetricSource.salesRevenue => Icons.trending_up,
+    MetricSource.expenses => Icons.trending_down,
+    MetricSource.netCashFlow ||
+    MetricSource.cashPerformancePercent => Icons.insights_outlined,
+    MetricSource.discounts => Icons.percent,
+    MetricSource.salesCount => Icons.receipt_long_outlined,
+    MetricSource.inventoryEntries => Icons.add_box_outlined,
+    MetricSource.inventoryExits => Icons.indeterminate_check_box_outlined,
+    MetricSource.grossMargin => Icons.show_chart,
+    MetricSource.inventoryTurnover => Icons.sync,
+    MetricSource.deadInventoryItems => Icons.inventory_2_outlined,
+    MetricSource.accountsReceivable => Icons.account_balance_wallet_outlined,
+  };
 }
 
 class _MetricCard extends StatelessWidget {
@@ -300,9 +301,9 @@ class _BalanceCard extends StatelessWidget {
                 const SizedBox(height: 5),
                 Text(
                   value,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
                 ),
               ],
             ),

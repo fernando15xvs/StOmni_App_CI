@@ -8,7 +8,9 @@ Future<PurchaseReceiptLine?> buildTraceablePurchaseReceiptLine({
   required PurchaseOrderLine line,
   required double quantity,
 }) async {
-  final config = await ref.read(inventoryTraceabilityUseCaseProvider).loadConfig(line.productId);
+  final config = await ref
+      .read(inventoryTraceabilityUseCaseProvider)
+      .loadConfig(line.productId);
   final profile = await ref.read(businessProfileGatewayProvider).load();
   final active = switch (config.mode) {
     ProductTraceabilityMode.none => false,
@@ -79,7 +81,9 @@ Future<PurchaseReceiptLine?> buildTraceablePurchaseReceiptLine({
   try {
     if (config.mode == ProductTraceabilityMode.serial) {
       if (quantity != quantity.roundToDouble()) {
-        throw const FormatException('Una recepción seriada requiere cantidad entera.');
+        throw const FormatException(
+          'Una recepción seriada requiere cantidad entera.',
+        );
       }
       final values = controller.text
           .split(RegExp(r'[\r\n]+'))
@@ -87,8 +91,11 @@ Future<PurchaseReceiptLine?> buildTraceablePurchaseReceiptLine({
           .where((value) => value.isNotEmpty)
           .toList(growable: false);
       if (values.length != quantity.round() ||
-          values.map((value) => value.toLowerCase()).toSet().length != values.length) {
-        throw FormatException('Debes ingresar ${quantity.round()} series únicas.');
+          values.map((value) => value.toLowerCase()).toSet().length !=
+              values.length) {
+        throw FormatException(
+          'Debes ingresar ${quantity.round()} series únicas.',
+        );
       }
       return PurchaseReceiptLine(
         purchaseOrderLineId: line.id,
@@ -112,17 +119,23 @@ Future<PurchaseReceiptLine?> buildTraceablePurchaseReceiptLine({
       final expiry = parts.length == 3 && parts[2].isNotEmpty
           ? DateTime.tryParse(parts[2])
           : null;
-      if (code.isEmpty || qty == null || qty <= 0 ||
+      if (code.isEmpty ||
+          qty == null ||
+          qty <= 0 ||
           !codes.add(code.toLowerCase()) ||
           (config.expiryRequired && expiry == null)) {
-        throw const FormatException('Hay un lote inválido, repetido o sin vencimiento.');
+        throw const FormatException(
+          'Hay un lote inválido, repetido o sin vencimiento.',
+        );
       }
       total += qty;
-      lots.add(LotReceiptAllocation(
-        lotCode: code,
-        baseQuantity: qty,
-        expiryDate: expiry,
-      ));
+      lots.add(
+        LotReceiptAllocation(
+          lotCode: code,
+          baseQuantity: qty,
+          expiryDate: expiry,
+        ),
+      );
     }
     if (lots.isEmpty || (total - quantity).abs() > 0.000001) {
       throw FormatException(

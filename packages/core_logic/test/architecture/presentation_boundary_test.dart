@@ -66,12 +66,15 @@ void main() {
     );
   });
 
-  test('LocalDbService no depende de Material para registrar errores locales', () {
-    final source = File(
-      'lib/features/almacen/data/local_db_service.dart',
-    ).readAsStringSync();
+  test(
+    'LocalDbService no depende de Material para registrar errores locales',
+    () {
+      final source = File(
+        'lib/features/almacen/data/local_db_service.dart',
+      ).readAsStringSync();
 
-    expect(source, isNot(contains('package:flutter/material.dart')));
-    expect(source, isNot(contains('debugPrint(')));
-  });
+      expect(source, isNot(contains('package:flutter/material.dart')));
+      expect(source, isNot(contains('debugPrint(')));
+    },
+  );
 }

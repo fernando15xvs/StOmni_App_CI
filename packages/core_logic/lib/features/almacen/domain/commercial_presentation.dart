@@ -18,7 +18,11 @@ class CommercialPresentation {
        fiscalUnitCode = normalizeFiscalUnitCode(fiscalUnitCode),
        quantityPrecision = quantityPrecision ?? (allowsFractionalSale ? 3 : 0) {
     if (this.code.isEmpty) {
-      throw ArgumentError.value(code, 'code', 'La presentación requiere código.');
+      throw ArgumentError.value(
+        code,
+        'code',
+        'La presentación requiere código.',
+      );
     }
     if (singularLabel.trim().isEmpty || pluralLabel.trim().isEmpty) {
       throw ArgumentError('La presentación requiere etiquetas visibles.');
@@ -79,10 +83,7 @@ class CommercialPresentation {
   }
 
   FixedQuantity commercialQuantity(double value) {
-    final quantity = FixedQuantity.fromDouble(
-      value,
-      scale: quantityPrecision,
-    );
+    final quantity = FixedQuantity.fromDouble(value, scale: quantityPrecision);
     if (quantity.isNegative) {
       throw ArgumentError.value(
         value,
@@ -155,7 +156,9 @@ class ProductUnitProfile {
   ProductUnitProfile({
     required this.baseUnit,
     required Iterable<CommercialPresentation> presentations,
-  }) : presentations = List<CommercialPresentation>.unmodifiable(presentations) {
+  }) : presentations = List<CommercialPresentation>.unmodifiable(
+         presentations,
+       ) {
     final seen = <String>{};
     for (final presentation in this.presentations) {
       if (!seen.add(presentation.code)) {
@@ -178,7 +181,9 @@ class ProductUnitProfile {
         storedBase.pluralLabel != baseUnit.pluralLabel ||
         storedBase.fiscalUnitCode != baseUnit.fiscalUnitCode ||
         storedBase.quantityPrecision != baseUnit.quantityPrecision) {
-      throw ArgumentError('La presentación base debe coincidir con la unidad base.');
+      throw ArgumentError(
+        'La presentación base debe coincidir con la unidad base.',
+      );
     }
   }
 
@@ -225,18 +230,20 @@ class ProductUnitProfile {
     }
 
     var remaining = quantity.toInt();
-    final candidates = presentations
-        .where(
-          (presentation) =>
-              presentation.code != baseUnit.code &&
-              presentation.baseQuantity > 1 &&
-              presentation.baseQuantity == presentation.baseQuantity.roundToDouble(),
-        )
-        .toList(growable: false)
-      ..sort((a, b) {
-        final byQuantity = b.baseQuantity.compareTo(a.baseQuantity);
-        return byQuantity != 0 ? byQuantity : a.code.compareTo(b.code);
-      });
+    final candidates =
+        presentations
+            .where(
+              (presentation) =>
+                  presentation.code != baseUnit.code &&
+                  presentation.baseQuantity > 1 &&
+                  presentation.baseQuantity ==
+                      presentation.baseQuantity.roundToDouble(),
+            )
+            .toList(growable: false)
+          ..sort((a, b) {
+            final byQuantity = b.baseQuantity.compareTo(a.baseQuantity);
+            return byQuantity != 0 ? byQuantity : a.code.compareTo(b.code);
+          });
 
     final parts = <String>[];
     for (final presentation in candidates) {

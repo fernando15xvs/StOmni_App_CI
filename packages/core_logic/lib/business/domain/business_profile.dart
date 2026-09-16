@@ -72,6 +72,7 @@ class BusinessProfile {
   final String displayName;
   final BusinessCapabilities capabilities;
   final int revision;
+
   /// False en servidores que aún no instalaron la migración aditiva.
   final bool supportsCapabilitySettings;
 }

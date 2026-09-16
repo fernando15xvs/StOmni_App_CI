@@ -14,10 +14,10 @@ class SupabasePurchaseOrderGateway implements PurchaseOrderGateway {
     PurchaseOrderStatus? status,
     int limit = 100,
   }) async {
-    final raw = await client.rpc('list_purchase_orders_v1', params: {
-      'p_status': status?.databaseValue,
-      'p_limit': limit,
-    });
+    final raw = await client.rpc(
+      'list_purchase_orders_v1',
+      params: {'p_status': status?.databaseValue, 'p_limit': limit},
+    );
     if (raw is! List) {
       throw const FormatException('El listado de compras es inválido.');
     }
@@ -26,53 +26,69 @@ class SupabasePurchaseOrderGateway implements PurchaseOrderGateway {
 
   @override
   Future<PurchaseOrderRecord> create(PurchaseOrderDraft draft) async {
-    final raw = await client.rpc('create_purchase_order_v1', params: {
-      'p_request_id': draft.requestId,
-      'p_supplier_id': draft.supplierId,
-      'p_warehouse_id': draft.warehouseId,
-      'p_ordered_at': AppTime.toIsoLima(draft.orderedAt),
-      'p_expected_at': draft.expectedAt == null
-          ? null
-          : AppTime.toIsoLima(draft.expectedAt!),
-      'p_notes': draft.notes,
-      'p_lines': draft.lines
-          .map((line) => <String, dynamic>{
+    final raw = await client.rpc(
+      'create_purchase_order_v1',
+      params: {
+        'p_request_id': draft.requestId,
+        'p_supplier_id': draft.supplierId,
+        'p_warehouse_id': draft.warehouseId,
+        'p_ordered_at': AppTime.toIsoLima(draft.orderedAt),
+        'p_expected_at': draft.expectedAt == null
+            ? null
+            : AppTime.toIsoLima(draft.expectedAt!),
+        'p_notes': draft.notes,
+        'p_lines': draft.lines
+            .map(
+              (line) => <String, dynamic>{
                 'product_id': line.productId,
                 'base_quantity': line.baseQuantity,
                 'unit_cost': line.unitCost,
-              })
-          .toList(growable: false),
-    });
+              },
+            )
+            .toList(growable: false),
+      },
+    );
     return _decode(raw);
   }
 
   @override
-  Future<PurchaseOrderRecord> receive(ReceivePurchaseOrderCommand command) async {
-    final raw = await client.rpc('receive_purchase_order_v2', params: {
-      'p_request_id': command.requestId,
-      'p_purchase_order_id': command.purchaseOrderId,
-      'p_received_at': AppTime.toIsoLima(command.receivedAt),
-      'p_document': command.document,
-      'p_notes': command.notes,
-      'p_lines': command.lines
-          .map((line) => <String, dynamic>{
+  Future<PurchaseOrderRecord> receive(
+    ReceivePurchaseOrderCommand command,
+  ) async {
+    final raw = await client.rpc(
+      'receive_purchase_order_v2',
+      params: {
+        'p_request_id': command.requestId,
+        'p_purchase_order_id': command.purchaseOrderId,
+        'p_received_at': AppTime.toIsoLima(command.receivedAt),
+        'p_document': command.document,
+        'p_notes': command.notes,
+        'p_lines': command.lines
+            .map(
+              (line) => <String, dynamic>{
                 'purchase_order_line_id': line.purchaseOrderLineId,
                 'base_quantity': line.baseQuantity,
                 'allocations': [
-                  ...line.lots.map((lot) => <String, dynamic>{
-                        'lot_code': lot.lotCode,
-                        'base_quantity': lot.baseQuantity,
-                        'expiry_date': lot.expiryDate == null
-                            ? null
-                            : AppTime.toIsoLima(lot.expiryDate!).split('T').first,
-                      }),
-                  ...line.serials.map((serial) => <String, dynamic>{
-                        'serial_number': serial.serialNumber,
-                      }),
+                  ...line.lots.map(
+                    (lot) => <String, dynamic>{
+                      'lot_code': lot.lotCode,
+                      'base_quantity': lot.baseQuantity,
+                      'expiry_date': lot.expiryDate == null
+                          ? null
+                          : AppTime.toIsoLima(lot.expiryDate!).split('T').first,
+                    },
+                  ),
+                  ...line.serials.map(
+                    (serial) => <String, dynamic>{
+                      'serial_number': serial.serialNumber,
+                    },
+                  ),
                 ],
-              })
-          .toList(growable: false),
-    });
+              },
+            )
+            .toList(growable: false),
+      },
+    );
     return _decode(raw);
   }
 
@@ -81,10 +97,10 @@ class SupabasePurchaseOrderGateway implements PurchaseOrderGateway {
     int purchaseOrderId, {
     required String reason,
   }) async {
-    final raw = await client.rpc('cancel_purchase_order_v1', params: {
-      'p_purchase_order_id': purchaseOrderId,
-      'p_reason': reason,
-    });
+    final raw = await client.rpc(
+      'cancel_purchase_order_v1',
+      params: {'p_purchase_order_id': purchaseOrderId, 'p_reason': reason},
+    );
     return _decode(raw);
   }
 

@@ -23,7 +23,9 @@ class SupabaseAuditLogGateway implements AuditLogGateway {
         'p_limit': limit,
         'p_before_id': beforeId,
         'p_action': normalizedAction?.isEmpty == true ? null : normalizedAction,
-        'p_entity_type': normalizedEntity?.isEmpty == true ? null : normalizedEntity,
+        'p_entity_type': normalizedEntity?.isEmpty == true
+            ? null
+            : normalizedEntity,
       },
     );
     if (raw is! List) {
@@ -32,7 +34,9 @@ class SupabaseAuditLogGateway implements AuditLogGateway {
     final entries = raw.map(_decode).toList(growable: false);
     return AuditLogPage(
       entries: List<AuditLogEntry>.unmodifiable(entries),
-      nextBeforeId: entries.length < limit || entries.isEmpty ? null : entries.last.id,
+      nextBeforeId: entries.length < limit || entries.isEmpty
+          ? null
+          : entries.last.id,
     );
   }
 
@@ -48,8 +52,13 @@ class SupabaseAuditLogGateway implements AuditLogGateway {
     final sourceTable = map['source_table']?.toString().trim() ?? '';
     final sourceOperation = map['source_operation']?.toString().trim() ?? '';
     final metadataRaw = map['metadata'];
-    if (id == null || id <= 0 || occurredAt == null || action.isEmpty ||
-        entityType.isEmpty || sourceTable.isEmpty || sourceOperation.isEmpty ||
+    if (id == null ||
+        id <= 0 ||
+        occurredAt == null ||
+        action.isEmpty ||
+        entityType.isEmpty ||
+        sourceTable.isEmpty ||
+        sourceOperation.isEmpty ||
         metadataRaw is! Map) {
       throw const FormatException('Contrato de auditoría incompleto.');
     }

@@ -5,10 +5,7 @@ import '../splash/splash_screen.dart';
 import 'app_router.dart';
 
 class AppLifecycleObserver extends StatefulWidget {
-  const AppLifecycleObserver({
-    required this.child,
-    super.key,
-  });
+  const AppLifecycleObserver({required this.child, super.key});
 
   final Widget child;
 

@@ -8,7 +8,9 @@ class AlmacenAdminNotifier extends AsyncNotifier<List<Map<String, dynamic>>> {
   Future<List<Map<String, dynamic>>> build() => _cargar();
 
   Future<List<Map<String, dynamic>>> _cargar() async {
-    final records = await ref.read(warehouseAdminUseCaseProvider).listWarehouses();
+    final records = await ref
+        .read(warehouseAdminUseCaseProvider)
+        .listWarehouses();
     return records
         .map(
           (warehouse) => <String, dynamic>{
@@ -43,7 +45,9 @@ class AlmacenAdminNotifier extends AsyncNotifier<List<Map<String, dynamic>>> {
     required String codLocal,
     required String referencia,
   }) async {
-    await ref.read(warehouseAdminUseCaseProvider).save(
+    await ref
+        .read(warehouseAdminUseCaseProvider)
+        .save(
           SaveWarehouseCommand(
             id: id,
             name: nombre,
@@ -72,5 +76,5 @@ class AlmacenAdminNotifier extends AsyncNotifier<List<Map<String, dynamic>>> {
 
 final almacenAdminNotifierProvider =
     AsyncNotifierProvider<AlmacenAdminNotifier, List<Map<String, dynamic>>>(
-  AlmacenAdminNotifier.new,
-);
+      AlmacenAdminNotifier.new,
+    );

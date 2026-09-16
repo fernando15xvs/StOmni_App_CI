@@ -12,7 +12,8 @@ class SupabaseConfigurableMetricGateway implements ConfigurableMetricGateway {
   @override
   Future<List<ConfigurableMetricDefinition>> listDefinitions() async {
     final raw = await client.rpc('list_business_metrics_v1');
-    if (raw is! List) throw const FormatException('Las métricas son inválidas.');
+    if (raw is! List)
+      throw const FormatException('Las métricas son inválidas.');
     return raw.map(_decodeDefinition).toList(growable: false);
   }
 
@@ -20,18 +21,24 @@ class SupabaseConfigurableMetricGateway implements ConfigurableMetricGateway {
   Future<List<ConfigurableMetricDefinition>> saveDefinitions(
     List<ConfigurableMetricDefinition> definitions,
   ) async {
-    final raw = await client.rpc('save_business_metrics_v1', params: {
-      'p_definitions': definitions
-          .map((definition) => <String, dynamic>{
+    final raw = await client.rpc(
+      'save_business_metrics_v1',
+      params: {
+        'p_definitions': definitions
+            .map(
+              (definition) => <String, dynamic>{
                 'source': definition.source.databaseValue,
                 'label': definition.label.trim(),
                 'position': definition.position,
                 'enabled': definition.enabled,
                 'format': definition.format.databaseValue,
-              })
-          .toList(growable: false),
-    });
-    if (raw is! List) throw const FormatException('Las métricas guardadas son inválidas.');
+              },
+            )
+            .toList(growable: false),
+      },
+    );
+    if (raw is! List)
+      throw const FormatException('Las métricas guardadas son inválidas.');
     return raw.map(_decodeDefinition).toList(growable: false);
   }
 
@@ -41,11 +48,14 @@ class SupabaseConfigurableMetricGateway implements ConfigurableMetricGateway {
     required DateTime end,
     String? branchId,
   }) async {
-    final raw = await client.rpc('get_configurable_dashboard_v1', params: {
-      'p_start': AppTime.toIsoLima(start),
-      'p_end': AppTime.toIsoLima(end),
-      'p_branch_id': branchId,
-    });
+    final raw = await client.rpc(
+      'get_configurable_dashboard_v1',
+      params: {
+        'p_start': AppTime.toIsoLima(start),
+        'p_end': AppTime.toIsoLima(end),
+        'p_branch_id': branchId,
+      },
+    );
     if (raw is! Map) {
       throw const FormatException('El dashboard configurable es inválido.');
     }
@@ -57,28 +67,32 @@ class SupabaseConfigurableMetricGateway implements ConfigurableMetricGateway {
       throw const FormatException('Contrato de dashboard incompleto.');
     }
 
-    final metrics = rawMetrics.map((entry) {
-      if (entry is! Map) {
-        throw const FormatException('Métrica de dashboard inválida.');
-      }
-      final metric = Map<String, dynamic>.from(entry);
-      final available = metric['available'] == true;
-      final rawValue = metric['value'];
-      final value = rawValue == null
-          ? null
-          : rawValue is num
+    final metrics = rawMetrics
+        .map((entry) {
+          if (entry is! Map) {
+            throw const FormatException('Métrica de dashboard inválida.');
+          }
+          final metric = Map<String, dynamic>.from(entry);
+          final available = metric['available'] == true;
+          final rawValue = metric['value'];
+          final value = rawValue == null
+              ? null
+              : rawValue is num
               ? rawValue.toDouble()
               : double.tryParse(rawValue.toString());
-      if (available && value == null) {
-        throw const FormatException('Valor de métrica disponible inválido.');
-      }
-      return MetricValue(
-        definition: _decodeDefinition(metric),
-        value: value,
-        available: available,
-        note: metric['note']?.toString(),
-      );
-    }).toList(growable: false);
+          if (available && value == null) {
+            throw const FormatException(
+              'Valor de métrica disponible inválido.',
+            );
+          }
+          return MetricValue(
+            definition: _decodeDefinition(metric),
+            value: value,
+            available: available,
+            note: metric['note']?.toString(),
+          );
+        })
+        .toList(growable: false);
 
     return ConfigurableDashboardSnapshot(
       start: parsedStart,
@@ -91,13 +105,16 @@ class SupabaseConfigurableMetricGateway implements ConfigurableMetricGateway {
   }
 
   ConfigurableMetricDefinition _decodeDefinition(Object? raw) {
-    if (raw is! Map) throw const FormatException('Definición de métrica inválida.');
+    if (raw is! Map)
+      throw const FormatException('Definición de métrica inválida.');
     final map = Map<String, dynamic>.from(raw);
     final position = map['position'] is num
         ? (map['position'] as num).toInt()
         : int.tryParse(map['position']?.toString() ?? '');
     final label = map['label']?.toString().trim() ?? '';
-    if (position == null || position < 0 || label.isEmpty ||
+    if (position == null ||
+        position < 0 ||
+        label.isEmpty ||
         map['enabled'] is! bool && !map.containsKey('available')) {
       throw const FormatException('Contrato de métrica incompleto.');
     }

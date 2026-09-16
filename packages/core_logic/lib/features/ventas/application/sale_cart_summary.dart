@@ -16,7 +16,8 @@ class SaleCartSummaryFormatter {
   }) {
     if (presentations.isEmpty &&
         cart.lines.any((line) => line.product.unitConfiguration != null)) {
-      final grouped = <String, ({double quantity, CommercialPresentation unit})>{};
+      final grouped =
+          <String, ({double quantity, CommercialPresentation unit})>{};
       var complete = true;
       for (final line in cart.lines) {
         if (line.quantity <= 0) continue;
@@ -26,9 +27,13 @@ class SaleCartSummaryFormatter {
           complete = false;
           break;
         }
-        final key = '${unit.code}\u0000${unit.singularLabel}\u0000${unit.pluralLabel}';
+        final key =
+            '${unit.code}\u0000${unit.singularLabel}\u0000${unit.pluralLabel}';
         final previous = grouped[key];
-        grouped[key] = (quantity: (previous?.quantity ?? 0) + line.quantity, unit: unit);
+        grouped[key] = (
+          quantity: (previous?.quantity ?? 0) + line.quantity,
+          unit: unit,
+        );
       }
       if (complete && grouped.isNotEmpty) {
         return grouped.values

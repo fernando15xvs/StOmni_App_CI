@@ -16,21 +16,24 @@ void main() {
     expect(sql, contains("LOWER(COALESCE(e.rol, '')) = 'admin'"));
   });
 
-  test('inventario serializa contra desactivacion y rechaza almacen inactivo', () {
-    final sql = repositoryFile(migrationPath).readAsStringSync();
+  test(
+    'inventario serializa contra desactivacion y rechaza almacen inactivo',
+    () {
+      final sql = repositoryFile(migrationPath).readAsStringSync();
 
-    expect(sql, contains('FOR KEY SHARE'));
-    expect(
-      sql,
-      contains(
-        'BEFORE INSERT OR UPDATE OF almacen_id, cantidad ON public.inventario_almacen',
-      ),
-    );
-    expect(
-      sql,
-      contains('No se puede registrar stock en un almacen inactivo'),
-    );
-  });
+      expect(sql, contains('FOR KEY SHARE'));
+      expect(
+        sql,
+        contains(
+          'BEFORE INSERT OR UPDATE OF almacen_id, cantidad ON public.inventario_almacen',
+        ),
+      );
+      expect(
+        sql,
+        contains('No se puede registrar stock en un almacen inactivo'),
+      );
+    },
+  );
 
   test('almacenes ya no exponen DELETE fisico a authenticated', () {
     final sql = repositoryFile(migrationPath).readAsStringSync();
@@ -38,7 +41,9 @@ void main() {
     expect(sql, contains('DROP POLICY IF EXISTS almacenes_admin_delete'));
     expect(
       sql,
-      contains('REVOKE DELETE ON TABLE public.almacenes FROM anon, authenticated'),
+      contains(
+        'REVOKE DELETE ON TABLE public.almacenes FROM anon, authenticated',
+      ),
     );
   });
 
@@ -49,14 +54,8 @@ void main() {
 
     expect(repository, contains("'desactivar_almacen_seguro_v1'"));
     expect(repository, contains("'reactivar_almacen_seguro_v1'"));
-    expect(
-      repository,
-      isNot(contains("update({'activo': false})")),
-    );
-    expect(
-      repository,
-      isNot(contains("update({'activo': true})")),
-    );
+    expect(repository, isNot(contains("update({'activo': false})")));
+    expect(repository, isNot(contains("update({'activo': true})")));
   });
 
   test('migracion no introduce roles tecnicos legacy', () {

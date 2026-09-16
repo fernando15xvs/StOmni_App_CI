@@ -72,11 +72,11 @@ class CustomFieldValidation {
   }
 
   Map<String, dynamic> toMap() => {
-        if (min != null) 'min': min,
-        if (max != null) 'max': max,
-        if (minLength != null) 'min_length': minLength,
-        if (maxLength != null) 'max_length': maxLength,
-      };
+    if (min != null) 'min': min,
+    if (max != null) 'max': max,
+    if (minLength != null) 'min_length': minLength,
+    if (maxLength != null) 'max_length': maxLength,
+  };
 }
 
 class CustomFieldDefinition {
@@ -92,8 +92,8 @@ class CustomFieldDefinition {
     this.validation = const CustomFieldValidation(),
     this.sortOrder = 0,
     this.active = true,
-  })  : itemTypes = List<CatalogItemType>.unmodifiable(itemTypes),
-        options = List<String>.unmodifiable(options);
+  }) : itemTypes = List<CatalogItemType>.unmodifiable(itemTypes),
+       options = List<String>.unmodifiable(options);
 
   final String? id;
   final CustomFieldEntityType entityType;
@@ -123,8 +123,14 @@ class CustomFieldDefinition {
     final code = map['code']?.toString().trim() ?? '';
     final label = map['label']?.toString().trim() ?? '';
     final sortOrder = (map['sort_order'] as num?)?.toInt();
-    if (id == null || id.isEmpty || code.isEmpty || label.isEmpty || sortOrder == null) {
-      throw const FormatException('Definición de campo configurable incompleta.');
+    if (id == null ||
+        id.isEmpty ||
+        code.isEmpty ||
+        label.isEmpty ||
+        sortOrder == null) {
+      throw const FormatException(
+        'Definición de campo configurable incompleta.',
+      );
     }
     return CustomFieldDefinition(
       id: id,

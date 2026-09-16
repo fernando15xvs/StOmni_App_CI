@@ -215,8 +215,8 @@ class _NuevaGuiaRemisionPageState extends ConsumerState<NuevaGuiaRemisionPage> {
     final fechaInicial = fechaActual.isBefore(primeraFecha)
         ? primeraFecha
         : fechaActual.isAfter(ultimaFecha)
-            ? ultimaFecha
-            : fechaActual;
+        ? ultimaFecha
+        : fechaActual;
 
     final fecha = await showDatePicker(
       context: context,
@@ -447,7 +447,8 @@ class _NuevaGuiaRemisionPageState extends ConsumerState<NuevaGuiaRemisionPage> {
                     setState(_form.usarDireccionClienteComoLlegada);
                   },
                   onLlegadaUbigeoSelected: (item) {
-                    _form.destUbigeoCtrl.text = item['codigo']?.toString() ?? '';
+                    _form.destUbigeoCtrl.text =
+                        item['codigo']?.toString() ?? '';
                   },
                 ),
                 const SizedBox(height: 14),
@@ -459,8 +460,7 @@ class _NuevaGuiaRemisionPageState extends ConsumerState<NuevaGuiaRemisionPage> {
                   transportistaId: _form.transportistaId,
                   conductorId: _form.conductorId,
                   vehiculoId: _form.vehiculoId,
-                  transportistaTransbordoId:
-                      _form.transportistaTransbordoId,
+                  transportistaTransbordoId: _form.transportistaTransbordoId,
                   agenciaOrigenId: _form.agenciaOrigenId,
                   agenciaDestinoId: _form.agenciaDestinoId,
                   destinoEntregaTipo: _form.destinoEntregaTipo,
@@ -543,8 +543,8 @@ class _NuevaGuiaRemisionPageState extends ConsumerState<NuevaGuiaRemisionPage> {
         _form.serieOriginal == null
             ? 'Editando borrador sin numerar.'
             : 'Corrigiendo ${_form.serieOriginal}-'
-                '${_form.correlativoOriginal ?? ''}. '
-                'Se conservará el mismo correlativo.',
+                  '${_form.correlativoOriginal ?? ''}. '
+                  'Se conservará el mismo correlativo.',
         style: const TextStyle(fontWeight: FontWeight.w700),
       ),
     );

@@ -260,7 +260,6 @@ class MovimientosList extends StatefulWidget {
 }
 
 class _MovimientosListState extends State<MovimientosList> {
-
   String _formatearMoneda(double monto) {
     return AppFormatters.currency(monto);
   }
@@ -533,11 +532,14 @@ class ItemMovimientoCaja extends StatelessWidget {
   Widget build(BuildContext context) {
     final esIngreso = movimiento['tipo'] == 'ingreso';
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     final colorVerde = Theme.of(context).colorScheme.primary;
     final primaryColor = esIngreso ? colorVerde : Colors.redAccent;
-    final descripcion = movimiento['descripcion'] ?? (esIngreso ? 'Ingreso Efectivo' : 'Egreso Efectivo');
-    final montoStr = "${esIngreso ? '+' : '-'} ${AppFormatters.currency((movimiento['monto'] as num).toDouble())}";
+    final descripcion =
+        movimiento['descripcion'] ??
+        (esIngreso ? 'Ingreso Efectivo' : 'Egreso Efectivo');
+    final montoStr =
+        "${esIngreso ? '+' : '-'} ${AppFormatters.currency((movimiento['monto'] as num).toDouble())}";
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -545,7 +547,9 @@ class ItemMovimientoCaja extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: compact && !isDark ? Border.all(color: Colors.grey.shade200) : null,
+        border: compact && !isDark
+            ? Border.all(color: Colors.grey.shade200)
+            : null,
         boxShadow: (isDark || compact)
             ? []
             : [

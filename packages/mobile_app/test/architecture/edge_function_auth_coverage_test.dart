@@ -63,9 +63,6 @@ void main() {
       'supabase/functions/_shared/proceso_tributario_common.ts',
     );
 
-    expect(
-      common,
-      contains("allowedRoles: readonly AppRole[] = ['admin']"),
-    );
+    expect(common, contains("allowedRoles: readonly AppRole[] = ['admin']"));
   });
 }

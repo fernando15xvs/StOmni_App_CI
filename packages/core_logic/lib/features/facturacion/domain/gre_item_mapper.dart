@@ -9,7 +9,8 @@ class GreItemMapper {
   static bool esServicio(Map<String, dynamic> producto) {
     return producto['es_servicio'] == true ||
         producto['es_servicio'] == 1 ||
-        producto['unidad_medida']?.toString().trim().toLowerCase() == 'servicios';
+        producto['unidad_medida']?.toString().trim().toLowerCase() ==
+            'servicios';
   }
 
   static Map<String, dynamic>? _snapshot(Map<String, dynamic> item) {
@@ -75,8 +76,8 @@ class GreItemMapper {
     final cantidadComercial = presentation?['quantity'] is num
         ? (presentation!['quantity'] as num).toDouble()
         : (item['cantidad'] as num?)?.toDouble() ?? 0;
-    final piezas = (item['piezas_reales'] as num?)?.toInt() ??
-        cantidadComercial.toInt();
+    final piezas =
+        (item['piezas_reales'] as num?)?.toInt() ?? cantidadComercial.toInt();
     final cantidadBase = _baseQuantity(item, presentation);
     final cantidad = presentation == null ? cantidadComercial : cantidadBase;
     final pesoUnidad = (producto['peso_kg'] as num?)?.toDouble() ?? 0;
@@ -110,7 +111,9 @@ class GreItemMapper {
     Map<String, dynamic> producto,
   ) {
     if (esServicio(producto)) {
-      throw const FormatException('Un servicio no puede originar un traslado físico.');
+      throw const FormatException(
+        'Un servicio no puede originar un traslado físico.',
+      );
     }
     final cantidad = (traslado['cantidad'] as num?)?.toDouble() ?? 0;
     final pesoUnidad = (producto['peso_kg'] as num?)?.toDouble() ?? 0;
@@ -157,10 +160,7 @@ class GreItemMapper {
         item['tipo_unidad']?.toString(),
       );
       final unidadSunat = presentation == null
-          ? GreItemRules.unidadSunatDesdeTipoComercial(
-              tipoUnidad,
-              producto,
-            )
+          ? GreItemRules.unidadSunatDesdeTipoComercial(tipoUnidad, producto)
           : _requiredBaseFiscalUnit(
               presentation,
               producto['nombre']?.toString() ?? 'Producto',
@@ -172,8 +172,7 @@ class GreItemMapper {
               cantidadVisual: cantidadVisual,
               piezasFallback: (item['piezas_reales'] as num?)?.toInt(),
             )
-          : ((item['piezas_reales'] as num?)?.toInt() ??
-              cantidadBase.toInt());
+          : ((item['piezas_reales'] as num?)?.toInt() ?? cantidadBase.toInt());
 
       final pesoCatalogo = (producto['peso_kg'] as num?)?.toDouble() ?? 0;
       final usarPesoEspecifico = item['usar_peso_especifico'] == true;
@@ -194,8 +193,7 @@ class GreItemMapper {
       lineas.add({
         'producto_id': (producto['id'] as num).toInt(),
         'producto_data': producto,
-        'almacen_id':
-            (item['almacen_id'] as num?)?.toInt() ?? almacenFallback,
+        'almacen_id': (item['almacen_id'] as num?)?.toInt() ?? almacenFallback,
         'codigo': producto['codigo']?.toString() ?? '',
         'descripcion': descripcionPresentacion(item, producto),
         'unidad': unidadSunat,
@@ -203,8 +201,7 @@ class GreItemMapper {
         'piezas_reales': piezasReales,
         'peso_unitario_kg': pesoUnitarioBase,
         'peso_total_kg': pesoTotal,
-        'precio_unitario':
-            (item['precio_unitario'] as num?)?.toDouble() ?? 0.0,
+        'precio_unitario': (item['precio_unitario'] as num?)?.toDouble() ?? 0.0,
         if (presentation != null) 'presentation_snapshot': presentation,
         if (item['stock_scale_snapshot'] != null)
           'stock_scale_snapshot': item['stock_scale_snapshot'],

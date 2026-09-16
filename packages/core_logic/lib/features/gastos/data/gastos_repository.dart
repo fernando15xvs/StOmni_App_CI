@@ -49,10 +49,7 @@ class GastosRepository {
     try {
       final raw = await _client.rpc(
         'eliminar_pago_gasto_v1',
-        params: {
-          'p_pago_id': pagoId,
-          'p_gasto_id': gastoId,
-        },
+        params: {'p_pago_id': pagoId, 'p_gasto_id': gastoId},
       );
 
       if (raw is! Map || raw['success'] != true) {

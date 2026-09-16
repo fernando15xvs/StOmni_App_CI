@@ -1,6 +1,5 @@
 import 'package:pdf/pdf.dart';
 
-
 class PdfDocumentTheme {
   const PdfDocumentTheme._();
 

@@ -13,10 +13,7 @@ import 'organization_setup_page.dart';
 /// Orden: Auth sin tenant -> alta F8.1 -> onboarding F8.2 -> Home.
 /// Una autorización offline ya validada no consulta el RPC de onboarding.
 class MobileSaasEntryGate extends ConsumerWidget {
-  const MobileSaasEntryGate({
-    super.key,
-    this.initialTab = 0,
-  });
+  const MobileSaasEntryGate({super.key, this.initialTab = 0});
 
   final int initialTab;
 
@@ -45,9 +42,8 @@ class MobileSaasEntryGate extends ConsumerWidget {
 
     final progress = ref.watch(guidedOnboardingProgressProvider);
     return progress.when(
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (error, stackTrace) => Scaffold(
         body: Center(
           child: ConstrainedBox(
@@ -84,16 +80,14 @@ class MobileSaasEntryGate extends ConsumerWidget {
         if (resolved == SaasEntryRoute.authorized) return _home();
         return GuidedOnboardingPage(
           initialProgress: value,
-          onCompleted: () =>
-              ref.invalidate(guidedOnboardingProgressProvider),
+          onCompleted: () => ref.invalidate(guidedOnboardingProgressProvider),
         );
       },
     );
   }
 
-  Widget _home() => StockAlertNotificationHost(
-    child: HomePage(pestanaInicial: initialTab),
-  );
+  Widget _home() =>
+      StockAlertNotificationHost(child: HomePage(pestanaInicial: initialTab));
 }
 
 class _BlockedEntryView extends StatelessWidget {

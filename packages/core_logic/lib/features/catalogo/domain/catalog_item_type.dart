@@ -14,7 +14,9 @@ enum CatalogItemType {
   static CatalogItemType fromCode(Object? raw, {bool legacyService = false}) {
     final value = raw?.toString().trim().toLowerCase();
     if (value == null || value.isEmpty) {
-      return legacyService ? CatalogItemType.service : CatalogItemType.stockProduct;
+      return legacyService
+          ? CatalogItemType.service
+          : CatalogItemType.stockProduct;
     }
     for (final item in values) {
       if (item.code == value) return item;

@@ -156,21 +156,11 @@ void main() {
     test('sincroniza, carga snapshot tipado y enriquece productos', () async {
       final gateway = _FakeCatalogGateway()
         ..products = [
-          _product(
-            id: 1,
-            name: 'Taladro',
-            price: 35,
-            stock: 7,
-            supplierId: 9,
-          ),
+          _product(id: 1, name: 'Taladro', price: 35, stock: 7, supplierId: 9),
         ]
         ..brands = {9: 'Marca Uno'}
         ..warehouses = const [
-          InventoryWarehouseRecord(
-            id: 1,
-            name: 'Principal',
-            active: true,
-          ),
+          InventoryWarehouseRecord(id: 1, name: 'Principal', active: true),
         ];
       final useCase = InventoryCatalogUseCase(
         gateway: gateway,
@@ -192,9 +182,7 @@ void main() {
     test('mantiene snapshot local y marca offline si falla sync', () async {
       final gateway = _FakeCatalogGateway()
         ..failSync = true
-        ..products = [
-          _product(id: 1, name: 'Producto', price: 10, stock: 2),
-        ];
+        ..products = [_product(id: 1, name: 'Producto', price: 10, stock: 2)];
       final useCase = InventoryCatalogUseCase(
         gateway: gateway,
         connectivity: _FakeConnectivity(true),
@@ -251,20 +239,8 @@ void main() {
     test('filtra stock bajo y ordena por precio con items tipados', () async {
       final gateway = _FakeCatalogGateway()
         ..products = [
-          _product(
-            id: 1,
-            name: 'B',
-            price: 20,
-            stock: 1,
-            minimumStock: 2,
-          ),
-          _product(
-            id: 2,
-            name: 'A',
-            price: 10,
-            stock: 8,
-            minimumStock: 2,
-          ),
+          _product(id: 1, name: 'B', price: 20, stock: 1, minimumStock: 2),
+          _product(id: 2, name: 'A', price: 10, stock: 8, minimumStock: 2),
         ];
       final useCase = InventoryCatalogUseCase(
         gateway: gateway,
@@ -289,10 +265,7 @@ void main() {
 
   test('RegisterStockMovementUseCase conserva resultado tipado', () async {
     final gateway = _FakeStockMovementGateway()
-      ..response = const StockMovementResult(
-        transferId: 44,
-        isTransfer: true,
-      );
+      ..response = const StockMovementResult(transferId: 44, isTransfer: true);
     final authorizer = _FakeAuthorizer();
     final useCase = RegisterStockMovementUseCase(
       gateway,
@@ -319,75 +292,84 @@ void main() {
     expect(authorizer.lastRequired, {AppPermission.inventoryAdjust});
   });
 
-  test('RegisterMerchandiseEntryUseCase conserva orden de persistencia y sync', () async {
-    final events = <String>[];
-    final writer = _FakeEntryWriter(events);
-    final sync = _FakeSyncGateway(events);
-    final authorizer = _FakeAuthorizer();
-    final useCase = RegisterMerchandiseEntryUseCase(
-      writer: writer,
-      sync: sync,
-      authorizer: authorizer,
-    );
-    final command = MerchandiseEntryCommand(
-      requestId: 'entry-1',
-      productId: 5,
-      date: DateTime(2026, 8, 30),
-      entryType: 'Compra',
-      document: 'F001-1',
-      supplierId: 2,
-      observations: '',
-      warehouses: const [
-        MerchandiseWarehouseAllocation(warehouseId: 1, baseQuantity: 4),
-      ],
-      cost: 5,
-      unitPrice: 8,
-      boxPrice: 7,
-      comparativeBoxPrice: 70,
-    );
+  test(
+    'RegisterMerchandiseEntryUseCase conserva orden de persistencia y sync',
+    () async {
+      final events = <String>[];
+      final writer = _FakeEntryWriter(events);
+      final sync = _FakeSyncGateway(events);
+      final authorizer = _FakeAuthorizer();
+      final useCase = RegisterMerchandiseEntryUseCase(
+        writer: writer,
+        sync: sync,
+        authorizer: authorizer,
+      );
+      final command = MerchandiseEntryCommand(
+        requestId: 'entry-1',
+        productId: 5,
+        date: DateTime(2026, 8, 30),
+        entryType: 'Compra',
+        document: 'F001-1',
+        supplierId: 2,
+        observations: '',
+        warehouses: const [
+          MerchandiseWarehouseAllocation(warehouseId: 1, baseQuantity: 4),
+        ],
+        cost: 5,
+        unitPrice: 8,
+        boxPrice: 7,
+        comparativeBoxPrice: 70,
+      );
 
-    await useCase(command);
+      await useCase(command);
 
-    expect(events, ['register', 'product-sync', 'catalog-sync']);
-    expect(sync.productId, 5);
-    expect(writer.received, same(command));
-    expect(writer.received!.warehouses.single.warehouseId, 1);
-    expect(authorizer.lastRequired, {AppPermission.inventoryReceive});
-  });
+      expect(events, ['register', 'product-sync', 'catalog-sync']);
+      expect(sync.productId, 5);
+      expect(writer.received, same(command));
+      expect(writer.received!.warehouses.single.warehouseId, 1);
+      expect(authorizer.lastRequired, {AppPermission.inventoryReceive});
+    },
+  );
 
   group('ProductLifecycleUseCase', () {
-    test('bloquea desactivación y borrado permanente en modo offline', () async {
-      final gateway = _FakeLifecycleGateway();
-      final useCase = ProductLifecycleUseCase(gateway);
+    test(
+      'bloquea desactivación y borrado permanente en modo offline',
+      () async {
+        final gateway = _FakeLifecycleGateway();
+        final useCase = ProductLifecycleUseCase(gateway);
 
-      expect(
-        () => useCase.deactivate(1, offline: true),
-        throwsA(isA<ProductLifecycleOfflineException>()),
-      );
-      expect(
-        () => useCase.deletePermanently(1, offline: true),
-        throwsA(isA<ProductLifecycleOfflineException>()),
-      );
-      expect(gateway.calls, isEmpty);
-    });
+        expect(
+          () => useCase.deactivate(1, offline: true),
+          throwsA(isA<ProductLifecycleOfflineException>()),
+        );
+        expect(
+          () => useCase.deletePermanently(1, offline: true),
+          throwsA(isA<ProductLifecycleOfflineException>()),
+        );
+        expect(gateway.calls, isEmpty);
+      },
+    );
 
-    test('delega operaciones permitidas al gateway con evaluación tipada', () async {
-      final gateway = _FakeLifecycleGateway();
-      final useCase = ProductLifecycleUseCase(gateway);
+    test(
+      'delega operaciones permitidas al gateway con evaluación tipada',
+      () async {
+        final gateway = _FakeLifecycleGateway();
+        final useCase = ProductLifecycleUseCase(gateway);
 
-      final evaluation = await useCase.evaluateDeletion(3);
-      await useCase.deactivate(3, offline: false);
-      await useCase.deletePermanently(3, offline: false);
-      await useCase.reactivate(3);
+        final evaluation = await useCase.evaluateDeletion(3);
+        await useCase.deactivate(3, offline: false);
+        await useCase.deletePermanently(3, offline: false);
+        await useCase.reactivate(3);
 
-      expect(evaluation.openingMovementCount, 1);
-      expect(evaluation.canUpdateOpening, isTrue);
-      expect(gateway.calls, [
-        'evaluate:3',
-        'deactivate:3',
-        'delete:3',
-        'reactivate:3',
-      ]);
-    });
+        expect(evaluation.openingMovementCount, 1);
+        expect(evaluation.canUpdateOpening, isTrue);
+        expect(gateway.calls, [
+          'evaluate:3',
+          'deactivate:3',
+          'delete:3',
+          'reactivate:3',
+        ]);
+      },
+    );
   });
 }

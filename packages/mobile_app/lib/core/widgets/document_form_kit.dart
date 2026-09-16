@@ -285,10 +285,7 @@ class _RucDireccionRowState extends ConsumerState<RucDireccionRow> {
     try {
       final tipo = doc.length == 8 ? 'dni' : 'ruc';
       final gateway = ref.read(documentDataGatewayProvider);
-      final data = await gateway.consultarPersona(
-        numero: doc,
-        tipo: tipo,
-      );
+      final data = await gateway.consultarPersona(numero: doc, tipo: tipo);
 
       if (data != null) {
         setState(() {
@@ -511,8 +508,11 @@ class ResumenItemsCard extends StatelessWidget {
             final cantidad = item.quantity;
             final nombre = item.product.name;
             final tipoUnidad = item.product.normalizeUnit(item.commercialUnit);
-            final presentation = item.product.commercialProfile.find(tipoUnidad);
-            final etiqueta = presentation?.labelFor(cantidad) ??
+            final presentation = item.product.commercialProfile.find(
+              tipoUnidad,
+            );
+            final etiqueta =
+                presentation?.labelFor(cantidad) ??
                 StockUtils.etiquetaUnidadComercial(
                   tipoUnidad,
                   cantidad: cantidad == 1 ? 1 : 2,
@@ -521,7 +521,8 @@ class ResumenItemsCard extends StatelessWidget {
             final precioComercial = item.commercialUnitPrice;
             final subtotal = item.subtotal;
             final cantidadTexto = cantidad == cantidad.roundToDouble()
-                ? cantidad.toInt().toString() : cantidad.toString();
+                ? cantidad.toInt().toString()
+                : cantidad.toString();
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),

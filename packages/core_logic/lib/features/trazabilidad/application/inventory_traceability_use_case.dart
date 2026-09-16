@@ -13,7 +13,10 @@ abstract interface class InventoryTraceabilityGateway {
     required bool expiryRequired,
   });
   Future<List<LotStockRecord>> listLots({int? productId, int? warehouseId});
-  Future<List<SerialStockRecord>> listSerials({int? productId, int? warehouseId});
+  Future<List<SerialStockRecord>> listSerials({
+    int? productId,
+    int? warehouseId,
+  });
   Future<void> registerReceipt(TraceableReceiptCommand command);
 }
 
@@ -48,7 +51,9 @@ class InventoryTraceabilityUseCase {
       throw ArgumentError('Producto o revisión inválidos.');
     }
     if (mode != ProductTraceabilityMode.lot && expiryRequired) {
-      throw ArgumentError('El vencimiento sólo puede exigirse con seguimiento por lote.');
+      throw ArgumentError(
+        'El vencimiento sólo puede exigirse con seguimiento por lote.',
+      );
     }
     final user = await _authorizer.require({AppPermission.productsUpdate});
     final result = await _gateway.saveConfig(
@@ -61,19 +66,27 @@ class InventoryTraceabilityUseCase {
     return result;
   }
 
-  Future<List<LotStockRecord>> listLots({int? productId, int? warehouseId}) async {
+  Future<List<LotStockRecord>> listLots({
+    int? productId,
+    int? warehouseId,
+  }) async {
     await _requireOperationalCapability();
     return _gateway.listLots(productId: productId, warehouseId: warehouseId);
   }
 
-  Future<List<SerialStockRecord>> listSerials({int? productId, int? warehouseId}) async {
+  Future<List<SerialStockRecord>> listSerials({
+    int? productId,
+    int? warehouseId,
+  }) async {
     await _requireOperationalCapability();
     return _gateway.listSerials(productId: productId, warehouseId: warehouseId);
   }
 
   Future<void> registerReceipt(TraceableReceiptCommand command) async {
-    if (command.requestId.trim().isEmpty || command.productId <= 0 ||
-        command.warehouseId <= 0 || !command.totalBaseQuantity.isFinite ||
+    if (command.requestId.trim().isEmpty ||
+        command.productId <= 0 ||
+        command.warehouseId <= 0 ||
+        !command.totalBaseQuantity.isFinite ||
         command.totalBaseQuantity <= 0) {
       throw ArgumentError('Recepción trazable inválida.');
     }
@@ -84,16 +97,22 @@ class InventoryTraceabilityUseCase {
         throw const UserFacingException('El producto no usa trazabilidad.');
       case ProductTraceabilityMode.lot:
         if (!profile.capabilities.lotTracking) {
-          throw const UserFacingException('El seguimiento por lote no está habilitado.');
+          throw const UserFacingException(
+            'El seguimiento por lote no está habilitado.',
+          );
         }
         if (config.expiryRequired && !profile.capabilities.expiryTracking) {
-          throw const UserFacingException('El seguimiento de vencimientos no está habilitado.');
+          throw const UserFacingException(
+            'El seguimiento de vencimientos no está habilitado.',
+          );
         }
         _validateLots(command, config);
         break;
       case ProductTraceabilityMode.serial:
         if (!profile.capabilities.serialNumberTracking) {
-          throw const UserFacingException('El seguimiento por serie no está habilitado.');
+          throw const UserFacingException(
+            'El seguimiento por serie no está habilitado.',
+          );
         }
         _validateSerials(command);
         break;
@@ -120,15 +139,21 @@ class InventoryTraceabilityUseCase {
     ProductTraceabilityConfig config,
   ) {
     if (command.lots.isEmpty || command.serials.isNotEmpty) {
-      throw ArgumentError('La recepción por lote requiere distribuciones de lote.');
+      throw ArgumentError(
+        'La recepción por lote requiere distribuciones de lote.',
+      );
     }
     final seen = <String>{};
     var sum = 0.0;
     for (final lot in command.lots) {
       final code = lot.lotCode.trim();
-      if (code.isEmpty || !seen.add(code.toLowerCase()) ||
-          !lot.baseQuantity.isFinite || lot.baseQuantity <= 0) {
-        throw ArgumentError('La recepción contiene un lote inválido o repetido.');
+      if (code.isEmpty ||
+          !seen.add(code.toLowerCase()) ||
+          !lot.baseQuantity.isFinite ||
+          lot.baseQuantity <= 0) {
+        throw ArgumentError(
+          'La recepción contiene un lote inválido o repetido.',
+        );
       }
       if (config.expiryRequired && lot.expiryDate == null) {
         throw ArgumentError('Todos los lotes requieren fecha de vencimiento.');
@@ -136,21 +161,29 @@ class InventoryTraceabilityUseCase {
       sum += lot.baseQuantity;
     }
     if ((sum - command.totalBaseQuantity).abs() > 0.000001) {
-      throw ArgumentError('La suma de lotes no coincide con la cantidad recibida.');
+      throw ArgumentError(
+        'La suma de lotes no coincide con la cantidad recibida.',
+      );
     }
   }
 
   void _validateSerials(TraceableReceiptCommand command) {
-    if (command.serials.isEmpty || command.lots.isNotEmpty ||
-        command.totalBaseQuantity != command.totalBaseQuantity.roundToDouble() ||
+    if (command.serials.isEmpty ||
+        command.lots.isNotEmpty ||
+        command.totalBaseQuantity !=
+            command.totalBaseQuantity.roundToDouble() ||
         command.serials.length != command.totalBaseQuantity.round()) {
-      throw ArgumentError('La recepción seriada requiere una serie por unidad.');
+      throw ArgumentError(
+        'La recepción seriada requiere una serie por unidad.',
+      );
     }
     final seen = <String>{};
     for (final serial in command.serials) {
       final value = serial.serialNumber.trim();
       if (value.isEmpty || !seen.add(value.toLowerCase())) {
-        throw ArgumentError('La recepción contiene una serie inválida o repetida.');
+        throw ArgumentError(
+          'La recepción contiene una serie inválida o repetida.',
+        );
       }
     }
   }

@@ -25,10 +25,7 @@ void main() {
       dashboard,
       contains('valor: _resumenDisponible ? "\$_totalProductos" : "—"'),
     );
-    expect(
-      dashboard,
-      contains('resumenDisponible: _resumenDisponible'),
-    );
+    expect(dashboard, contains('resumenDisponible: _resumenDisponible'));
   });
 
   test('reintentar gráfico da feedback cuando sigue sin Internet', () {
@@ -38,14 +35,8 @@ void main() {
 
     expect(charts, contains('ConnectivityStatusService.hasInternet()'));
     expect(charts, contains('_reintentarGrafico'));
-    expect(
-      charts,
-      contains('Comprobando conexión y actualizando'),
-    );
-    expect(
-      charts,
-      contains('Sigues sin conexión. Comprueba tu Internet'),
-    );
+    expect(charts, contains('Comprobando conexión y actualizando'));
+    expect(charts, contains('Sigues sin conexión. Comprueba tu Internet'));
     expect(charts, contains('Gráfico actualizado.'));
   });
 }

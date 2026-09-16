@@ -17,15 +17,17 @@ final purchaseOrderUseCaseProvider = Provider<PurchaseOrderUseCase>((ref) {
   );
 });
 
-final purchaseOrdersProvider = FutureProvider.autoDispose<List<PurchaseOrderRecord>>((ref) {
-  return ref.watch(purchaseOrderUseCaseProvider).list();
-});
+final purchaseOrdersProvider =
+    FutureProvider.autoDispose<List<PurchaseOrderRecord>>((ref) {
+      return ref.watch(purchaseOrderUseCaseProvider).list();
+    });
 
-final purchaseCatalogProvider = FutureProvider.autoDispose<MerchandiseEntryCatalog>((ref) {
-  return ref.watch(loadMerchandiseEntryCatalogUseCaseProvider).execute();
-});
+final purchaseCatalogProvider =
+    FutureProvider.autoDispose<MerchandiseEntryCatalog>((ref) {
+      return ref.watch(loadMerchandiseEntryCatalogUseCaseProvider).execute();
+    });
 
 final purchaseProductSearchProvider = FutureProvider.autoDispose
     .family<List<ProductoBusqueda>, String>((ref, query) {
-  return ref.watch(searchProductsUseCaseProvider)(query.trim());
-});
+      return ref.watch(searchProductsUseCaseProvider)(query.trim());
+    });

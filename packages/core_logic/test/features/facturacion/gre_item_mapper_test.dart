@@ -112,12 +112,7 @@ void main() {
 
     test('mapea traslado usando unidad GRE base del producto', () {
       final result = GreItemMapper.desdeTraslado(
-        {
-          'id': 15,
-          'producto_id': 4,
-          'almacen_origen_id': 2,
-          'cantidad': 8,
-        },
+        {'id': 15, 'producto_id': 4, 'almacen_origen_id': 2, 'cantidad': 8},
         {
           'id': 4,
           'codigo': 'A-4',
@@ -141,10 +136,7 @@ void main() {
     test('descripcion usa PCS snapshot antes que catálogo actual', () {
       final descripcion = GreItemMapper.descripcionPresentacion(
         {'tipo_unidad': 'caja', 'pcs_snapshot': 4},
-        {
-          'nombre': 'Producto',
-          'cantidad_por_caja': 20,
-        },
+        {'nombre': 'Producto', 'cantidad_por_caja': 20},
       );
 
       expect(descripcion, 'Producto - Caja x 4');

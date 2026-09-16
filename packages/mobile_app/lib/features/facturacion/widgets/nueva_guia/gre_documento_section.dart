@@ -78,7 +78,9 @@ class GreDocumentoSection extends StatelessWidget {
             const SizedBox(height: 10),
             Row(
               children: [
-                Expanded(child: _text(context, remDocCtrl, 'RUC del remitente')),
+                Expanded(
+                  child: _text(context, remDocCtrl, 'RUC del remitente'),
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   flex: 2,
@@ -173,10 +175,7 @@ class GreDocumentoSection extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Fecha de emisión',
-                  style: TextStyle(fontSize: 12),
-                ),
+                Text('Fecha de emisión', style: TextStyle(fontSize: 12)),
                 SizedBox(height: 4),
                 Text(
                   'Se asignará con la hora segura del servidor al emitir.',

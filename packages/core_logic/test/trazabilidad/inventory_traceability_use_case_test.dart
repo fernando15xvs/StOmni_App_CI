@@ -97,10 +97,16 @@ class _TraceGateway implements InventoryTraceabilityGateway {
   }
 
   @override
-  Future<List<LotStockRecord>> listLots({int? productId, int? warehouseId}) async => const [];
+  Future<List<LotStockRecord>> listLots({
+    int? productId,
+    int? warehouseId,
+  }) async => const [];
 
   @override
-  Future<List<SerialStockRecord>> listSerials({int? productId, int? warehouseId}) async => const [];
+  Future<List<SerialStockRecord>> listSerials({
+    int? productId,
+    int? warehouseId,
+  }) async => const [];
 
   @override
   Future<void> registerReceipt(TraceableReceiptCommand command) async {

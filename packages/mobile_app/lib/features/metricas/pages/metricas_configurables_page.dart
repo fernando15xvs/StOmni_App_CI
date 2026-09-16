@@ -18,15 +18,19 @@ class _MetricasConfigurablesPageState
   DateTime get _end => AppTime.now();
   DateTime get _start => _end.subtract(Duration(days: _periodDays));
 
-  Future<List<MetricValue>> _values() =>
-      ref.read(configurableMetricsUseCaseProvider).evaluate(start: _start, end: _end);
+  Future<List<MetricValue>> _values() => ref
+      .read(configurableMetricsUseCaseProvider)
+      .evaluate(start: _start, end: _end);
 
   Future<void> _configure() async {
-    final original = await ref.read(configurableMetricsUseCaseProvider).definitions();
+    final original = await ref
+        .read(configurableMetricsUseCaseProvider)
+        .definitions();
     if (!mounted) return;
     final enabled = {for (final row in original) row.source: row.enabled};
     final labels = {
-      for (final row in original) row.source: TextEditingController(text: row.label),
+      for (final row in original)
+        row.source: TextEditingController(text: row.label),
     };
     final accepted = await showDialog<bool>(
       context: context,
@@ -43,10 +47,13 @@ class _MetricasConfigurablesPageState
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
                       value: enabled[row.source] ?? false,
-                      onChanged: (value) => setDialogState(() => enabled[row.source] = value),
+                      onChanged: (value) =>
+                          setDialogState(() => enabled[row.source] = value),
                       title: TextField(
                         controller: labels[row.source],
-                        decoration: InputDecoration(labelText: _sourceName(row.source)),
+                        decoration: InputDecoration(
+                          labelText: _sourceName(row.source),
+                        ),
                       ),
                     ),
                 ],
@@ -54,8 +61,14 @@ class _MetricasConfigurablesPageState
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Cancelar')),
-            FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('Guardar')),
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('Guardar'),
+            ),
           ],
         ),
       ),
@@ -77,7 +90,10 @@ class _MetricasConfigurablesPageState
       } catch (error) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(ErrorMapper.map(error)), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text(ErrorMapper.map(error)),
+              backgroundColor: Colors.red,
+            ),
           );
         }
       } finally {
@@ -90,20 +106,20 @@ class _MetricasConfigurablesPageState
   }
 
   String _sourceName(MetricSource source) => switch (source) {
-        MetricSource.income => 'Ingresos cobrados',
-        MetricSource.expenses => 'Gastos pagados',
-        MetricSource.netCashFlow => 'Flujo neto',
-        MetricSource.discounts => 'Descuentos',
-        MetricSource.salesCount => 'Cantidad de ventas',
-        MetricSource.inventoryEntries => 'Entradas de inventario',
-        MetricSource.inventoryExits => 'Salidas de inventario',
-        MetricSource.salesRevenue => 'Ventas',
-        MetricSource.grossMargin => 'Margen bruto',
-        MetricSource.inventoryTurnover => 'Rotación de inventario',
-        MetricSource.deadInventoryItems => 'Inventario inmovilizado',
-        MetricSource.accountsReceivable => 'Cuentas por cobrar',
-        MetricSource.cashPerformancePercent => 'Rendimiento de caja',
-      };
+    MetricSource.income => 'Ingresos cobrados',
+    MetricSource.expenses => 'Gastos pagados',
+    MetricSource.netCashFlow => 'Flujo neto',
+    MetricSource.discounts => 'Descuentos',
+    MetricSource.salesCount => 'Cantidad de ventas',
+    MetricSource.inventoryEntries => 'Entradas de inventario',
+    MetricSource.inventoryExits => 'Salidas de inventario',
+    MetricSource.salesRevenue => 'Ventas',
+    MetricSource.grossMargin => 'Margen bruto',
+    MetricSource.inventoryTurnover => 'Rotación de inventario',
+    MetricSource.deadInventoryItems => 'Inventario inmovilizado',
+    MetricSource.accountsReceivable => 'Cuentas por cobrar',
+    MetricSource.cashPerformancePercent => 'Rendimiento de caja',
+  };
 
   String _format(MetricValue value) {
     if (!value.available || value.value == null) return 'No disponible';
@@ -113,12 +129,12 @@ class _MetricasConfigurablesPageState
   }
 
   String get _periodLabel => switch (_periodDays) {
-        7 => 'Últimos 7 días',
-        30 => 'Últimos 30 días',
-        90 => 'Últimos 90 días',
-        365 => 'Últimos 365 días',
-        _ => 'Periodo personalizado',
-      };
+    7 => 'Últimos 7 días',
+    30 => 'Últimos 30 días',
+    90 => 'Últimos 90 días',
+    365 => 'Últimos 365 días',
+    _ => 'Periodo personalizado',
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +171,8 @@ class _MetricasConfigurablesPageState
             return Center(child: Text(ErrorMapper.map(snapshot.error!)));
           }
           final values = snapshot.data ?? const <MetricValue>[];
-          if (values.isEmpty) return const Center(child: Text('No hay métricas activas.'));
+          if (values.isEmpty)
+            return const Center(child: Text('No hay métricas activas.'));
           return ListView.separated(
             padding: const EdgeInsets.all(16),
             itemCount: values.length,
@@ -173,9 +190,11 @@ class _MetricasConfigurablesPageState
                   trailing: Text(
                     _format(value),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: value.available ? null : Theme.of(context).colorScheme.outline,
-                        ),
+                      fontWeight: FontWeight.w800,
+                      color: value.available
+                          ? null
+                          : Theme.of(context).colorScheme.outline,
+                    ),
                   ),
                 ),
               );

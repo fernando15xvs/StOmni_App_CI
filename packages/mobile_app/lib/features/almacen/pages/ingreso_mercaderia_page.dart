@@ -129,8 +129,11 @@ class _IngresoMercaderiaPageState extends ConsumerState<IngresoMercaderiaPage> {
     final supplier = (product['proveedor_id'] as num?)?.toInt();
     setState(() {
       _producto = product;
-      _proveedorId = supplier != null &&
-              _proveedores.any((row) => (row['id'] as num?)?.toInt() == supplier)
+      _proveedorId =
+          supplier != null &&
+              _proveedores.any(
+                (row) => (row['id'] as num?)?.toInt() == supplier,
+              )
           ? supplier
           : null;
       _limpiarCantidades();
@@ -244,7 +247,9 @@ class _IngresoMercaderiaPageState extends ConsumerState<IngresoMercaderiaPage> {
         ? boxBasePrice * pcs
         : unitPrice * pcs;
 
-    await ref.read(ingresoMercaderiaNotifierProvider.notifier).registrar(
+    await ref
+        .read(ingresoMercaderiaNotifierProvider.notifier)
+        .registrar(
           requestId: _requestId,
           productoId: (product['id'] as num).toInt(),
           fecha: _fechaConHoraActual(),
@@ -274,39 +279,36 @@ class _IngresoMercaderiaPageState extends ConsumerState<IngresoMercaderiaPage> {
       body: _cargando
           ? const Center(child: CircularProgressIndicator())
           : _errorCarga != null
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(_errorCarga!, textAlign: TextAlign.center),
-                        const SizedBox(height: 16),
-                        FilledButton.icon(
-                          onPressed: _cargarDatos,
-                          icon: const Icon(Icons.refresh),
-                          label: const Text('Reintentar'),
-                        ),
-                      ],
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(_errorCarga!, textAlign: TextAlign.center),
+                    const SizedBox(height: 16),
+                    FilledButton.icon(
+                      onPressed: _cargarDatos,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Reintentar'),
                     ),
-                  ),
-                )
-              : _producto == null
-                  ? Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: ProductSearchWidget(
-                        onSearch: (query) => ref
-                            .read(almacenRepositoryProvider)
-                            .buscarProductosRapido(
-                              query,
-                              incluirInactivos: false,
-                            ),
-                        primaryColor: Theme.of(context).colorScheme.primary,
-                        onProductoSelected: _seleccionarProducto,
-                        autofocus: false,
-                      ),
-                    )
-                  : _form(state),
+                  ],
+                ),
+              ),
+            )
+          : _producto == null
+          ? Padding(
+              padding: const EdgeInsets.all(20),
+              child: ProductSearchWidget(
+                onSearch: (query) => ref
+                    .read(almacenRepositoryProvider)
+                    .buscarProductosRapido(query, incluirInactivos: false),
+                primaryColor: Theme.of(context).colorScheme.primary,
+                onProductoSelected: _seleccionarProducto,
+                autofocus: false,
+              ),
+            )
+          : _form(state),
     );
   }
 
@@ -361,7 +363,10 @@ class _IngresoMercaderiaPageState extends ConsumerState<IngresoMercaderiaPage> {
             border: OutlineInputBorder(),
           ),
           items: [
-            const DropdownMenuItem<int?>(value: null, child: Text('Sin proveedor')),
+            const DropdownMenuItem<int?>(
+              value: null,
+              child: Text('Sin proveedor'),
+            ),
             ..._proveedores.map(
               (row) => DropdownMenuItem<int?>(
                 value: (row['id'] as num).toInt(),
@@ -395,7 +400,10 @@ class _IngresoMercaderiaPageState extends ConsumerState<IngresoMercaderiaPage> {
           ),
         ),
         const SizedBox(height: 20),
-        Text('Distribución por almacén', style: Theme.of(context).textTheme.titleMedium),
+        Text(
+          'Distribución por almacén',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         const SizedBox(height: 12),
         ..._almacenes.map((warehouse) {
           final id = (warehouse['id'] as num).toInt();

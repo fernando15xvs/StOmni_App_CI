@@ -52,7 +52,7 @@ function verify(sources) {
   need(errors, mobileNav, /List<_HomeNavItem> get _items[\s\S]{0,320}?if \(inventoryEnabled\)[\s\S]{0,180}?Almacén[\s\S]{0,180}?Movimientos/i, 'bottom nav construye tabs visibles desde capability');
   need(errors, mobileNav, /final items = _items;/i, 'bottom nav usa lista dinámica');
   need(errors, mobileNav, /width\s*\/\s*items\.length/i, 'hit-testing usa cantidad visible');
-  need(errors, mobileNav, /clamp\(0,\s*items\.length - 1\)/i, 'drag clamp usa cantidad visible');
+  need(errors, mobileNav, /clamp\(\s*0,\s*items\.length - 1,?\s*\)/i, 'drag clamp usa cantidad visible');
   need(errors, mobileNav, /for \(final item in items\)/i, 'render usa tabs visibles');
 
   need(errors, mobileSettings, /updateBusinessCapabilitiesUseCaseProvider/i, 'mobile configura capacidades vía use case');

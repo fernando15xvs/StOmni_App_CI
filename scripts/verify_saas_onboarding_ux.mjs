@@ -216,7 +216,7 @@ function verify() {
   need(
     errors,
     sources.routing,
-    /SessionValidationStatus\.online => onboardingCompleted == true[\s\S]*?SaasEntryRoute\.authorized[\s\S]*?SaasEntryRoute\.onboardingRequired/,
+    /SessionValidationStatus\.online\s*=>\s*onboardingCompleted == true[\s\S]*?SaasEntryRoute\.authorized[\s\S]*?SaasEntryRoute\.onboardingRequired/,
     'sesión online puede saltarse onboarding incompleto',
   );
 

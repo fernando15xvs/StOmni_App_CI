@@ -66,7 +66,9 @@ Future<bool?> mostrarTransportistaDialog(
                               );
                               debugPrintStack(stackTrace: st);
                               if (dialogContext.mounted) {
-                                ScaffoldMessenger.of(dialogContext).showSnackBar(
+                                ScaffoldMessenger.of(
+                                  dialogContext,
+                                ).showSnackBar(
                                   SnackBar(
                                     content: Text(ErrorMapper.map(e)),
                                     backgroundColor: Colors.red,
@@ -179,15 +181,11 @@ Future<bool?> mostrarAgenciaDialog(
   Map<String, dynamic> transportista, [
   Map<String, dynamic>? item,
 ]) async {
-  final nombre = TextEditingController(
-    text: item?['nombre']?.toString() ?? '',
-  );
+  final nombre = TextEditingController(text: item?['nombre']?.toString() ?? '');
   final direccion = TextEditingController(
     text: item?['direccion']?.toString() ?? '',
   );
-  final ubigeo = TextEditingController(
-    text: item?['ubigeo']?.toString() ?? '',
-  );
+  final ubigeo = TextEditingController(text: item?['ubigeo']?.toString() ?? '');
   final departamento = TextEditingController(
     text: item?['departamento']?.toString() ?? '',
   );
@@ -268,7 +266,9 @@ Future<bool?> mostrarAgenciaDialog(
                                 );
                                 if (row == null) {
                                   if (dialogContext.mounted) {
-                                    ScaffoldMessenger.of(dialogContext).showSnackBar(
+                                    ScaffoldMessenger.of(
+                                      dialogContext,
+                                    ).showSnackBar(
                                       const SnackBar(
                                         content: Text(
                                           'No se encontró un ubigeo activo.',
@@ -292,7 +292,9 @@ Future<bool?> mostrarAgenciaDialog(
                                 );
                                 debugPrintStack(stackTrace: st);
                                 if (dialogContext.mounted) {
-                                  ScaffoldMessenger.of(dialogContext).showSnackBar(
+                                  ScaffoldMessenger.of(
+                                    dialogContext,
+                                  ).showSnackBar(
                                     SnackBar(
                                       content: Text(ErrorMapper.map(e)),
                                       backgroundColor: Colors.red,
@@ -301,7 +303,9 @@ Future<bool?> mostrarAgenciaDialog(
                                 }
                               } finally {
                                 if (dialogContext.mounted) {
-                                  setDialogState(() => consultandoUbigeo = false);
+                                  setDialogState(
+                                    () => consultandoUbigeo = false,
+                                  );
                                 }
                               }
                             },
@@ -397,7 +401,9 @@ Future<bool?> mostrarAgenciaDialog(
                     'El ubigeo no existe en el catálogo activo.',
                   );
                 }
-                await ref.read(guiasRemisionRepositoryProvider).guardarAgencia(
+                await ref
+                    .read(guiasRemisionRepositoryProvider)
+                    .guardarAgencia(
                       id: (item?['id'] as num?)?.toInt(),
                       transportistaId: (transportista['id'] as num).toInt(),
                       nombre: nombre.text.trim(),

@@ -62,7 +62,9 @@ class NuevoProductoController extends StateNotifier<NuevoProductoState> {
   Future<void> inicializarDatos() async {
     state = state.copyWith(cargando: true, error: null);
     try {
-      final catalog = await ref.read(loadProductFormCatalogUseCaseProvider).execute();
+      final catalog = await ref
+          .read(loadProductFormCatalogUseCaseProvider)
+          .execute();
 
       state = state.copyWith(
         cargando: false,
@@ -148,9 +150,7 @@ class NuevoProductoController extends StateNotifier<NuevoProductoState> {
 
   /// Compatibilidad temporal: el caso de uso ya devuelve un resultado tipado,
   /// pero esta pantalla todavía consume el formato histórico basado en mapas.
-  Future<Map<String, dynamic>> evaluarHistorialApertura(
-    int productoId,
-  ) async {
+  Future<Map<String, dynamic>> evaluarHistorialApertura(int productoId) async {
     try {
       final evaluation = await ref
           .read(productLifecycleUseCaseProvider)

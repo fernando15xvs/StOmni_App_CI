@@ -14,11 +14,7 @@ class _ProductInventoryWriteAdapter implements ProductInventoryWriteGateway {
     String requestId,
     Map<String, dynamic> productData,
     List<Map<String, dynamic>> initialStock,
-  ) => _repository.crearProductoConStock(
-    requestId,
-    productData,
-    initialStock,
-  );
+  ) => _repository.crearProductoConStock(requestId, productData, initialStock);
 
   @override
   Future<void> guardarProductoNuevoOEditado(
@@ -89,7 +85,9 @@ class _ProductAdminAdapter implements ProductAdminGateway {
 /// La lógica de guardado permanece independiente de Riverpod y de la UI.
 final saveProductUseCaseProvider = Provider<SaveProductUseCase>((ref) {
   return SaveProductUseCase(
-    inventory: _ProductInventoryWriteAdapter(ref.read(almacenRepositoryProvider)),
+    inventory: _ProductInventoryWriteAdapter(
+      ref.read(almacenRepositoryProvider),
+    ),
     productAdmin: _ProductAdminAdapter(
       ref.read(productoAdminRepositoryProvider),
     ),

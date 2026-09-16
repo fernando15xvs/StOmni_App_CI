@@ -135,13 +135,17 @@ class SaveProductUseCase {
     _validate(command, normalizedCode: code, normalizedName: name);
 
     final authorizedUser = await _authorizer.require({
-      command.isNew ? AppPermission.productsCreate : AppPermission.productsUpdate,
+      command.isNew
+          ? AppPermission.productsCreate
+          : AppPermission.productsUpdate,
       AppPermission.productsChangePrice,
       if (command.updateOpeningMovements) AppPermission.inventoryAdjust,
     });
     void checkSession() {
       if (_authorizer.currentAuthUserId != authorizedUser) {
-        throw const UserFacingException('La sesión cambió durante el guardado del producto.');
+        throw const UserFacingException(
+          'La sesión cambió durante el guardado del producto.',
+        );
       }
     }
 

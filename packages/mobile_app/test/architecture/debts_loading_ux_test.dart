@@ -9,9 +9,12 @@ void main() {
   late String repository;
 
   setUpAll(() {
-    page = File('lib/features/deudas/pages/deudas_page.dart').readAsStringSync();
-    repository = coreFile('lib/features/deudas/data/deudas_repository.dart')
-        .readAsStringSync();
+    page = File(
+      'lib/features/deudas/pages/deudas_page.dart',
+    ).readAsStringSync();
+    repository = coreFile(
+      'lib/features/deudas/data/deudas_repository.dart',
+    ).readAsStringSync();
   });
 
   test('cartera distingue error remoto de lista vacia', () {

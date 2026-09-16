@@ -110,8 +110,12 @@ class _VentaProcessingRepositoryAdapter implements VentaProcessingGateway {
   }
 }
 
-final ventaConnectivityGatewayProvider = Provider<VentaConnectivityGateway>((ref) {
-  throw StateError('VentaConnectivityGateway no fue configurado por el cliente.');
+final ventaConnectivityGatewayProvider = Provider<VentaConnectivityGateway>((
+  ref,
+) {
+  throw StateError(
+    'VentaConnectivityGateway no fue configurado por el cliente.',
+  );
 });
 
 class _PendingSaleQueueAdapter implements PendingSaleQueueGateway {

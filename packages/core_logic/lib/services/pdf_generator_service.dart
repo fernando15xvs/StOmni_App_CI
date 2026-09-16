@@ -34,19 +34,19 @@ class PdfGeneratorService {
   }) {
     return switch (tipo) {
       TipoDocumento.cotizacion => CotizacionPdfRenderer.generar(
-          documento,
-          QuotationSaleCartMapper.documentDetails(detalles),
-          cliente,
-          branding: branding,
-        ),
+        documento,
+        QuotationSaleCartMapper.documentDetails(detalles),
+        cliente,
+        branding: branding,
+      ),
       TipoDocumento.boleta => VentaTicketPdfRenderer.generar(
-          documento,
-          detalles,
-          cliente,
-          comprobante,
-          branding: branding,
-          ticketSize: ticketSize,
-        ),
+        documento,
+        detalles,
+        cliente,
+        comprobante,
+        branding: branding,
+        ticketSize: ticketSize,
+      ),
     };
   }
 }

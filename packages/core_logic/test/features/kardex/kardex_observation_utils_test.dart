@@ -13,32 +13,29 @@ void main() {
       );
     });
 
-    test('identifica saldo pendiente como crédito aunque el estado sea distinto', () {
-      expect(
-        KardexObservationUtils.esVentaCredito({
-          'estado': 'pagado',
-          'saldo': 25.50,
-        }),
-        isTrue,
-      );
-    });
+    test(
+      'identifica saldo pendiente como crédito aunque el estado sea distinto',
+      () {
+        expect(
+          KardexObservationUtils.esVentaCredito({
+            'estado': 'pagado',
+            'saldo': 25.50,
+          }),
+          isTrue,
+        );
+      },
+    );
 
     test('venta pagada sin saldo no se etiqueta como crédito', () {
       expect(
-        KardexObservationUtils.esVentaCredito({
-          'estado': 'pagado',
-          'saldo': 0,
-        }),
+        KardexObservationUtils.esVentaCredito({'estado': 'pagado', 'saldo': 0}),
         isFalse,
       );
     });
 
     test('agrega Crédito solo a observaciones de venta y sin duplicarlo', () {
       expect(
-        KardexObservationUtils.etiquetarCredito(
-          'Venta #123',
-          esCredito: true,
-        ),
+        KardexObservationUtils.etiquetarCredito('Venta #123', esCredito: true),
         'Venta #123 · Crédito',
       );
       expect(

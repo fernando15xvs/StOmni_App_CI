@@ -10,7 +10,10 @@ int _requiredRecordId(Map<String, dynamic> record, {required String source}) {
   throw StateError('$source contiene un registro sin id válido.');
 }
 
-String _requiredRecordName(Map<String, dynamic> record, {required String source}) {
+String _requiredRecordName(
+  Map<String, dynamic> record, {
+  required String source,
+}) {
   final name = record['nombre']?.toString().trim() ?? '';
   if (name.isEmpty) {
     throw StateError('$source contiene un registro sin nombre válido.');
@@ -212,11 +215,13 @@ class _MerchandiseEntryCatalogAdapter
     if (raw is! List) {
       throw StateError('$source devolvió una respuesta inválida.');
     }
-    return raw.map((item) {
-      if (item is Map<String, dynamic>) return item;
-      if (item is Map) return Map<String, dynamic>.from(item);
-      throw StateError('$source contiene un registro inválido.');
-    }).toList(growable: false);
+    return raw
+        .map((item) {
+          if (item is Map<String, dynamic>) return item;
+          if (item is Map) return Map<String, dynamic>.from(item);
+          throw StateError('$source contiene un registro inválido.');
+        })
+        .toList(growable: false);
   }
 }
 
@@ -276,7 +281,10 @@ class _WarehouseAdminAdapter implements WarehouseAdminGateway {
         .map(
           (record) => WarehouseAdminRecord(
             id: _requiredRecordId(record, source: 'almacenes administrables'),
-            name: _requiredRecordName(record, source: 'almacenes administrables'),
+            name: _requiredRecordName(
+              record,
+              source: 'almacenes administrables',
+            ),
             active: record['activo'] == true,
             address: _optionalRecordText(record['direccion']),
             ubigeo: _optionalRecordText(record['ubigeo']),
@@ -319,7 +327,9 @@ class _WarehouseAdminAdapter implements WarehouseAdminGateway {
   Future<void> reactivate(int id) => _repository.reactivar(id);
 }
 
-final inventoryCatalogUseCaseProvider = Provider<InventoryCatalogUseCase>((ref) {
+final inventoryCatalogUseCaseProvider = Provider<InventoryCatalogUseCase>((
+  ref,
+) {
   return InventoryCatalogUseCase(
     gateway: _InventoryCatalogAdapter(ref.read(almacenRepositoryProvider)),
     connectivity: const _InventoryConnectivityAdapter(),
@@ -360,7 +370,9 @@ final loadMerchandiseEntryCatalogUseCaseProvider =
       );
     });
 
-final productLifecycleUseCaseProvider = Provider<ProductLifecycleUseCase>((ref) {
+final productLifecycleUseCaseProvider = Provider<ProductLifecycleUseCase>((
+  ref,
+) {
   return ProductLifecycleUseCase(
     _ProductLifecycleAdapter(ref.read(almacenRepositoryProvider)),
   );

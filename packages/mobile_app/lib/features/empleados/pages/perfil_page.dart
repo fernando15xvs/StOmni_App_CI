@@ -31,7 +31,9 @@ class _PerfilPageState extends ConsumerState<PerfilPage> {
 
   Future<void> _cargarPerfil() async {
     try {
-      final data = await ref.read(perfilRepositoryProvider).obtenerPerfilActual();
+      final data = await ref
+          .read(perfilRepositoryProvider)
+          .obtenerPerfilActual();
       if (mounted && data != null) {
         setState(() => _empleadoData = data);
       }
@@ -117,7 +119,8 @@ class _PerfilPageState extends ConsumerState<PerfilPage> {
                     context,
                     Icons.admin_panel_settings_outlined,
                     'Rol',
-                    normalizarRolApp(_empleadoData?['rol']?.toString()) == 'admin'
+                    normalizarRolApp(_empleadoData?['rol']?.toString()) ==
+                            'admin'
                         ? 'ADMINISTRADOR'
                         : 'OPERADOR DE VENTAS Y ALMACÉN',
                   ),

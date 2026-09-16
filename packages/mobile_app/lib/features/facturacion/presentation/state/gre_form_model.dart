@@ -128,8 +128,8 @@ class GreFormModel {
     conductorId = (guia['conductor_id'] as num?)?.toInt();
     vehiculoId = (guia['vehiculo_id'] as num?)?.toInt();
     indTransbordo = guia['ind_transbordo'] == true;
-    transportistaTransbordoId =
-        (guia['transportista_transbordo_id'] as num?)?.toInt();
+    transportistaTransbordoId = (guia['transportista_transbordo_id'] as num?)
+        ?.toInt();
     agenciaOrigenId = (guia['agencia_origen_id'] as num?)?.toInt();
     agenciaDestinoId = (guia['agencia_destino_id'] as num?)?.toInt();
     destinoEntregaTipo =
@@ -353,8 +353,6 @@ class GreFormModel {
   }
 
   DateTime _desdeSupabaseALima(dynamic value, {DateTime? fallback}) {
-    return GreFormRules.desdeSupabaseALima(value) ??
-        fallback ??
-        AppTime.now();
+    return GreFormRules.desdeSupabaseALima(value) ?? fallback ?? AppTime.now();
   }
 }

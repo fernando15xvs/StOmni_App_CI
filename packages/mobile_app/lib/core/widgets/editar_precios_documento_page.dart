@@ -9,11 +9,7 @@ class EditarPreciosDocumentoPage extends StatefulWidget {
   final String titulo;
   final Color? colorTema;
   final String textoBoton;
-  final void Function(
-    BuildContext context,
-    SaleCart carritoFinal,
-    double total,
-  )
+  final void Function(BuildContext context, SaleCart carritoFinal, double total)
   onContinuar;
 
   const EditarPreciosDocumentoPage({
@@ -70,9 +66,9 @@ class _EditarPreciosDocumentoPageState
       final cart = SaleCart(salida);
       widget.onContinuar(context, cart, cart.totalAmount);
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(ErrorMapper.map(error))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(ErrorMapper.map(error))));
     }
   }
 
@@ -192,7 +188,7 @@ class _EditarPreciosDocumentoPageState
             grupo.configurado
                 ? 'Unidad base: ${grupo.producto.commercialProfile.baseUnit.singularLabel}'
                 : '${StockUtils.displayName(grupo.tipoVenta)} · '
-                    '${StockUtils.etiquetaContenido(grupo.tipoVenta, grupo.pcs)}',
+                      '${StockUtils.etiquetaContenido(grupo.tipoVenta, grupo.pcs)}',
             style: TextStyle(
               color: isDark ? Colors.white70 : Colors.grey.shade600,
               fontSize: 12,
@@ -200,24 +196,27 @@ class _EditarPreciosDocumentoPageState
           ),
           const Divider(height: 25),
           if (grupo.configurado)
-            ...grupo.cantidadesConfiguradas.entries.map((entry) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: _panel(
-                titulo: grupo.producto.commercialProfile
-                    .find(entry.key)!
-                    .format(entry.value.toDouble()),
-                color: Colors.blue,
-                icon: Icons.inventory_2_outlined,
-                children: [
-                  _campo(
-                    label: 'Precio por ${grupo.producto.commercialProfile.find(entry.key)!.singularLabel}',
-                    controller: grupo.preciosConfigurados[entry.key]!,
-                    destacado: true,
-                    onChanged: (_) => _recalcular(),
-                  ),
-                ],
+            ...grupo.cantidadesConfiguradas.entries.map(
+              (entry) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _panel(
+                  titulo: grupo.producto.commercialProfile
+                      .find(entry.key)!
+                      .format(entry.value.toDouble()),
+                  color: Colors.blue,
+                  icon: Icons.inventory_2_outlined,
+                  children: [
+                    _campo(
+                      label:
+                          'Precio por ${grupo.producto.commercialProfile.find(entry.key)!.singularLabel}',
+                      controller: grupo.preciosConfigurados[entry.key]!,
+                      destacado: true,
+                      onChanged: (_) => _recalcular(),
+                    ),
+                  ],
+                ),
               ),
-            ))
+            )
           else ...[
             if (grupo.tieneCajas) _editorCaja(grupo),
             if (grupo.tieneCajas && grupo.tieneSueltas)
@@ -546,22 +545,24 @@ class _PriceGroup {
   void agregarLinea(SaleCartLine item) {
     if (configurado) {
       final code = producto.normalizeUnit(item.commercialUnit);
-      cantidadesConfiguradas.update(code, (value) => value + item.quantity.toInt(),
-          ifAbsent: () => item.quantity.toInt());
+      cantidadesConfiguradas.update(
+        code,
+        (value) => value + item.quantity.toInt(),
+        ifAbsent: () => item.quantity.toInt(),
+      );
       preciosConfigurados.putIfAbsent(
         code,
         () => TextEditingController(
-          text: (item.commercialUnitPrice > 0
-                  ? item.commercialUnitPrice
-                  : producto.defaultPrice(code))
-              .toStringAsFixed(2),
+          text:
+              (item.commercialUnitPrice > 0
+                      ? item.commercialUnitPrice
+                      : producto.defaultPrice(code))
+                  .toStringAsFixed(2),
         ),
       );
       return;
     }
-    final tipo = StockUtils.normalizarTipoUnidad(
-      item.commercialUnit,
-    );
+    final tipo = StockUtils.normalizarTipoUnidad(item.commercialUnit);
     final cantidad = item.quantity.toInt();
     final precioComercial = item.commercialUnitPrice;
 
@@ -587,9 +588,13 @@ class _PriceGroup {
   double get precioCaja => double.tryParse(precioCajaFinalCtrl.text) ?? 0;
   double get precioSuelto => double.tryParse(precioSueltoCtrl.text) ?? 0;
   double get subtotal => configurado
-      ? cantidadesConfiguradas.entries.fold<double>(0, (sum, entry) =>
-          sum + entry.value *
-              (double.tryParse(preciosConfigurados[entry.key]!.text) ?? 0))
+      ? cantidadesConfiguradas.entries.fold<double>(
+          0,
+          (sum, entry) =>
+              sum +
+              entry.value *
+                  (double.tryParse(preciosConfigurados[entry.key]!.text) ?? 0),
+        )
       : cantCajas * precioCaja + cantSueltas * precioSuelto;
 
   SaleCartLine actualizarLinea(SaleCartLine original) =>
@@ -597,13 +602,15 @@ class _PriceGroup {
         original,
         commercialUnitPrice: configurado
             ? (double.tryParse(
-                    preciosConfigurados[producto.normalizeUnit(original.commercialUnit)]!
+                    preciosConfigurados[producto.normalizeUnit(
+                          original.commercialUnit,
+                        )]!
                         .text,
                   ) ??
-                0)
+                  0)
             : original.commercialUnit == 'caja'
-                ? precioCaja
-                : precioSuelto,
+            ? precioCaja
+            : precioSuelto,
       );
 
   void dispose() {

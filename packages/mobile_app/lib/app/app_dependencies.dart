@@ -63,7 +63,10 @@ class _InventorySyncAdapter implements InventorySyncAdapter {
 
   @override
   Future<void> sincronizarProducto(int productoId) {
-    return _repository.sincronizarProductoLocal(productoId, propagarError: true);
+    return _repository.sincronizarProductoLocal(
+      productoId,
+      propagarError: true,
+    );
   }
 
   @override

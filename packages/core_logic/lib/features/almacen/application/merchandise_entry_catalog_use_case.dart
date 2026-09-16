@@ -8,7 +8,9 @@ class MerchandiseEntryCatalog {
     required Iterable<ProductWarehouseOption> warehouses,
     required Iterable<ProductSupplierOption> activeSuppliers,
   }) : warehouses = List<ProductWarehouseOption>.unmodifiable(warehouses),
-       activeSuppliers = List<ProductSupplierOption>.unmodifiable(activeSuppliers);
+       activeSuppliers = List<ProductSupplierOption>.unmodifiable(
+         activeSuppliers,
+       );
 }
 
 abstract interface class MerchandiseEntryCatalogGateway {

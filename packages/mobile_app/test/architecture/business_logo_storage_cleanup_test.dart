@@ -14,7 +14,9 @@ void main() {
       "final logoAnterior = fiscalProfile?.logoUrl.trim() ?? '';",
     );
     final rpc = service.indexOf("'actualizar_configuracion_negocio_v1'");
-    final confirm = service.indexOf('_setActiveConfiguration(nuevaConfiguracion);');
+    final confirm = service.indexOf(
+      '_setActiveConfiguration(nuevaConfiguracion);',
+    );
     final cleanup = service.indexOf(
       'await eliminarLogoPropioPorUrl(logoAnterior);',
     );
@@ -55,11 +57,10 @@ void main() {
     expect(page, contains('configuracionConfirmada = true;'));
     expect(
       page,
-      contains('if (!configuracionConfirmada && logoSubidoEnEsteIntento != null)'),
+      contains(
+        'if (!configuracionConfirmada && logoSubidoEnEsteIntento != null)',
+      ),
     );
-    expect(
-      page,
-      contains('ConfiguracionService.eliminarLogoPropioPorUrl('),
-    );
+    expect(page, contains('ConfiguracionService.eliminarLogoPropioPorUrl('));
   });
 }

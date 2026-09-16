@@ -49,9 +49,8 @@ class SaleTotals {
 
     final discountPercentage = switch (discountMode) {
       SaleDiscountMode.percentage => safeInput,
-      SaleDiscountMode.fixedAmount => safeSubtotal == 0
-          ? 0.0
-          : (safeInput / safeSubtotal) * 100,
+      SaleDiscountMode.fixedAmount =>
+        safeSubtotal == 0 ? 0.0 : (safeInput / safeSubtotal) * 100,
     };
 
     final rawTotal = safeSubtotal - discountAmount;

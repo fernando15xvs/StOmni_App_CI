@@ -75,7 +75,9 @@ class AlmacenSyncContract {
 
   static int nextProductCursor(List<Map<String, dynamic>> batch) {
     if (batch.isEmpty) {
-      throw const FormatException('No se puede calcular cursor de un lote vacío.');
+      throw const FormatException(
+        'No se puede calcular cursor de un lote vacío.',
+      );
     }
 
     final rawId = batch.last['id'];

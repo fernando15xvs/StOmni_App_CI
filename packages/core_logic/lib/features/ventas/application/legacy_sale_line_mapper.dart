@@ -78,10 +78,14 @@ class LegacySaleLineMapper {
       );
     }
 
-    final serials = line.serialNumbers.map((value) => value.trim()).toList(growable: false);
+    final serials = line.serialNumbers
+        .map((value) => value.trim())
+        .toList(growable: false);
     if (serials.any((value) => value.isEmpty) ||
         serials.toSet().length != serials.length) {
-      throw StateError('La selección de números de serie contiene valores inválidos.');
+      throw StateError(
+        'La selección de números de serie contiene valores inválidos.',
+      );
     }
 
     final subtotal = line.subtotal;
@@ -128,7 +132,9 @@ class LegacySaleLineMapper {
       subtotal: subtotal,
       presentationRevision: configuration?.revision,
       commercialUnitLabel: presentation.singularLabel,
-      fiscalUnitCode: configuration == null ? null : presentation.fiscalUnitCode,
+      fiscalUnitCode: configuration == null
+          ? null
+          : presentation.fiscalUnitCode,
       serialNumbers: List<String>.unmodifiable(serials),
     );
   }

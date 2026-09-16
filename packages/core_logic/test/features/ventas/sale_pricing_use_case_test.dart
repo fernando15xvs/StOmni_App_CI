@@ -24,15 +24,17 @@ void main() {
       authorizer: _AllowAllAuthorizer(),
     );
     await expectLater(
-      useCase.save(const SalePriceRuleDraft(
-        name: 'Invalida',
-        productId: 1,
-        minQuantity: 1,
-        priority: 0,
-        active: true,
-        fixedPrice: 10,
-        discountPercent: 5,
-      )),
+      useCase.save(
+        const SalePriceRuleDraft(
+          name: 'Invalida',
+          productId: 1,
+          minQuantity: 1,
+          priority: 0,
+          active: true,
+          fixedPrice: 10,
+          discountPercent: 5,
+        ),
+      ),
       throwsArgumentError,
     );
     expect(gateway.saved, isFalse);

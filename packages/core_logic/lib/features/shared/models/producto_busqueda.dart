@@ -51,7 +51,8 @@ class ProductoBusqueda {
     if (provNombre == null && map['proveedores'] is Map) {
       provNombre = (map['proveedores'] as Map)['nombre']?.toString();
     }
-    final legacyService = map['es_servicio'] == true ||
+    final legacyService =
+        map['es_servicio'] == true ||
         map['es_servicio'] == 1 ||
         map['unidad_medida']?.toString().trim().toLowerCase() == 'servicios';
     final itemType = CatalogItemType.fromCode(

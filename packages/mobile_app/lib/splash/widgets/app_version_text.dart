@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class AppVersionText extends StatefulWidget {
-  const AppVersionText({
-    super.key,
-    this.style,
-  });
+  const AppVersionText({super.key, this.style});
 
   final TextStyle? style;
 

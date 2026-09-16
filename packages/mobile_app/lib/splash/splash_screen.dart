@@ -45,7 +45,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   Future<void> _navegarSiguientePantalla() async {
     final minimoSplash = Future<void>.delayed(const Duration(seconds: 3));
-    final result = await ref.read(authControllerProvider.notifier).restoreSession();
+    final result = await ref
+        .read(authControllerProvider.notifier)
+        .restoreSession();
 
     if (result.isAuthorized) {
       final coordinator = ref.read(homeWarmupCoordinatorProvider);
@@ -77,12 +79,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       sessionStatus: result.status,
     );
     final nextPage = switch (entryRoute) {
-      SaasEntryRoute.passwordChangeRequired =>
-        const CambiarPasswordPage(forzado: true),
-      SaasEntryRoute.signedOut => const LoginPage(),
-      _ => MobileSaasEntryGate(
-        initialTab: PreferencesService.startScreen,
+      SaasEntryRoute.passwordChangeRequired => const CambiarPasswordPage(
+        forzado: true,
       ),
+      SaasEntryRoute.signedOut => const LoginPage(),
+      _ => MobileSaasEntryGate(initialTab: PreferencesService.startScreen),
     };
 
     Navigator.pushReplacement(
@@ -102,8 +103,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
+      backgroundColor: isDark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : Colors.white,
       body: Stack(
         children: [
           Center(

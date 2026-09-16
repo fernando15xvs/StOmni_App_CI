@@ -5,10 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class OrganizationSetupPage extends ConsumerStatefulWidget {
-  const OrganizationSetupPage({
-    super.key,
-    required this.onOrganizationCreated,
-  });
+  const OrganizationSetupPage({super.key, required this.onOrganizationCreated});
 
   final VoidCallback onOrganizationCreated;
 
@@ -149,7 +146,9 @@ class _OrganizationSetupPageState extends ConsumerState<OrganizationSetupPage> {
                               const SizedBox(height: 18),
                               Text(
                                 _error!,
-                                style: TextStyle(color: theme.colorScheme.error),
+                                style: TextStyle(
+                                  color: theme.colorScheme.error,
+                                ),
                               ),
                             ],
                             const SizedBox(height: 28),
@@ -206,9 +205,7 @@ class _OrganizationSetupPageState extends ConsumerState<OrganizationSetupPage> {
         controller: _legalName,
         enabled: !_organizationCreated,
         textInputAction: TextInputAction.next,
-        decoration: const InputDecoration(
-          labelText: 'Razón social (opcional)',
-        ),
+        decoration: const InputDecoration(labelText: 'Razón social (opcional)'),
       ),
     ],
   );

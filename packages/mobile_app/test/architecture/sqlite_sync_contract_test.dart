@@ -13,15 +13,9 @@ void main() {
     expect(repository, contains('AlmacenSyncContract.proveedorSelect'));
     expect(repository, contains(".gt('id', ultimoId)"));
     expect(repository, contains(".order('id')"));
-    expect(
-      repository,
-      contains('.limit(AlmacenSyncContract.productPageSize)'),
-    );
+    expect(repository, contains('.limit(AlmacenSyncContract.productPageSize)'));
     expect(repository, isNot(contains('.range(offset')));
-    expect(
-      repository,
-      isNot(contains("select('*, inventario_almacen")),
-    );
+    expect(repository, isNot(contains("select('*, inventario_almacen")));
   });
 
   test('todo dato que entra al cache pasa por allowlist', () {

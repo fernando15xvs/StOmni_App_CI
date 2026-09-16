@@ -47,33 +47,37 @@ class _DesktopInventoryCatalogAdapter implements InventoryCatalogGateway {
   @override
   Future<List<InventoryWarehouseRecord>> loadWarehouses() async {
     final rows = await repository.getalmacenes();
-    return rows.map((row) {
-      final rawId = row['id'];
-      final id = rawId is num
-          ? rawId.toInt()
-          : int.tryParse(rawId?.toString() ?? '');
-      final name = row['nombre']?.toString().trim() ?? '';
-      if (id == null || id <= 0 || name.isEmpty) {
-        throw StateError('El catálogo de almacenes contiene un registro inválido.');
-      }
-      String? optionalText(Object? value) {
-        final text = value?.toString().trim() ?? '';
-        return text.isEmpty ? null : text;
-      }
+    return rows
+        .map((row) {
+          final rawId = row['id'];
+          final id = rawId is num
+              ? rawId.toInt()
+              : int.tryParse(rawId?.toString() ?? '');
+          final name = row['nombre']?.toString().trim() ?? '';
+          if (id == null || id <= 0 || name.isEmpty) {
+            throw StateError(
+              'El catálogo de almacenes contiene un registro inválido.',
+            );
+          }
+          String? optionalText(Object? value) {
+            final text = value?.toString().trim() ?? '';
+            return text.isEmpty ? null : text;
+          }
 
-      return InventoryWarehouseRecord(
-        id: id,
-        name: name,
-        active: row['activo'] != false,
-        address: optionalText(row['direccion']),
-        ubigeo: optionalText(row['ubigeo']),
-        department: optionalText(row['departamento']),
-        province: optionalText(row['provincia']),
-        district: optionalText(row['distrito']),
-        localCode: optionalText(row['cod_local']) ?? '0000',
-        reference: optionalText(row['referencia']),
-      );
-    }).toList(growable: false);
+          return InventoryWarehouseRecord(
+            id: id,
+            name: name,
+            active: row['activo'] != false,
+            address: optionalText(row['direccion']),
+            ubigeo: optionalText(row['ubigeo']),
+            department: optionalText(row['departamento']),
+            province: optionalText(row['provincia']),
+            district: optionalText(row['distrito']),
+            localCode: optionalText(row['cod_local']) ?? '0000',
+            reference: optionalText(row['referencia']),
+          );
+        })
+        .toList(growable: false);
   }
 
   @override
@@ -97,7 +101,9 @@ class _DesktopStockMovementAdapter implements StockMovementGateway {
   final AlmacenRepository repository;
 
   @override
-  Future<StockMovementResult> register(RegisterStockMovementCommand command) async {
+  Future<StockMovementResult> register(
+    RegisterStockMovementCommand command,
+  ) async {
     final Map<String, dynamic> raw;
     if (command.isWaste) {
       raw = await InventarioService.registrarMerma(
@@ -147,10 +153,12 @@ class _DesktopMerchandiseEntryWriter implements MerchandiseEntryWriter {
       proveedorId: command.supplierId,
       observaciones: command.observations,
       almacenes: command.warehouses
-          .map((row) => <String, dynamic>{
-                'almacen_id': row.warehouseId,
-                'cantidad_base': row.baseQuantity,
-              })
+          .map(
+            (row) => <String, dynamic>{
+              'almacen_id': row.warehouseId,
+              'cantidad_base': row.baseQuantity,
+            },
+          )
           .toList(growable: false),
       ingresoCosto: command.cost,
       ingresoPUnit: command.unitPrice,
@@ -175,46 +183,44 @@ class _DesktopProductSyncAdapter implements InventoryProductSyncGateway {
   }
 }
 
-final desktopInventoryCatalogUseCaseProvider = Provider<InventoryCatalogUseCase>(
-  (ref) => InventoryCatalogUseCase(
-    gateway: _DesktopInventoryCatalogAdapter(
-      ref.read(almacenRepositoryProvider),
-    ),
-    connectivity: const _DesktopInventoryConnectivityAdapter(),
-  ),
-);
+final desktopInventoryCatalogUseCaseProvider =
+    Provider<InventoryCatalogUseCase>(
+      (ref) => InventoryCatalogUseCase(
+        gateway: _DesktopInventoryCatalogAdapter(
+          ref.read(almacenRepositoryProvider),
+        ),
+        connectivity: const _DesktopInventoryConnectivityAdapter(),
+      ),
+    );
 
 final desktopRegisterStockMovementUseCaseProvider =
     Provider<RegisterStockMovementUseCase>((ref) {
-  return RegisterStockMovementUseCase(
-    _DesktopStockMovementAdapter(ref.read(almacenRepositoryProvider)),
-    authorizer: ref.read(operationAuthorizerProvider),
-  );
-});
+      return RegisterStockMovementUseCase(
+        _DesktopStockMovementAdapter(ref.read(almacenRepositoryProvider)),
+        authorizer: ref.read(operationAuthorizerProvider),
+      );
+    });
 
 final desktopRegisterMerchandiseEntryUseCaseProvider =
     Provider<RegisterMerchandiseEntryUseCase>((ref) {
-  final repository = ref.read(almacenRepositoryProvider);
-  return RegisterMerchandiseEntryUseCase(
-    writer: const _DesktopMerchandiseEntryWriter(),
-    sync: _DesktopProductSyncAdapter(repository),
-    authorizer: ref.read(operationAuthorizerProvider),
-  );
-});
+      final repository = ref.read(almacenRepositoryProvider);
+      return RegisterMerchandiseEntryUseCase(
+        writer: const _DesktopMerchandiseEntryWriter(),
+        sync: _DesktopProductSyncAdapter(repository),
+        authorizer: ref.read(operationAuthorizerProvider),
+      );
+    });
 
 final desktopInventorySnapshotProvider =
     FutureProvider.autoDispose<InventoryCatalogSnapshot>((ref) {
-  return ref.watch(desktopInventoryCatalogUseCaseProvider).loadInitial();
-});
+      return ref.watch(desktopInventoryCatalogUseCaseProvider).loadInitial();
+    });
 
 final desktopInventoryProvider = FutureProvider.autoDispose
     .family<List<DesktopInventoryItem>, String>((ref, query) async {
-  final snapshot = await ref.watch(desktopInventorySnapshotProvider.future);
-  final filtered = ref.watch(desktopInventoryCatalogUseCaseProvider).filterAndSort(
-        products: snapshot.products,
-        query: query.trim(),
-      );
-  return filtered
-      .map(DesktopInventoryItem.new)
-      .toList(growable: false);
-});
+      final snapshot = await ref.watch(desktopInventorySnapshotProvider.future);
+      final filtered = ref
+          .watch(desktopInventoryCatalogUseCaseProvider)
+          .filterAndSort(products: snapshot.products, query: query.trim());
+      return filtered.map(DesktopInventoryItem.new).toList(growable: false);
+    });

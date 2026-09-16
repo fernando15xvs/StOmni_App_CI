@@ -64,8 +64,9 @@ void main() {
 
   test('core_logic ya no contiene la UI de permisos de notificación', () {
     expect(
-      File('../core_logic/lib/services/notification_permission_service.dart')
-          .existsSync(),
+      File(
+        '../core_logic/lib/services/notification_permission_service.dart',
+      ).existsSync(),
       isFalse,
     );
     expect(

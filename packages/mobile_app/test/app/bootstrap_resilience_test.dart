@@ -17,7 +17,10 @@ void main() {
 
     expect(runAppIndex, greaterThanOrEqualTo(0));
     expect(criticalIndex, greaterThan(runAppIndex));
-    expect(bootstrap, contains('PlatformDispatcher.instance.platformBrightness'));
+    expect(
+      bootstrap,
+      contains('PlatformDispatcher.instance.platformBrightness'),
+    );
     expect(bootstrap, contains('return ColoredBox('));
   });
 
@@ -32,10 +35,7 @@ void main() {
 
   test('configuración pública del cliente usa solo dart-define', () {
     expect(bootstrap, contains("String.fromEnvironment('SUPABASE_URL')"));
-    expect(
-      bootstrap,
-      contains("String.fromEnvironment('SUPABASE_ANON_KEY')"),
-    );
+    expect(bootstrap, contains("String.fromEnvironment('SUPABASE_ANON_KEY')"));
     expect(bootstrap, isNot(contains('flutter_dotenv')));
     expect(bootstrap, isNot(contains('dotenv.')));
     expect(bootstrap, contains('mediante --dart-define'));

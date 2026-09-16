@@ -63,25 +63,17 @@ class _DetalleBalancePageState extends State<DetalleBalancePage> {
 
     final desglose = <String, Map<String, double>>{
       for (final metodo in _listaMetodos)
-        metodo: {
-          'ingreso': 0.0,
-          'egreso': 0.0,
-        },
+        metodo: {'ingreso': 0.0, 'egreso': 0.0},
     };
 
     double ingresos = 0;
     double egresos = 0;
 
     for (final mov in widget.movimientos) {
-      final monto =
-          (mov['monto'] as num?)?.toDouble() ??
-          0.0;
+      final monto = (mov['monto'] as num?)?.toDouble() ?? 0.0;
 
       final esIngreso =
-          (mov['tipo'] ?? '')
-              .toString()
-              .toLowerCase() ==
-          'ingreso';
+          (mov['tipo'] ?? '').toString().toLowerCase() == 'ingreso';
 
       if (esIngreso) {
         ingresos += monto;
@@ -89,22 +81,13 @@ class _DetalleBalancePageState extends State<DetalleBalancePage> {
         egresos += monto;
       }
 
-      final metodo = _normalizarMetodo(
-        mov['metodo']?.toString() ?? 'Otro',
-      );
+      final metodo = _normalizarMetodo(mov['metodo']?.toString() ?? 'Otro');
 
       final clave = esIngreso ? 'ingreso' : 'egreso';
 
-      desglose.putIfAbsent(
-        metodo,
-        () => {
-          'ingreso': 0.0,
-          'egreso': 0.0,
-        },
-      );
+      desglose.putIfAbsent(metodo, () => {'ingreso': 0.0, 'egreso': 0.0});
 
-      desglose[metodo]![clave] =
-          desglose[metodo]![clave]! + monto;
+      desglose[metodo]![clave] = desglose[metodo]![clave]! + monto;
     }
 
     if (!mounted) return;

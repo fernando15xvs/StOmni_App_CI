@@ -44,7 +44,9 @@ class _EmployeePermissionsPageState
       _error = null;
     });
     try {
-      final raw = await ref.read(empleadosRepositoryProvider).obtenerEmpleados();
+      final raw = await ref
+          .read(empleadosRepositoryProvider)
+          .obtenerEmpleados();
       final employees = raw
           .whereType<Map>()
           .map((row) => Map<String, dynamic>.from(row))
@@ -120,9 +122,9 @@ class _EmployeePermissionsPageState
       );
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(ErrorMapper.map(error))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(ErrorMapper.map(error))));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -204,26 +206,28 @@ class _EmployeePermissionsPageState
               ..._settings!.permissions.map((setting) {
                 final allowed = _draft[setting.permission] ?? false;
                 return SwitchListTile.adaptive(
-                  title: Text(_labels[setting.permission] ?? setting.permission.code),
+                  title: Text(
+                    _labels[setting.permission] ?? setting.permission.code,
+                  ),
                   subtitle: Text(
                     setting.baseAllowed
                         ? 'Permitido por el rol base'
                         : 'No disponible para este rol',
                   ),
                   value: allowed,
-                  onChanged: _saving ||
+                  onChanged:
+                      _saving ||
                           _settings!.isAdministrator ||
                           !setting.baseAllowed
                       ? null
                       : (value) => setState(() {
-                            _draft = {..._draft, setting.permission: value};
-                          }),
+                          _draft = {..._draft, setting.permission: value};
+                        }),
                 );
               }),
               const SizedBox(height: 18),
               FilledButton.icon(
-                onPressed:
-                    _saving || _settings!.isAdministrator ? null : _save,
+                onPressed: _saving || _settings!.isAdministrator ? null : _save,
                 icon: _saving
                     ? const SizedBox(
                         width: 18,

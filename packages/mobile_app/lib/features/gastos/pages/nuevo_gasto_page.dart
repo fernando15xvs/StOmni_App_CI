@@ -158,7 +158,7 @@ class _NuevoGastoPageState extends ConsumerState<NuevoGastoPage>
     // Preparar lista de pagos para la BD (ignorando los que tienen monto 0)
     List<Map<String, dynamic>> pagosParaBD = [];
     double totalAfectaCaja = 0.0;
-    
+
     for (var p in _pagosAnadidos) {
       final m =
           double.tryParse((p['montoCtrl'] as TextEditingController).text) ??
@@ -166,7 +166,7 @@ class _NuevoGastoPageState extends ConsumerState<NuevoGastoPage>
       if (m > 0) {
         final afectaCaja = p['afectaCaja'] ?? false;
         if (afectaCaja) totalAfectaCaja += m;
-        
+
         pagosParaBD.add({
           'metodo': p['metodo'],
           'monto': m,
@@ -179,18 +179,28 @@ class _NuevoGastoPageState extends ConsumerState<NuevoGastoPage>
 
     try {
       if (totalAfectaCaja > 0) {
-        final estadoCaja = await ref.read(balanceRepositoryProvider).getEstadoCajaChica();
-        
+        final estadoCaja = await ref
+            .read(balanceRepositoryProvider)
+            .getEstadoCajaChica();
+
         if (estadoCaja['estado'] != 'ABIERTA') {
           setState(() => _guardando = false);
-          _mostrarSnack('No puedes descontar de la Caja Chica porque está CERRADA.', Colors.red);
+          _mostrarSnack(
+            'No puedes descontar de la Caja Chica porque está CERRADA.',
+            Colors.red,
+          );
           return;
         }
-        
-        final saldo = double.tryParse(estadoCaja['saldo_esperado']?.toString() ?? '0') ?? 0.0;
+
+        final saldo =
+            double.tryParse(estadoCaja['saldo_esperado']?.toString() ?? '0') ??
+            0.0;
         if (totalAfectaCaja > saldo) {
           setState(() => _guardando = false);
-          _mostrarSnack('El saldo en caja chica (${AppFormatters.currency(saldo)}) es insuficiente.', Colors.red);
+          _mostrarSnack(
+            'El saldo en caja chica (${AppFormatters.currency(saldo)}) es insuficiente.',
+            Colors.red,
+          );
           return;
         }
       }
@@ -216,23 +226,29 @@ class _NuevoGastoPageState extends ConsumerState<NuevoGastoPage>
       }
     } catch (e) {
       if (!mounted) return;
-      
+
       String errorStr = e.toString();
       if (errorStr.contains('PostgrestException')) {
         if (errorStr.contains('P0001')) {
           final match = RegExp(r'message:\s*([^,]+)').firstMatch(errorStr);
-          errorStr = match?.group(1)?.trim() ?? 'Error de validación en el servidor.';
-        } else if (errorStr.contains('caja_chica') || errorStr.contains('saldo')) {
-          errorStr = 'El saldo en la caja chica es insuficiente para realizar este pago.';
+          errorStr =
+              match?.group(1)?.trim() ?? 'Error de validación en el servidor.';
+        } else if (errorStr.contains('caja_chica') ||
+            errorStr.contains('saldo')) {
+          errorStr =
+              'El saldo en la caja chica es insuficiente para realizar este pago.';
         } else {
-          errorStr = 'Ocurrió un problema de base de datos al guardar el gasto.';
+          errorStr =
+              'Ocurrió un problema de base de datos al guardar el gasto.';
         }
-      } else if (errorStr.contains('SocketException') || errorStr.contains('ClientException') || errorStr.contains('Failed host lookup')) {
+      } else if (errorStr.contains('SocketException') ||
+          errorStr.contains('ClientException') ||
+          errorStr.contains('Failed host lookup')) {
         errorStr = 'Revisa tu conexión a internet e inténtalo de nuevo.';
       } else {
         errorStr = errorStr.replaceFirst('Exception: ', '').trim();
       }
-      
+
       _mostrarSnack(errorStr, Colors.red);
     } finally {
       if (mounted) setState(() => _guardando = false);
@@ -356,7 +372,8 @@ class _NuevoGastoPageState extends ConsumerState<NuevoGastoPage>
                   children: [
                     // FECHA
                     InkWell(
-                      onTap: null, // Deshabilitado para evitar manipulación de fecha
+                      onTap:
+                          null, // Deshabilitado para evitar manipulación de fecha
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -416,10 +433,7 @@ class _NuevoGastoPageState extends ConsumerState<NuevoGastoPage>
                     DropdownButtonFormField<String>(
                       isExpanded: true,
                       initialValue: _proveedorId,
-                      decoration: _decoracionInput(
-                        "Proveedor",
-                        Icons.store,
-                      ),
+                      decoration: _decoracionInput("Proveedor", Icons.store),
                       items: _proveedores
                           .map(
                             (p) => DropdownMenuItem(

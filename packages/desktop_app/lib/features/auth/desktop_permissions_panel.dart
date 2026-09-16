@@ -7,10 +7,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 final desktopEmployeeDirectoryProvider = FutureProvider.autoDispose
     .family<List<EmployeeDirectoryRecord>, bool>((ref, includeInactive) {
-  return EmployeeDirectoryUseCase(
-    SupabaseEmployeeDirectoryGateway(Supabase.instance.client),
-  ).list(includeInactive: includeInactive);
-});
+      return EmployeeDirectoryUseCase(
+        SupabaseEmployeeDirectoryGateway(Supabase.instance.client),
+      ).list(includeInactive: includeInactive);
+    });
 
 class DesktopPermissionsPanel extends ConsumerStatefulWidget {
   const DesktopPermissionsPanel({super.key});
@@ -25,17 +25,17 @@ class _DesktopPermissionsPanelState
   bool _includeInactive = false;
 
   String _label(AppPermission permission) => switch (permission) {
-        AppPermission.productsCreate => 'Crear productos',
-        AppPermission.productsUpdate => 'Editar productos',
-        AppPermission.productsChangePrice => 'Cambiar precios',
-        AppPermission.inventoryReceive => 'Registrar ingresos de inventario',
-        AppPermission.inventoryAdjust => 'Ajustar, trasladar o registrar merma',
-        AppPermission.salesCreate => 'Registrar ventas',
-        AppPermission.salesDiscount => 'Aplicar descuentos',
-        AppPermission.purchasesManage => 'Gestionar órdenes de compra',
-        AppPermission.reportsViewProfit => 'Ver utilidad en reportes',
-        AppPermission.businessConfigure => 'Configurar negocio',
-      };
+    AppPermission.productsCreate => 'Crear productos',
+    AppPermission.productsUpdate => 'Editar productos',
+    AppPermission.productsChangePrice => 'Cambiar precios',
+    AppPermission.inventoryReceive => 'Registrar ingresos de inventario',
+    AppPermission.inventoryAdjust => 'Ajustar, trasladar o registrar merma',
+    AppPermission.salesCreate => 'Registrar ventas',
+    AppPermission.salesDiscount => 'Aplicar descuentos',
+    AppPermission.purchasesManage => 'Gestionar órdenes de compra',
+    AppPermission.reportsViewProfit => 'Ver utilidad en reportes',
+    AppPermission.businessConfigure => 'Configurar negocio',
+  };
 
   Future<void> _edit(EmployeeDirectoryRecord employee) async {
     try {
@@ -85,8 +85,8 @@ class _DesktopPermissionsPanelState
                         value: values[setting.permission] ?? false,
                         onChanged: permittedByRole
                             ? (value) => setDialogState(
-                                  () => values[setting.permission] = value,
-                                )
+                                () => values[setting.permission] = value,
+                              )
                             : null,
                       );
                     }),
@@ -130,9 +130,9 @@ class _DesktopPermissionsPanelState
       }
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(ErrorMapper.map(error))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(ErrorMapper.map(error))));
     }
   }
 
@@ -153,9 +153,8 @@ class _DesktopPermissionsPanelState
                   children: [
                     Text(
                       'Permisos',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 5),
                     const Text(
@@ -187,18 +186,28 @@ class _DesktopPermissionsPanelState
                       return Card(
                         child: ListTile(
                           leading: CircleAvatar(
-                            child: Text(employee.name.characters.first.toUpperCase()),
+                            child: Text(
+                              employee.name.characters.first.toUpperCase(),
+                            ),
                           ),
                           title: Text(employee.name),
-                          subtitle: Text([
-                            employee.role,
-                            employee.active ? 'Activo' : 'Inactivo',
-                            if (employee.position?.isNotEmpty == true) employee.position!,
-                            if (employee.email?.isNotEmpty == true) employee.email!,
-                          ].join(' · ')),
+                          subtitle: Text(
+                            [
+                              employee.role,
+                              employee.active ? 'Activo' : 'Inactivo',
+                              if (employee.position?.isNotEmpty == true)
+                                employee.position!,
+                              if (employee.email?.isNotEmpty == true)
+                                employee.email!,
+                            ].join(' · '),
+                          ),
                           trailing: FilledButton.tonalIcon(
-                            onPressed: employee.active ? () => _edit(employee) : null,
-                            icon: const Icon(Icons.admin_panel_settings_outlined),
+                            onPressed: employee.active
+                                ? () => _edit(employee)
+                                : null,
+                            icon: const Icon(
+                              Icons.admin_panel_settings_outlined,
+                            ),
                             label: const Text('Permisos'),
                           ),
                         ),

@@ -104,10 +104,7 @@ class _BootstrapShellState extends State<_BootstrapShell> {
                   const Text(
                     'No se pudo iniciar StOmni',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 10),
                   Text(
@@ -148,10 +145,7 @@ Future<void> _initializeCriticalDependencies() async {
   }
 
   if (!_supabaseInitialized) {
-    await Supabase.initialize(
-      url: supabaseUrl,
-      anonKey: supabaseAnonKey,
-    );
+    await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
     _supabaseInitialized = true;
   }
 

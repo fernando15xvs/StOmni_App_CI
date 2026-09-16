@@ -22,25 +22,31 @@ class SupabaseProductVariantGateway implements ProductVariantGateway {
     ProductVariantGroupDraft draft, {
     int? id,
   }) async {
-    final raw = await client.rpc('save_product_variant_group_v1', params: {
-      'p_group_id': id,
-      'p_name': draft.name,
-      'p_attribute_names': draft.attributeNames,
-      'p_members': draft.members
-          .map((member) => <String, dynamic>{
+    final raw = await client.rpc(
+      'save_product_variant_group_v1',
+      params: {
+        'p_group_id': id,
+        'p_name': draft.name,
+        'p_attribute_names': draft.attributeNames,
+        'p_members': draft.members
+            .map(
+              (member) => <String, dynamic>{
                 'product_id': member.productId,
                 'attributes': member.attributes,
-              })
-          .toList(growable: false),
-    });
+              },
+            )
+            .toList(growable: false),
+      },
+    );
     return _decode(raw);
   }
 
   @override
   Future<void> delete(int id) async {
-    await client.rpc('delete_product_variant_group_v1', params: {
-      'p_group_id': id,
-    });
+    await client.rpc(
+      'delete_product_variant_group_v1',
+      params: {'p_group_id': id},
+    );
   }
 
   ProductVariantGroup _decode(Object? raw) {
@@ -52,8 +58,11 @@ class SupabaseProductVariantGateway implements ProductVariantGateway {
     final name = map['name']?.toString().trim() ?? '';
     final rawAttributes = map['attribute_names'];
     final rawMembers = map['members'];
-    if (id == null || id <= 0 || name.isEmpty ||
-        rawAttributes is! List || rawMembers is! List) {
+    if (id == null ||
+        id <= 0 ||
+        name.isEmpty ||
+        rawAttributes is! List ||
+        rawMembers is! List) {
       throw const FormatException('Contrato de variantes incompleto.');
     }
     final attributes = rawAttributes
@@ -71,7 +80,10 @@ class SupabaseProductVariantGateway implements ProductVariantGateway {
         final productId = _int(member['product_id']);
         final productName = member['product_name']?.toString().trim() ?? '';
         final attrs = member['attributes'];
-        if (productId == null || productId <= 0 || productName.isEmpty || attrs is! Map) {
+        if (productId == null ||
+            productId <= 0 ||
+            productName.isEmpty ||
+            attrs is! Map) {
           throw const FormatException('Miembro de variante incompleto.');
         }
         return ProductVariantMember(
@@ -80,14 +92,15 @@ class SupabaseProductVariantGateway implements ProductVariantGateway {
           productCode: member['product_code']?.toString().trim() ?? '',
           attributes: {
             for (final entry in attrs.entries)
-              entry.key.toString().trim().toLowerCase(): entry.value.toString().trim(),
+              entry.key.toString().trim().toLowerCase(): entry.value
+                  .toString()
+                  .trim(),
           },
         );
       }),
     );
   }
 
-  int? _int(Object? value) => value is num
-      ? value.toInt()
-      : int.tryParse(value?.toString() ?? '');
+  int? _int(Object? value) =>
+      value is num ? value.toInt() : int.tryParse(value?.toString() ?? '');
 }

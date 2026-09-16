@@ -4,7 +4,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 String _readRequiredFile(String path) {
   final file = File(path);
-  expect(file.existsSync(), isTrue, reason: 'No existe el archivo esperado: $path');
+  expect(
+    file.existsSync(),
+    isTrue,
+    reason: 'No existe el archivo esperado: $path',
+  );
   return file.readAsStringSync();
 }
 
@@ -45,7 +49,8 @@ void main() {
       expect(
         controller,
         isNot(contains(forbidden)),
-        reason: 'La presentación móvil volvió a asumir lógica de negocio: $forbidden',
+        reason:
+            'La presentación móvil volvió a asumir lógica de negocio: $forbidden',
       );
     }
 
@@ -77,7 +82,8 @@ void main() {
       expect(
         useCase,
         isNot(contains(forbidden)),
-        reason: 'Un caso de uso de core_logic no debe depender de UI: $forbidden',
+        reason:
+            'Un caso de uso de core_logic no debe depender de UI: $forbidden',
       );
     }
 
@@ -89,7 +95,8 @@ void main() {
     expect(
       useCase,
       isNot(contains('saveProductUseCaseProvider')),
-      reason: 'Los providers de Riverpod no deben vivir dentro del caso de uso.',
+      reason:
+          'Los providers de Riverpod no deben vivir dentro del caso de uso.',
     );
     expect(useCase, contains('required Uuid uuid'));
     expect(useCase, contains('String createRequestId() => _uuid.v4();'));
@@ -115,7 +122,10 @@ void main() {
     expect(provider, contains('Provider<LoadProductFormCatalogUseCase>'));
     expect(provider, contains('productFormCatalogGatewayProvider'));
 
-    expect(gateway, isNot(contains('package:flutter_riverpod/flutter_riverpod.dart')));
+    expect(
+      gateway,
+      isNot(contains('package:flutter_riverpod/flutter_riverpod.dart')),
+    );
     expect(gateway, isNot(contains('productFormCatalogGatewayProvider')));
     expect(gateway, isNot(contains('loadProductFormCatalogUseCaseProvider')));
   });
@@ -126,7 +136,10 @@ void main() {
     );
 
     expect(controller, contains('String? _currentRequestId;'));
-    expect(controller, contains('_currentRequestId ??= useCase.createRequestId();'));
+    expect(
+      controller,
+      contains('_currentRequestId ??= useCase.createRequestId();'),
+    );
     expect(controller, contains('requestId: _currentRequestId!'));
     expect(controller, contains('_currentRequestId = null;'));
   });

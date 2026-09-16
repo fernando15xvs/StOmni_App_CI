@@ -105,7 +105,9 @@ class SupabaseReportingGateway implements ReportingGateway {
     final type = row['tipo']?.toString().trim().toLowerCase();
     final date = DateTime.tryParse(row['fecha']?.toString() ?? '');
     final amount = (row['monto'] as num?)?.toDouble();
-    if ((type != 'ingreso' && type != 'egreso') || date == null || amount == null) {
+    if ((type != 'ingreso' && type != 'egreso') ||
+        date == null ||
+        amount == null) {
       throw const FormatException('Movimiento financiero inválido.');
     }
     return FinancialMovementRecord(
@@ -154,9 +156,8 @@ class SupabaseReportingGateway implements ReportingGateway {
     );
   }
 
-  int? _int(Object? value) => value is num
-      ? value.toInt()
-      : int.tryParse(value?.toString() ?? '');
+  int? _int(Object? value) =>
+      value is num ? value.toInt() : int.tryParse(value?.toString() ?? '');
 
   String? _text(Object? value) {
     final text = value?.toString().trim() ?? '';

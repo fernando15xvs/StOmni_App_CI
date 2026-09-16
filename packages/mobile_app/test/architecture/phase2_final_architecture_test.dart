@@ -81,20 +81,23 @@ void main() {
     }
   });
 
-  test('no quedan llamadas al cierre de caja legado en PdfGeneratorService', () {
-    final legacyRefs = Directory('lib')
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((file) => file.path.endsWith('.dart'))
-        .where(
-          (file) => file
-              .readAsStringSync()
-              .contains('PdfGeneratorService.imprimirTicketCierre'),
-        )
-        .map((file) => file.path)
-        .toList();
-    expect(legacyRefs, isEmpty);
-  });
+  test(
+    'no quedan llamadas al cierre de caja legado en PdfGeneratorService',
+    () {
+      final legacyRefs = Directory('lib')
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((file) => file.path.endsWith('.dart'))
+          .where(
+            (file) => file.readAsStringSync().contains(
+              'PdfGeneratorService.imprimirTicketCierre',
+            ),
+          )
+          .map((file) => file.path)
+          .toList();
+      expect(legacyRefs, isEmpty);
+    },
+  );
 
   test('no quedan scripts temporales de refactor en tool', () {
     final directory = Directory('tool');

@@ -20,7 +20,9 @@ class SupabaseCustomFieldGateway implements CustomFieldGateway {
       },
     );
     if (raw is! List) {
-      throw const FormatException('Respuesta de campos configurables inválida.');
+      throw const FormatException(
+        'Respuesta de campos configurables inválida.',
+      );
     }
     return raw
         .map((row) {
@@ -45,7 +47,9 @@ class SupabaseCustomFieldGateway implements CustomFieldGateway {
         'p_label': definition.label,
         'p_value_type': definition.valueType.code,
         'p_required': definition.required,
-        'p_item_types': definition.itemTypes.map((value) => value.code).toList(),
+        'p_item_types': definition.itemTypes
+            .map((value) => value.code)
+            .toList(),
         'p_options': definition.options,
         'p_validation': definition.validation.toMap(),
         'p_sort_order': definition.sortOrder,
@@ -53,7 +57,9 @@ class SupabaseCustomFieldGateway implements CustomFieldGateway {
       },
     );
     if (raw is! Map) {
-      throw const FormatException('Respuesta de definición configurable inválida.');
+      throw const FormatException(
+        'Respuesta de definición configurable inválida.',
+      );
     }
     return CustomFieldDefinition.fromMap(Map<String, dynamic>.from(raw));
   }
@@ -73,7 +79,9 @@ class SupabaseCustomFieldGateway implements CustomFieldGateway {
       },
     );
     if (raw is! Map) {
-      throw const FormatException('Respuesta de valores configurables inválida.');
+      throw const FormatException(
+        'Respuesta de valores configurables inválida.',
+      );
     }
     final map = Map<String, dynamic>.from(raw);
     final customFields = map['custom_fields'];

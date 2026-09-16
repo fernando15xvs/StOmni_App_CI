@@ -1,7 +1,9 @@
 import 'dart:typed_data';
 
 enum DocumentKind { pdf, xlsx }
+
 enum DocumentOutputAction { export, print, share }
+
 enum DocumentOutputResult { saved, shared, printed, presented, cancelled }
 
 /// Resultado de generación: contenido y metadatos, nunca rutas ni diálogos.
@@ -14,7 +16,8 @@ class GeneratedDocument {
     this.pageHeightPoints,
   }) : _bytes = Uint8List.fromList(bytes),
        fileName = _safeName(fileName, kind.name) {
-    if (_bytes.isEmpty) throw ArgumentError('El documento no puede estar vacío.');
+    if (_bytes.isEmpty)
+      throw ArgumentError('El documento no puede estar vacío.');
     final width = pageWidthPoints;
     final height = pageHeightPoints;
     if (width != null && (!width.isFinite || width <= 0)) {
@@ -36,10 +39,16 @@ class GeneratedDocument {
       : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
   static String _safeName(String value, String extension) {
-    var name = value.replaceAll('\\', '/').split('/').last
-        .replaceAll(RegExp(r'[\x00-\x1f:*?"<>|]'), '_').trim();
+    var name = value
+        .replaceAll('\\', '/')
+        .split('/')
+        .last
+        .replaceAll(RegExp(r'[\x00-\x1f:*?"<>|]'), '_')
+        .trim();
     if (name.isEmpty || name == '.' || name == '..') name = 'documento';
-    return name.toLowerCase().endsWith('.$extension') ? name : '$name.$extension';
+    return name.toLowerCase().endsWith('.$extension')
+        ? name
+        : '$name.$extension';
   }
 }
 

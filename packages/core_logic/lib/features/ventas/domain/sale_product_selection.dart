@@ -13,21 +13,23 @@ class SaleProductSelection {
   }) {
     final normalizedQuery = query.trim().toLowerCase();
 
-    final result = products.where((product) {
-      if (normalizedQuery.isEmpty) return true;
+    final result = products
+        .where((product) {
+          if (normalizedQuery.isEmpty) return true;
 
-      final providerId = (product['proveedor_id'] as num?)?.toInt();
-      final searchable = <String>[
-        product['nombre']?.toString() ?? '',
-        product['codigo']?.toString() ?? '',
-        product['codigo_barras']?.toString() ?? '',
-        brandByProviderId[providerId] ?? '',
-      ];
+          final providerId = (product['proveedor_id'] as num?)?.toInt();
+          final searchable = <String>[
+            product['nombre']?.toString() ?? '',
+            product['codigo']?.toString() ?? '',
+            product['codigo_barras']?.toString() ?? '',
+            brandByProviderId[providerId] ?? '',
+          ];
 
-      return searchable.any(
-        (value) => value.toLowerCase().contains(normalizedQuery),
-      );
-    }).toList(growable: false);
+          return searchable.any(
+            (value) => value.toLowerCase().contains(normalizedQuery),
+          );
+        })
+        .toList(growable: false);
 
     result.sort((a, b) {
       final aId = (a['id'] as num?)?.toInt();

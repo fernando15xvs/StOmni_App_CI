@@ -6,7 +6,8 @@ class DesktopServicesPanel extends ConsumerStatefulWidget {
   const DesktopServicesPanel({super.key});
 
   @override
-  ConsumerState<DesktopServicesPanel> createState() => _DesktopServicesPanelState();
+  ConsumerState<DesktopServicesPanel> createState() =>
+      _DesktopServicesPanelState();
 }
 
 class _DesktopServicesPanelState extends ConsumerState<DesktopServicesPanel> {
@@ -20,7 +21,9 @@ class _DesktopServicesPanelState extends ConsumerState<DesktopServicesPanel> {
     final name = TextEditingController(text: current?.name ?? '');
     final description = TextEditingController(text: current?.description ?? '');
     final price = TextEditingController(
-      text: current == null ? '' : CommercialPresentation.formatNumber(current.unitPrice),
+      text: current == null
+          ? ''
+          : CommercialPresentation.formatNumber(current.unitPrice),
     );
     final accepted = await showDialog<bool>(
       context: context,
@@ -33,25 +36,48 @@ class _DesktopServicesPanelState extends ConsumerState<DesktopServicesPanel> {
             children: [
               Row(
                 children: [
-                  Expanded(child: TextField(controller: code, decoration: const InputDecoration(labelText: 'Código'))),
+                  Expanded(
+                    child: TextField(
+                      controller: code,
+                      decoration: const InputDecoration(labelText: 'Código'),
+                    ),
+                  ),
                   const SizedBox(width: 12),
-                  Expanded(flex: 2, child: TextField(controller: name, decoration: const InputDecoration(labelText: 'Nombre'))),
+                  Expanded(
+                    flex: 2,
+                    child: TextField(
+                      controller: name,
+                      decoration: const InputDecoration(labelText: 'Nombre'),
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
-              TextField(controller: description, maxLines: 3, decoration: const InputDecoration(labelText: 'Descripción')),
+              TextField(
+                controller: description,
+                maxLines: 3,
+                decoration: const InputDecoration(labelText: 'Descripción'),
+              ),
               const SizedBox(height: 12),
               TextField(
                 controller: price,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 decoration: const InputDecoration(labelText: 'Precio de venta'),
               ),
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Cancelar')),
-          FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('Guardar')),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Guardar'),
+          ),
         ],
       ),
     );
@@ -62,13 +88,17 @@ class _DesktopServicesPanelState extends ConsumerState<DesktopServicesPanel> {
       } else {
         setState(() => _busy = true);
         try {
-          await ref.read(serviceCatalogUseCaseProvider).save(ServiceDraft(
-            serviceId: current?.id,
-            code: code.text,
-            name: name.text,
-            description: description.text,
-            unitPrice: value,
-          ));
+          await ref
+              .read(serviceCatalogUseCaseProvider)
+              .save(
+                ServiceDraft(
+                  serviceId: current?.id,
+                  code: code.text,
+                  name: name.text,
+                  description: description.text,
+                  unitPrice: value,
+                ),
+              );
           if (mounted) setState(() {});
         } catch (error) {
           if (mounted) _message(ErrorMapper.map(error), error: true);
@@ -117,9 +147,15 @@ class _DesktopServicesPanelState extends ConsumerState<DesktopServicesPanel> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Servicios', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
+                    Text(
+                      'Servicios',
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
                     const SizedBox(height: 5),
-                    const Text('Ítems comerciales no inventariables. Se venden sin afectar stock ni Kardex.'),
+                    const Text(
+                      'Ítems comerciales no inventariables. Se venden sin afectar stock ni Kardex.',
+                    ),
                   ],
                 ),
               ),
@@ -142,7 +178,10 @@ class _DesktopServicesPanelState extends ConsumerState<DesktopServicesPanel> {
                   return Center(child: Text(ErrorMapper.map(snapshot.error!)));
                 }
                 final rows = snapshot.data ?? const <ServiceRecord>[];
-                if (rows.isEmpty) return const Center(child: Text('No hay servicios registrados.'));
+                if (rows.isEmpty)
+                  return const Center(
+                    child: Text('No hay servicios registrados.'),
+                  );
                 return ListView.separated(
                   itemCount: rows.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 8),
@@ -150,14 +189,22 @@ class _DesktopServicesPanelState extends ConsumerState<DesktopServicesPanel> {
                     final row = rows[index];
                     return Card(
                       child: ListTile(
-                        leading: Icon(row.active ? Icons.design_services_outlined : Icons.block_outlined),
+                        leading: Icon(
+                          row.active
+                              ? Icons.design_services_outlined
+                              : Icons.block_outlined,
+                        ),
                         title: Text('${row.code} · ${row.name}'),
-                        subtitle: Text('${row.description.isEmpty ? 'Sin descripción' : row.description} · ${AppFormatters.currency(row.unitPrice)} · ${row.active ? 'Activo' : 'Inactivo'}'),
+                        subtitle: Text(
+                          '${row.description.isEmpty ? 'Sin descripción' : row.description} · ${AppFormatters.currency(row.unitPrice)} · ${row.active ? 'Activo' : 'Inactivo'}',
+                        ),
                         onTap: _busy || !row.active ? null : () => _edit(row),
                         trailing: row.active
                             ? IconButton(
                                 tooltip: 'Desactivar',
-                                onPressed: _busy ? null : () => _deactivate(row),
+                                onPressed: _busy
+                                    ? null
+                                    : () => _deactivate(row),
                                 icon: const Icon(Icons.archive_outlined),
                               )
                             : null,

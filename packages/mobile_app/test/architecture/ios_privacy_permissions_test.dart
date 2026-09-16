@@ -13,9 +13,9 @@ void main() {
   });
 
   test('iOS muestra StOmni como nombre de la aplicación', () {
-    final plist = File('ios/Runner/Info.plist')
-        .readAsStringSync()
-        .replaceAll('\r\n', '\n');
+    final plist = File(
+      'ios/Runner/Info.plist',
+    ).readAsStringSync().replaceAll('\r\n', '\n');
 
     expect(
       plist,

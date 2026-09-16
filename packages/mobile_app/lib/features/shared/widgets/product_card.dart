@@ -33,8 +33,7 @@ class ProductCard extends StatelessWidget {
         mapaMarcas[(producto['proveedor_id'] as num?)?.toInt()] ?? 'Genérico';
 
     final lineas = carrito.lines.where(
-      (item) =>
-          item.productId == (producto['id'] as num?)?.toInt(),
+      (item) => item.productId == (producto['id'] as num?)?.toInt(),
     );
     final resumen = _resumenCarrito(lineas);
     final seleccionado = lineas.isNotEmpty;

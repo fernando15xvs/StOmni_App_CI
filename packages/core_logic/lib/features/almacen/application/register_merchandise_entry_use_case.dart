@@ -69,7 +69,9 @@ class RegisterMerchandiseEntryUseCase {
           (allocation) =>
               !allocation.baseQuantity.isFinite || allocation.baseQuantity <= 0,
         )) {
-      throw ArgumentError('La distribución de mercadería contiene cantidades inválidas.');
+      throw ArgumentError(
+        'La distribución de mercadería contiene cantidades inválidas.',
+      );
     }
     final normalizedType = command.entryType.trim().toLowerCase();
     await _authorizer.require({

@@ -122,7 +122,8 @@ class _DetalleVentaPageState extends ConsumerState<DetalleVentaPage>
     ),
   );
 
-  double _calcularTotalPagadoLista() => SaleCheckout.totalPaid(_pagosIngresados);
+  double _calcularTotalPagadoLista() =>
+      SaleCheckout.totalPaid(_pagosIngresados);
 
   double get _montoAbono => double.tryParse(_abonoCtrl.text) ?? 0.0;
 
@@ -663,12 +664,8 @@ class _DetalleVentaPageState extends ConsumerState<DetalleVentaPage>
                   ),
                   if (_pagosLista.length > 1)
                     IconButton(
-                      icon: const Icon(
-                        Icons.delete_outline,
-                        color: Colors.red,
-                      ),
-                      onPressed: () =>
-                          setState(() => _pagosLista.removeAt(i)),
+                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                      onPressed: () => setState(() => _pagosLista.removeAt(i)),
                     ),
                 ],
               ),

@@ -28,8 +28,7 @@ class DashboardSummary {
       totalProductos: (map['total_productos'] as num?)?.toInt() ?? 0,
       lowStockCount: (map['low_stock_count'] as num?)?.toInt() ?? 0,
       outOfStockCount: (map['out_of_stock_count'] as num?)?.toInt() ?? 0,
-      deudasPorCobrar:
-          (map['deudas_por_cobrar'] as num?)?.toDouble() ?? 0.0,
+      deudasPorCobrar: (map['deudas_por_cobrar'] as num?)?.toDouble() ?? 0.0,
       deudasPorPagar: (map['deudas_por_pagar'] as num?)?.toDouble() ?? 0.0,
     );
   }

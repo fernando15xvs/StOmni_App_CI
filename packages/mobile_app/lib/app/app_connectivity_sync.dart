@@ -26,8 +26,7 @@ class _AppConnectivitySyncState extends ConsumerState<AppConnectivitySync> {
     ) {
       if (next.type == SyncResultType.requireLogin) {
         _redirectToLogin();
-      } else if (
-          next.type == SyncResultType.error ||
+      } else if (next.type == SyncResultType.error ||
           next.type == SyncResultType.partial) {
         _showConnectionMessage(next.message ?? 'Error de conectividad');
       } else if (next.type == SyncResultType.success) {

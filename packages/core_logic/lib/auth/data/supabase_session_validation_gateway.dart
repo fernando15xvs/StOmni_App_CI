@@ -30,7 +30,8 @@ class SupabaseSessionValidationGateway implements SessionValidationGateway {
         throw const FormatException('Respuesta de contexto tenant inválida.');
       }
       final context = Map<String, dynamic>.from(raw);
-      final organizationId = context['organization_id']?.toString().trim() ?? '';
+      final organizationId =
+          context['organization_id']?.toString().trim() ?? '';
       final role = context['base_role']?.toString().trim();
       if (organizationId.isEmpty || role == null || role.isEmpty) {
         return null;

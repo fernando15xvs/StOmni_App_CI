@@ -3,7 +3,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:core_logic/core_logic.dart';
 
-final personaLookupRepositoryProvider = Provider<PersonaLookupRepository>((ref) {
+final personaLookupRepositoryProvider = Provider<PersonaLookupRepository>((
+  ref,
+) {
   return PersonaLookupRepository(ref.watch(supabaseProvider));
 });
 
@@ -18,18 +20,13 @@ class PersonaLookupRepository {
   }) async {
     try {
       final response = await _client.functions
-          .invoke(
-            'get-persona',
-            body: {'numero': numero, 'tipo': tipo},
-          )
+          .invoke('get-persona', body: {'numero': numero, 'tipo': tipo})
           .timeout(const Duration(seconds: 15));
 
       if (response.status != 200 || response.data == null) {
         final data = response.data;
         final message = data is Map ? data['error']?.toString() : null;
-        throw UserFacingException(
-          _mensajeConsulta(message, tipo: tipo),
-        );
+        throw UserFacingException(_mensajeConsulta(message, tipo: tipo));
       }
 
       final data = response.data;

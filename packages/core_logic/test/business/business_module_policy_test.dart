@@ -13,11 +13,29 @@ void main() {
       variants: false,
     );
 
-    expect(BusinessModulePolicy.isEnabled(capabilities, BusinessModule.dashboard), isTrue);
-    expect(BusinessModulePolicy.isEnabled(capabilities, BusinessModule.sales), isTrue);
-    expect(BusinessModulePolicy.isEnabled(capabilities, BusinessModule.catalog), isTrue);
-    expect(BusinessModulePolicy.isEnabled(capabilities, BusinessModule.customers), isTrue);
-    expect(BusinessModulePolicy.isEnabled(capabilities, BusinessModule.moduleSettings), isTrue);
+    expect(
+      BusinessModulePolicy.isEnabled(capabilities, BusinessModule.dashboard),
+      isTrue,
+    );
+    expect(
+      BusinessModulePolicy.isEnabled(capabilities, BusinessModule.sales),
+      isTrue,
+    );
+    expect(
+      BusinessModulePolicy.isEnabled(capabilities, BusinessModule.catalog),
+      isTrue,
+    );
+    expect(
+      BusinessModulePolicy.isEnabled(capabilities, BusinessModule.customers),
+      isTrue,
+    );
+    expect(
+      BusinessModulePolicy.isEnabled(
+        capabilities,
+        BusinessModule.moduleSettings,
+      ),
+      isTrue,
+    );
   });
 
   test('optional modules follow capabilities', () {
@@ -29,12 +47,33 @@ void main() {
       services: false,
       variants: false,
     );
-    expect(BusinessModulePolicy.isEnabled(disabled, BusinessModule.inventory), isFalse);
-    expect(BusinessModulePolicy.isEnabled(disabled, BusinessModule.stockTransfers), isFalse);
-    expect(BusinessModulePolicy.isEnabled(disabled, BusinessModule.purchases), isFalse);
-    expect(BusinessModulePolicy.isEnabled(disabled, BusinessModule.services), isFalse);
-    expect(BusinessModulePolicy.isEnabled(disabled, BusinessModule.variants), isFalse);
-    expect(BusinessModulePolicy.isEnabled(disabled, BusinessModule.electronicDocuments), isFalse);
+    expect(
+      BusinessModulePolicy.isEnabled(disabled, BusinessModule.inventory),
+      isFalse,
+    );
+    expect(
+      BusinessModulePolicy.isEnabled(disabled, BusinessModule.stockTransfers),
+      isFalse,
+    );
+    expect(
+      BusinessModulePolicy.isEnabled(disabled, BusinessModule.purchases),
+      isFalse,
+    );
+    expect(
+      BusinessModulePolicy.isEnabled(disabled, BusinessModule.services),
+      isFalse,
+    );
+    expect(
+      BusinessModulePolicy.isEnabled(disabled, BusinessModule.variants),
+      isFalse,
+    );
+    expect(
+      BusinessModulePolicy.isEnabled(
+        disabled,
+        BusinessModule.electronicDocuments,
+      ),
+      isFalse,
+    );
 
     const enabled = BusinessCapabilities(
       purchaseManagement: true,
@@ -42,21 +81,45 @@ void main() {
       services: true,
       variants: true,
     );
-    expect(BusinessModulePolicy.isEnabled(enabled, BusinessModule.inventory), isTrue);
-    expect(BusinessModulePolicy.isEnabled(enabled, BusinessModule.purchases), isTrue);
-    expect(BusinessModulePolicy.isEnabled(enabled, BusinessModule.services), isTrue);
-    expect(BusinessModulePolicy.isEnabled(enabled, BusinessModule.variants), isTrue);
-    expect(BusinessModulePolicy.isEnabled(enabled, BusinessModule.electronicDocuments), isTrue);
-  });
-
-  test('traceability configuration remains reachable while inventory is enabled', () {
-    const capabilities = BusinessCapabilities(
-      lotTracking: false,
-      serialNumberTracking: false,
+    expect(
+      BusinessModulePolicy.isEnabled(enabled, BusinessModule.inventory),
+      isTrue,
     );
     expect(
-      BusinessModulePolicy.isEnabled(capabilities, BusinessModule.traceability),
+      BusinessModulePolicy.isEnabled(enabled, BusinessModule.purchases),
+      isTrue,
+    );
+    expect(
+      BusinessModulePolicy.isEnabled(enabled, BusinessModule.services),
+      isTrue,
+    );
+    expect(
+      BusinessModulePolicy.isEnabled(enabled, BusinessModule.variants),
+      isTrue,
+    );
+    expect(
+      BusinessModulePolicy.isEnabled(
+        enabled,
+        BusinessModule.electronicDocuments,
+      ),
       isTrue,
     );
   });
+
+  test(
+    'traceability configuration remains reachable while inventory is enabled',
+    () {
+      const capabilities = BusinessCapabilities(
+        lotTracking: false,
+        serialNumberTracking: false,
+      );
+      expect(
+        BusinessModulePolicy.isEnabled(
+          capabilities,
+          BusinessModule.traceability,
+        ),
+        isTrue,
+      );
+    },
+  );
 }

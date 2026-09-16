@@ -257,7 +257,10 @@ class _VerVentaPageState extends ConsumerState<VerVentaPage> {
       ),
     );
 
-    Future.delayed(const Duration(milliseconds: 500), () => motivoCtrl.dispose());
+    Future.delayed(
+      const Duration(milliseconds: 500),
+      () => motivoCtrl.dispose(),
+    );
     if (motivo == null || motivo.isEmpty) return;
 
     try {
@@ -493,9 +496,8 @@ class _VerVentaPageState extends ConsumerState<VerVentaPage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => const Center(
-        child: CircularProgressIndicator(color: Colors.white),
-      ),
+      builder: (ctx) =>
+          const Center(child: CircularProgressIndicator(color: Colors.white)),
     );
 
     try {
@@ -505,7 +507,8 @@ class _VerVentaPageState extends ConsumerState<VerVentaPage> {
 
       if (response.statusCode == 200) {
         final tempDir = await getTemporaryDirectory();
-        final fileName = '${_comprobante?['serie'] ?? 'DOC'}-${_comprobante?['correlativo'] ?? '0000'}.$extension';
+        final fileName =
+            '${_comprobante?['serie'] ?? 'DOC'}-${_comprobante?['correlativo'] ?? '0000'}.$extension';
         final file = File('${tempDir.path}/$fileName');
         await file.writeAsBytes(response.bodyBytes);
 
@@ -651,7 +654,8 @@ class _VerVentaPageState extends ConsumerState<VerVentaPage> {
         ),
       );
     } finally {
-      if (mounted && (!liberarBloqueoAntesDeRefresh || _procesandoComprobante)) {
+      if (mounted &&
+          (!liberarBloqueoAntesDeRefresh || _procesandoComprobante)) {
         setState(() => _procesandoComprobante = false);
       }
     }
@@ -1396,10 +1400,18 @@ class _VerVentaPageState extends ConsumerState<VerVentaPage> {
                             d['tipo_unidad']?.toString(),
                           );
                           final etiqueta = cantidad == 1
-                              ? d['commercial_unit_label_snapshot']?.toString() ??
-                                  StockUtils.etiquetaUnidadComercial(tipoUnidad, cantidad: 1)
-                              : d['commercial_unit_plural_snapshot']?.toString() ??
-                                  StockUtils.etiquetaUnidadComercial(tipoUnidad, cantidad: 2);
+                              ? d['commercial_unit_label_snapshot']
+                                        ?.toString() ??
+                                    StockUtils.etiquetaUnidadComercial(
+                                      tipoUnidad,
+                                      cantidad: 1,
+                                    )
+                              : d['commercial_unit_plural_snapshot']
+                                        ?.toString() ??
+                                    StockUtils.etiquetaUnidadComercial(
+                                      tipoUnidad,
+                                      cantidad: 2,
+                                    );
                           final subtotal =
                               (d['subtotal_final'] as num?)?.toDouble() ??
                               (d['subtotal'] as num?)?.toDouble() ??

@@ -34,7 +34,9 @@ class _VariantesPageState extends ConsumerState<VariantesPage> {
     final values = <int, TextEditingController>{};
     for (final member in group?.members ?? const <ProductVariantMember>[]) {
       values[member.productId] = TextEditingController(
-        text: group!.attributeNames.map((key) => member.attributes[key] ?? '').join(', '),
+        text: group!.attributeNames
+            .map((key) => member.attributes[key] ?? '')
+            .join(', '),
       );
     }
 
@@ -51,7 +53,9 @@ class _VariantesPageState extends ConsumerState<VariantesPage> {
             values.putIfAbsent(id, TextEditingController.new);
           }
           return AlertDialog(
-            title: Text(group == null ? 'Nuevo grupo de variantes' : 'Editar variantes'),
+            title: Text(
+              group == null ? 'Nuevo grupo de variantes' : 'Editar variantes',
+            ),
             content: SizedBox(
               width: 520,
               child: SingleChildScrollView(
@@ -60,7 +64,9 @@ class _VariantesPageState extends ConsumerState<VariantesPage> {
                   children: [
                     TextField(
                       controller: name,
-                      decoration: const InputDecoration(labelText: 'Nombre del grupo'),
+                      decoration: const InputDecoration(
+                        labelText: 'Nombre del grupo',
+                      ),
                     ),
                     const SizedBox(height: 10),
                     TextField(
@@ -85,7 +91,10 @@ class _VariantesPageState extends ConsumerState<VariantesPage> {
                               onChanged: (value) => setDialogState(() {
                                 if (value == true) {
                                   selected.add(product.id);
-                                  values.putIfAbsent(product.id, TextEditingController.new);
+                                  values.putIfAbsent(
+                                    product.id,
+                                    TextEditingController.new,
+                                  );
                                 } else {
                                   selected.remove(product.id);
                                 }
@@ -93,7 +102,12 @@ class _VariantesPageState extends ConsumerState<VariantesPage> {
                             ),
                             if (checked)
                               Padding(
-                                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                                padding: const EdgeInsets.fromLTRB(
+                                  12,
+                                  0,
+                                  12,
+                                  12,
+                                ),
                                 child: TextField(
                                   controller: values[product.id],
                                   decoration: InputDecoration(
@@ -121,8 +135,13 @@ class _VariantesPageState extends ConsumerState<VariantesPage> {
                     ? null
                     : () {
                         for (final id in selected) {
-                          final parts = values[id]!.text.split(',').map((e) => e.trim()).toList();
-                          if (parts.length != keys.length || parts.any((value) => value.isEmpty)) return;
+                          final parts = values[id]!.text
+                              .split(',')
+                              .map((e) => e.trim())
+                              .toList();
+                          if (parts.length != keys.length ||
+                              parts.any((value) => value.isEmpty))
+                            return;
                         }
                         Navigator.pop(dialogContext, true);
                       },
@@ -142,12 +161,17 @@ class _VariantesPageState extends ConsumerState<VariantesPage> {
           .toList();
       setState(() => _mutating = true);
       try {
-        await ref.read(productVariantUseCaseProvider).save(
+        await ref
+            .read(productVariantUseCaseProvider)
+            .save(
               ProductVariantGroupDraft(
                 name: name.text,
                 attributeNames: keys,
                 members: selected.map((id) {
-                  final parts = values[id]!.text.split(',').map((e) => e.trim()).toList();
+                  final parts = values[id]!.text
+                      .split(',')
+                      .map((e) => e.trim())
+                      .toList();
                   return ProductVariantMemberDraft(
                     productId: id,
                     attributes: {
@@ -185,8 +209,14 @@ class _VariantesPageState extends ConsumerState<VariantesPage> {
           'Se elimina sólo la agrupación. Los productos y su historial permanecen intactos.',
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Eliminar')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Eliminar'),
+          ),
         ],
       ),
     );
@@ -225,14 +255,20 @@ class _VariantesPageState extends ConsumerState<VariantesPage> {
         },
         child: groups.when(
           loading: () => ListView(
-            children: const [SizedBox(height: 260), Center(child: CircularProgressIndicator())],
+            children: const [
+              SizedBox(height: 260),
+              Center(child: CircularProgressIndicator()),
+            ],
           ),
           error: (error, _) => ListView(
             children: [
               const SizedBox(height: 180),
               Padding(
                 padding: const EdgeInsets.all(24),
-                child: Text(ErrorMapper.map(error), textAlign: TextAlign.center),
+                child: Text(
+                  ErrorMapper.map(error),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ],
           ),
@@ -261,7 +297,10 @@ class _VariantesPageState extends ConsumerState<VariantesPage> {
                           },
                           itemBuilder: (_) => const [
                             PopupMenuItem(value: 'edit', child: Text('Editar')),
-                            PopupMenuItem(value: 'delete', child: Text('Eliminar')),
+                            PopupMenuItem(
+                              value: 'delete',
+                              child: Text('Eliminar'),
+                            ),
                           ],
                         ),
                         children: [
@@ -271,7 +310,10 @@ class _VariantesPageState extends ConsumerState<VariantesPage> {
                               title: Text(member.productName),
                               subtitle: Text(
                                 group.attributeNames
-                                    .map((key) => '$key: ${member.attributes[key] ?? '—'}')
+                                    .map(
+                                      (key) =>
+                                          '$key: ${member.attributes[key] ?? '—'}',
+                                    )
                                     .join(' · '),
                               ),
                             ),

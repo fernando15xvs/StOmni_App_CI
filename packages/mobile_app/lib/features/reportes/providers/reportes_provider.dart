@@ -139,7 +139,11 @@ class ReportesNotifier extends StateNotifier<ReportesData> {
     if (conservaDatosPrevios) {
       state = state.copyWith(isSilentSyncing: true, error: null);
     } else {
-      state = state.copyWith(isLoading: true, isSilentSyncing: false, error: null);
+      state = state.copyWith(
+        isLoading: true,
+        isSilentSyncing: false,
+        error: null,
+      );
     }
 
     try {
@@ -193,7 +197,9 @@ class ReportesNotifier extends StateNotifier<ReportesData> {
     FinancialMovementRecord movement,
   ) {
     return <String, dynamic>{
-      'tipo': movement.type == FinancialMovementType.income ? 'ingreso' : 'egreso',
+      'tipo': movement.type == FinancialMovementType.income
+          ? 'ingreso'
+          : 'egreso',
       'monto': movement.amount,
       'descripcion': movement.description,
       'fecha': movement.date.toIso8601String(),
@@ -236,6 +242,8 @@ final reportesUseCaseProvider = Provider<LoadReportingSnapshotUseCase>((ref) {
   );
 });
 
-final reportesProvider = StateNotifierProvider<ReportesNotifier, ReportesData>((ref) {
+final reportesProvider = StateNotifierProvider<ReportesNotifier, ReportesData>((
+  ref,
+) {
   return ReportesNotifier(ref.watch(reportesUseCaseProvider));
 });

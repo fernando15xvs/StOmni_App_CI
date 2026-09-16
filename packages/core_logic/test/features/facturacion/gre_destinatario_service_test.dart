@@ -8,10 +8,7 @@ void main() {
         tipo: 'dni',
         data: {
           'nombre_completo': 'JUAN PEREZ',
-          'data': {
-            'direccion': ' AV. LIMA 123 ',
-            'ubigeo': '150101',
-          },
+          'data': {'direccion': ' AV. LIMA 123 ', 'ubigeo': '150101'},
         },
       );
 
@@ -26,10 +23,7 @@ void main() {
         tipo: 'ruc',
         data: {
           'razon_social': 'EMPRESA SAC',
-          'data': {
-            'direccion': 'JR. PRUEBA 456',
-            'ubigeo_sunat': '130101',
-          },
+          'data': {'direccion': 'JR. PRUEBA 456', 'ubigeo_sunat': '130101'},
         },
       );
 
@@ -56,10 +50,7 @@ void main() {
         tipo: 'dni',
         data: {
           'nombre_completo': 'ANA PEREZ',
-          'data': {
-            'direccion': 'CALLE 1',
-            'ubigeo': 'ABC123',
-          },
+          'data': {'direccion': 'CALLE 1', 'ubigeo': 'ABC123'},
         },
       );
 

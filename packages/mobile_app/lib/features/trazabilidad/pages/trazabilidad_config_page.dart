@@ -50,7 +50,9 @@ class _TrazabilidadConfigPageState
     final c = current.capabilities;
     setState(() => _savingCapabilities = true);
     try {
-      final saved = await ref.read(updateBusinessCapabilitiesUseCaseProvider).execute(
+      final saved = await ref
+          .read(updateBusinessCapabilitiesUseCaseProvider)
+          .execute(
             current,
             BusinessCapabilities(
               inventoryEnabled: c.inventoryEnabled,
@@ -105,7 +107,9 @@ class _TrazabilidadConfigPageState
     if (config == null || _saving) return;
     setState(() => _saving = true);
     try {
-      final saved = await ref.read(inventoryTraceabilityUseCaseProvider).saveConfig(
+      final saved = await ref
+          .read(inventoryTraceabilityUseCaseProvider)
+          .saveConfig(
             productId: config.productId,
             expectedRevision: config.revision,
             mode: config.mode,
@@ -137,10 +141,12 @@ class _TrazabilidadConfigPageState
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(ErrorMapper.map(snapshot.error)),
-            ));
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text(ErrorMapper.map(snapshot.error)),
+              ),
+            );
           }
           final products = (snapshot.data ?? const <ProductoBusqueda>[])
               .where((row) => row.activo)
@@ -151,9 +157,9 @@ class _TrazabilidadConfigPageState
             children: [
               Text(
                 'Capacidades del negocio',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 6),
               const Text(
@@ -170,10 +176,10 @@ class _TrazabilidadConfigPageState
                   onChanged: _savingCapabilities
                       ? null
                       : (value) => _saveCapabilities(
-                            lot: value,
-                            expiry: value ? caps.expiryTracking : false,
-                            serial: caps.serialNumberTracking,
-                          ),
+                          lot: value,
+                          expiry: value ? caps.expiryTracking : false,
+                          serial: caps.serialNumberTracking,
+                        ),
                 ),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
@@ -183,10 +189,10 @@ class _TrazabilidadConfigPageState
                   onChanged: _savingCapabilities || !caps.lotTracking
                       ? null
                       : (value) => _saveCapabilities(
-                            lot: caps.lotTracking,
-                            expiry: value,
-                            serial: caps.serialNumberTracking,
-                          ),
+                          lot: caps.lotTracking,
+                          expiry: value,
+                          serial: caps.serialNumberTracking,
+                        ),
                 ),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
@@ -195,10 +201,10 @@ class _TrazabilidadConfigPageState
                   onChanged: _savingCapabilities
                       ? null
                       : (value) => _saveCapabilities(
-                            lot: caps.lotTracking,
-                            expiry: caps.expiryTracking,
-                            serial: value,
-                          ),
+                          lot: caps.lotTracking,
+                          expiry: caps.expiryTracking,
+                          serial: value,
+                        ),
                 ),
               ],
               const Divider(height: 32),
@@ -211,11 +217,20 @@ class _TrazabilidadConfigPageState
                 initialValue: _productId,
                 isExpanded: true,
                 decoration: const InputDecoration(labelText: 'Producto'),
-                items: products.map((row) => DropdownMenuItem(
-                  value: row.id,
-                  child: Text(row.nombre, overflow: TextOverflow.ellipsis),
-                )).toList(growable: false),
-                onChanged: (value) { if (value != null) _load(value); },
+                items: products
+                    .map(
+                      (row) => DropdownMenuItem(
+                        value: row.id,
+                        child: Text(
+                          row.nombre,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    )
+                    .toList(growable: false),
+                onChanged: (value) {
+                  if (value != null) _load(value);
+                },
               ),
               const SizedBox(height: 20),
               if (_loading)
@@ -240,14 +255,16 @@ class _TrazabilidadConfigPageState
                   ],
                   onChanged: (mode) {
                     if (mode == null) return;
-                    setState(() => _config = ProductTraceabilityConfig(
-                      productId: _config!.productId,
-                      mode: mode,
-                      expiryRequired: mode == ProductTraceabilityMode.lot
-                          ? _config!.expiryRequired
-                          : false,
-                      revision: _config!.revision,
-                    ));
+                    setState(
+                      () => _config = ProductTraceabilityConfig(
+                        productId: _config!.productId,
+                        mode: mode,
+                        expiryRequired: mode == ProductTraceabilityMode.lot
+                            ? _config!.expiryRequired
+                            : false,
+                        revision: _config!.revision,
+                      ),
+                    );
                   },
                 ),
                 const SizedBox(height: 8),
@@ -256,12 +273,14 @@ class _TrazabilidadConfigPageState
                   title: const Text('Exigir vencimiento'),
                   value: _config!.expiryRequired,
                   onChanged: _config!.mode == ProductTraceabilityMode.lot
-                      ? (value) => setState(() => _config = ProductTraceabilityConfig(
+                      ? (value) => setState(
+                          () => _config = ProductTraceabilityConfig(
                             productId: _config!.productId,
                             mode: _config!.mode,
                             expiryRequired: value,
                             revision: _config!.revision,
-                          ))
+                          ),
+                        )
                       : null,
                 ),
                 const SizedBox(height: 18),

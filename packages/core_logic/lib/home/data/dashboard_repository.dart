@@ -67,11 +67,7 @@ class DashboardRepository {
   }) async {
     final response = await _client.rpc(
       'obtener_tendencia_movimientos',
-      params: {
-        'p_tipo': tipo,
-        'p_inicio': inicioIso,
-        'p_fin': finIso,
-      },
+      params: {'p_tipo': tipo, 'p_inicio': inicioIso, 'p_fin': finIso},
     );
 
     final rows = response as List<dynamic>;

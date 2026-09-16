@@ -18,7 +18,12 @@ class ProductoDetailSheet extends ConsumerWidget {
     this.modoInactivos = false,
   });
 
-  static void show(BuildContext context, WidgetRef ref, Map<String, dynamic> p, {required bool modoInactivos}) {
+  static void show(
+    BuildContext context,
+    WidgetRef ref,
+    Map<String, dynamic> p, {
+    required bool modoInactivos,
+  }) {
     final widget = ProductoDetailSheet(p: p, modoInactivos: modoInactivos);
 
     if (MediaQuery.of(context).size.width > 900) {
@@ -85,8 +90,9 @@ class ProductoDetailSheet extends ConsumerWidget {
     final stockTotal = productSnapshot.unitConfiguration == null
         ? StockUtils.formatStock(totalUnidades, pcs, tipoVenta)
         : unitProfile.formatBaseQuantity(totalUnidades.toDouble());
-    
-    final colorTexto = Theme.of(context).textTheme.bodyLarge?.color ?? const Color(0xFF1F2937);
+
+    final colorTexto =
+        Theme.of(context).textTheme.bodyLarge?.color ?? const Color(0xFF1F2937);
     final primaryTexto = Theme.of(context).brightness == Brightness.dark
         ? Colors.greenAccent
         : Theme.of(context).colorScheme.primary;
@@ -200,7 +206,8 @@ class ProductoDetailSheet extends ConsumerWidget {
                           : 'BASE: ${unitProfile.baseUnit.singularLabel.toUpperCase()}',
                       primaryTexto,
                     ),
-                    if (muestraContenido && productSnapshot.unitConfiguration == null)
+                    if (muestraContenido &&
+                        productSnapshot.unitConfiguration == null)
                       _badgeLarge(
                         StockUtils.descripcionContenido(pcs, tipoVenta),
                         colorDorado,
@@ -305,9 +312,16 @@ class ProductoDetailSheet extends ConsumerWidget {
                               p,
                               almacen['id'],
                             );
-                            final textoStock = productSnapshot.unitConfiguration == null
-                                ? StockUtils.formatStock(cantUnid, pcs, tipoVenta)
-                                : unitProfile.formatBaseQuantity(cantUnid.toDouble());
+                            final textoStock =
+                                productSnapshot.unitConfiguration == null
+                                ? StockUtils.formatStock(
+                                    cantUnid,
+                                    pcs,
+                                    tipoVenta,
+                                  )
+                                : unitProfile.formatBaseQuantity(
+                                    cantUnid.toDouble(),
+                                  );
 
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 10),
@@ -427,12 +441,13 @@ class ProductoDetailSheet extends ConsumerWidget {
                           icon: Icons.delete_forever_outlined,
                           label: "Eliminar definitivamente",
                           color: Colors.red,
-                          onTap: () => _mostrarDialogoEliminacionSegura(context, ref, p),
+                          onTap: () =>
+                              _mostrarDialogoEliminacionSegura(context, ref, p),
                         ),
                       ),
                     ],
                   )
-                 else if (esAdmin)
+                else if (esAdmin)
                   Row(
                     children: [
                       Expanded(
@@ -474,7 +489,8 @@ class ProductoDetailSheet extends ConsumerWidget {
                           icon: Icons.visibility_off_outlined,
                           label: "Desactivar",
                           color: Colors.orange,
-                          onTap: () => _mostrarDialogoDesactivar(context, ref, p),
+                          onTap: () =>
+                              _mostrarDialogoDesactivar(context, ref, p),
                         ),
                       ),
                     ],
@@ -488,7 +504,8 @@ class ProductoDetailSheet extends ConsumerWidget {
                       label: 'Unidades y presentaciones',
                       color: primaryTexto,
                       onTap: () async {
-                        final modoOffline = ref
+                        final modoOffline =
+                            ref
                                 .read(almacenNotifierProvider)
                                 .value
                                 ?.modoOffline ??
@@ -507,7 +524,8 @@ class ProductoDetailSheet extends ConsumerWidget {
                           MaterialPageRoute(
                             builder: (_) => ProductUnitConfigurationPage(
                               productId: (p['id'] as num).toInt(),
-                              productName: p['nombre']?.toString() ?? 'Producto',
+                              productName:
+                                  p['nombre']?.toString() ?? 'Producto',
                               legacyProfile: productSnapshot.commercialProfile,
                             ),
                           ),
@@ -522,7 +540,8 @@ class ProductoDetailSheet extends ConsumerWidget {
                       icon: Icons.delete_forever_outlined,
                       label: "Eliminar definitivamente",
                       color: Colors.red,
-                      onTap: () => _mostrarDialogoEliminacionSegura(context, ref, p),
+                      onTap: () =>
+                          _mostrarDialogoEliminacionSegura(context, ref, p),
                     ),
                   ),
                 ],
@@ -539,10 +558,15 @@ class ProductoDetailSheet extends ConsumerWidget {
   // Diálogos de confirmación — La vista es dueña de la UI, el notifier de la lógica.
   // ---------------------------------------------------------------------------
 
-  Future<void> _mostrarDialogoDesactivar(BuildContext context, WidgetRef ref, Map<String, dynamic> producto) async {
+  Future<void> _mostrarDialogoDesactivar(
+    BuildContext context,
+    WidgetRef ref,
+    Map<String, dynamic> producto,
+  ) async {
     final int idProducto = producto['id'];
     final int stockTotal = (producto['_totalStock'] as int?) ?? 0;
-    final modoOffline = ref.read(almacenNotifierProvider).value?.modoOffline ?? false;
+    final modoOffline =
+        ref.read(almacenNotifierProvider).value?.modoOffline ?? false;
 
     if (modoOffline) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -573,16 +597,25 @@ class ProductoDetailSheet extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: Colors.orange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.orange.withValues(alpha: 0.5)),
+                  border: Border.all(
+                    color: Colors.orange.withValues(alpha: 0.5),
+                  ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
+                    const Icon(
+                      Icons.warning_amber_rounded,
+                      color: Colors.orange,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Este producto aún tiene stock disponible ($stockTotal). No aparecerá en las ventas, pero el historial se conserva.',
-                        style: const TextStyle(fontSize: 13, color: Colors.orange),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.orange,
+                        ),
                       ),
                     ),
                   ],
@@ -599,7 +632,10 @@ class ProductoDetailSheet extends ConsumerWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('DESACTIVAR', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'DESACTIVAR',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -608,7 +644,9 @@ class ProductoDetailSheet extends ConsumerWidget {
     if (confirm != true || !context.mounted) return;
 
     try {
-      await ref.read(almacenNotifierProvider.notifier).desactivarProducto(idProducto);
+      await ref
+          .read(almacenNotifierProvider.notifier)
+          .desactivarProducto(idProducto);
       if (!context.mounted) return;
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -632,7 +670,8 @@ class ProductoDetailSheet extends ConsumerWidget {
     Map<String, dynamic> producto,
   ) async {
     final productoId = (producto['id'] as num?)?.toInt();
-    final modoOffline = ref.read(almacenNotifierProvider).value?.modoOffline ?? false;
+    final modoOffline =
+        ref.read(almacenNotifierProvider).value?.modoOffline ?? false;
 
     if (productoId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -647,7 +686,9 @@ class ProductoDetailSheet extends ConsumerWidget {
     if (modoOffline) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('No puedes eliminar definitivamente un producto sin conexión.'),
+          content: Text(
+            'No puedes eliminar definitivamente un producto sin conexión.',
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -679,13 +720,15 @@ class ProductoDetailSheet extends ConsumerWidget {
     Navigator.of(context).pop();
 
     final puedeEliminar = evaluacion['puede_eliminar'] == true;
-    final movimientosApertura = (evaluacion['movimientos_apertura'] as num?)?.toInt() ?? 0;
+    final movimientosApertura =
+        (evaluacion['movimientos_apertura'] as num?)?.toInt() ?? 0;
     final stockTotal = (evaluacion['stock_total'] as num?)?.toInt() ?? 0;
     final rawBloqueos = evaluacion['bloqueos'];
     final bloqueos = rawBloqueos is List
         ? rawBloqueos
               .map((item) {
-                if (item is Map && item['mensaje'] != null) return item['mensaje'].toString();
+                if (item is Map && item['mensaje'] != null)
+                  return item['mensaje'].toString();
                 return item.toString();
               })
               .where((item) => item.trim().isNotEmpty)
@@ -696,15 +739,21 @@ class ProductoDetailSheet extends ConsumerWidget {
       final confirmar = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: const Text('Eliminar definitivamente'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('"${producto['nombre'] ?? 'Producto'}" nunca fue utilizado en una operación real.'),
+              Text(
+                '"${producto['nombre'] ?? 'Producto'}" nunca fue utilizado en una operación real.',
+              ),
               const SizedBox(height: 12),
-              const Text('Se eliminarán el producto, su stock actual y sus movimientos de apertura. Esta acción no se puede deshacer.'),
+              const Text(
+                'Se eliminarán el producto, su stock actual y sus movimientos de apertura. Esta acción no se puede deshacer.',
+              ),
               if (movimientosApertura > 0 || stockTotal > 0) ...[
                 const SizedBox(height: 12),
                 Text(
@@ -715,11 +764,17 @@ class ProductoDetailSheet extends ConsumerWidget {
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancelar'),
+            ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('ELIMINAR DEFINITIVAMENTE', style: TextStyle(color: Colors.white)),
+              child: const Text(
+                'ELIMINAR DEFINITIVAMENTE',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),
@@ -741,7 +796,10 @@ class ProductoDetailSheet extends ConsumerWidget {
         Navigator.of(context).pop();
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Producto eliminado definitivamente.'), backgroundColor: Colors.green),
+          const SnackBar(
+            content: Text('Producto eliminado definitivamente.'),
+            backgroundColor: Colors.green,
+          ),
         );
       } catch (e) {
         if (context.mounted) Navigator.of(context).pop();
@@ -763,7 +821,9 @@ class ProductoDetailSheet extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('El producto ya tiene historial operativo o relaciones con otros documentos. Para conservar la auditoría solo puede desactivarse.'),
+            const Text(
+              'El producto ya tiene historial operativo o relaciones con otros documentos. Para conservar la auditoría solo puede desactivarse.',
+            ),
             if (bloqueos.isNotEmpty) ...[
               const SizedBox(height: 12),
               ...bloqueos.map(
@@ -771,7 +831,10 @@ class ProductoDetailSheet extends ConsumerWidget {
                   padding: const EdgeInsets.only(bottom: 6),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [const Text('• '), Expanded(child: Text(mensaje))],
+                    children: [
+                      const Text('• '),
+                      Expanded(child: Text(mensaje)),
+                    ],
                   ),
                 ),
               ),
@@ -779,11 +842,17 @@ class ProductoDetailSheet extends ConsumerWidget {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('DESACTIVAR PRODUCTO', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'DESACTIVAR PRODUCTO',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -792,11 +861,16 @@ class ProductoDetailSheet extends ConsumerWidget {
     if (desactivar != true || !context.mounted) return;
 
     try {
-      await ref.read(almacenNotifierProvider.notifier).desactivarProducto(productoId);
+      await ref
+          .read(almacenNotifierProvider.notifier)
+          .desactivarProducto(productoId);
       if (!context.mounted) return;
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Producto desactivado correctamente.'), backgroundColor: Colors.orange),
+        const SnackBar(
+          content: Text('Producto desactivado correctamente.'),
+          backgroundColor: Colors.orange,
+        ),
       );
     } catch (e) {
       if (context.mounted) {

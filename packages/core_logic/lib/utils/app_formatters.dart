@@ -15,7 +15,8 @@ DateTime toLima(dynamic raw) {
   if (raw is DateTime) {
     dt = raw;
   } else {
-    dt = DateTime.tryParse(raw.toString()) ??
+    dt =
+        DateTime.tryParse(raw.toString()) ??
         DateTime.now().toUtc().add(_limaOffset);
   }
   return dt.toUtc().add(_limaOffset);

@@ -95,25 +95,28 @@ final desktopSaveProductUseCaseProvider = Provider<SaveProductUseCase>((ref) {
   );
 });
 
-final desktopProductFormCatalogProvider = FutureProvider.autoDispose<ProductFormCatalog>(
-  (ref) => LoadProductFormCatalogUseCase(
-    AlmacenProductFormCatalogGateway(ref.read(almacenRepositoryProvider)),
-  ).execute(),
-);
+final desktopProductFormCatalogProvider =
+    FutureProvider.autoDispose<ProductFormCatalog>(
+      (ref) => LoadProductFormCatalogUseCase(
+        AlmacenProductFormCatalogGateway(ref.read(almacenRepositoryProvider)),
+      ).execute(),
+    );
 
-final desktopProductUnitGatewayProvider = Provider<ProductUnitConfigurationGateway>(
-  (ref) => SupabaseProductUnitConfigurationGateway(ref.read(supabaseProvider)),
-);
+final desktopProductUnitGatewayProvider =
+    Provider<ProductUnitConfigurationGateway>(
+      (ref) =>
+          SupabaseProductUnitConfigurationGateway(ref.read(supabaseProvider)),
+    );
 
 final desktopProductUnitSettingsProvider = FutureProvider.autoDispose
     .family<ProductUnitSettings, int>((ref, productId) {
-  return ref.watch(desktopProductUnitGatewayProvider).load(productId);
-});
+      return ref.watch(desktopProductUnitGatewayProvider).load(productId);
+    });
 
 final desktopSaveProductUnitConfigurationUseCaseProvider =
     Provider<SaveProductUnitConfigurationUseCase>((ref) {
-  return SaveProductUnitConfigurationUseCase(
-    gateway: ref.watch(desktopProductUnitGatewayProvider),
-    authorizer: ref.watch(operationAuthorizerProvider),
-  );
-});
+      return SaveProductUnitConfigurationUseCase(
+        gateway: ref.watch(desktopProductUnitGatewayProvider),
+        authorizer: ref.watch(operationAuthorizerProvider),
+      );
+    });

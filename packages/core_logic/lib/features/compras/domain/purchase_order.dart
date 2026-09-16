@@ -7,22 +7,24 @@ enum PurchaseOrderStatus {
   received,
   cancelled;
 
-  static PurchaseOrderStatus parse(String raw) => switch (raw.trim().toLowerCase()) {
-        'draft' || 'borrador' => PurchaseOrderStatus.draft,
-        'ordered' || 'ordenada' => PurchaseOrderStatus.ordered,
-        'partially_received' || 'parcial' => PurchaseOrderStatus.partiallyReceived,
-        'received' || 'recibida' => PurchaseOrderStatus.received,
-        'cancelled' || 'anulada' => PurchaseOrderStatus.cancelled,
-        _ => throw FormatException('Estado de orden de compra desconocido: $raw'),
-      };
+  static PurchaseOrderStatus parse(String raw) => switch (raw
+      .trim()
+      .toLowerCase()) {
+    'draft' || 'borrador' => PurchaseOrderStatus.draft,
+    'ordered' || 'ordenada' => PurchaseOrderStatus.ordered,
+    'partially_received' || 'parcial' => PurchaseOrderStatus.partiallyReceived,
+    'received' || 'recibida' => PurchaseOrderStatus.received,
+    'cancelled' || 'anulada' => PurchaseOrderStatus.cancelled,
+    _ => throw FormatException('Estado de orden de compra desconocido: $raw'),
+  };
 
   String get databaseValue => switch (this) {
-        PurchaseOrderStatus.draft => 'draft',
-        PurchaseOrderStatus.ordered => 'ordered',
-        PurchaseOrderStatus.partiallyReceived => 'partially_received',
-        PurchaseOrderStatus.received => 'received',
-        PurchaseOrderStatus.cancelled => 'cancelled',
-      };
+    PurchaseOrderStatus.draft => 'draft',
+    PurchaseOrderStatus.ordered => 'ordered',
+    PurchaseOrderStatus.partiallyReceived => 'partially_received',
+    PurchaseOrderStatus.received => 'received',
+    PurchaseOrderStatus.cancelled => 'cancelled',
+  };
 }
 
 class PurchaseOrderLine {
@@ -76,7 +78,8 @@ class PurchaseOrderRecord {
   final List<PurchaseOrderLine> lines;
 
   double get total => lines.fold(0, (sum, line) => sum + line.orderedAmount);
-  bool get canReceive => status == PurchaseOrderStatus.ordered ||
+  bool get canReceive =>
+      status == PurchaseOrderStatus.ordered ||
       status == PurchaseOrderStatus.partiallyReceived;
 }
 
@@ -117,9 +120,10 @@ class PurchaseReceiptLine {
     required this.purchaseOrderLineId,
     required this.baseQuantity,
     Iterable<LotReceiptAllocation> lots = const <LotReceiptAllocation>[],
-    Iterable<SerialReceiptAllocation> serials = const <SerialReceiptAllocation>[],
-  })  : lots = List<LotReceiptAllocation>.unmodifiable(lots),
-        serials = List<SerialReceiptAllocation>.unmodifiable(serials);
+    Iterable<SerialReceiptAllocation> serials =
+        const <SerialReceiptAllocation>[],
+  }) : lots = List<LotReceiptAllocation>.unmodifiable(lots),
+       serials = List<SerialReceiptAllocation>.unmodifiable(serials);
 
   final int purchaseOrderLineId;
   final double baseQuantity;

@@ -64,7 +64,9 @@ class _VerNotaCreditoPageState extends ConsumerState<VerNotaCreditoPage> {
         _cargando = false;
       });
     } catch (e, st) {
-      debugPrint('VerNotaCreditoPage: fallo al cargar ${widget.notaCreditoId}: $e');
+      debugPrint(
+        'VerNotaCreditoPage: fallo al cargar ${widget.notaCreditoId}: $e',
+      );
       debugPrintStack(stackTrace: st);
       if (!mounted) return;
       setState(() {
@@ -208,9 +210,8 @@ class _VerNotaCreditoPageState extends ConsumerState<VerNotaCreditoPage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => const Center(
-        child: CircularProgressIndicator(color: Colors.white),
-      ),
+      builder: (ctx) =>
+          const Center(child: CircularProgressIndicator(color: Colors.white)),
     );
 
     try {
@@ -220,7 +221,8 @@ class _VerNotaCreditoPageState extends ConsumerState<VerNotaCreditoPage> {
 
       if (response.statusCode == 200) {
         final tempDir = await getTemporaryDirectory();
-        final fileName = '${_nota?['serie'] ?? 'DOC'}-${_nota?['correlativo'] ?? '0000'}.$tipo';
+        final fileName =
+            '${_nota?['serie'] ?? 'DOC'}-${_nota?['correlativo'] ?? '0000'}.$tipo';
         final file = File('${tempDir.path}/$fileName');
         await file.writeAsBytes(response.bodyBytes);
 

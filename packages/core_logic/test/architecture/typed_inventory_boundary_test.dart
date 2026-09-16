@@ -39,10 +39,7 @@ void main() {
       );
 
       expect(source, contains('Future<StockMovementResult> register('));
-      expect(
-        source,
-        isNot(contains('Future<Map<String, dynamic>> register(')),
-      );
+      expect(source, isNot(contains('Future<Map<String, dynamic>> register(')));
     });
 
     test('product lifecycle evaluation is typed', () {

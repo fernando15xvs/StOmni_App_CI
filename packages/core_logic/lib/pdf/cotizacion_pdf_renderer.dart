@@ -222,7 +222,9 @@ class CotizacionPdfRenderer {
                     color: PdfDocumentTheme.verde.shade(0.3),
                     width: 1,
                   ),
-                  borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
+                  borderRadius: const pw.BorderRadius.all(
+                    pw.Radius.circular(4),
+                  ),
                 ),
                 child: pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.center,
@@ -422,8 +424,9 @@ class CotizacionPdfRenderer {
             child: pw.Text(
               valor,
               style: pw.TextStyle(fontSize: 7 * scale),
-              textAlign:
-                  alinearDerecha ? pw.TextAlign.right : pw.TextAlign.left,
+              textAlign: alinearDerecha
+                  ? pw.TextAlign.right
+                  : pw.TextAlign.left,
             ),
           ),
         ],

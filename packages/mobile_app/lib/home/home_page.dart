@@ -84,7 +84,8 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Future<void> _showAdminManagement() async {
     final capabilities = _businessProfile?.capabilities;
-    bool enabled(BusinessModule module) => capabilities != null &&
+    bool enabled(BusinessModule module) =>
+        capabilities != null &&
         BusinessModulePolicy.isEnabled(capabilities, module);
 
     final destination = await showModalBottomSheet<String>(
@@ -123,7 +124,9 @@ class _HomePageState extends ConsumerState<HomePage> {
             ListTile(
               leading: const Icon(Icons.sell_outlined),
               title: const Text('Precios y promociones'),
-              subtitle: const Text('Reglas por producto, presentación y cantidad'),
+              subtitle: const Text(
+                'Reglas por producto, presentación y cantidad',
+              ),
               onTap: () => Navigator.pop(context, 'pricing'),
             ),
             if (enabled(BusinessModule.traceability))
@@ -164,7 +167,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     final currentIndex = ref.watch(homeTabProvider);
     final isAdmin = AppRoles.isAdmin(ref.watch(rolProvider));
-    final inventoryEnabled = _businessProfile?.capabilities.inventoryEnabled == true;
+    final inventoryEnabled =
+        _businessProfile?.capabilities.inventoryEnabled == true;
     if (currentIndex >= 0 && currentIndex < _paginasVisitadas.length) {
       _paginasVisitadas[currentIndex] = true;
     }

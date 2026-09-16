@@ -80,6 +80,7 @@ class SupabaseCustomerGateway implements CustomerGateway {
       final text = value?.toString().trim() ?? '';
       return text.isEmpty ? null : text;
     }
+
     return CustomerRecord(
       id: id,
       name: name,

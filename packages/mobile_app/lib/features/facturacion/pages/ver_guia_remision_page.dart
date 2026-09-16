@@ -18,7 +18,8 @@ class VerGuiaRemisionPage extends ConsumerStatefulWidget {
   const VerGuiaRemisionPage({super.key, required this.guiaId});
 
   @override
-  ConsumerState<VerGuiaRemisionPage> createState() => _VerGuiaRemisionPageState();
+  ConsumerState<VerGuiaRemisionPage> createState() =>
+      _VerGuiaRemisionPageState();
 }
 
 class _VerGuiaRemisionPageState extends ConsumerState<VerGuiaRemisionPage> {
@@ -235,9 +236,8 @@ class _VerGuiaRemisionPageState extends ConsumerState<VerGuiaRemisionPage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => const Center(
-        child: CircularProgressIndicator(color: Colors.white),
-      ),
+      builder: (ctx) =>
+          const Center(child: CircularProgressIndicator(color: Colors.white)),
     );
 
     try {
@@ -247,7 +247,8 @@ class _VerGuiaRemisionPageState extends ConsumerState<VerGuiaRemisionPage> {
 
       if (response.statusCode == 200) {
         final tempDir = await getTemporaryDirectory();
-        final fileName = '${_guia?['serie'] ?? 'GUIA'}-${_guia?['correlativo'] ?? '0000'}.$tipo';
+        final fileName =
+            '${_guia?['serie'] ?? 'GUIA'}-${_guia?['correlativo'] ?? '0000'}.$tipo';
         final file = File('${tempDir.path}/$fileName');
         await file.writeAsBytes(response.bodyBytes);
 
@@ -330,10 +331,7 @@ class _VerGuiaRemisionPageState extends ConsumerState<VerGuiaRemisionPage> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Eliminar',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -648,7 +646,8 @@ class _VerGuiaRemisionPageState extends ConsumerState<VerGuiaRemisionPage> {
                         ]
                         .where(
                           (value) =>
-                              value != null && value.toString().trim().isNotEmpty,
+                              value != null &&
+                              value.toString().trim().isNotEmpty,
                         )
                         .join(' '),
                   ),
@@ -662,7 +661,8 @@ class _VerGuiaRemisionPageState extends ConsumerState<VerGuiaRemisionPage> {
                   ),
                   _info(
                     'Dirección agencia',
-                    guia['agencia_origen_direccion_snapshot']?.toString() ?? '-',
+                    guia['agencia_origen_direccion_snapshot']?.toString() ??
+                        '-',
                   ),
                   const Divider(height: 22),
                   const Text(
@@ -698,12 +698,10 @@ class _VerGuiaRemisionPageState extends ConsumerState<VerGuiaRemisionPage> {
                   Text(
                     'La GRE Transportista del segundo tramo debe emitirla la '
                     'empresa que presta ese servicio.',
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                   ),
-                ] else if (esPublico && guia['tipo_guia'] != 'transportista') ...[
+                ] else if (esPublico &&
+                    guia['tipo_guia'] != 'transportista') ...[
                   _info(
                     'Transportista',
                     guia['transportista_razon_social_snapshot']?.toString() ??
@@ -726,7 +724,8 @@ class _VerGuiaRemisionPageState extends ConsumerState<VerGuiaRemisionPage> {
                         ]
                         .where(
                           (value) =>
-                              value != null && value.toString().trim().isNotEmpty,
+                              value != null &&
+                              value.toString().trim().isNotEmpty,
                         )
                         .join(' '),
                   ),

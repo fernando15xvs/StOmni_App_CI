@@ -61,8 +61,7 @@ class _GreProductoEditorDialogState extends State<_GreProductoEditorDialog> {
   @override
   void initState() {
     super.initState();
-    final cantidadActual =
-        (widget.item['cantidad'] as num?)?.toDouble() ?? 0;
+    final cantidadActual = (widget.item['cantidad'] as num?)?.toDouble() ?? 0;
     _piezasActuales =
         (widget.item['piezas_reales'] as num?)?.toInt() ??
         cantidadActual.round();
@@ -74,8 +73,7 @@ class _GreProductoEditorDialogState extends State<_GreProductoEditorDialog> {
       text: ((widget.item['peso_unitario_kg'] as num?)?.toDouble() ?? 0)
           .toStringAsFixed(3),
     );
-    _unidad =
-        widget.item['unidad']?.toString().trim().toUpperCase() ?? 'NIU';
+    _unidad = widget.item['unidad']?.toString().trim().toUpperCase() ?? 'NIU';
     _unidadesPermitidas = GreItemRules.unidadesPermitidas(
       widget.producto,
       _unidad,
@@ -94,8 +92,7 @@ class _GreProductoEditorDialogState extends State<_GreProductoEditorDialog> {
     try {
       final nuevaCantidad =
           double.tryParse(_cantidad.text.replaceAll(',', '.')) ?? 0;
-      final nuevoPeso =
-          double.tryParse(_peso.text.replaceAll(',', '.')) ?? -1;
+      final nuevoPeso = double.tryParse(_peso.text.replaceAll(',', '.')) ?? -1;
       if (nuevoPeso < 0) {
         throw const FormatException('El peso no puede ser negativo.');
       }
@@ -191,7 +188,9 @@ class _GreProductoEditorDialogState extends State<_GreProductoEditorDialog> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     _error!,
-                    style: TextStyle(color: Theme.of(context).colorScheme.error),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
                 ),
               ],

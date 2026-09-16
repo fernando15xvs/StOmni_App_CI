@@ -17,7 +17,8 @@ class DynamicHomeFab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(homeTabProvider);
-    final canCreateProducts = ref.watch(appPermissionsProvider)
+    final canCreateProducts = ref
+        .watch(appPermissionsProvider)
         .contains(AppPermission.productsCreate);
 
     if (currentIndex == 1) {

@@ -117,7 +117,9 @@ class _ProductUnitConfigurationPageState
         presentations: presentations,
       );
       PresentationPolicy.validate(profile);
-      await ref.read(saveProductUnitConfigurationUseCaseProvider).execute(
+      await ref
+          .read(saveProductUnitConfigurationUseCaseProvider)
+          .execute(
             productId: widget.productId,
             current: settings,
             profile: profile,
@@ -125,7 +127,9 @@ class _ProductUnitConfigurationPageState
       await ref.read(refreshProductUnitCatalogProvider)(widget.productId);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Unidades y presentaciones actualizadas.')),
+        const SnackBar(
+          content: Text('Unidades y presentaciones actualizadas.'),
+        ),
       );
       await _load();
     } catch (error) {
@@ -174,55 +178,55 @@ class _ProductUnitConfigurationPageState
       body: _busy && _settings == null
           ? const Center(child: CircularProgressIndicator())
           : _loadError != null
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          ErrorMapper.map(_loadError!),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 12),
-                        FilledButton.icon(
-                          onPressed: _load,
-                          icon: const Icon(Icons.refresh),
-                          label: const Text('Reintentar'),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              : ListView(
-                  padding: const EdgeInsets.all(16),
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Define la unidad base real del inventario y las presentaciones comerciales. '
-                      'La equivalencia siempre se expresa en cantidad de la unidad base.',
+                    Text(
+                      ErrorMapper.map(_loadError!),
+                      textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 16),
-                    for (var index = 0; index < _units.length; index++)
-                      _unitCard(index),
-                    OutlinedButton.icon(
-                      onPressed: _busy ? null : _addUnit,
-                      icon: const Icon(Icons.add),
-                      label: const Text('Agregar presentación'),
-                    ),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 12),
                     FilledButton.icon(
-                      onPressed: _busy ? null : _save,
-                      icon: _busy
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.save),
-                      label: Text(_busy ? 'Guardando...' : 'Guardar configuración'),
+                      onPressed: _load,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Reintentar'),
                     ),
                   ],
                 ),
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                const Text(
+                  'Define la unidad base real del inventario y las presentaciones comerciales. '
+                  'La equivalencia siempre se expresa en cantidad de la unidad base.',
+                ),
+                const SizedBox(height: 16),
+                for (var index = 0; index < _units.length; index++)
+                  _unitCard(index),
+                OutlinedButton.icon(
+                  onPressed: _busy ? null : _addUnit,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Agregar presentación'),
+                ),
+                const SizedBox(height: 18),
+                FilledButton.icon(
+                  onPressed: _busy ? null : _save,
+                  icon: _busy
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.save),
+                  label: Text(_busy ? 'Guardando...' : 'Guardar configuración'),
+                ),
+              ],
+            ),
     );
   }
 
@@ -278,12 +282,16 @@ class _ProductUnitConfigurationPageState
                   child: TextFormField(
                     controller: draft.factor,
                     enabled: !_busy && !isBase,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
                     ],
                     decoration: InputDecoration(
-                      labelText: isBase ? 'Equivalencia base' : 'Equivalencia en base',
+                      labelText: isBase
+                          ? 'Equivalencia base'
+                          : 'Equivalencia en base',
                     ),
                   ),
                 ),
@@ -347,7 +355,9 @@ class _UnitDraft {
       precision: TextEditingController(
         text: presentation.quantityPrecision.toString(),
       ),
-      fiscalUnit: TextEditingController(text: presentation.fiscalUnitCode ?? ''),
+      fiscalUnit: TextEditingController(
+        text: presentation.fiscalUnitCode ?? '',
+      ),
     );
   }
 

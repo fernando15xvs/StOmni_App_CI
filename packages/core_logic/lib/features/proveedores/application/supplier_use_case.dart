@@ -50,14 +50,18 @@ class SupplierUseCase {
   const SupplierUseCase(this._gateway);
   final SupplierGateway _gateway;
 
-  Future<List<SupplierRecord>> list({String query = '', bool activeOnly = false}) =>
-      _gateway.list(query: query.trim(), activeOnly: activeOnly);
+  Future<List<SupplierRecord>> list({
+    String query = '',
+    bool activeOnly = false,
+  }) => _gateway.list(query: query.trim(), activeOnly: activeOnly);
 
   Future<SupplierRecord> save(SupplierDraft draft, {int? id}) async {
     final name = draft.name.trim();
     final document = draft.document.trim();
-    if (name.isEmpty) throw ArgumentError('El nombre del proveedor es obligatorio.');
-    if (document.isNotEmpty && await _gateway.documentExists(document, excludingId: id)) {
+    if (name.isEmpty)
+      throw ArgumentError('El nombre del proveedor es obligatorio.');
+    if (document.isNotEmpty &&
+        await _gateway.documentExists(document, excludingId: id)) {
       throw StateError('Ya existe un proveedor con ese documento.');
     }
     return _gateway.save(

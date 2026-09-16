@@ -58,7 +58,9 @@ class _VerProcesoTributarioPageState
         _cargando = false;
       });
     } catch (e, st) {
-      debugPrint('VerProcesoTributarioPage: fallo al cargar ${widget.procesoId}: $e');
+      debugPrint(
+        'VerProcesoTributarioPage: fallo al cargar ${widget.procesoId}: $e',
+      );
       debugPrintStack(stackTrace: st);
       if (!mounted) return;
       setState(() {

@@ -34,7 +34,8 @@ class _MobileSyncGateway implements SyncPendingOperationsGateway {
         .revalidateCurrentSession();
     return switch (result) {
       AuthRevalidationResult.valid => PendingSyncAuthorization.valid,
-      AuthRevalidationResult.unavailable => PendingSyncAuthorization.unavailable,
+      AuthRevalidationResult.unavailable =>
+        PendingSyncAuthorization.unavailable,
       AuthRevalidationResult.denied => PendingSyncAuthorization.denied,
     };
   }
@@ -50,7 +51,8 @@ class _MobileSyncGateway implements SyncPendingOperationsGateway {
   @override
   Future<void> refreshInventory() async {
     ref.read(pendingSalesRevisionProvider.notifier).state++;
-    await ref.read(inventorySyncAdapterProvider)
+    await ref
+        .read(inventorySyncAdapterProvider)
         .sincronizarTodo(propagarError: true);
   }
 }

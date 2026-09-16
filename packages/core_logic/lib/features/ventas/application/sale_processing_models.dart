@@ -83,20 +83,14 @@ class VentaProcessingRequest {
 }
 
 class VentaProcessingResult {
-  const VentaProcessingResult({
-    required this.idempotent,
-    this.comprobanteId,
-  });
+  const VentaProcessingResult({required this.idempotent, this.comprobanteId});
 
   final bool idempotent;
   final String? comprobanteId;
 }
 
 class ElectronicSaleDocumentResult {
-  const ElectronicSaleDocumentResult({
-    required this.estado,
-    this.mensaje,
-  });
+  const ElectronicSaleDocumentResult({required this.estado, this.mensaje});
 
   final String estado;
   final String? mensaje;

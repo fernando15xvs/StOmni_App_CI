@@ -15,10 +15,7 @@ void main() {
     expect(source, contains('ErrorMapper.map(e)'));
     expect(source, contains('ErrorMapper.map(error)'));
     expect(source, isNot(contains('_error = e.toString()')));
-    expect(
-      source,
-      isNot(contains(r"Text('No se pudo reintentar: $e')")),
-    );
+    expect(source, isNot(contains(r"Text('No se pudo reintentar: $e')")));
     expect(
       source,
       isNot(contains(r"Text('No se pudo reconciliar el proceso: $e')")),

@@ -85,7 +85,6 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
     }
   }
 
-
   Future<void> _cargarTodosLosDatos({bool isSilent = false}) async {
     if (!mounted) return;
     if (!isSilent) setState(() => _cargando = true);
@@ -93,7 +92,9 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
       await _cargarResumen();
       try {
         ref.invalidate(
-          graficoTendenciaProvider(TendenciaRequest('ingreso', _diasFiltroGrafico)),
+          graficoTendenciaProvider(
+            TendenciaRequest('ingreso', _diasFiltroGrafico),
+          ),
         );
         ref.invalidate(
           graficoTendenciaProvider(
@@ -120,10 +121,12 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
       final inicio = DateTime(now.year, now.month, now.day);
       final finExclusivo = inicio.add(const Duration(days: 1));
 
-      final res = await ref.read(dashboardRepositoryProvider).obtenerResumen(
-        inicioIso: AppTime.toIsoLima(inicio),
-        finIso: AppTime.toIsoLima(finExclusivo),
-      );
+      final res = await ref
+          .read(dashboardRepositoryProvider)
+          .obtenerResumen(
+            inicioIso: AppTime.toIsoLima(inicio),
+            finIso: AppTime.toIsoLima(finExclusivo),
+          );
 
       if (mounted) {
         setState(() {
@@ -157,12 +160,10 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
   }
 
   void _navTo(Widget page) {
-    AppNavigator.navegarA(
-      context,
-      page,
-    ).then((_) {
+    AppNavigator.navegarA(context, page).then((_) {
       if (!mounted) return;
-      final allowOffline = ref.read(authControllerProvider).sessionStatus ==
+      final allowOffline =
+          ref.read(authControllerProvider).sessionStatus ==
           SessionValidationStatus.offline;
       ref.invalidate(businessBrandingProvider(allowOffline));
       _cargarTodosLosDatos(isSilent: true);
@@ -419,10 +420,7 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
                           children: [
                             Row(
                               children: [
-                                _TenantBrandLogo(
-                                  branding: branding,
-                                  size: 32,
-                                ),
+                                _TenantBrandLogo(branding: branding, size: 32),
                                 const SizedBox(width: 9),
                                 Expanded(
                                   child: Text(
@@ -609,10 +607,6 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
 
     return Row(children: children);
   }
-
-
-
-
 
   Widget _buildShimmerLoading() {
     final isDark = Theme.of(context).brightness == Brightness.dark;

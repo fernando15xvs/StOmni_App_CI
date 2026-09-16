@@ -17,9 +17,9 @@ enum MetricSource {
   final String databaseValue;
 
   static MetricSource parse(String raw) => MetricSource.values.firstWhere(
-        (value) => value.databaseValue == raw.trim().toLowerCase(),
-        orElse: () => throw FormatException('Métrica desconocida: $raw'),
-      );
+    (value) => value.databaseValue == raw.trim().toLowerCase(),
+    orElse: () => throw FormatException('Métrica desconocida: $raw'),
+  );
 }
 
 enum MetricFormat {
@@ -30,9 +30,9 @@ enum MetricFormat {
   final String databaseValue;
 
   static MetricFormat parse(String raw) => MetricFormat.values.firstWhere(
-        (value) => value.databaseValue == raw.trim().toLowerCase(),
-        orElse: () => throw FormatException('Formato de métrica desconocido: $raw'),
-      );
+    (value) => value.databaseValue == raw.trim().toLowerCase(),
+    orElse: () => throw FormatException('Formato de métrica desconocido: $raw'),
+  );
 }
 
 class ConfigurableMetricDefinition {

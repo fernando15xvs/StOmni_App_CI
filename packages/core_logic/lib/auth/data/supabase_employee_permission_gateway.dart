@@ -10,13 +10,18 @@ class SupabaseEmployeePermissionGateway implements EmployeePermissionGateway {
 
   EmployeePermissionSettings _decode(dynamic raw) {
     if (raw is! Map) {
-      throw const FormatException('Respuesta de permisos de empleado inválida.');
+      throw const FormatException(
+        'Respuesta de permisos de empleado inválida.',
+      );
     }
     final map = Map<String, dynamic>.from(raw);
     final employeeId = (map['employee_id'] as num?)?.toInt();
     final role = map['role']?.toString().trim().toLowerCase() ?? '';
     final permissionMap = map['permissions'];
-    if (employeeId == null || employeeId <= 0 || role.isEmpty || permissionMap is! Map) {
+    if (employeeId == null ||
+        employeeId <= 0 ||
+        role.isEmpty ||
+        permissionMap is! Map) {
       throw const FormatException('Contrato de permisos de empleado inválido.');
     }
 

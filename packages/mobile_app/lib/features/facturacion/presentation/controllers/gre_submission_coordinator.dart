@@ -149,14 +149,16 @@ class GreSubmissionCoordinator {
         throw const FormatException('Selecciona conductor y vehículo.');
       }
 
-      final conductor = form.conductores.cast<Map<String, dynamic>?>().firstWhere(
+      final conductor = form.conductores
+          .cast<Map<String, dynamic>?>()
+          .firstWhere(
             (item) => (item?['id'] as num?)?.toInt() == form.conductorId,
             orElse: () => null,
           );
       final vehiculo = form.vehiculos.cast<Map<String, dynamic>?>().firstWhere(
-            (item) => (item?['id'] as num?)?.toInt() == form.vehiculoId,
-            orElse: () => null,
-          );
+        (item) => (item?['id'] as num?)?.toInt() == form.vehiculoId,
+        orElse: () => null,
+      );
 
       if ((conductor?['numero_licencia']?.toString().trim() ?? '').isEmpty ||
           (conductor?['apellidos']?.toString().trim() ?? '').isEmpty) {
@@ -232,8 +234,8 @@ class GrePreparedSubmission {
       transferenciaId: transferenciaId ?? form.transferenciaIdGuardada,
       documentoRelacionadoTipo:
           (form.documentoTipo == null || form.documentoTipo!.isEmpty)
-              ? null
-              : form.documentoTipo,
+          ? null
+          : form.documentoTipo,
       documentoRelacionadoNumero: form.documentoNumeroCtrl.text.trim().isEmpty
           ? null
           : form.documentoNumeroCtrl.text.trim(),
@@ -272,15 +274,17 @@ class GrePreparedSubmission {
           ? null
           : form.vehiculoId,
       indTransbordo: form.indTransbordo,
-      transportistaTransbordoId:
-          form.indTransbordo ? form.transportistaTransbordoId : null,
+      transportistaTransbordoId: form.indTransbordo
+          ? form.transportistaTransbordoId
+          : null,
       agenciaOrigenId: form.indTransbordo ? form.agenciaOrigenId : null,
       agenciaDestinoId:
           form.indTransbordo && form.destinoEntregaTipo == 'agencia'
-              ? form.agenciaDestinoId
-              : null,
-      destinoEntregaTipo:
-          form.indTransbordo ? form.destinoEntregaTipo : 'direccion_cliente',
+          ? form.agenciaDestinoId
+          : null,
+      destinoEntregaTipo: form.indTransbordo
+          ? form.destinoEntregaTipo
+          : 'direccion_cliente',
       pesoTotal: peso,
       cantidadBultos: cantidadBultos,
       pesoEditado: form.pesoEditado,

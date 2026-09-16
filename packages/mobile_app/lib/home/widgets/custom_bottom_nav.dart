@@ -17,19 +17,21 @@ class CustomBottomNav extends ConsumerWidget {
   final bool inventoryEnabled;
 
   List<_HomeNavItem> get _items => [
-        const _HomeNavItem(0, Icons.home_filled, 'Inicio'),
-        const _HomeNavItem(1, Icons.account_balance_wallet_rounded, 'Balance'),
-        if (inventoryEnabled) ...const [
-          _HomeNavItem(2, Icons.inventory_2_rounded, 'Almacén'),
-          _HomeNavItem(3, Icons.swap_horiz_rounded, 'Movimientos'),
-        ],
-      ];
+    const _HomeNavItem(0, Icons.home_filled, 'Inicio'),
+    const _HomeNavItem(1, Icons.account_balance_wallet_rounded, 'Balance'),
+    if (inventoryEnabled) ...const [
+      _HomeNavItem(2, Icons.inventory_2_rounded, 'Almacén'),
+      _HomeNavItem(3, Icons.swap_horiz_rounded, 'Movimientos'),
+    ],
+  ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final items = _items;
     final currentIndex = ref.watch(homeTabProvider);
-    final selectedPosition = items.indexWhere((item) => item.index == currentIndex);
+    final selectedPosition = items.indexWhere(
+      (item) => item.index == currentIndex,
+    );
     final safeSelectedPosition = selectedPosition < 0 ? 0 : selectedPosition;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorPrincipal = isDark
@@ -43,9 +45,10 @@ class CustomBottomNav extends ConsumerWidget {
           onPanUpdate: (details) {
             final width = MediaQuery.of(context).size.width - 24;
             final dx = details.localPosition.dx.clamp(0.0, width);
-            final position = (dx / (width / items.length))
-                .floor()
-                .clamp(0, items.length - 1);
+            final position = (dx / (width / items.length)).floor().clamp(
+              0,
+              items.length - 1,
+            );
             final target = items[position].index;
             dragNotifier.value = items.length == 1
                 ? 0
@@ -94,8 +97,8 @@ class CustomBottomNav extends ConsumerWidget {
                           final targetAlignment = items.length == 1
                               ? 0.0
                               : -1.0 +
-                                  (safeSelectedPosition *
-                                      (2.0 / (items.length - 1)));
+                                    (safeSelectedPosition *
+                                        (2.0 / (items.length - 1)));
                           return AnimatedAlign(
                             duration: dragX == null
                                 ? const Duration(milliseconds: 280)

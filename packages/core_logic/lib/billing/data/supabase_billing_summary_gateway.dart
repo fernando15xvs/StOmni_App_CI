@@ -9,8 +9,9 @@ class SupabaseBillingSummaryGateway implements BillingSummaryGateway {
 
   @override
   Future<BillingSummary> getCurrentSummary() async {
-    final raw=await client.rpc('get_my_billing_summary_v1');
-    if(raw is! Map) throw const FormatException('El resumen de facturación es inválido.');
-    return BillingSummary.fromJson(Map<String,dynamic>.from(raw));
+    final raw = await client.rpc('get_my_billing_summary_v1');
+    if (raw is! Map)
+      throw const FormatException('El resumen de facturación es inválido.');
+    return BillingSummary.fromJson(Map<String, dynamic>.from(raw));
   }
 }

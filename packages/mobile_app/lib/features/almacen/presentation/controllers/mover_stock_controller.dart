@@ -9,11 +9,7 @@ class MoverStockState {
   final StockMovementResult? exito;
   final String? error;
 
-  const MoverStockState({
-    this.guardando = false,
-    this.exito,
-    this.error,
-  });
+  const MoverStockState({this.guardando = false, this.exito, this.error});
 
   MoverStockState copyWith({
     bool? guardando,
@@ -44,24 +40,20 @@ class MoverStockNotifier extends StateNotifier<MoverStockState> {
     required bool esMerma,
     required String motivo,
   }) async {
-    state = state.copyWith(
-      guardando: true,
-      clearExito: true,
-      clearError: true,
-    );
+    state = state.copyWith(guardando: true, clearExito: true, clearError: true);
 
     try {
       final result = await _ref.read(registerStockMovementUseCaseProvider)(
-            RegisterStockMovementCommand(
-              requestId: requestId,
-              productId: productoId,
-              quantity: cantidad,
-              sourceWarehouseId: origenId,
-              destinationWarehouseId: destinoId,
-              isWaste: esMerma,
-              reason: motivo,
-            ),
-          );
+        RegisterStockMovementCommand(
+          requestId: requestId,
+          productId: productoId,
+          quantity: cantidad,
+          sourceWarehouseId: origenId,
+          destinationWarehouseId: destinoId,
+          isWaste: esMerma,
+          reason: motivo,
+        ),
+      );
 
       triggerHomeRefresh();
       state = state.copyWith(guardando: false, exito: result);
@@ -86,7 +78,7 @@ class MoverStockNotifier extends StateNotifier<MoverStockState> {
   }
 }
 
-final moverStockNotifierProvider = StateNotifierProvider.autoDispose<
-    MoverStockNotifier, MoverStockState>(
-  (ref) => MoverStockNotifier(ref),
-);
+final moverStockNotifierProvider =
+    StateNotifierProvider.autoDispose<MoverStockNotifier, MoverStockState>(
+      (ref) => MoverStockNotifier(ref),
+    );

@@ -73,18 +73,12 @@ void main() {
       throwsA(isA<UserFacingException>()),
     );
     expect(
-      await authorizer.require(
-        {AppPermission.salesCreate},
-        allowOffline: true,
-      ),
+      await authorizer.require({AppPermission.salesCreate}, allowOffline: true),
       'user-1',
     );
     gateway.cachedAt = DateTime.now().subtract(const Duration(hours: 25));
     await expectLater(
-      authorizer.require(
-        {AppPermission.salesCreate},
-        allowOffline: true,
-      ),
+      authorizer.require({AppPermission.salesCreate}, allowOffline: true),
       throwsA(isA<UserFacingException>()),
     );
   });

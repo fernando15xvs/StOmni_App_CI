@@ -30,9 +30,6 @@ void main() {
       presentations: [unit, box],
     );
 
-    expect(
-      profile.toBaseQuantity(presentationCode: 'caja', quantity: 2),
-      24,
-    );
+    expect(profile.toBaseQuantity(presentationCode: 'caja', quantity: 2), 24);
   });
 }

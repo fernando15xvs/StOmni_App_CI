@@ -15,6 +15,9 @@ const SCENARIOS = Object.freeze([
   'E2E-10-onboarding-cross-tenant-filter-blocked',
 ]);
 
+const JWT_CLOCK_SKEW_MAX_RETRIES = 5;
+const JWT_CLOCK_SKEW_RETRY_DELAY_MS = 1000;
+
 const step = (id, message) => console.log(`[${id}] ${message}`);
 const fail = (message) => {
   throw new Error(message);
@@ -22,6 +25,16 @@ const fail = (message) => {
 const ensure = (condition, message) => {
   if (!condition) fail(message);
 };
+const delay = (milliseconds) =>
+  new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+function isJwtIssuedInFuture(response) {
+  return (
+    response.status === 401 &&
+    response.data?.code === 'PGRST303' &&
+    response.data?.message === 'JWT issued at future'
+  );
+}
 
 function parseEnvOutput(raw) {
   const values = {};
@@ -98,21 +111,38 @@ async function httpJson({
   if (body !== undefined) headers['Content-Type'] = 'application/json';
   if (prefer) headers.Prefer = prefer;
 
-  const response = await fetch(url, {
-    method,
-    headers,
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
-  const text = await response.text();
-  let data = null;
-  if (text.trim()) {
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = text;
+  const serializedBody = body === undefined ? undefined : JSON.stringify(body);
+  for (let attempt = 0; ; attempt += 1) {
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: serializedBody,
+    });
+    const text = await response.text();
+    let data = null;
+    if (text.trim()) {
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = text;
+      }
     }
+
+    const result = { ok: response.ok, status: response.status, data };
+    if (
+      !isJwtIssuedInFuture(result) ||
+      attempt >= JWT_CLOCK_SKEW_MAX_RETRIES
+    ) {
+      return result;
+    }
+
+    // PostgREST rejects the JWT before executing the request, so retrying only
+    // this exact transient validation error cannot duplicate a mutation.
+    console.warn(
+      `[JWT-CLOCK-SKEW] token aún no aceptado; reintento ${attempt + 1}/${JWT_CLOCK_SKEW_MAX_RETRIES}.`,
+    );
+    await delay(JWT_CLOCK_SKEW_RETRY_DELAY_MS);
   }
-  return { ok: response.ok, status: response.status, data };
 }
 
 function responseError(label, response) {

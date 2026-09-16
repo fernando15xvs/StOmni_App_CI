@@ -12,7 +12,10 @@ import 'business_profile_mapper.dart';
 
 /// Adaptador de perfil empresarial. El backend resuelve el tenant desde auth.uid().
 class SupabaseBusinessProfileGateway implements BusinessProfileGateway {
-  const SupabaseBusinessProfileGateway(this.client, {required this.cacheNamespace});
+  const SupabaseBusinessProfileGateway(
+    this.client, {
+    required this.cacheNamespace,
+  });
   final SupabaseClient client;
   final String cacheNamespace;
   static const _timeout = Duration(seconds: 10);
@@ -20,7 +23,9 @@ class SupabaseBusinessProfileGateway implements BusinessProfileGateway {
   String _user() {
     final user = client.auth.currentUser?.id;
     if (user == null || user.isEmpty) {
-      throw const UserFacingException('Inicia sesión para consultar el negocio.');
+      throw const UserFacingException(
+        'Inicia sesión para consultar el negocio.',
+      );
     }
     return user;
   }
@@ -72,15 +77,24 @@ class SupabaseBusinessProfileGateway implements BusinessProfileGateway {
   }) async {
     final user = _user();
     if (businessId.trim().isEmpty || !capabilities.supportedByCurrentBackend) {
-      throw const UserFacingException('Configuración de negocio no compatible.');
+      throw const UserFacingException(
+        'Configuración de negocio no compatible.',
+      );
     }
 
     final Object? raw;
     try {
-      raw = await client.rpc('update_business_capabilities_v1', params: {
-        'p_expected_revision': expectedRevision,
-        'p_capabilities': BusinessProfileMapper.encodeCapabilities(capabilities),
-      }).timeout(_timeout);
+      raw = await client
+          .rpc(
+            'update_business_capabilities_v1',
+            params: {
+              'p_expected_revision': expectedRevision,
+              'p_capabilities': BusinessProfileMapper.encodeCapabilities(
+                capabilities,
+              ),
+            },
+          )
+          .timeout(_timeout);
     } on PostgrestException catch (error) {
       if (error.code == '40001') {
         throw const UserFacingException(
@@ -116,10 +130,13 @@ class SupabaseBusinessProfileGateway implements BusinessProfileGateway {
     if (cacheNamespace.isEmpty) return;
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_cacheKey(user), jsonEncode({
-        'cached_at': DateTime.now().toUtc().toIso8601String(),
-        'profile': BusinessProfileMapper.encode(profile),
-      }));
+      await prefs.setString(
+        _cacheKey(user),
+        jsonEncode({
+          'cached_at': DateTime.now().toUtc().toIso8601String(),
+          'profile': BusinessProfileMapper.encode(profile),
+        }),
+      );
     } catch (_) {
       // Escritura remota confirmada; no se convierte en fallo ni se reintenta.
     }

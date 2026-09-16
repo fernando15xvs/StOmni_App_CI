@@ -30,7 +30,9 @@ void main() {
   test('metadata del paquete no conserva la descripcion placeholder', () {
     expect(
       pubspec,
-      contains('description: "StOmni - gestión de inventario, ventas y operaciones."'),
+      contains(
+        'description: "StOmni - gestión de inventario, ventas y operaciones."',
+      ),
     );
     expect(pubspec, isNot(contains('description: "A new Flutter project."')));
   });

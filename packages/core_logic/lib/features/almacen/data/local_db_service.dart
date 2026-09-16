@@ -204,8 +204,9 @@ class LocalDbService {
             (mapToInsert['permitir_sin_stock'] == true) ? 1 : 0;
       }
       if (mapToInsert['es_servicio'] != null) {
-        mapToInsert['es_servicio'] =
-            (mapToInsert['es_servicio'] == true) ? 1 : 0;
+        mapToInsert['es_servicio'] = (mapToInsert['es_servicio'] == true)
+            ? 1
+            : 0;
       }
       if (mapToInsert['activo'] != null) {
         mapToInsert['activo'] = (mapToInsert['activo'] == true) ? 1 : 0;
@@ -241,8 +242,7 @@ class LocalDbService {
           (mapToInsert['permitir_sin_stock'] == true) ? 1 : 0;
     }
     if (mapToInsert['es_servicio'] != null) {
-      mapToInsert['es_servicio'] =
-          (mapToInsert['es_servicio'] == true) ? 1 : 0;
+      mapToInsert['es_servicio'] = (mapToInsert['es_servicio'] == true) ? 1 : 0;
     }
     if (mapToInsert['activo'] != null) {
       mapToInsert['activo'] = (mapToInsert['activo'] == true) ? 1 : 0;
@@ -313,7 +313,8 @@ class LocalDbService {
   Future<bool> tieneProductosEnCache({bool incluirInactivos = false}) async {
     final db = await database;
     final where = incluirInactivos ? '' : ' WHERE activo = 1';
-    final count = Sqflite.firstIntValue(
+    final count =
+        Sqflite.firstIntValue(
           await db.rawQuery('SELECT COUNT(*) FROM productos$where'),
         ) ??
         0;

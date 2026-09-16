@@ -172,10 +172,7 @@ class EmpleadosRepository {
     await _requireAdmin();
     await _client
         .from('empleados')
-        .update({
-          'activo': true,
-          'fecha_actualizacion': AppTime.nowIso(),
-        })
+        .update({'activo': true, 'fecha_actualizacion': AppTime.nowIso()})
         .eq('id', empleadoId);
   }
 
@@ -389,10 +386,7 @@ class EmpleadosRepository {
     await _requireAdmin();
     try {
       await _client.functions
-          .invoke(
-            'delete_employee',
-            body: {'empleado_id': empleadoId},
-          )
+          .invoke('delete_employee', body: {'empleado_id': empleadoId})
           .timeout(const Duration(seconds: 15));
     } on FunctionException catch (e) {
       final detail = e.details?.toString().toLowerCase() ?? '';

@@ -52,26 +52,23 @@ class _HistorialPagosEmpleadoPageState
     setState(() => _generandoPdf = true);
     try {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Generando PDF...')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Generando PDF...')));
       }
 
       final repository = ref.read(empleadosRepositoryProvider);
-      final pagosParaPdf = await repository
-          .obtenerHistorialPagosParaPdf(
-            empleadoId: _empleadoSeleccionadoId,
-            fechaInicio: _dateFilter.fechaInicio,
-            fechaFin: _dateFilter.fechaFin,
-          );
+      final pagosParaPdf = await repository.obtenerHistorialPagosParaPdf(
+        empleadoId: _empleadoSeleccionadoId,
+        fechaInicio: _dateFilter.fechaInicio,
+        fechaFin: _dateFilter.fechaFin,
+      );
 
       if (pagosParaPdf.isEmpty) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text(
-                'No hay pagos para exportar en este rango',
-              ),
+              content: Text('No hay pagos para exportar en este rango'),
             ),
           );
         }
@@ -97,29 +94,26 @@ class _HistorialPagosEmpleadoPageState
                     )['nombre'] ??
                 'Desconocido');
 
-      final document =
-          await HistorialPagosPdfService.generar(
-            pagos: pagosParaPdf,
-            nombreEmpleado: empName.toString(),
-            rangoFechas:
-                "${_dateFilter.filtroTipo} - ${_dateFilter.textoFechaBase}",
-            total: totalMontoPdf,
-          );
+      final document = await HistorialPagosPdfService.generar(
+        pagos: pagosParaPdf,
+        nombreEmpleado: empName.toString(),
+        rangoFechas:
+            "${_dateFilter.filtroTipo} - ${_dateFilter.textoFechaBase}",
+        total: totalMontoPdf,
+      );
 
       if (!context.mounted) return;
       final result = await documentOutputFor(context).deliver(document);
       if (result == DocumentOutputResult.saved && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('PDF guardado exitosamente'),
-          ),
+          const SnackBar(content: Text('PDF guardado exitosamente')),
         );
       }
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(ErrorMapper.map(error))),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(ErrorMapper.map(error))));
       }
     } finally {
       if (mounted) setState(() => _generandoPdf = false);
@@ -380,10 +374,7 @@ class _HistorialPagosEmpleadoPageState
                     children: [
                       const Icon(Icons.cloud_off_outlined, size: 48),
                       const SizedBox(height: 12),
-                      Text(
-                        ErrorMapper.map(e),
-                        textAlign: TextAlign.center,
-                      ),
+                      Text(ErrorMapper.map(e), textAlign: TextAlign.center),
                       const SizedBox(height: 16),
                       FilledButton.icon(
                         onPressed: _cargarDatos,
@@ -501,9 +492,10 @@ class _HistorialPagosEmpleadoPageState
                                       .toLowerCase()
                                       .contains('adelanto');
                                   final metodoPago = p['metodo'] ?? 'Efectivo';
-                                  final fechaFmt = AppFormatters.limaDateTimeText(
-                                    p['fecha'],
-                                  );
+                                  final fechaFmt =
+                                      AppFormatters.limaDateTimeText(
+                                        p['fecha'],
+                                      );
                                   final empNombre =
                                       p['empleados']?['nombre'] ??
                                       'Empleado Desconocido';

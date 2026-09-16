@@ -20,7 +20,9 @@ class _ServiciosPageState extends ConsumerState<ServiciosPage> {
     final name = TextEditingController(text: current?.name ?? '');
     final description = TextEditingController(text: current?.description ?? '');
     final price = TextEditingController(
-      text: current == null ? '' : CommercialPresentation.formatNumber(current.unitPrice),
+      text: current == null
+          ? ''
+          : CommercialPresentation.formatNumber(current.unitPrice),
     );
     final accepted = await showDialog<bool>(
       context: context,
@@ -32,24 +34,44 @@ class _ServiciosPageState extends ConsumerState<ServiciosPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(controller: code, decoration: const InputDecoration(labelText: 'Código')),
+                TextField(
+                  controller: code,
+                  decoration: const InputDecoration(labelText: 'Código'),
+                ),
                 const SizedBox(height: 10),
-                TextField(controller: name, decoration: const InputDecoration(labelText: 'Nombre')),
+                TextField(
+                  controller: name,
+                  decoration: const InputDecoration(labelText: 'Nombre'),
+                ),
                 const SizedBox(height: 10),
-                TextField(controller: description, maxLines: 3, decoration: const InputDecoration(labelText: 'Descripción')),
+                TextField(
+                  controller: description,
+                  maxLines: 3,
+                  decoration: const InputDecoration(labelText: 'Descripción'),
+                ),
                 const SizedBox(height: 10),
                 TextField(
                   controller: price,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(labelText: 'Precio de venta'),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: 'Precio de venta',
+                  ),
                 ),
               ],
             ),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Cancelar')),
-          FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('Guardar')),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Guardar'),
+          ),
         ],
       ),
     );
@@ -60,13 +82,17 @@ class _ServiciosPageState extends ConsumerState<ServiciosPage> {
       } else {
         setState(() => _busy = true);
         try {
-          await ref.read(serviceCatalogUseCaseProvider).save(ServiceDraft(
-            serviceId: current?.id,
-            code: code.text,
-            name: name.text,
-            description: description.text,
-            unitPrice: unitPrice,
-          ));
+          await ref
+              .read(serviceCatalogUseCaseProvider)
+              .save(
+                ServiceDraft(
+                  serviceId: current?.id,
+                  code: code.text,
+                  name: name.text,
+                  description: description.text,
+                  unitPrice: unitPrice,
+                ),
+              );
           if (mounted) setState(() {});
         } catch (error) {
           if (mounted) _message(ErrorMapper.map(error), error: true);
@@ -118,7 +144,8 @@ class _ServiciosPageState extends ConsumerState<ServiciosPage> {
             return Center(child: Text(ErrorMapper.map(snapshot.error!)));
           }
           final rows = snapshot.data ?? const <ServiceRecord>[];
-          if (rows.isEmpty) return const Center(child: Text('No hay servicios registrados.'));
+          if (rows.isEmpty)
+            return const Center(child: Text('No hay servicios registrados.'));
           return ListView.separated(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
             itemCount: rows.length,
@@ -127,9 +154,15 @@ class _ServiciosPageState extends ConsumerState<ServiciosPage> {
               final row = rows[index];
               return Card(
                 child: ListTile(
-                  leading: Icon(row.active ? Icons.design_services_outlined : Icons.block_outlined),
+                  leading: Icon(
+                    row.active
+                        ? Icons.design_services_outlined
+                        : Icons.block_outlined,
+                  ),
                   title: Text('${row.code} · ${row.name}'),
-                  subtitle: Text('${row.description}\n${AppFormatters.currency(row.unitPrice)} · ${row.active ? 'Activo' : 'Inactivo'}'),
+                  subtitle: Text(
+                    '${row.description}\n${AppFormatters.currency(row.unitPrice)} · ${row.active ? 'Activo' : 'Inactivo'}',
+                  ),
                   isThreeLine: row.description.isNotEmpty,
                   onTap: _busy || !row.active ? null : () => _edit(row),
                   trailing: row.active

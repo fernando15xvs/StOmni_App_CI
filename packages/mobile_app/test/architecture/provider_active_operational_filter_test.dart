@@ -10,7 +10,10 @@ void main() {
 
     expect(repository, contains('Future<List<dynamic>> obtenerProveedores('));
     expect(repository, contains('obtenerProveedoresActivos'));
-    expect(repository, contains("query.eq('estado', 'activo').eq('activo', true)"));
+    expect(
+      repository,
+      contains("query.eq('estado', 'activo').eq('activo', true)"),
+    );
     expect(repository, contains('soloActivos: false'));
     expect(repository, contains('soloActivos: true'));
   });

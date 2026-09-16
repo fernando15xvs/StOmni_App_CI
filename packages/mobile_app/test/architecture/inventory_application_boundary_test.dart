@@ -44,20 +44,23 @@ void main() {
     );
   });
 
-  test('composición de inventario mantiene infraestructura fuera de controllers', () {
-    final file = File(
-      'lib/features/almacen/presentation/providers/'
-      'inventory_use_case_providers.dart',
-    );
-    expect(file.existsSync(), isTrue);
-    final source = file.readAsStringSync();
+  test(
+    'composición de inventario mantiene infraestructura fuera de controllers',
+    () {
+      final file = File(
+        'lib/features/almacen/presentation/providers/'
+        'inventory_use_case_providers.dart',
+      );
+      expect(file.existsSync(), isTrue);
+      final source = file.readAsStringSync();
 
-    expect(source, contains('InventoryCatalogUseCase'));
-    expect(source, contains('RegisterStockMovementUseCase'));
-    expect(source, contains('RegisterMerchandiseEntryUseCase'));
-    expect(source, contains('ProductLifecycleUseCase'));
-    expect(source, contains('WarehouseAdminUseCase'));
-    expect(source, contains('AlmacenRepository'));
-    expect(source, contains('InventarioService.registrarIngresoMercaderia'));
-  });
+      expect(source, contains('InventoryCatalogUseCase'));
+      expect(source, contains('RegisterStockMovementUseCase'));
+      expect(source, contains('RegisterMerchandiseEntryUseCase'));
+      expect(source, contains('ProductLifecycleUseCase'));
+      expect(source, contains('WarehouseAdminUseCase'));
+      expect(source, contains('AlmacenRepository'));
+      expect(source, contains('InventarioService.registrarIngresoMercaderia'));
+    },
+  );
 }

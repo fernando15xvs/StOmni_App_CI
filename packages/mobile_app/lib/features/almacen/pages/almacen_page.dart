@@ -32,7 +32,8 @@ class AlmacenPage extends ConsumerStatefulWidget {
   ConsumerState<AlmacenPage> createState() => _AlmacenPageState();
 }
 
-class _AlmacenPageState extends ConsumerState<AlmacenPage> with TickerProviderStateMixin {
+class _AlmacenPageState extends ConsumerState<AlmacenPage>
+    with TickerProviderStateMixin {
   final Color colorDorado = const Color(0xFFF59E0B);
   final Color colorNaranja = Colors.deepOrange;
   Color get colorTexto =>
@@ -192,7 +193,9 @@ class _AlmacenPageState extends ConsumerState<AlmacenPage> with TickerProviderSt
         mapaMarcas: mapaMarcas,
       );
       if (!mounted) return;
-      await documentOutputFor(context).deliver(document, action: DocumentOutputAction.print);
+      await documentOutputFor(
+        context,
+      ).deliver(document, action: DocumentOutputAction.print);
       if (!mounted) return;
       Navigator.pop(context);
     } catch (e) {
@@ -358,7 +361,8 @@ class _AlmacenPageState extends ConsumerState<AlmacenPage> with TickerProviderSt
                 child: ElevatedButton.icon(
                   onPressed: () async {
                     FocusManager.instance.primaryFocus?.unfocus();
-                    final online = await ConnectivityStatusService.hasInternet();
+                    final online =
+                        await ConnectivityStatusService.hasInternet();
                     if (!context.mounted) return;
                     if (!online) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -669,10 +673,7 @@ class _AlmacenPageState extends ConsumerState<AlmacenPage> with TickerProviderSt
         const SizedBox(height: 120),
         const Icon(Icons.cloud_off_outlined, size: 52),
         const SizedBox(height: 16),
-        Text(
-          ErrorMapper.map(error),
-          textAlign: TextAlign.center,
-        ),
+        Text(ErrorMapper.map(error), textAlign: TextAlign.center),
         const SizedBox(height: 20),
         Center(
           child: FilledButton.icon(

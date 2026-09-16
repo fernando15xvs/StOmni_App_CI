@@ -245,7 +245,9 @@ class _ConfiguracionNegocioPageState
       _mostrarExito('¡Datos de la empresa guardados correctamente!');
       Navigator.pop(context);
     } catch (e, st) {
-      debugPrint('ConfiguracionNegocioPage: fallo al guardar configuración: $e');
+      debugPrint(
+        'ConfiguracionNegocioPage: fallo al guardar configuración: $e',
+      );
       debugPrintStack(stackTrace: st);
 
       // Si el write lógico no fue confirmado, la imagen recién subida no debe
@@ -357,8 +359,7 @@ class _ConfiguracionNegocioPageState
   }
 
   Widget _buildImageSection() {
-    final tieneImagen =
-        _logoNuevoBytes != null || _logoUrlExistente.isNotEmpty;
+    final tieneImagen = _logoNuevoBytes != null || _logoUrlExistente.isNotEmpty;
 
     return Center(
       child: Stack(
@@ -706,8 +707,14 @@ class _ConfiguracionNegocioPageState
           IconButton(
             tooltip: 'Capacidades del negocio',
             icon: const Icon(Icons.tune),
-            onPressed: _guardando ? null : () => Navigator.push(context,
-              MaterialPageRoute<void>(builder: (_) => const BusinessCapabilitiesPage())),
+            onPressed: _guardando
+                ? null
+                : () => Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (_) => const BusinessCapabilitiesPage(),
+                    ),
+                  ),
           ),
         ],
       ),

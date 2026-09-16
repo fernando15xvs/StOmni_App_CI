@@ -12,7 +12,9 @@ class BusinessProfileMapper {
         revision is! int ||
         revision < 0 ||
         row['supports_capability_settings'] is! bool) {
-      throw const FormatException('Perfil de negocio inválido o no compatible.');
+      throw const FormatException(
+        'Perfil de negocio inválido o no compatible.',
+      );
     }
 
     bool read(String key) {
@@ -49,20 +51,21 @@ class BusinessProfileMapper {
     );
   }
 
-  static Map<String, dynamic> encodeCapabilities(BusinessCapabilities value) => {
-    'inventory_enabled': value.inventoryEnabled,
-    'multiple_branches': value.multipleBranches,
-    'multiple_warehouses': value.multipleWarehouses,
-    'credit_sales': value.creditSales,
-    'electronic_invoicing': value.electronicInvoicing,
-    'supplier_management': value.supplierManagement,
-    'purchase_management': value.purchaseManagement,
-    'lot_tracking': value.lotTracking,
-    'expiry_tracking': value.expiryTracking,
-    'variants': value.variants,
-    'services': value.services,
-    'serial_number_tracking': value.serialNumberTracking,
-  };
+  static Map<String, dynamic> encodeCapabilities(BusinessCapabilities value) =>
+      {
+        'inventory_enabled': value.inventoryEnabled,
+        'multiple_branches': value.multipleBranches,
+        'multiple_warehouses': value.multipleWarehouses,
+        'credit_sales': value.creditSales,
+        'electronic_invoicing': value.electronicInvoicing,
+        'supplier_management': value.supplierManagement,
+        'purchase_management': value.purchaseManagement,
+        'lot_tracking': value.lotTracking,
+        'expiry_tracking': value.expiryTracking,
+        'variants': value.variants,
+        'services': value.services,
+        'serial_number_tracking': value.serialNumberTracking,
+      };
 
   static Map<String, dynamic> encode(BusinessProfile profile) => {
     'business_id': profile.businessId,

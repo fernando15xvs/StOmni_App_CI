@@ -21,10 +21,15 @@ class ConfiguredBusinessSalePolicy implements BusinessSalePolicy {
   }) async {
     final profile = await profiles.load(allowOffline: allowOffline);
     if (isCredit && !profile.capabilities.creditSales) {
-      throw const UserFacingException('Las ventas a crédito están deshabilitadas para este negocio.');
+      throw const UserFacingException(
+        'Las ventas a crédito están deshabilitadas para este negocio.',
+      );
     }
-    if (requiresElectronicEmission && !profile.capabilities.electronicInvoicing) {
-      throw const UserFacingException('La emisión electrónica está deshabilitada para este negocio.');
+    if (requiresElectronicEmission &&
+        !profile.capabilities.electronicInvoicing) {
+      throw const UserFacingException(
+        'La emisión electrónica está deshabilitada para este negocio.',
+      );
     }
   }
 }

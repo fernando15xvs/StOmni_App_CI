@@ -22,7 +22,9 @@ class ProveedoresRepository {
   ///
   /// Un proveedor desactivado conserva todo su historial, pero no debe poder
   /// seleccionarse para crear una operación nueva.
-  Future<List<dynamic>> obtenerProveedoresActivos([String busqueda = '']) async {
+  Future<List<dynamic>> obtenerProveedoresActivos([
+    String busqueda = '',
+  ]) async {
     return _obtenerProveedores(busqueda, soloActivos: true);
   }
 

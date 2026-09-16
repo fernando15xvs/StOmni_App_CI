@@ -23,7 +23,9 @@ class ManageEmployeePermissionsUseCase {
     Map<AppPermission, bool> requested,
   ) {
     if (current.isAdministrator) {
-      throw ArgumentError('Los permisos del administrador se derivan de su rol.');
+      throw ArgumentError(
+        'Los permisos del administrador se derivan de su rol.',
+      );
     }
     final known = {for (final row in current.permissions) row.permission: row};
     final normalized = <AppPermission, bool>{};

@@ -1,4 +1,3 @@
-
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -225,7 +224,11 @@ class InventarioPdfService {
     final nombreArchivo =
         'Inventario_${DateFormat('ddMMyyyy_HHmm').format(DateTime.now())}.pdf';
 
-    return GeneratedDocument(bytes: bytes, fileName: nombreArchivo, kind: DocumentKind.pdf);
+    return GeneratedDocument(
+      bytes: bytes,
+      fileName: nombreArchivo,
+      kind: DocumentKind.pdf,
+    );
   }
 
   static String _formatearRangoFechas(DateTime inicio, DateTime fin) {

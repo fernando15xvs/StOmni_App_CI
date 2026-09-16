@@ -5,17 +5,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-final desktopElectronicDocumentUseCaseProvider = Provider<ElectronicDocumentUseCase>(
-  (ref) => ElectronicDocumentUseCase(
-    SupabaseElectronicDocumentGateway(Supabase.instance.client),
-  ),
-);
+final desktopElectronicDocumentUseCaseProvider =
+    Provider<ElectronicDocumentUseCase>(
+      (ref) => ElectronicDocumentUseCase(
+        SupabaseElectronicDocumentGateway(Supabase.instance.client),
+      ),
+    );
 
 class DesktopDocumentsPanel extends ConsumerStatefulWidget {
   const DesktopDocumentsPanel({super.key});
 
   @override
-  ConsumerState<DesktopDocumentsPanel> createState() => _DesktopDocumentsPanelState();
+  ConsumerState<DesktopDocumentsPanel> createState() =>
+      _DesktopDocumentsPanelState();
 }
 
 class _DesktopDocumentsPanelState extends ConsumerState<DesktopDocumentsPanel> {
@@ -48,11 +50,9 @@ class _DesktopDocumentsPanelState extends ConsumerState<DesktopDocumentsPanel> {
       _error = null;
     });
     try {
-      final documents = await ref.read(desktopElectronicDocumentUseCaseProvider).list(
-            start: _range.start,
-            end: _range.end,
-            pageSize: 100,
-          );
+      final documents = await ref
+          .read(desktopElectronicDocumentUseCaseProvider)
+          .list(start: _range.start, end: _range.end, pageSize: 100);
       if (!mounted) return;
       setState(() {
         _documents = documents;
@@ -69,10 +69,13 @@ class _DesktopDocumentsPanelState extends ConsumerState<DesktopDocumentsPanel> {
 
   List<ElectronicDocumentRecord> get _filtered {
     final query = _search.text.trim().toLowerCase();
-    return _documents.where((document) {
-      if (_category != 'todos' && document.category != _category) return false;
-      return query.isEmpty || document.searchableText.contains(query);
-    }).toList(growable: false);
+    return _documents
+        .where((document) {
+          if (_category != 'todos' && document.category != _category)
+            return false;
+          return query.isEmpty || document.searchableText.contains(query);
+        })
+        .toList(growable: false);
   }
 
   Future<void> _selectRange() async {
@@ -111,9 +114,9 @@ class _DesktopDocumentsPanelState extends ConsumerState<DesktopDocumentsPanel> {
       await _load();
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(ErrorMapper.map(error))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(ErrorMapper.map(error))));
     } finally {
       if (mounted) setState(() => _acting = false);
     }
@@ -144,12 +147,13 @@ class _DesktopDocumentsPanelState extends ConsumerState<DesktopDocumentsPanel> {
                   children: [
                     Text(
                       'Facturación',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 5),
-                    const Text('Consulta y reconciliación de documentos electrónicos.'),
+                    const Text(
+                      'Consulta y reconciliación de documentos electrónicos.',
+                    ),
                   ],
                 ),
               ),
@@ -194,10 +198,14 @@ class _DesktopDocumentsPanelState extends ConsumerState<DesktopDocumentsPanel> {
                     DropdownMenuItem(value: 'todos', child: Text('Todos')),
                     DropdownMenuItem(value: 'factura', child: Text('Facturas')),
                     DropdownMenuItem(value: 'boleta', child: Text('Boletas')),
-                    DropdownMenuItem(value: 'nota', child: Text('Notas de crédito')),
+                    DropdownMenuItem(
+                      value: 'nota',
+                      child: Text('Notas de crédito'),
+                    ),
                     DropdownMenuItem(value: 'guia', child: Text('Guías')),
                   ],
-                  onChanged: (value) => setState(() => _category = value ?? 'todos'),
+                  onChanged: (value) =>
+                      setState(() => _category = value ?? 'todos'),
                 ),
               ),
             ],
@@ -207,67 +215,69 @@ class _DesktopDocumentsPanelState extends ConsumerState<DesktopDocumentsPanel> {
           child: _loading
               ? const Center(child: CircularProgressIndicator())
               : _error != null
-                  ? Center(child: Text(_error!))
-                  : rows.isEmpty
-                      ? const Center(child: Text('No hay documentos para el filtro seleccionado.'))
-                      : ListView.separated(
-                          padding: const EdgeInsets.fromLTRB(28, 0, 28, 28),
-                          itemCount: rows.length,
-                          separatorBuilder: (_, _) => const SizedBox(height: 8),
-                          itemBuilder: (context, index) {
-                            final document = rows[index];
-                            final total = document.total;
-                            return Card(
-                              child: ListTile(
-                                leading: Icon(
-                                  switch (document.category) {
-                                    'factura' => Icons.receipt_long,
-                                    'boleta' => Icons.receipt_outlined,
-                                    'nota' => Icons.assignment_return_outlined,
-                                    'guia' => Icons.local_shipping_outlined,
-                                    _ => Icons.description_outlined,
-                                  },
-                                ),
-                                title: Text(
-                                  '${document.typeLabel} · ${document.number}',
-                                  style: const TextStyle(fontWeight: FontWeight.w700),
-                                ),
-                                subtitle: Text([
-                                  if (document.party.isNotEmpty) document.party,
-                                  document.sunatDescription ?? document.status,
-                                  if (total != null) 'S/ ${total.toStringAsFixed(2)}',
-                                ].join(' · ')),
-                                trailing: Wrap(
-                                  spacing: 8,
-                                  crossAxisAlignment: WrapCrossAlignment.center,
-                                  children: [
-                                    Chip(
-                                      label: Text(document.status),
-                                      side: BorderSide(
-                                        color: _statusColor(context, document.status),
-                                      ),
-                                    ),
-                                    OutlinedButton.icon(
-                                      onPressed: _acting
-                                          ? null
-                                          : () => _action(document, retry: false),
-                                      icon: const Icon(Icons.sync),
-                                      label: const Text('Consultar'),
-                                    ),
-                                    if (document.status != 'aceptado')
-                                      FilledButton.tonalIcon(
-                                        onPressed: _acting
-                                            ? null
-                                            : () => _action(document, retry: true),
-                                        icon: const Icon(Icons.replay),
-                                        label: const Text('Reintentar'),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
+              ? Center(child: Text(_error!))
+              : rows.isEmpty
+              ? const Center(
+                  child: Text('No hay documentos para el filtro seleccionado.'),
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(28, 0, 28, 28),
+                  itemCount: rows.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
+                  itemBuilder: (context, index) {
+                    final document = rows[index];
+                    final total = document.total;
+                    return Card(
+                      child: ListTile(
+                        leading: Icon(switch (document.category) {
+                          'factura' => Icons.receipt_long,
+                          'boleta' => Icons.receipt_outlined,
+                          'nota' => Icons.assignment_return_outlined,
+                          'guia' => Icons.local_shipping_outlined,
+                          _ => Icons.description_outlined,
+                        }),
+                        title: Text(
+                          '${document.typeLabel} · ${document.number}',
+                          style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
+                        subtitle: Text(
+                          [
+                            if (document.party.isNotEmpty) document.party,
+                            document.sunatDescription ?? document.status,
+                            if (total != null) 'S/ ${total.toStringAsFixed(2)}',
+                          ].join(' · '),
+                        ),
+                        trailing: Wrap(
+                          spacing: 8,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Chip(
+                              label: Text(document.status),
+                              side: BorderSide(
+                                color: _statusColor(context, document.status),
+                              ),
+                            ),
+                            OutlinedButton.icon(
+                              onPressed: _acting
+                                  ? null
+                                  : () => _action(document, retry: false),
+                              icon: const Icon(Icons.sync),
+                              label: const Text('Consultar'),
+                            ),
+                            if (document.status != 'aceptado')
+                              FilledButton.tonalIcon(
+                                onPressed: _acting
+                                    ? null
+                                    : () => _action(document, retry: true),
+                                icon: const Icon(Icons.replay),
+                                label: const Text('Reintentar'),
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
         ),
       ],
     );

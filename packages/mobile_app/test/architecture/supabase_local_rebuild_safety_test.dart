@@ -6,7 +6,9 @@ void main() {
   late String source;
 
   setUpAll(() {
-    source = repositoryFile('scripts/fase5_local_rebuild_verify.ps1').readAsStringSync();
+    source = repositoryFile(
+      'scripts/fase5_local_rebuild_verify.ps1',
+    ).readAsStringSync();
   });
 
   test('reconstruccion Fase 5 apunta exclusivamente a Supabase local', () {
@@ -28,7 +30,9 @@ void main() {
     expect(source, contains('fase5_production_fingerprint_test.sql'));
     expect(
       source,
-      contains("'db', 'reset', '--local', '--no-seed', '--version', \$TargetVersion"),
+      contains(
+        "'db', 'reset', '--local', '--no-seed', '--version', \$TargetVersion",
+      ),
     );
   });
 
@@ -43,9 +47,6 @@ void main() {
       source,
       contains("@('test', 'db', '--local') + \$fase5ContractTests"),
     );
-    expect(
-      source,
-      contains("'db', 'reset', '--local', '--no-seed'"),
-    );
+    expect(source, contains("'db', 'reset', '--local', '--no-seed'"));
   });
 }

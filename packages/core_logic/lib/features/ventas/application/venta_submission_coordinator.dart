@@ -135,7 +135,9 @@ class VentaSubmissionCoordinator {
   final ElectronicSaleDocumentGateway _electronicDocuments;
 
   Future<VentaSubmissionOutcome> submit(VentaSubmissionRequest request) async {
-    final document = _procesarVenta.fiscalPolicy.documentFor(request.tipoComprobanteNormalizado);
+    final document = _procesarVenta.fiscalPolicy.documentFor(
+      request.tipoComprobanteNormalizado,
+    );
     if (document == null) {
       throw const VentaSubmissionException(
         'El tipo de comprobante no es válido. No se procesó la venta.',
@@ -165,10 +167,15 @@ class VentaSubmissionCoordinator {
         requiresElectronicEmission: document.requiresElectronicEmission,
         allowOffline: true,
       );
-      if (authorizedUser != authUserId || _context.currentAuthUserId != authUserId) {
-        throw const VentaSubmissionException('La sesión cambió antes de guardar la venta offline.');
+      if (authorizedUser != authUserId ||
+          _context.currentAuthUserId != authUserId) {
+        throw const VentaSubmissionException(
+          'La sesión cambió antes de guardar la venta offline.',
+        );
       }
-      await _pendingSales.enqueue(request.toPendingSale(authUserId: authUserId));
+      await _pendingSales.enqueue(
+        request.toPendingSale(authUserId: authUserId),
+      );
       return const VentaSubmissionOutcome(
         message: 'Sin conexión: la venta quedó guardada en este dispositivo.',
         tone: VentaSubmissionTone.success,
@@ -192,15 +199,21 @@ class VentaSubmissionCoordinator {
       }
     }
 
-    final resultado = await _procesarVenta.ejecutarCommand(request.toProcessingCommand());
+    final resultado = await _procesarVenta.ejecutarCommand(
+      request.toProcessingCommand(),
+    );
     final idempotente = resultado.idempotent;
     ElectronicSaleDocumentResult? resultadoEmision;
     String? errorEmision;
     final comprobanteId = resultado.comprobanteId;
 
-    if (document.requiresElectronicEmission && comprobanteId != null && comprobanteId.isNotEmpty) {
+    if (document.requiresElectronicEmission &&
+        comprobanteId != null &&
+        comprobanteId.isNotEmpty) {
       try {
-        resultadoEmision = await _electronicDocuments.emitirComprobante(comprobanteId);
+        resultadoEmision = await _electronicDocuments.emitirComprobante(
+          comprobanteId,
+        );
       } catch (error) {
         errorEmision = error.toString();
       }
@@ -209,7 +222,8 @@ class VentaSubmissionCoordinator {
     final estadoEmision = resultadoEmision?.estadoNormalizado;
     if (idempotente && !document.requiresElectronicEmission) {
       return VentaSubmissionOutcome(
-        message: 'La venta ya había sido registrada. No se duplicó el stock ni el comprobante.',
+        message:
+            'La venta ya había sido registrada. No se duplicó el stock ni el comprobante.',
         tone: VentaSubmissionTone.success,
         result: resultado,
       );
@@ -230,7 +244,8 @@ class VentaSubmissionCoordinator {
     }
     if (estadoEmision == 'rechazado') {
       return VentaSubmissionOutcome(
-        message: resultadoEmision?.mensaje ??
+        message:
+            resultadoEmision?.mensaje ??
             'Venta registrada, pero el comprobante fue rechazado.',
         tone: VentaSubmissionTone.error,
         result: resultado,

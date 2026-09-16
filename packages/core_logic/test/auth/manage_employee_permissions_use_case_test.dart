@@ -63,7 +63,9 @@ void main() {
     expect(gateway.overrides?[AppPermission.inventoryReceive], isFalse);
     expect(
       result.permissions
-          .singleWhere((row) => row.permission == AppPermission.inventoryReceive)
+          .singleWhere(
+            (row) => row.permission == AppPermission.inventoryReceive,
+          )
           .allowed,
       isFalse,
     );

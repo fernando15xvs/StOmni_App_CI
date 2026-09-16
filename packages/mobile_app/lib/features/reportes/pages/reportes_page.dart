@@ -529,7 +529,8 @@ class _ReportesPageState extends ConsumerState<ReportesPage>
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: _tipoFiltroFinanciero == 'Ingresos'
+                                        color:
+                                            _tipoFiltroFinanciero == 'Ingresos'
                                             ? AppColors.reportes
                                             : Colors.grey,
                                         fontWeight: FontWeight.w600,

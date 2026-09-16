@@ -25,7 +25,10 @@ void main() {
 
     expect(sql, contains('stock_alert_tx_context'));
     expect(sql, contains('delta_total'));
-    expect(sql, contains('CREATE CONSTRAINT TRIGGER trigger_stock_alert_evaluar_tx'));
+    expect(
+      sql,
+      contains('CREATE CONSTRAINT TRIGGER trigger_stock_alert_evaluar_tx'),
+    );
     expect(sql, contains('DEFERRABLE INITIALLY DEFERRED'));
     expect(
       sql,
@@ -114,33 +117,36 @@ void main() {
     const stockFinal = 0;
     const minimo = 10;
 
+    expect(esAgotado(anterior: stockInicial, actual: stockFinal), isTrue);
     expect(
-      esAgotado(anterior: stockInicial, actual: stockFinal),
-      isTrue,
-    );
-    expect(
-      esStockBajo(
-        anterior: stockInicial,
-        actual: stockFinal,
-        minimo: minimo,
-      ),
+      esStockBajo(anterior: stockInicial, actual: stockFinal, minimo: minimo),
       isFalse,
     );
   });
 
   test('scripts incluyen mensajes separados para stock bajo y agotado', () {
-    final script = repositoryFile('scripts/trigger_notificaciones.sql').readAsStringSync();
+    final script = repositoryFile(
+      'scripts/trigger_notificaciones.sql',
+    ).readAsStringSync();
 
     expect(script, contains("v_tipo_alerta := 'agotado'"));
     expect(script, contains("v_tipo_alerta := 'stock_bajo'"));
-    expect(script, contains("chr(128680) || ' ' || chr(161) || 'Producto Agotado!'"));
-    expect(script, contains("chr(9888) || chr(65039) || ' Alerta de Stock Bajo'"));
+    expect(
+      script,
+      contains("chr(128680) || ' ' || chr(161) || 'Producto Agotado!'"),
+    );
+    expect(
+      script,
+      contains("chr(9888) || chr(65039) || ' Alerta de Stock Bajo'"),
+    );
     expect(script, contains("'stock_alert_type', 'agotado'"));
     expect(script, contains("'stock_alert_type', 'stock_bajo'"));
   });
 
   test('script operativo queda ASCII para evitar mojibake al copiar', () {
-    final script = repositoryFile('scripts/trigger_notificaciones.sql').readAsStringSync();
+    final script = repositoryFile(
+      'scripts/trigger_notificaciones.sql',
+    ).readAsStringSync();
 
     expect(script.runes.every((rune) => rune <= 0x7f), isTrue);
     expect(script, isNot(contains('AsÃ')));
@@ -152,7 +158,9 @@ void main() {
   });
 
   test('scripts de notificacion no versionan credenciales REST de OneSignal', () {
-    final script = repositoryFile('scripts/trigger_notificaciones.sql').readAsStringSync();
+    final script = repositoryFile(
+      'scripts/trigger_notificaciones.sql',
+    ).readAsStringSync();
     final migration = repositoryFile(
       'supabase/migration_sources/pre_bootstrap/20260821191000_stock_alert_transactional_fix.sql',
     ).readAsStringSync();
@@ -166,16 +174,24 @@ void main() {
   });
 
   test('alertas usan endpoint y autenticacion modernos de OneSignal', () {
-    final script = repositoryFile('scripts/trigger_notificaciones.sql').readAsStringSync();
+    final script = repositoryFile(
+      'scripts/trigger_notificaciones.sql',
+    ).readAsStringSync();
     final migration = repositoryFile(
       'supabase/migration_sources/pre_bootstrap/20260821191000_stock_alert_transactional_fix.sql',
     ).readAsStringSync();
 
     for (final source in [script, migration]) {
       expect(source, contains('https://api.onesignal.com/notifications'));
-      expect(source, contains("'Authorization', 'Key ' || v_onesignal_rest_api_key"));
+      expect(
+        source,
+        contains("'Authorization', 'Key ' || v_onesignal_rest_api_key"),
+      );
       expect(source, contains("'target_channel', 'push'"));
-      expect(source, isNot(contains('https://onesignal.com/api/v1/notifications')));
+      expect(
+        source,
+        isNot(contains('https://onesignal.com/api/v1/notifications')),
+      );
       expect(source, isNot(contains("'Authorization', 'Basic '")));
     }
   });

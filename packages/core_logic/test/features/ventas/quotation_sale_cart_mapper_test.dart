@@ -83,7 +83,9 @@ void main() {
   });
 
   test('proyección visual muestra cantidad y etiqueta comerciales', () {
-    final display = QuotationSaleCartMapper.restoreForDisplay(configuredDetail());
+    final display = QuotationSaleCartMapper.restoreForDisplay(
+      configuredDetail(),
+    );
 
     expect(display['cantidad'], 2);
     expect(display['precio_unitario_comercial'], 12.0);
@@ -100,18 +102,25 @@ void main() {
     expect(display['precio_unitario'], 2.0);
   });
 
-  test('proyección documental usa precio comercial sin alterar piezas reales', () {
-    final document = QuotationSaleCartMapper.documentDetail(configuredDetail());
+  test(
+    'proyección documental usa precio comercial sin alterar piezas reales',
+    () {
+      final document = QuotationSaleCartMapper.documentDetail(
+        configuredDetail(),
+      );
 
-    expect(document['cantidad'], 2);
-    expect(document['precio_unitario'], 12.0);
-    expect(document['piezas_reales'], 12);
-    expect(document['producto_nombre_snapshot'], 'Agua · Packs');
-    expect(document['subtotal'], 24.0);
-  });
+      expect(document['cantidad'], 2);
+      expect(document['precio_unitario'], 12.0);
+      expect(document['piezas_reales'], 12);
+      expect(document['producto_nombre_snapshot'], 'Agua · Packs');
+      expect(document['subtotal'], 24.0);
+    },
+  );
 
   test('payload de conversión conserva revisión y snapshot comercial', () {
-    final payload = QuotationSaleCartMapper.processingDetail(configuredDetail());
+    final payload = QuotationSaleCartMapper.processingDetail(
+      configuredDetail(),
+    );
 
     expect(payload['cantidad'], 2);
     expect(payload['piezas_reales'], 12);
@@ -122,50 +131,56 @@ void main() {
     expect(payload['unidadLabel'], 'Botella');
   });
 
-  test('cotización legacy conserva fallback de piezas y unidad normalizada', () {
-    final payload = QuotationSaleCartMapper.processingDetail({
-      'producto_id': 5,
-      'cantidad': 3,
-      'subtotal': 30.0,
-      'precio_unitario_comercial': 10.0,
-      'almacen_id': 2,
-      'tipo_unidad': 'UNIDADES',
-      'unidad_base_snapshot': 'Unidad',
-    });
+  test(
+    'cotización legacy conserva fallback de piezas y unidad normalizada',
+    () {
+      final payload = QuotationSaleCartMapper.processingDetail({
+        'producto_id': 5,
+        'cantidad': 3,
+        'subtotal': 30.0,
+        'precio_unitario_comercial': 10.0,
+        'almacen_id': 2,
+        'tipo_unidad': 'UNIDADES',
+        'unidad_base_snapshot': 'Unidad',
+      });
 
-    expect(payload['cantidad'], 3);
-    expect(payload['piezas_reales'], 3);
-    expect(payload['tipo_unidad'], 'unidad');
-    expect(payload['precio_unitario'], 10.0);
-  });
+      expect(payload['cantidad'], 3);
+      expect(payload['piezas_reales'], 3);
+      expect(payload['tipo_unidad'], 'unidad');
+      expect(payload['precio_unitario'], 10.0);
+    },
+  );
 
-  test('snapshot configurable sin perfil se rechaza al reconstruir carrito', () {
-    final quotation = <String, dynamic>{
-      'detalle_cotizaciones': [
-        {
-          'id': 1,
-          'producto_id': 9,
-          'cantidad': 6,
-          'piezas_reales': 6,
-          'subtotal': 12.0,
-          'almacen_id': 3,
-          'productos': currentProduct(),
-          'presentation_snapshot': {
-            'schema_version': 1,
-            'code': 'pack_6',
-            'singular': 'Pack',
-            'base_label': 'Botella',
-            'quantity': 1,
-            'commercial_price': 12.0,
-            'revision': 4,
+  test(
+    'snapshot configurable sin perfil se rechaza al reconstruir carrito',
+    () {
+      final quotation = <String, dynamic>{
+        'detalle_cotizaciones': [
+          {
+            'id': 1,
+            'producto_id': 9,
+            'cantidad': 6,
+            'piezas_reales': 6,
+            'subtotal': 12.0,
+            'almacen_id': 3,
+            'productos': currentProduct(),
+            'presentation_snapshot': {
+              'schema_version': 1,
+              'code': 'pack_6',
+              'singular': 'Pack',
+              'base_label': 'Botella',
+              'quantity': 1,
+              'commercial_price': 12.0,
+              'revision': 4,
+            },
           },
-        },
-      ],
-    };
+        ],
+      };
 
-    expect(
-      () => QuotationSaleCartMapper.decode(quotation),
-      throwsA(isA<FormatException>()),
-    );
-  });
+      expect(
+        () => QuotationSaleCartMapper.decode(quotation),
+        throwsA(isA<FormatException>()),
+      );
+    },
+  );
 }

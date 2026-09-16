@@ -4,24 +4,21 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('GreItemMapper.desdeCarrito', () {
     test('convierte caja a piezas y calcula peso desde catálogo', () {
-      final result = GreItemMapper.desdeCarrito(
-        [
-          {
-            'cantidad': 2,
-            'tipo_unidad': 'caja',
-            'precio_unitario': 50,
-            'producto_data': {
-              'id': 7,
-              'codigo': 'P-7',
-              'nombre': 'Producto',
-              'tipo_venta': 'CAJA_UNIDADES',
-              'cantidad_por_caja': 4,
-              'peso_kg': 0.5,
-            },
+      final result = GreItemMapper.desdeCarrito([
+        {
+          'cantidad': 2,
+          'tipo_unidad': 'caja',
+          'precio_unitario': 50,
+          'producto_data': {
+            'id': 7,
+            'codigo': 'P-7',
+            'nombre': 'Producto',
+            'tipo_venta': 'CAJA_UNIDADES',
+            'cantidad_por_caja': 4,
+            'peso_kg': 0.5,
           },
-        ],
-        almacenFallback: 3,
-      ).single;
+        },
+      ], almacenFallback: 3).single;
 
       expect(result['almacen_id'], 3);
       expect(result['unidad'], 'BX');

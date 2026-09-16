@@ -4,21 +4,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final desktopSupplierUseCaseProvider = Provider<SupplierUseCase>(
-  (ref) => SupplierUseCase(
-    SupabaseSupplierGateway(Supabase.instance.client),
-  ),
+  (ref) => SupplierUseCase(SupabaseSupplierGateway(Supabase.instance.client)),
 );
 
 final _desktopSuppliersProvider = FutureProvider.autoDispose
     .family<List<SupplierRecord>, String>((ref, query) {
-  return ref.watch(desktopSupplierUseCaseProvider).list(query: query);
-});
+      return ref.watch(desktopSupplierUseCaseProvider).list(query: query);
+    });
 
 class DesktopSuppliersPanel extends ConsumerStatefulWidget {
   const DesktopSuppliersPanel({super.key});
 
   @override
-  ConsumerState<DesktopSuppliersPanel> createState() => _DesktopSuppliersPanelState();
+  ConsumerState<DesktopSuppliersPanel> createState() =>
+      _DesktopSuppliersPanelState();
 }
 
 class _DesktopSuppliersPanelState extends ConsumerState<DesktopSuppliersPanel> {
@@ -42,30 +41,49 @@ class _DesktopSuppliersPanelState extends ConsumerState<DesktopSuppliersPanel> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: Text(supplier == null ? 'Nuevo proveedor' : 'Editar proveedor'),
+          title: Text(
+            supplier == null ? 'Nuevo proveedor' : 'Editar proveedor',
+          ),
           content: SizedBox(
             width: 480,
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextField(controller: name, decoration: const InputDecoration(labelText: 'Nombre / razón social')),
+                  TextField(
+                    controller: name,
+                    decoration: const InputDecoration(
+                      labelText: 'Nombre / razón social',
+                    ),
+                  ),
                   const SizedBox(height: 12),
-                  TextField(controller: document, decoration: const InputDecoration(labelText: 'RUC / DNI')),
+                  TextField(
+                    controller: document,
+                    decoration: const InputDecoration(labelText: 'RUC / DNI'),
+                  ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
                     initialValue: documentType.isEmpty ? null : documentType,
-                    decoration: const InputDecoration(labelText: 'Tipo de documento'),
+                    decoration: const InputDecoration(
+                      labelText: 'Tipo de documento',
+                    ),
                     items: const [
                       DropdownMenuItem(value: '1', child: Text('DNI')),
                       DropdownMenuItem(value: '6', child: Text('RUC')),
                     ],
-                    onChanged: (value) => setDialogState(() => documentType = value ?? ''),
+                    onChanged: (value) =>
+                        setDialogState(() => documentType = value ?? ''),
                   ),
                   const SizedBox(height: 12),
-                  TextField(controller: phone, decoration: const InputDecoration(labelText: 'Teléfono')),
+                  TextField(
+                    controller: phone,
+                    decoration: const InputDecoration(labelText: 'Teléfono'),
+                  ),
                   const SizedBox(height: 12),
-                  TextField(controller: address, decoration: const InputDecoration(labelText: 'Dirección')),
+                  TextField(
+                    controller: address,
+                    decoration: const InputDecoration(labelText: 'Dirección'),
+                  ),
                   const SizedBox(height: 12),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
@@ -78,11 +96,16 @@ class _DesktopSuppliersPanelState extends ConsumerState<DesktopSuppliersPanel> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Cancelar')),
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Cancelar'),
+            ),
             FilledButton(
               onPressed: () async {
                 try {
-                  await ref.read(desktopSupplierUseCaseProvider).save(
+                  await ref
+                      .read(desktopSupplierUseCaseProvider)
+                      .save(
                         SupplierDraft(
                           name: name.text,
                           document: document.text,
@@ -96,7 +119,9 @@ class _DesktopSuppliersPanelState extends ConsumerState<DesktopSuppliersPanel> {
                   if (dialogContext.mounted) Navigator.pop(dialogContext, true);
                 } catch (error) {
                   if (!dialogContext.mounted) return;
-                  ScaffoldMessenger.of(dialogContext).showSnackBar(SnackBar(content: Text(error.toString())));
+                  ScaffoldMessenger.of(
+                    dialogContext,
+                  ).showSnackBar(SnackBar(content: Text(error.toString())));
                 }
               },
               child: const Text('Guardar'),
@@ -117,10 +142,18 @@ class _DesktopSuppliersPanelState extends ConsumerState<DesktopSuppliersPanel> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Desactivar proveedor'),
-        content: Text('¿Desactivar a ${supplier.name}? Su historial se conservará.'),
+        content: Text(
+          '¿Desactivar a ${supplier.name}? Su historial se conservará.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Desactivar')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Desactivar'),
+          ),
         ],
       ),
     );
@@ -130,7 +163,9 @@ class _DesktopSuppliersPanelState extends ConsumerState<DesktopSuppliersPanel> {
       ref.invalidate(_desktopSuppliersProvider(_query));
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.toString())));
     }
   }
 
@@ -144,9 +179,18 @@ class _DesktopSuppliersPanelState extends ConsumerState<DesktopSuppliersPanel> {
           child: Row(
             children: [
               Expanded(
-                child: Text('Proveedores', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
+                child: Text(
+                  'Proveedores',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               ),
-              FilledButton.icon(onPressed: () => _edit(), icon: const Icon(Icons.add_business), label: const Text('Nuevo proveedor')),
+              FilledButton.icon(
+                onPressed: () => _edit(),
+                icon: const Icon(Icons.add_business),
+                label: const Text('Nuevo proveedor'),
+              ),
             ],
           ),
         ),
@@ -154,7 +198,10 @@ class _DesktopSuppliersPanelState extends ConsumerState<DesktopSuppliersPanel> {
           padding: const EdgeInsets.fromLTRB(28, 0, 28, 16),
           child: TextField(
             controller: _searchController,
-            decoration: const InputDecoration(prefixIcon: Icon(Icons.search), hintText: 'Buscar por nombre, DNI o RUC'),
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Icons.search),
+              hintText: 'Buscar por nombre, DNI o RUC',
+            ),
             onChanged: (value) => setState(() => _query = value.trim()),
           ),
         ),
@@ -172,18 +219,35 @@ class _DesktopSuppliersPanelState extends ConsumerState<DesktopSuppliersPanel> {
                       final row = rows[index];
                       return Card(
                         child: ListTile(
-                          leading: Icon(row.active ? Icons.business : Icons.business_outlined),
-                          title: Text(row.name, style: const TextStyle(fontWeight: FontWeight.w700)),
-                          subtitle: Text([
-                            if (row.document.isNotEmpty) row.document,
-                            row.active ? 'Activo' : 'Inactivo',
-                            if (row.phone?.isNotEmpty == true) row.phone!,
-                          ].join(' · ')),
+                          leading: Icon(
+                            row.active
+                                ? Icons.business
+                                : Icons.business_outlined,
+                          ),
+                          title: Text(
+                            row.name,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                          subtitle: Text(
+                            [
+                              if (row.document.isNotEmpty) row.document,
+                              row.active ? 'Activo' : 'Inactivo',
+                              if (row.phone?.isNotEmpty == true) row.phone!,
+                            ].join(' · '),
+                          ),
                           trailing: Wrap(
                             children: [
-                              IconButton(tooltip: 'Editar', onPressed: () => _edit(row), icon: const Icon(Icons.edit_outlined)),
+                              IconButton(
+                                tooltip: 'Editar',
+                                onPressed: () => _edit(row),
+                                icon: const Icon(Icons.edit_outlined),
+                              ),
                               if (row.active)
-                                IconButton(tooltip: 'Desactivar', onPressed: () => _deactivate(row), icon: const Icon(Icons.person_off_outlined)),
+                                IconButton(
+                                  tooltip: 'Desactivar',
+                                  onPressed: () => _deactivate(row),
+                                  icon: const Icon(Icons.person_off_outlined),
+                                ),
                             ],
                           ),
                         ),

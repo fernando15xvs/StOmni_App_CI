@@ -12,20 +12,26 @@ class PendingSaleMapper {
   );
 
   static Map<String, dynamic> encodeCustomer(SaleCustomer customer) => {
-    'ruc': customer.ruc, 'nombre': customer.nombre, 'direccion': customer.direccion,
+    'ruc': customer.ruc,
+    'nombre': customer.nombre,
+    'direccion': customer.direccion,
   };
 
   static SalePayment decodePayment(Map<String, dynamic> row) {
     final raw = row['monto'];
-    final amount = raw is num ? raw.toDouble() : double.tryParse(raw?.toString() ?? '0');
+    final amount = raw is num
+        ? raw.toDouble()
+        : double.tryParse(raw?.toString() ?? '0');
     if (amount == null || !amount.isFinite) {
       throw const FormatException('Importe de pago inválido.');
     }
     return SalePayment(metodo: row['metodo']?.toString() ?? '', monto: amount);
   }
 
-  static Map<String, dynamic> encodePayment(SalePayment payment) =>
-      {'metodo': payment.metodo, 'monto': payment.monto};
+  static Map<String, dynamic> encodePayment(SalePayment payment) => {
+    'metodo': payment.metodo,
+    'monto': payment.monto,
+  };
 
   static PendingSale decode(Map<String, dynamic> map) {
     final version = map['schema_version'];
@@ -51,8 +57,7 @@ class PendingSaleMapper {
       authUserId: rawAuthUserId == null || rawAuthUserId.isEmpty
           ? null
           : rawAuthUserId,
-      tipoComprobante:
-          rawTipoComprobante == null || rawTipoComprobante.isEmpty
+      tipoComprobante: rawTipoComprobante == null || rawTipoComprobante.isEmpty
           ? 'ticket_interno'
           : rawTipoComprobante.toLowerCase(),
       subtotalBruto: (map['subtotal_bruto'] as num?)?.toDouble() ?? 0.0,
@@ -61,8 +66,8 @@ class PendingSaleMapper {
       descuentoGlobalMonto:
           (map['descuento_global_monto'] as num?)?.toDouble() ?? 0.0,
       motivoDescuento: map['motivo_descuento']?.toString() ?? '',
-      descuentoAutorizadoPor:
-          (map['descuento_autorizado_por'] as num?)?.toInt(),
+      descuentoAutorizadoPor: (map['descuento_autorizado_por'] as num?)
+          ?.toInt(),
       cliente: decodeCustomer(
         rawCliente is Map
             ? Map<String, dynamic>.from(rawCliente)
@@ -99,7 +104,9 @@ class PendingSaleMapper {
   static Iterable<Map<String, dynamic>> _rows(Object? raw) {
     if (raw == null) return const [];
     if (raw is! List || raw.any((row) => row is! Map)) {
-      throw const FormatException('La venta pendiente contiene líneas inválidas.');
+      throw const FormatException(
+        'La venta pendiente contiene líneas inválidas.',
+      );
     }
     return raw.map((row) => Map<String, dynamic>.from(row as Map));
   }

@@ -87,10 +87,7 @@ class AuthController extends StateNotifier<AuthState> {
     try {
       final finalEmail = AuthUtils.formatEmail(emailInput);
       final res = await Supabase.instance.client.auth
-          .signInWithPassword(
-            email: finalEmail,
-            password: password.trim(),
-          )
+          .signInWithPassword(email: finalEmail, password: password.trim())
           .timeout(_authTimeout);
 
       final user = res.user;
@@ -190,10 +187,7 @@ class AuthController extends StateNotifier<AuthState> {
     }
   }
 
-  Future<void> _saveRememberPreference(
-    String finalEmail,
-    bool remember,
-  ) async {
+  Future<void> _saveRememberPreference(String finalEmail, bool remember) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       if (remember) {
@@ -284,10 +278,7 @@ class AuthController extends StateNotifier<AuthState> {
         return;
       }
       ref.read(rolProvider.notifier).state = result.role!;
-      state = state.copyWith(
-        clearError: true,
-        sessionStatus: result.status,
-      );
+      state = state.copyWith(clearError: true, sessionStatus: result.status);
       return;
     }
 
@@ -310,7 +301,9 @@ class AuthController extends StateNotifier<AuthState> {
     );
   }
 
-  String? _validationMessage(SessionValidationStatus status) => switch (status) {
+  String? _validationMessage(
+    SessionValidationStatus status,
+  ) => switch (status) {
     SessionValidationStatus.denied =>
       'Tu cuenta ya no tiene acceso activo. Comunícate con el administrador.',
     SessionValidationStatus.offlineAuthorizationMissing =>
@@ -378,16 +371,10 @@ class AuthController extends StateNotifier<AuthState> {
       state = state.copyWith(isLoading: false, clearError: true);
       return true;
     } on TimeoutException catch (error) {
-      state = state.copyWith(
-        isLoading: false,
-        error: ErrorMapper.map(error),
-      );
+      state = state.copyWith(isLoading: false, error: ErrorMapper.map(error));
       return false;
     } catch (error) {
-      state = state.copyWith(
-        isLoading: false,
-        error: ErrorMapper.map(error),
-      );
+      state = state.copyWith(isLoading: false, error: ErrorMapper.map(error));
       return false;
     }
   }

@@ -36,7 +36,9 @@ class GuidedOnboardingProgress {
   factory GuidedOnboardingProgress.fromJson(Map<String, dynamic> json) {
     final rawSteps = json['completed_steps'];
     if (rawSteps is! List) {
-      throw const FormatException('Los pasos completados del onboarding son inválidos.');
+      throw const FormatException(
+        'Los pasos completados del onboarding son inválidos.',
+      );
     }
     final next = json['next_step'] as String?;
     return GuidedOnboardingProgress(

@@ -170,7 +170,7 @@ class KardexNotifier extends StateNotifier<KardexState> {
         fechaFin: _fechaFin,
         productoId: state.productoIdFiltro,
       );
-      
+
       if (nuevos.isEmpty) return;
 
       final porId = <int, Map<String, dynamic>>{};
@@ -225,11 +225,10 @@ class KardexNotifier extends StateNotifier<KardexState> {
   }
 }
 
-final kardexProvider = StateNotifierProvider<KardexNotifier, KardexState>((ref) {
-  final notifier = KardexNotifier(
-    ref,
-    ref.read(kardexRepositoryProvider),
-  );
+final kardexProvider = StateNotifierProvider<KardexNotifier, KardexState>((
+  ref,
+) {
+  final notifier = KardexNotifier(ref, ref.read(kardexRepositoryProvider));
 
   ref.listen(inventoryRealtimeEventStreamProvider, (previous, next) {
     if (next.hasValue && next.value!.requiereRecargaKardex) {

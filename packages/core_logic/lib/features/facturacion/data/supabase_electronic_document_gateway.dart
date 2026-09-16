@@ -16,8 +16,11 @@ class SupabaseElectronicDocumentGateway implements ElectronicDocumentGateway {
     int page = 0,
     int pageSize = 50,
   }) async {
-    final exclusiveEnd = DateTime(end.year, end.month, end.day)
-        .add(const Duration(days: 1));
+    final exclusiveEnd = DateTime(
+      end.year,
+      end.month,
+      end.day,
+    ).add(const Duration(days: 1));
     final limit = pageSize.clamp(10, 100);
     final offset = (page < 0 ? 0 : page) * limit;
     final raw = await client.rpc(
@@ -123,6 +126,7 @@ class SupabaseElectronicDocumentGateway implements ElectronicDocumentGateway {
       final text = value?.toString().trim() ?? '';
       return text.isEmpty ? null : text;
     }
+
     return ElectronicDocumentRecord(
       id: id,
       category: category,

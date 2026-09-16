@@ -22,7 +22,9 @@ Map<String, dynamic> _legacyInventoryProduct(InventoryCatalogItem item) {
   };
 }
 
-Map<String, dynamic> _legacyInventoryWarehouse(InventoryWarehouseRecord warehouse) {
+Map<String, dynamic> _legacyInventoryWarehouse(
+  InventoryWarehouseRecord warehouse,
+) {
   return <String, dynamic>{
     'id': warehouse.id,
     'nombre': warehouse.name,
@@ -51,14 +53,12 @@ class AlmacenState {
   });
 
   /// Compatibilidad temporal para widgets/exportadores todavía basados en mapas.
-  List<Map<String, dynamic>> get productosCompletos => catalogProducts
-      .map(_legacyInventoryProduct)
-      .toList(growable: false);
+  List<Map<String, dynamic>> get productosCompletos =>
+      catalogProducts.map(_legacyInventoryProduct).toList(growable: false);
 
   /// Compatibilidad temporal para widgets/exportadores todavía basados en mapas.
-  List<Map<String, dynamic>> get configAlmacenes => warehouseRecords
-      .map(_legacyInventoryWarehouse)
-      .toList(growable: false);
+  List<Map<String, dynamic>> get configAlmacenes =>
+      warehouseRecords.map(_legacyInventoryWarehouse).toList(growable: false);
 
   AlmacenState copyWith({
     List<InventoryCatalogItem>? catalogProducts,
@@ -95,13 +95,13 @@ class AlmacenNotifier extends AsyncNotifier<AlmacenState> {
         .read(inventoryCatalogUseCaseProvider)
         .reloadLocalProducts(brands: state.value!.mapaMarcas);
 
-    state = AsyncValue.data(
-      state.value!.copyWith(catalogProducts: products),
-    );
+    state = AsyncValue.data(state.value!.copyWith(catalogProducts: products));
   }
 
   Future<AlmacenState> _cargarDatosIniciales() async {
-    final snapshot = await ref.read(inventoryCatalogUseCaseProvider).loadInitial();
+    final snapshot = await ref
+        .read(inventoryCatalogUseCaseProvider)
+        .loadInitial();
     return _stateFromSnapshot(snapshot);
   }
 
@@ -165,10 +165,9 @@ class AlmacenNotifier extends AsyncNotifier<AlmacenState> {
 
   Future<void> desactivarProducto(int productoId) async {
     try {
-      await ref.read(productLifecycleUseCaseProvider).deactivate(
-            productoId,
-            offline: state.value?.modoOffline ?? false,
-          );
+      await ref
+          .read(productLifecycleUseCaseProvider)
+          .deactivate(productoId, offline: state.value?.modoOffline ?? false);
     } on ProductLifecycleOfflineException catch (e) {
       throw UserFacingException(e.message);
     } catch (e) {
@@ -179,7 +178,9 @@ class AlmacenNotifier extends AsyncNotifier<AlmacenState> {
 
   Future<void> eliminarProductoDefinitivamente(int productoId) async {
     try {
-      await ref.read(productLifecycleUseCaseProvider).deletePermanently(
+      await ref
+          .read(productLifecycleUseCaseProvider)
+          .deletePermanently(
             productoId,
             offline: state.value?.modoOffline ?? false,
           );
@@ -193,9 +194,7 @@ class AlmacenNotifier extends AsyncNotifier<AlmacenState> {
 
   Future<void> reactivarProducto(int productoId) async {
     try {
-      await ref
-          .read(productLifecycleUseCaseProvider)
-          .reactivate(productoId);
+      await ref.read(productLifecycleUseCaseProvider).reactivate(productoId);
     } catch (e) {
       throw UserFacingException(ErrorMapper.map(e));
     }
@@ -230,13 +229,13 @@ final almacenFiltradoProvider =
       final state = ref.watch(almacenNotifierProvider);
 
       return state.whenData((almacenState) {
-        final filtered = ref.watch(inventoryCatalogUseCaseProvider).filterAndSort(
+        final filtered = ref
+            .watch(inventoryCatalogUseCaseProvider)
+            .filterAndSort(
               products: almacenState.catalogProducts,
               query: ref.watch(almacenBusquedaProvider),
               lowStockOnly: soloStockBajo,
-              sortBy: _inventorySortField(
-                ref.watch(almacenOrdenarPorProvider),
-              ),
+              sortBy: _inventorySortField(ref.watch(almacenOrdenarPorProvider)),
               ascending: ref.watch(almacenOrdenAscendenteProvider),
             );
         return filtered.map(_legacyInventoryProduct).toList(growable: false);
@@ -250,7 +249,9 @@ final _productosInactivosCatalogFutureProvider =
 
 final productosInactivosFutureProvider =
     FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
-      final items = await ref.watch(_productosInactivosCatalogFutureProvider.future);
+      final items = await ref.watch(
+        _productosInactivosCatalogFutureProvider.future,
+      );
       return items.map(_legacyInventoryProduct).toList(growable: false);
     });
 
@@ -258,12 +259,12 @@ final productosInactivosFiltradoProvider =
     Provider.autoDispose<AsyncValue<List<Map<String, dynamic>>>>((ref) {
       final asyncData = ref.watch(_productosInactivosCatalogFutureProvider);
       return asyncData.whenData((inactivos) {
-        final filtered = ref.watch(inventoryCatalogUseCaseProvider).filterAndSort(
+        final filtered = ref
+            .watch(inventoryCatalogUseCaseProvider)
+            .filterAndSort(
               products: inactivos,
               query: ref.watch(almacenBusquedaProvider),
-              sortBy: _inventorySortField(
-                ref.watch(almacenOrdenarPorProvider),
-              ),
+              sortBy: _inventorySortField(ref.watch(almacenOrdenarPorProvider)),
               ascending: ref.watch(almacenOrdenAscendenteProvider),
             );
         return filtered.map(_legacyInventoryProduct).toList(growable: false);

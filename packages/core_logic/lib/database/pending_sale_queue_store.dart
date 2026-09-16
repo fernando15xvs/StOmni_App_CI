@@ -106,7 +106,9 @@ class PendingSaleQueueStore {
     if (existing != null) return existing;
 
     final factory = _databaseFactoryOverride ?? databaseFactory;
-    final path = _databasePathOverride ?? p.join(await factory.getDatabasesPath(), _dbName);
+    final path =
+        _databasePathOverride ??
+        p.join(await factory.getDatabasesPath(), _dbName);
     final db = await factory.openDatabase(
       path,
       options: OpenDatabaseOptions(
@@ -147,7 +149,9 @@ class PendingSaleQueueStore {
 
     if (kIsWeb) {
       final records = await _readWebRecords();
-      final index = records.indexWhere((record) => record.requestId == requestId);
+      final index = records.indexWhere(
+        (record) => record.requestId == requestId,
+      );
       final now = AppTime.nowIso();
       final previous = index >= 0 ? records[index] : null;
       final next = PendingSaleQueueRecord(
@@ -300,10 +304,7 @@ class PendingSaleQueueStore {
     final db = await _database();
     await db.update(
       _table,
-      {
-        'estado': PendingSaleQueueStatus.pending,
-        'actualizado_en': now,
-      },
+      {'estado': PendingSaleQueueStatus.pending, 'actualizado_en': now},
       where: 'estado = ?',
       whereArgs: [PendingSaleQueueStatus.processing],
     );

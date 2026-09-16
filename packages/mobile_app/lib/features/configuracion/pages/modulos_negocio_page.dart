@@ -49,19 +49,22 @@ class _ModulosNegocioPageState extends ConsumerState<ModulosNegocioPage> {
     return BusinessCapabilities(
       inventoryEnabled: inventory,
       multipleBranches: multipleBranches ?? c.multipleBranches,
-      multipleWarehouses:
-          inventory ? (multipleWarehouses ?? c.multipleWarehouses) : false,
+      multipleWarehouses: inventory
+          ? (multipleWarehouses ?? c.multipleWarehouses)
+          : false,
       creditSales: creditSales ?? c.creditSales,
       electronicInvoicing: electronicInvoicing ?? c.electronicInvoicing,
       supplierManagement: c.supplierManagement,
-      purchaseManagement:
-          inventory ? (purchaseManagement ?? c.purchaseManagement) : false,
+      purchaseManagement: inventory
+          ? (purchaseManagement ?? c.purchaseManagement)
+          : false,
       lotTracking: inventory ? (lotTracking ?? c.lotTracking) : false,
       expiryTracking: inventory ? (expiryTracking ?? c.expiryTracking) : false,
       variants: variants ?? c.variants,
       services: services ?? c.services,
-      serialNumberTracking:
-          inventory ? (serialNumberTracking ?? c.serialNumberTracking) : false,
+      serialNumberTracking: inventory
+          ? (serialNumberTracking ?? c.serialNumberTracking)
+          : false,
     );
   }
 
@@ -99,10 +102,10 @@ class _ModulosNegocioPageState extends ConsumerState<ModulosNegocioPage> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _profile == null
-              ? const Center(
-                  child: Text('No se pudo cargar la configuración de módulos.'),
-                )
-              : _content(_profile!.capabilities),
+          ? const Center(
+              child: Text('No se pudo cargar la configuración de módulos.'),
+            )
+          : _content(_profile!.capabilities),
     );
   }
 
@@ -188,12 +191,12 @@ class _ModulosNegocioPageState extends ConsumerState<ModulosNegocioPage> {
                 value: c.lotTracking,
                 onChanged: c.inventoryEnabled
                     ? (value) => _save(
-                          _copy(
-                            c,
-                            lotTracking: value,
-                            expiryTracking: value ? c.expiryTracking : false,
-                          ),
-                        )
+                        _copy(
+                          c,
+                          lotTracking: value,
+                          expiryTracking: value ? c.expiryTracking : false,
+                        ),
+                      )
                     : null,
               ),
               toggle(

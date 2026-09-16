@@ -10,7 +10,6 @@ class SaleCustomer {
   final String ruc;
   final String nombre;
   final String direccion;
-
 }
 
 class SalePayment {
@@ -18,7 +17,6 @@ class SalePayment {
 
   final String metodo;
   final double monto;
-
 }
 
 /// Snapshot completo que permite reproducir un Ticket Interno offline sin
@@ -73,5 +71,4 @@ class PendingSale {
   bool get usaEfectivo => pagos.any(
     (pago) => pago.metodo.trim().toLowerCase() == 'efectivo' && pago.monto > 0,
   );
-
 }
