@@ -1,6 +1,6 @@
 BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
-SELECT plan(28);
+SELECT plan(29);
 
 SELECT ok(to_regclass('public.audit_logs') IS NOT NULL,'audit_logs existe');
 SELECT ok(EXISTS(SELECT 1 FROM pg_attribute WHERE attrelid='public.audit_logs'::regclass AND attname='organization_id' AND attnotnull AND NOT attisdropped),'audit_logs.organization_id NOT NULL');
@@ -15,6 +15,7 @@ SELECT ok(NOT has_table_privilege('authenticated','public.audit_logs','DELETE'),
 SELECT ok(NOT has_table_privilege('authenticated','public.audit_logs','SELECT'),'authenticated sin SELECT directo');
 SELECT ok(EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.audit_logs'::regclass AND tgname='audit_logs_block_mutation' AND NOT tgisinternal),'trigger append-only existe');
 SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='private' AND p.proname='write_audit_log' AND lower(pg_get_functiondef(p.oid)) LIKE '%cross-tenant audit event is not allowed%'),'writer bloquea cross-tenant');
+SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='private' AND p.proname='write_audit_log' AND p.provolatile='v' AND lower(pg_get_functiondef(p.oid)) LIKE '%from public.app_users au%' AND lower(pg_get_functiondef(p.oid)) LIKE '%au.user_id=v_user%'),'writer resuelve membership fresca para bootstrap atómico');
 SELECT ok(EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='private' AND p.proname='write_audit_log' AND lower(pg_get_functiondef(p.oid)) LIKE '%e.organization_id=p_organization_id%' AND lower(pg_get_functiondef(p.oid)) LIKE '%e.app_user_id=v_user or e.auth_id=v_user%'),'actor se resuelve dentro del tenant');
 SELECT ok(NOT has_function_privilege('authenticated','private.write_audit_log(uuid,text,text,text,text,text,uuid,jsonb)','EXECUTE'),'writer privado no ejecutable por authenticated');
 
