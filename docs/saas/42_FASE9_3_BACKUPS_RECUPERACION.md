@@ -73,6 +73,8 @@ Además:
 - exige el mismo commit del snapshot por defecto;
 - sólo admite mismatch de schema con `STOMNI_ALLOW_SCHEMA_MISMATCH=YES` explícito;
 - ejecuta `supabase db reset` para reconstruir el esquema;
+- valida y usa `supabase_admin` únicamente contra la DB loopback local para que
+  `pg_restore --disable-triggers` tenga el privilegio exigido por PostgreSQL;
 - restaura Auth y datos de negocio con `pg_restore --data-only`;
 - reconstruye Storage por API local;
 - verifica exactamente fingerprints DB e hashes de Storage.

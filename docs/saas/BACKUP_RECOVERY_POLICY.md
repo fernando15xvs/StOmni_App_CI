@@ -93,7 +93,8 @@ El drill:
 3. exige por defecto el mismo commit del backup;
 4. ejecuta `supabase db reset` para reconstruir el esquema desde migraciones;
 5. limpia únicamente datos restaurables del laboratorio;
-6. restaura Auth y `public` con `pg_restore`;
+6. verifica el superusuario `supabase_admin` del stack loopback local y restaura
+   Auth y `public` con `pg_restore --disable-triggers`;
 7. repone bytes Storage por la API local;
 8. compara fingerprints DB exactos;
 9. compara inventario, tamaño y SHA-256 de todos los objetos Storage;

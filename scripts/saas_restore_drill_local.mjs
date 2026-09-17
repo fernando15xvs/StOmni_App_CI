@@ -58,6 +58,25 @@ function requireSameSchemaCommit(manifest) {
   );
 }
 
+function localRestoreSuperuserUrl(dbUrl) {
+  const url = new URL(dbUrl);
+  ensure(url.password, 'DB_URL local no contiene password para el restore privilegiado.');
+  url.username = 'supabase_admin';
+  return url.toString();
+}
+
+function verifyLocalRestoreSuperuser(dbUrl) {
+  const role = psql(dbUrl, `
+    SELECT current_user || E'\\t' || rolsuper::text
+    FROM pg_roles
+    WHERE rolname=current_user;
+  `);
+  ensure(
+    role === 'supabase_admin\ttrue',
+    'El restore local requiere el rol superusuario supabase_admin para --disable-triggers.',
+  );
+}
+
 function clearRestoreTargets(dbUrl) {
   psql(dbUrl, `
     DO $purge$
@@ -153,8 +172,10 @@ async function main() {
   runCommand('supabase', ['db', 'reset']);
 
   const config = loadLocalSupabaseConfig();
+  const restoreDbUrl = localRestoreSuperuserUrl(config.dbUrl);
+  verifyLocalRestoreSuperuser(restoreDbUrl);
   clearRestoreTargets(config.dbUrl);
-  restoreLogicalData(config.dbUrl, backupDir, manifest);
+  restoreLogicalData(restoreDbUrl, backupDir, manifest);
   verifyBuckets(config.dbUrl, manifest);
   await uploadStorageArtifacts(config, manifest.storage.objects, path.join(backupDir, 'storage'));
 

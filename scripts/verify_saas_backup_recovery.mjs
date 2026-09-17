@@ -41,6 +41,8 @@ function verifyOperationalBoundaries(errors, { common, backup, restore, tenantEx
     'restore no falla cerrado ante commit/schema distinto');
   need(errors, restore, /pg_restore[\s\S]*?--data-only[\s\S]*?--disable-triggers/,
     'restore no repone dumps lógicos de forma controlada');
+  need(errors, restore, /url\.username = 'supabase_admin'[\s\S]*?rolsuper[\s\S]*?restoreLogicalData\(restoreDbUrl/,
+    'restore no valida/usa el superusuario exclusivo del stack Supabase local');
   need(errors, restore, /uploadStorageArtifacts/,
     'restore no repone bytes Storage');
   need(errors, restore, /database_fingerprints_exact: true[\s\S]*?storage_hashes_exact: true/,
@@ -112,7 +114,7 @@ function selfTest() {
   const safe = {
     common: `LOOPBACK_HOSTS 127.0.0.1 localhost protocols: new Set(['postgres:', 'postgresql:']) protocols: new Set(['http:'])`,
     backup: `pg_dump --schema=public --table=auth.users --table=auth.identities collectRecoveryFingerprints before after downloadStorageObjects storage_bytes_backed_up_separately: true`,
-    restore: `process.env[STOMNI_ALLOW_DESTRUCTIVE_RESTORE] === 'YES'; runCommand('supabase', ['db', 'reset']); process.env.STOMNI_ALLOW_SCHEMA_MISMATCH === 'YES'; pg_restore --data-only --disable-triggers uploadStorageArtifacts database_fingerprints_exact: true storage_hashes_exact: true status: 'RESTORE_DRILL_GREEN'`,
+    restore: `process.env[STOMNI_ALLOW_DESTRUCTIVE_RESTORE] === 'YES'; runCommand('supabase', ['db', 'reset']); process.env.STOMNI_ALLOW_SCHEMA_MISMATCH === 'YES'; pg_restore --data-only --disable-triggers url.username = 'supabase_admin' rolsuper restoreLogicalData(restoreDbUrl uploadStorageArtifacts database_fingerprints_exact: true storage_hashes_exact: true status: 'RESTORE_DRILL_GREEN'`,
     tenantExport: `--organization-id UUID válido listTenantOwnedTables WHERE t.organization_id=x::uuid SELECT count(*)::text FROM public.organizations organizationCount === '1' listStorageObjects(config.dbUrl, { organizationId }) auth_password_hashes_or_sessions: false`,
   };
   const safeErrors = [];
