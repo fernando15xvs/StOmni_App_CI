@@ -22,15 +22,19 @@ Workspace Dart/Flutter:
 
 - raíz: `pubspec.yaml`;
 - motor reutilizable: `packages/core_logic`;
-- cliente móvil/Web: `packages/mobile_app`;
+- cliente móvil: `packages/mobile_app`;
 - cliente desktop: `packages/desktop_app`;
+- cliente Web dedicado: **fuera del alcance actual**; se creará en una fase futura como `packages/web_app`;
 - backend: `supabase/`;
 - gates de arquitectura/seguridad: `scripts/`.
 
-Plataformas existentes en el repositorio:
+Plataformas soportadas por el candidato actual:
 
-- `mobile_app`: Android, iOS y Web;
-- `desktop_app`: Windows, Linux y macOS.
+- `mobile_app`: Android e iOS;
+- `desktop_app`: Windows, Linux y macOS;
+- Web: no soportado por este candidato. `packages/mobile_app/web/` no debe existir.
+
+La decisión y la evidencia que separan Web de `mobile_app` están documentadas en `docs/saas/101_AUDITORIA_FRONTERA_PLATAFORMAS_Y_WEB_FUTURA.md`. Cuando exista `web_app`, este mapa deberá ampliarse antes de declarar navegador como plataforma soportada.
 
 ## Reglas de evidencia
 
@@ -190,12 +194,15 @@ node scripts/verify_saas_rpc_surface.mjs
 
 Cuando se creen nuevos gates durante el roadmap, deberán agregarse también a T02.
 
+Además del runner anterior, el workflow final debe mantener un gate de frontera de plataformas que compruebe que `mobile_app` conserva Android/iOS y que `packages/mobile_app/web/` no reaparece antes de la fase Web dedicada.
+
 ## Criterios
 
 - [ ] todos los self-tests verdes;
 - [ ] todos los gates verdes;
 - [ ] cero singleton nuevos;
-- [ ] cero excepciones nuevas sin auditoría explícita.
+- [ ] cero excepciones nuevas sin auditoría explícita;
+- [ ] frontera de plataformas vigente: mobile Android/iOS, desktop Windows/Linux/macOS, Web diferido.
 
 ---
 
@@ -467,7 +474,7 @@ Comprobar que convertir StOmni en SaaS no rompe el negocio existente.
 Ejecutar CRUD + reglas principales, siempre con datos A/B, para:
 
 - [ ] configuración de empresa;
-- [ ] branding: nombre comercial/logo se propagan a mobile-Web, Desktop y PDFs;
+- [ ] branding: nombre comercial/logo se propagan a Mobile, Desktop y PDFs;
 - [ ] usuarios y empleados;
 - [ ] clientes;
 - [ ] proveedores;
@@ -609,7 +616,7 @@ Escenarios mínimos:
 - [ ] ADMIN_B login -> sólo ORG_B;
 - [ ] Auth sin tenant -> alta -> revalidación online -> onboarding -> Home;
 - [ ] restauración con cambio obligatorio de contraseña -> login/alta/onboarding según corresponda;
-- [ ] onboarding incompleto bloquea Home en mobile/Web/Desktop;
+- [ ] onboarding incompleto bloquea Home en Mobile/Desktop;
 - [ ] autorización offline tenant válida abre Home sin RPC de onboarding;
 - [ ] crear cliente/producto/stock en A;
 - [ ] registrar venta A y verificar impacto inventario/caja;
@@ -620,7 +627,7 @@ Escenarios mínimos:
 - [ ] repetir recorrido básico en B;
 - [ ] comprobar que A y B nunca se mezclan;
 - [ ] logout A -> login B en el mismo dispositivo sin datos cacheados de A;
-- [ ] ORG_A y ORG_B muestran nombres/logos distintos en mobile-Web y Desktop;
+- [ ] ORG_A y ORG_B muestran nombres/logos distintos en Mobile y Desktop;
 - [ ] logout A -> login B no conserva logo, nombre ni perfil fiscal de A;
 - [ ] modo offline muestra sólo el snapshot visual del usuario autorizado y no consulta otro tenant;
 - [ ] cotización y ticket usan nombre comercial, razón social y logo del tenant actual;
@@ -638,33 +645,32 @@ Cuando exista `integration_test/`, la suite de UI debe ejecutarse automatizadame
 
 ## Objetivo
 
-Demostrar que la separación `core_logic` permite compilar las plataformas reales del repositorio.
+Demostrar que la separación `core_logic` permite compilar las plataformas declaradas como soportadas por los clientes actuales. Web no forma parte de este candidato; su interfaz se implementará en `packages/web_app` durante una fase futura independiente.
 
 ### En Windows — obligatorio para la máquina local actual
 
-Mobile/Web:
+Mobile Android, cuando exista emulador/dispositivo disponible:
 
 ```bash
 cd packages/mobile_app
-flutter build web --release
 flutter build apk --debug
 ```
 
 Desktop Windows:
 
 ```bash
-cd ../desktop_app
+cd packages/desktop_app
 flutter build windows --release
 ```
 
 Smoke manual/automatizado:
 
-- [ ] Web inicia;
-- [ ] Android inicia en emulador/dispositivo;
+- [ ] Android inicia en emulador/dispositivo cuando esté disponible;
 - [ ] Windows desktop inicia;
-- [ ] login y consulta tenant básica funcionan.
-- [ ] branding responsive verificado en teléfono, tablet, navegador y Desktop;
+- [ ] login y consulta tenant básica funcionan en cada plataforma realmente disponible;
+- [ ] branding responsive verificado en teléfono/tablet móvil y Desktop;
 - [ ] logo ausente/URL fallida conserva un fallback visual y no bloquea Home;
+- [ ] `packages/mobile_app/web/` permanece ausente y CI no ejecuta `flutter build web` sobre `mobile_app`.
 
 ### En macOS — requerido antes de considerar iOS/macOS comercialmente verdes
 
@@ -678,7 +684,7 @@ flutter build macos --release
 
 - [ ] iOS compila sin firma;
 - [ ] macOS desktop compila;
-- [ ] smoke básico realizado.
+- [ ] smoke básico realizado cuando exista hardware disponible.
 
 ### En Linux — requerido antes de declarar Linux desktop soportado
 
@@ -688,9 +694,9 @@ flutter build linux --release
 ```
 
 - [ ] Linux compila;
-- [ ] smoke básico realizado.
+- [ ] smoke básico realizado cuando exista hardware disponible.
 
-**Nota:** una máquina Windows no puede certificar por sí sola un build iOS/macOS. Esas casillas deberán ejecutarse en macOS antes del release multiplataforma; no se marcarán por inferencia.
+**Nota:** una máquina Windows no puede certificar por sí sola un build iOS/macOS. Esas casillas deberán ejecutarse en macOS o certificarse por el runner correspondiente antes del release multiplataforma; no se marcarán por inferencia. La ausencia de un build Web no cuenta como prueba omitida porque Web no está declarado como plataforma soportada por este candidato.
 
 ---
 
@@ -713,7 +719,7 @@ Contrato DB, ejecutado dentro de T04:
 supabase/tests/database/final_security_contract_test.sql
 ```
 
-- [ ] ninguna `service_role` key dentro de Flutter/Web;
+- [ ] ninguna `service_role` key dentro de los clientes Flutter soportados;
 - [ ] ningún secreto versionado;
 - [ ] anon key tratada como pública, seguridad basada en RLS;
 - [ ] grants a `anon`/`authenticated` revisados;
@@ -894,6 +900,7 @@ Debe contener:
 - resultado de `supabase db reset`;
 - matriz ORG_A/ORG_B;
 - builds realizados;
+- plataformas declaradas como soportadas y evidencia de que Web permanece diferido a un cliente dedicado;
 - hallazgos de seguridad;
 - hallazgos de performance;
 - evidencia `.dart_tool/saas/f9_3_restore_report.json`;

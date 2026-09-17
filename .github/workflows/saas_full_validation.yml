@@ -102,6 +102,21 @@ jobs:
             exit 1
           fi
 
+      - name: Client platform boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d packages/mobile_app/android
+          test -d packages/mobile_app/ios
+          test ! -d packages/mobile_app/web
+          test -d packages/desktop_app/windows
+          test -d packages/desktop_app/linux
+          test -d packages/desktop_app/macos
+          test ! -d packages/web_app
+          test -f packages/mobile_app/README.md
+          test -f docs/saas/101_AUDITORIA_FRONTERA_PLATAFORMAS_Y_WEB_FUTURA.md
+          echo "Platform contract OK: mobile=Android/iOS, desktop=Windows/Linux/macOS, dedicated Web deferred."
+
       - name: T02 complete non-stop audit
         run: node scripts/run_saas_t02_ci.mjs
 
@@ -259,8 +274,8 @@ jobs:
         if: always()
         run: supabase stop --no-backup || true
 
-  t01-t13-t15-mobile-web-android:
-    name: Flutter core/mobile + Web/Android
+  t01-t13-t15-mobile-android:
+    name: Flutter core/mobile + Android
     runs-on: ubuntu-latest
     timeout-minutes: 70
     steps:
@@ -310,21 +325,15 @@ jobs:
         working-directory: packages/mobile_app
         run: flutter test --reporter expanded
 
-      - name: T15 build Web release
-        working-directory: packages/mobile_app
-        run: flutter build web --release --dart-define=SUPABASE_URL=http://127.0.0.1:54321 --dart-define=SUPABASE_ANON_KEY=ci-local-placeholder
-
       - name: T15 build Android debug APK
         working-directory: packages/mobile_app
         run: flutter build apk --debug --dart-define=SUPABASE_URL=http://127.0.0.1:54321 --dart-define=SUPABASE_ANON_KEY=ci-local-placeholder
 
-      - name: Upload Web and APK
+      - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
-          name: mobile-web-android-builds
-          path: |
-            packages/mobile_app/build/web/**
-            packages/mobile_app/build/app/outputs/flutter-apk/app-debug.apk
+          name: mobile-android-build
+          path: packages/mobile_app/build/app/outputs/flutter-apk/app-debug.apk
 
   t13-t15-windows:
     name: Windows desktop validation
@@ -456,7 +465,7 @@ jobs:
     needs:
       - t00-t02-static
       - t03-t12-t14-t17-t18-backend
-      - t01-t13-t15-mobile-web-android
+      - t01-t13-t15-mobile-android
       - t13-t15-windows
       - t15-linux
       - macos-ios-smoke
@@ -467,7 +476,7 @@ jobs:
         run: |
           echo "T00-T02 static: ${{ needs.t00-t02-static.result }}"
           echo "Backend automated: ${{ needs.t03-t12-t14-t17-t18-backend.result }}"
-          echo "Flutter mobile/web/android: ${{ needs.t01-t13-t15-mobile-web-android.result }}"
+          echo "Flutter mobile/Android: ${{ needs.t01-t13-t15-mobile-android.result }}"
           echo "Windows: ${{ needs.t13-t15-windows.result }}"
           echo "Linux: ${{ needs.t15-linux.result }}"
           echo "macOS/iOS: ${{ needs.macos-ios-smoke.result }}"
@@ -476,14 +485,14 @@ jobs:
             echo ""
             echo "- Static: ${{ needs.t00-t02-static.result }}"
             echo "- Backend automated: ${{ needs.t03-t12-t14-t17-t18-backend.result }}"
-            echo "- Mobile/Web/Android: ${{ needs.t01-t13-t15-mobile-web-android.result }}"
+            echo "- Mobile/Android: ${{ needs.t01-t13-t15-mobile-android.result }}"
             echo "- Windows: ${{ needs.t13-t15-windows.result }}"
             echo "- Linux: ${{ needs.t15-linux.result }}"
             echo "- macOS/iOS: ${{ needs.macos-ios-smoke.result }}"
           } >> "$GITHUB_STEP_SUMMARY"
           if [ "${{ needs.t00-t02-static.result }}" != "success" ] || \
              [ "${{ needs.t03-t12-t14-t17-t18-backend.result }}" != "success" ] || \
-             [ "${{ needs.t01-t13-t15-mobile-web-android.result }}" != "success" ] || \
+             [ "${{ needs.t01-t13-t15-mobile-android.result }}" != "success" ] || \
              [ "${{ needs.t13-t15-windows.result }}" != "success" ] || \
              [ "${{ needs.t15-linux.result }}" != "success" ] || \
              [ "${{ needs.macos-ios-smoke.result }}" != "success" ]; then

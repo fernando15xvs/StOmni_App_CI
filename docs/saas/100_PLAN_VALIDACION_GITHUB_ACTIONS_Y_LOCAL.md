@@ -6,6 +6,7 @@ Este documento define **dónde** se ejecuta cada parte de la validación final d
 
 - `docs/saas/99_MAPA_MAESTRO_PRUEBAS_SAAS.md` continúa siendo el **catálogo de requisitos T00–T19**.
 - Este documento define la **topología de ejecución aprobada**: primero GitHub Actions en el repositorio espejo de CI y, sólo cuando CI esté verde, aceptación final local.
+- La frontera de plataformas aprobada está auditada en `docs/saas/101_AUDITORIA_FRONTERA_PLATAFORMAS_Y_WEB_FUTURA.md`.
 
 ## Repositorios y ramas
 
@@ -39,6 +40,18 @@ powershell -ExecutionPolicy Bypass -File .\scripts\sync_saas_candidate_to_ci.ps1
 ```
 
 El sync crea `docs/saas/CI_CANDIDATE_SOURCE.json` dentro del repo CI con el SHA exacto del candidato fuente. El workflow debe fallar si ese manifiesto no existe o no es válido.
+
+## Contrato de plataformas del candidato
+
+La validación de este roadmap sólo puede exigir plataformas declaradas como soportadas por cada cliente:
+
+- `packages/mobile_app`: Android e iOS;
+- `packages/desktop_app`: Windows, Linux y macOS;
+- Web: **fuera del alcance de este candidato**. No se publica ni se valida `mobile_app` como aplicación Web.
+
+`packages/mobile_app/web/` no debe existir. La futura experiencia de navegador se implementará como un cliente dedicado, previsto como `packages/web_app`, con interfaz, navegación e infraestructura de persistencia adecuadas al navegador y reutilizando `packages/core_logic` donde corresponda.
+
+La ausencia de Web en T15/L02 **no es un test omitido**: Web no forma parte del conjunto de plataformas soportadas por este candidato. Cuando se implemente `web_app`, deberá incorporar sus propios gates, builds, smoke tests y matriz multi-tenant antes de declararse soportado.
 
 ---
 
@@ -102,6 +115,7 @@ Automatizar:
 - self-tests de los gates que los soportan;
 - anti-singleton;
 - RLS/RPC/Edge/security static gates;
+- frontera de plataformas: `mobile_app` sólo Android/iOS y ausencia de `mobile_app/web`;
 - `deno check` de todas las Edge Functions.
 
 **Gate:** todos los checks con exit code 0.
@@ -171,20 +185,19 @@ En runners apropiados:
 
 ### Ubuntu
 
-- Web release;
-- Android APK debug;
-- Linux desktop release.
+- Android APK debug (`mobile_app`);
+- Linux desktop release (`desktop_app`).
 
 ### Windows
 
-- Windows desktop release.
+- Windows desktop release (`desktop_app`).
 
 ### macOS
 
-- macOS desktop release;
-- iOS simulator compile smoke.
+- macOS desktop release (`desktop_app`);
+- iOS simulator compile smoke (`mobile_app`).
 
-Estos builds prueban compilación real por SO, pero no reemplazan el smoke manual en dispositivo/navegador/escritorio de la fase local.
+No se ejecuta `flutter build web` desde `mobile_app`. Estos builds prueban compilación real por SO, pero no reemplazan el smoke manual en dispositivo/escritorio de la fase local.
 
 ## CI-6 — T16: seguridad automatizable
 
@@ -274,12 +287,11 @@ Objetivo: confirmar que el candidato que pasó en runners también reconstruye e
 
 En la máquina local actual:
 
-- Web abre y permite login;
 - Android instala/inicia en emulador o dispositivo cuando esté disponible;
 - Windows desktop abre e inicia;
-- login + consulta tenant básica.
+- login + consulta tenant básica en cada plataforma realmente disponible.
 
-Los builds macOS/iOS/Linux se certifican por sus runners de CI; smoke físico adicional se registra cuando exista el hardware correspondiente.
+Web queda explícitamente fuera de L02 porque el candidato no declara navegador como plataforma soportada. Los builds macOS/iOS/Linux se certifican por sus runners de CI; smoke físico adicional se registra cuando exista el hardware correspondiente.
 
 ## L03 — Cambio real ORG_A → ORG_B
 

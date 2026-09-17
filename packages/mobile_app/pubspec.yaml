@@ -1,5 +1,5 @@
 name: mobile_app
-description: "StOmni - gestión de inventario, ventas y operaciones."
+description: "StOmni Mobile - cliente Android/iOS para inventario, ventas y operaciones."
 publish_to: 'none'
 
 version: 2.0.1+2
