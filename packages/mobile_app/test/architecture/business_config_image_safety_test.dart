@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('business config logo flow is web compatible', () {
+  test('business config logo flow uses portable byte-based images', () {
     final source = File(
       'lib/features/configuracion/pages/configuracion_negocio_page.dart',
     ).readAsStringSync();

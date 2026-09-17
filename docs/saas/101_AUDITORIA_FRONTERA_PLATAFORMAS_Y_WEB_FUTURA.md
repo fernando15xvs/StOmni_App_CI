@@ -41,6 +41,19 @@ Como consecuencia:
 - CI incorpora un gate que impide reintroducir accidentalmente `mobile_app/web`;
 - el fallo SQLite observado no se parchea dentro de `mobile_app`, porque Web ya no es una plataforma de ese cliente.
 
+## Validación posterior de la frontera
+
+El run CI `35177996823`, correspondiente al candidato fuente `665aa46a2e1e8551c7aee4a66757d4dddd8ea2ab`, confirmó que los gates estáticos, backend, Windows, Linux y macOS/iOS seguían verdes. El único fallo apareció en `T13 test mobile` porque dos pruebas heredadas todavía intentaban leer `web/index.html` después de que el runner Web había sido eliminado deliberadamente.
+
+La corrección posterior elimina esos contratos Web obsoletos sin modificar comportamiento funcional:
+
+- `product_image_web_compatibility_test.dart` se sustituye por una prueba de seguridad de imágenes de plataforma que conserva las verificaciones válidas de bytes, cropper y Storage, pero ya no exige assets del navegador;
+- `web_identity_test.dart` se sustituye por una prueba de identidad del paquete que valida únicamente metadata vigente de `mobile_app`;
+- `business_config_web_safety_test.dart` se renombra como prueba de seguridad de imágenes y conserva las verificaciones portables que sí aplican a Android/iOS;
+- se corrige lenguaje de pruebas compartidas para no presentar `mobile_app` como cliente Web.
+
+Este fallo de CI fue, por tanto, una inconsistencia de pruebas con la nueva frontera de plataformas y no evidencia de un defecto funcional en Auth, tenant, backend o clientes soportados.
+
 ## Contrato para la futura `web_app`
 
 Cuando se abra la fase Web, no bastará con copiar la UI móvil. El cliente deberá tener una interfaz diseñada para navegador, preferentemente desktop-first y responsive, con navegación y densidad de información propias del entorno Web.

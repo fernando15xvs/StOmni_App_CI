@@ -39,7 +39,7 @@ void main() {
     );
   });
 
-  test('mobile Web, desktop y documentos consumen la misma identidad', () {
+  test('mobile, desktop y documentos consumen la misma identidad', () {
     final mobile = _read('../mobile_app/lib/home/widgets/dashboard_tab.dart');
     final desktop = _read(
       '../desktop_app/lib/features/home/desktop_home_shell.dart',

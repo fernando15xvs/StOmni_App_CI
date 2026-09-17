@@ -9,7 +9,6 @@ void main() {
   late String controller;
   late String repository;
   late String adapter;
-  late String webIndex;
 
   setUpAll(() {
     page = File(
@@ -24,7 +23,6 @@ void main() {
     adapter = File(
       'lib/platform/mobile_image_selection_adapter.dart',
     ).readAsStringSync();
-    webIndex = File('web/index.html').readAsStringSync();
   });
 
   test('flujo de imagen de producto no depende de dart:io', () {
@@ -33,7 +31,7 @@ void main() {
     }
   });
 
-  test('selección y preview usan bytes multiplataforma', () {
+  test('selección y preview usan bytes portables', () {
     expect(page, contains('ImageSelectionService.select('));
     expect(page, contains('selected.bytes'));
     expect(page, contains('Uint8List? _imagenNuevaBytes'));
@@ -48,8 +46,6 @@ void main() {
     expect(page, isNot(contains('package:image_cropper/')));
     expect(adapter, contains('ImageCropper'));
     expect(adapter, contains('compressFormat: ImageCompressFormat.jpg'));
-    expect(webIndex, contains('cropperjs/1.6.2/cropper.css'));
-    expect(webIndex, contains('cropperjs/1.6.2/cropper.min.js'));
   });
 
   test('Storage sube bytes y conserva limpieza reference-aware', () {
