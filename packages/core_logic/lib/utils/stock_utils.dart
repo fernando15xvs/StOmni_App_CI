@@ -1,120 +1,64 @@
 import '../features/almacen/domain/commercial_presentation.dart';
 
 enum SaleUnitType {
+  unidad,
+  caja,
   paquete,
   cajaPaquetes,
   cajaUnidades,
-
-  // Compatibilidad histórica durante la migración.
-  unidad,
-  caja,
-  ambos,
 }
 
 class StockUtils {
   static const _customDisplayPrefix = 'custom_display:';
 
   static SaleUnitType getTipoVentaFromString(String tipoDb) {
-    final tipo = tipoDb.trim().toUpperCase();
-
-    switch (tipo) {
-      case 'PAQUETES':
-      case 'PAQUETE':
-        return SaleUnitType.paquete;
-      case 'CAJA_PAQUETES':
-      case 'CAJA+PAQUETES':
-      case 'CAJA + PAQUETES':
-        return SaleUnitType.cajaPaquetes;
-      case 'CAJA_UNIDADES':
-      case 'CAJA+UNIDADES':
-      case 'CAJA + UNIDADES':
-        return SaleUnitType.cajaUnidades;
-      case 'CAJA':
-      case 'SOLO_CAJAS':
-        return SaleUnitType.caja;
-      case 'UNIDAD':
-      case 'SOLO_UNIDADES':
-        return SaleUnitType.unidad;
-      case 'AMBOS':
-      case 'CAJA_UNIDAD':
-      case 'CAJAS_UNIDADES':
-        return SaleUnitType.ambos;
-      default:
-        return SaleUnitType.cajaUnidades;
+    final tipo = tipoDb.trim();
+    if (tipo != tipoDb || tipo != tipo.toUpperCase()) {
+      throw FormatException('tipo_venta no canónico: "$tipoDb".');
     }
+
+    return switch (tipo) {
+      'UNIDAD' => SaleUnitType.unidad,
+      'CAJA' => SaleUnitType.caja,
+      'PAQUETE' => SaleUnitType.paquete,
+      'CAJA_PAQUETES' => SaleUnitType.cajaPaquetes,
+      'CAJA_UNIDADES' => SaleUnitType.cajaUnidades,
+      _ => throw FormatException(
+        'tipo_venta no canónico: "$tipoDb".',
+      ),
+    };
   }
 
   static SaleUnitType getTipoVentaFromMap(Map<String, dynamic> producto) {
-    final tipoDb = (producto['tipo_venta'] ?? '').toString();
-    if (tipoDb.trim().isNotEmpty) {
-      return getTipoVentaFromString(tipoDb);
+    final tipoDb = (producto['tipo_venta'] ?? '').toString().trim();
+    if (tipoDb.isEmpty) {
+      throw const FormatException('Producto sin tipo_venta canónico.');
     }
-
-    final unidadMedida = (producto['unidad_medida'] ?? '')
-        .toString()
-        .toLowerCase();
-    final pcs = (producto['cantidad_por_caja'] as num?)?.toInt() ?? 1;
-
-    if (unidadMedida.contains('paquete')) return SaleUnitType.paquete;
-    if (unidadMedida.contains('caja') && pcs > 1) return SaleUnitType.ambos;
-    if (unidadMedida.contains('caja')) return SaleUnitType.caja;
-    return SaleUnitType.unidad;
-  }
-
-  static SaleUnitType toOfficialType(SaleUnitType tipoVenta) {
-    switch (tipoVenta) {
-      case SaleUnitType.paquete:
-      case SaleUnitType.cajaPaquetes:
-      case SaleUnitType.cajaUnidades:
-        return tipoVenta;
-      case SaleUnitType.caja:
-      case SaleUnitType.unidad:
-        return SaleUnitType.paquete;
-      case SaleUnitType.ambos:
-        return SaleUnitType.cajaUnidades;
-    }
+    return getTipoVentaFromString(tipoDb);
   }
 
   static String toDatabaseValue(SaleUnitType tipoVenta) {
-    switch (tipoVenta) {
-      case SaleUnitType.paquete:
-        return 'PAQUETES';
-      case SaleUnitType.cajaPaquetes:
-        return 'CAJA_PAQUETES';
-      case SaleUnitType.cajaUnidades:
-        return 'CAJA_UNIDADES';
-      case SaleUnitType.caja:
-        return 'SOLO_CAJAS';
-      case SaleUnitType.unidad:
-        return 'SOLO_UNIDADES';
-      case SaleUnitType.ambos:
-        return 'AMBOS';
-    }
+    return switch (tipoVenta) {
+      SaleUnitType.unidad => 'UNIDAD',
+      SaleUnitType.caja => 'CAJA',
+      SaleUnitType.paquete => 'PAQUETE',
+      SaleUnitType.cajaPaquetes => 'CAJA_PAQUETES',
+      SaleUnitType.cajaUnidades => 'CAJA_UNIDADES',
+    };
   }
 
   static String displayName(SaleUnitType tipoVenta) {
-    switch (tipoVenta) {
-      case SaleUnitType.paquete:
-        return 'Paquetes';
-      case SaleUnitType.cajaPaquetes:
-        return 'Caja + Paquetes';
-      case SaleUnitType.cajaUnidades:
-        return 'Caja + Unidades';
-      case SaleUnitType.caja:
-        return 'Cajas (anterior)';
-      case SaleUnitType.unidad:
-        return 'Unidades (anterior)';
-      case SaleUnitType.ambos:
-        return 'Caja + Unidades (anterior)';
-    }
+    return switch (tipoVenta) {
+      SaleUnitType.unidad => 'Unidad',
+      SaleUnitType.caja => 'Caja',
+      SaleUnitType.paquete => 'Paquete',
+      SaleUnitType.cajaPaquetes => 'Caja + paquetes',
+      SaleUnitType.cajaUnidades => 'Caja + unidades',
+    };
   }
 
-  /// Traduce el contrato histórico `SaleUnitType` al modelo comercial genérico.
-  ///
-  /// Toda lógica nueva puede trabajar directamente con [ProductUnitProfile].
-  /// Este método existe para que la base de datos y las pantallas actuales
-  /// continúen funcionando durante la migración.
-  static ProductUnitProfile legacyUnitProfile(
+  /// Construye el perfil comercial canónico para el tipo de venta del producto.
+  static ProductUnitProfile unitProfileForSaleType(
     SaleUnitType tipoVenta, {
     int unitsPerPackage = 1,
   }) {
@@ -157,7 +101,6 @@ class StockUtils {
           ],
         );
       case SaleUnitType.cajaUnidades:
-      case SaleUnitType.ambos:
         final base = unit(
           code: 'unidad',
           singular: 'Unidad',
@@ -190,8 +133,7 @@ class StockUtils {
 
   static bool esMixto(SaleUnitType tipoVenta) {
     return tipoVenta == SaleUnitType.cajaPaquetes ||
-        tipoVenta == SaleUnitType.cajaUnidades ||
-        tipoVenta == SaleUnitType.ambos;
+        tipoVenta == SaleUnitType.cajaUnidades;
   }
 
   static bool usaPaquetesComoBase(SaleUnitType tipoVenta) {
@@ -202,8 +144,7 @@ class StockUtils {
 
   static bool usaUnidadesComoBase(SaleUnitType tipoVenta) {
     return tipoVenta == SaleUnitType.cajaUnidades ||
-        tipoVenta == SaleUnitType.unidad ||
-        tipoVenta == SaleUnitType.ambos;
+        tipoVenta == SaleUnitType.unidad;
   }
 
   static bool usaContenidoInformativo(SaleUnitType tipoVenta, int contenido) {
@@ -212,10 +153,10 @@ class StockUtils {
   }
 
   static String unidadBaseSingular(SaleUnitType tipoVenta) =>
-      legacyUnitProfile(tipoVenta).baseUnit.singularLabel;
+      unitProfileForSaleType(tipoVenta).baseUnit.singularLabel;
 
   static String unidadBasePlural(SaleUnitType tipoVenta) =>
-      legacyUnitProfile(tipoVenta).baseUnit.pluralLabel;
+      unitProfileForSaleType(tipoVenta).baseUnit.pluralLabel;
 
   static String etiquetaContenidoEmpaque(SaleUnitType tipoVenta) {
     switch (tipoVenta) {
@@ -225,7 +166,6 @@ class StockUtils {
       case SaleUnitType.cajaPaquetes:
         return 'Paquetes por Caja';
       case SaleUnitType.cajaUnidades:
-      case SaleUnitType.ambos:
         return 'Unidades por Caja';
       case SaleUnitType.unidad:
         return 'Unidades';
@@ -247,7 +187,6 @@ class StockUtils {
       case SaleUnitType.cajaPaquetes:
         return '$contenido PAQ/CAJA';
       case SaleUnitType.cajaUnidades:
-      case SaleUnitType.ambos:
         return '$contenido UND/CAJA';
       case SaleUnitType.unidad:
         return '$contenido UND';
@@ -258,10 +197,8 @@ class StockUtils {
     return descripcionContenidoCorta(pcs, tipoVenta);
   }
 
-  /// Codifica una etiqueta exclusivamente visual dentro del campo legacy de
-  /// unidad. No debe persistirse: los mappers de lectura la usan para que UIs
-  /// antiguas puedan mostrar presentaciones configurables sin interpretar su
-  /// código técnico.
+  /// Codifica una etiqueta exclusivamente visual para presentaciones
+  /// configurables. No debe persistirse como tipo de venta del producto.
   static String customDisplayUnit(String label) {
     final normalized = label.trim();
     if (normalized.isEmpty) return 'unidad';
@@ -297,11 +234,11 @@ class StockUtils {
     String tipoUnidad,
   ) {
     final unidad = normalizarTipoUnidad(tipoUnidad);
-    return legacyUnitProfile(tipoVenta).supports(unidad);
+    return unitProfileForSaleType(tipoVenta).supports(unidad);
   }
 
   static String tipoUnidadSuelta(SaleUnitType tipoVenta) =>
-      legacyUnitProfile(tipoVenta).baseUnit.code;
+      unitProfileForSaleType(tipoVenta).baseUnit.code;
 
   static String etiquetaUnidadComercial(String tipoUnidad, {int cantidad = 2}) {
     final unidad = normalizarTipoUnidad(tipoUnidad);
@@ -324,7 +261,7 @@ class StockUtils {
     }
   }
 
-  /// Convierte la entrada histórica caja/suelto a la cantidad base.
+  /// Convierte una entrada caja/suelto a la cantidad base.
   /// La equivalencia real se resuelve mediante [ProductUnitProfile].
   static int calcularTotalPiezas({
     required int cajas,
@@ -332,7 +269,7 @@ class StockUtils {
     required SaleUnitType tipoVenta,
     required int pcs,
   }) {
-    final profile = legacyUnitProfile(tipoVenta, unitsPerPackage: pcs);
+    final profile = unitProfileForSaleType(tipoVenta, unitsPerPackage: pcs);
 
     switch (tipoVenta) {
       case SaleUnitType.paquete:
@@ -352,7 +289,6 @@ class StockUtils {
             .round();
       case SaleUnitType.cajaPaquetes:
       case SaleUnitType.cajaUnidades:
-      case SaleUnitType.ambos:
         final packaged = profile.toBaseQuantity(
           presentationCode: 'caja',
           quantity: cajas.toDouble(),
@@ -372,7 +308,7 @@ class StockUtils {
     required int pcs,
   }) {
     final unidad = normalizarTipoUnidad(tipoUnidad);
-    final profile = legacyUnitProfile(tipoVenta, unitsPerPackage: pcs);
+    final profile = unitProfileForSaleType(tipoVenta, unitsPerPackage: pcs);
     if (!profile.supports(unidad)) {
       throw ArgumentError(
         '${displayName(tipoVenta)} no permite venta por $tipoUnidad.',
@@ -420,7 +356,7 @@ class StockUtils {
     required int pcs,
   }) {
     final unidad = normalizarTipoUnidad(tipoUnidad);
-    final profile = legacyUnitProfile(tipoVenta, unitsPerPackage: pcs);
+    final profile = unitProfileForSaleType(tipoVenta, unitsPerPackage: pcs);
     final presentation = profile.find(unidad);
 
     if (presentation != null && presentation.baseQuantity > 1) {
@@ -430,8 +366,8 @@ class StockUtils {
     return precioComercial;
   }
 
-  /// Método histórico conservado para módulos aún no migrados.
-  /// Los módulos nuevos deben usar [precioBaseStockDesdeComercial].
+  /// Auxiliar de precio base para consumidores que todavía operan con
+  /// precio de unidad/empaque.
   static double calcularPrecioUnitario({
     required double precioUnidad,
     required double precioCaja,
@@ -468,7 +404,7 @@ class StockUtils {
     SaleUnitType type,
   ) {
     final totalSeguro = totalBase < 0 ? 0 : totalBase;
-    return legacyUnitProfile(
+    return unitProfileForSaleType(
       type,
       unitsPerPackage: contenidoPorCaja,
     ).formatBaseQuantity(totalSeguro.toDouble());
