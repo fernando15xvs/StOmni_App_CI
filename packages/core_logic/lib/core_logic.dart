@@ -123,7 +123,7 @@ export 'features/empleados/data/empleado_pago_context_repository.dart';
 export 'features/empleados/data/perfil_repository.dart';
 export 'features/empleados/utils/historial_pagos_pdf_service.dart';
 export 'features/ventas/application/authoritative_price_sale_line_use_case.dart';
-export 'features/ventas/application/legacy_sale_line_mapper.dart';
+export 'features/ventas/application/sale_line_persistence_mapper.dart';
 export 'features/ventas/application/price_sale_line_use_case.dart';
 export 'features/ventas/application/procesar_venta_command.dart';
 export 'features/ventas/application/sale_cart_summary.dart';
