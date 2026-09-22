@@ -48,8 +48,8 @@ class InventoryCatalogItem {
   ProductUnitProfile get commercialProfile {
     final configured = product.unitConfiguration;
     if (configured != null) return configured.profile;
-    return StockUtils.legacyUnitProfile(
-      product.legacySaleType,
+    return StockUtils.unitProfileForSaleType(
+      product.saleUnitType,
       unitsPerPackage: product.cantidadPorCaja ?? 1,
     );
   }
@@ -221,7 +221,7 @@ class InventoryCatalogUseCase {
   }
 
   double _mainPrice(Producto product) {
-    final type = product.legacySaleType;
+    final type = product.saleUnitType;
     final packageBase = (product.precioCaja ?? 0) > 0
         ? product.precioCaja!
         : product.precioUnidad;
