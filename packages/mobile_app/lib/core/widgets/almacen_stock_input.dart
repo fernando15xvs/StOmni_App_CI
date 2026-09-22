@@ -111,8 +111,7 @@ class AlmacenStockInput extends StatelessWidget {
               if (esMixto) const SizedBox(width: 10),
               if (esPaqueteSimple ||
                   esMixto ||
-                  tipoVenta == SaleUnitType.unidad ||
-                  tipoVenta == SaleUnitType.ambos)
+                  tipoVenta == SaleUnitType.unidad)
                 Expanded(
                   child: _buildField(
                     context,
