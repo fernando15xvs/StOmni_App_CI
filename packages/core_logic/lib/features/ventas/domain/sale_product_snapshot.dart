@@ -29,7 +29,7 @@ class SaleProductSnapshot {
 
   ProductUnitProfile get commercialProfile =>
       unitConfiguration?.profile ??
-      StockUtils.legacyUnitProfile(saleType, unitsPerPackage: unitsPerPackage);
+      StockUtils.unitProfileForSaleType(saleType, unitsPerPackage: unitsPerPackage);
 
   String normalizeUnit(String code) => unitConfiguration != null
       ? CommercialPresentation.normalizeCode(code)
@@ -50,7 +50,7 @@ class SaleProductSnapshot {
       throw ArgumentError('La presentación no pertenece al producto.');
     final basePrice = StockUtils.precioComercialPredeterminado(
       tipoVenta: saleType,
-      tipoUnidad: StockUtils.legacyUnitProfile(saleType).baseUnit.code,
+      tipoUnidad: StockUtils.unitProfileForSaleType(saleType).baseUnit.code,
       precioUnidad: defaultUnitPrice,
       precioCajaBase: defaultPackageBasePrice,
       pcs: unitsPerPackage,
