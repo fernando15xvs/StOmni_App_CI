@@ -13,13 +13,13 @@ void main() {
         'domain/sale_models.dart',
         'application/procesar_venta_command.dart',
         'application/venta_submission_coordinator.dart',
-        'application/legacy_sale_line_mapper.dart',
+        'application/sale_line_persistence_mapper.dart',
         'application/price_sale_line_use_case.dart',
         'usecases/procesar_venta_usecase.dart',
       ]) {
         final source = _read('lib/features/ventas/$path');
         expect(source, isNot(contains('Map<String, dynamic>')), reason: path);
-        expect(source, isNot(contains('legacyPayload')), reason: path);
+        expect(source, isNot(contains('deprecatedPayload')), reason: path);
         expect(source, isNot(contains('../data/')), reason: path);
       }
     });
@@ -39,7 +39,7 @@ void main() {
       expect(source, isNot(contains('List<Map<String, dynamic>> pagos')));
     });
 
-    test('processing command does not expose legacy payload getters', () {
+    test('processing command does not expose untyped payload getters', () {
       final source = _read(
         'lib/features/ventas/application/procesar_venta_command.dart',
       );
@@ -52,7 +52,7 @@ void main() {
       'application mapper returns typed lines without serializing RPC maps',
       () {
         final source = _read(
-          'lib/features/ventas/application/legacy_sale_line_mapper.dart',
+          'lib/features/ventas/application/sale_line_persistence_mapper.dart',
         );
 
         expect(source, contains('static SaleProcessingLine map('));
