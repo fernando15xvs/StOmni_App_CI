@@ -349,6 +349,14 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   Future<void> signOut() async {
+    if (state.isLoading &&
+        state.sessionStatus == SessionValidationStatus.signedOut) {
+      return;
+    }
+    state = const AuthState(
+      isLoading: true,
+      sessionStatus: SessionValidationStatus.signedOut,
+    );
     await _safeSignOut(clearOfflineAuthorization: true);
     state = const AuthState();
   }
