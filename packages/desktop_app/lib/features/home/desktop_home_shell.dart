@@ -279,8 +279,9 @@ class _DesktopHomeShellState extends ConsumerState<DesktopHomeShell> {
     return Scaffold(
       body: Row(
         children: [
-          NavigationRail(
-            extended: true,
+          SingleChildScrollView(
+            child: NavigationRail(
+              extended: true,
             selectedIndex: selectedIndex,
             onDestinationSelected: (index) {
               setState(() => _selectedModule = destinations[index].module);
@@ -316,6 +317,7 @@ class _DesktopHomeShellState extends ConsumerState<DesktopHomeShell> {
                   ),
                 )
                 .toList(growable: false),
+            ),
           ),
           const VerticalDivider(width: 1),
           Expanded(
