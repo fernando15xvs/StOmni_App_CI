@@ -59,7 +59,7 @@ class PriceVisualUtils {
   }
 
   /// Precio principal para ordenar el inventario.
-  /// En PAQUETES es el precio completo del paquete.
+  /// En PAQUETE es el precio completo del paquete.
   /// En las modalidades mixtas es el precio suelto del paquete o unidad.
   static double getPrecioPrincipalInventario(Map<String, dynamic> producto) {
     final tipo = StockUtils.getTipoVentaFromMap(producto);
@@ -103,7 +103,6 @@ class PriceVisualUtils {
         ];
 
       case SaleUnitType.cajaUnidades:
-      case SaleUnitType.ambos:
         return [
           PriceVisualItem(label: 'Precio unidad', value: precioUnidad),
           PriceVisualItem(
@@ -118,59 +117,4 @@ class PriceVisualUtils {
     }
   }
 
-  // Métodos conservados para no romper otros módulos durante la migración.
-  static double getPrecioVisual({
-    required double precioUnitarioBase,
-    required int pcs,
-    required String tipoVentaProducto,
-    required int cantidadBase,
-  }) {
-    final equivalencia = pcs > 0 ? pcs : 1;
-    final tipo = tipoVentaProducto.toLowerCase().trim();
-
-    if (tipo == 'paquetes' || tipo == 'paquete') {
-      return precioUnitarioBase * equivalencia;
-    }
-
-    if (tipo == 'caja_paquetes' ||
-        tipo == 'caja_unidades' ||
-        tipo == 'ambos' ||
-        tipo == 'caja_unidad') {
-      if (cantidadBase >= equivalencia && cantidadBase % equivalencia == 0) {
-        return precioUnitarioBase * equivalencia;
-      }
-      return precioUnitarioBase;
-    }
-
-    if (tipo == 'caja' || tipo == 'solo_cajas') {
-      return precioUnitarioBase * equivalencia;
-    }
-
-    return precioUnitarioBase;
-  }
-
-  static String getSufijoVisual({
-    required int pcs,
-    required String tipoVentaProducto,
-    required int cantidadBase,
-  }) {
-    final equivalencia = pcs > 0 ? pcs : 1;
-    final tipo = tipoVentaProducto.toLowerCase().trim();
-
-    if (tipo == 'paquetes' || tipo == 'paquete') return '';
-
-    if (tipo == 'caja_paquetes') {
-      final esCajaCompleta =
-          cantidadBase >= equivalencia && cantidadBase % equivalencia == 0;
-      return esCajaCompleta ? '' : ' / paquete';
-    }
-
-    if (tipo == 'caja_unidades' || tipo == 'ambos' || tipo == 'caja_unidad') {
-      final esCajaCompleta =
-          cantidadBase >= equivalencia && cantidadBase % equivalencia == 0;
-      return esCajaCompleta ? '' : ' / und.';
-    }
-
-    return '';
-  }
 }
