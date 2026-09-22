@@ -4,6 +4,17 @@
 **Alcance:** `packages/`, `supabase/migrations/`, `scripts/`, pruebas y documentación.  
 **Fuera de alcance:** `.github/`, workflows, pull requests, pushes y despliegues remotos.
 
+## Decisión vigente para el contrato de productos (2026-09-22)
+
+StOmni se está construyendo como una aplicación nueva. No existe una población productiva ni datos reales que obliguen a conservar aliases o formatos históricos de productos. Por tanto:
+
+- no se mantienen aliases de tipos de venta por compatibilidad;
+- el único conjunto persistido es `UNIDAD`, `CAJA`, `PAQUETE`, `CAJA_PAQUETES` y `CAJA_UNIDADES`;
+- los perfiles de presentaciones usan exclusivamente `schema_version: 2`;
+- cualquier ausencia o código no canónico falla de forma explícita;
+- las migraciones históricas no se reescriben: el estado final se corrige mediante una migración nueva;
+- `ProductUnitProfile` configura presentaciones y precisión; no define aliases alternativos para `tipo_venta`.
+
 ## Resultado buscado
 
 StOmni tendrá un núcleo que concentre reglas de negocio reutilizables y dos
@@ -31,8 +42,7 @@ Al cerrar el plan:
 ## Reglas de ejecución
 
 1. Trabajar por migración incremental; no hacer movimientos masivos de archivos.
-2. Mantener adaptadores legacy sólo mientras tengan consumidores, con prueba de
-   compatibilidad y una tarea explícita de retiro.
+2. No crear adaptadores de compatibilidad para contratos de producto obsoletos. Los consumidores se migran al contrato canónico en el mismo cambio.
 3. Las migraciones serán aditivas y se crearán sólo en el árbol local. No se
    aplicarán a un proyecto Supabase remoto como parte de este plan.
 4. Ejecutar Flutter de forma secuencial. Si el SDK se bloquea, registrar y
@@ -60,7 +70,7 @@ Cada fase requiere:
 - Pruebas unitarias de tipos, puertos y casos de uso sin widgets.
 - Ninguna consulta directa a Supabase, SQLite o Storage desde páginas/widgets.
 - Ningún nuevo punto público basado en `Map<String, dynamic>`.
-- Pruebas de regresión para cualquier formato legacy que siga aceptándose.
+- Pruebas de rechazo para formatos no canónicos y pruebas de round-trip para el contrato vigente.
 - Análisis y pruebas locales de los paquetes afectados, ejecutados uno por uno.
 - Actualizar este documento con archivos migrados, adaptadores retirados y
   riesgos pendientes.
@@ -73,7 +83,7 @@ Cada fase requiere:
    - Buscar `package:ferreteria_app/` en `packages/` hasta obtener cero.
    - Ejecutar `flutter pub get` desde la raíz para regenerar configuración
      local del workspace.
-   - Mantener el guard con ambos nombres mientras haya compatibilidad legacy.
+   - Mantener un único nombre canónico y migrar todos sus consumidores en el mismo cambio.
 2. Finalizar la limpieza mecánica:
    - Eliminar imports duplicados restantes de `core_logic/lib` y
      `core_logic/test`.
@@ -157,11 +167,11 @@ existentes.
 
 1. Consolidar `CommercialPresentation` y `ProductUnitProfile`: unidad base,
    símbolo, precisión decimal y presentaciones con factor de conversión.
-2. Reemplazar gradualmente `SaleUnitType`, `cantidad_por_caja` y
-   `tipo_venta` por `UnitOfMeasure`, `ProductPresentation` y
-   `Quantity`.
-3. Crear mappers legacy: unidad=1 y paquete/caja=factor existente.
-4. Sólo después de los mappers y sus pruebas, crear migración local aditiva en
+2. Mantener `SaleUnitType` como topología comercial canónica de cinco códigos.
+   `ProductUnitProfile` v2 es la única configuración de presentaciones,
+   precisión y escala; no existe un segundo contrato de aliases.
+3. No crear mappers de aliases históricos. Los presets de `SaleUnitType` generan perfiles canónicos cuando se necesita una configuración de presentaciones.
+4. Crear una migración local nueva que cierre defaults, checks y writers canónicos en
    `supabase/migrations/` con backfill y rollback lógico.
 5. Aceptar cantidades decimales de manera coherente en inventario, carrito,
    kardex y documentos.
@@ -178,8 +188,8 @@ la pantalla móvil y de payloads de mapas.
    `SaleCustomer`, `SaleResult` y errores de dominio.
 2. Separar `ProcesarVentaUseCase` en validación, pricing, preparación de
    persistencia y coordinación transaccional; inyectar puertos por constructor.
-3. Limitar `LegacySaleLineMapper`, `toLegacyMap` y payloads SQLite/RPC a
-   infraestructura; retirarlos de dominio, controllers y páginas.
+3. Usar `SaleLinePersistenceMapper` y DTOs tipados en el límite de persistencia;
+   serializar mapas/JSON únicamente dentro de adaptadores de infraestructura.
 4. Tipar la cola offline (`PendingSale`) y serializar JSON sólo dentro de
    `PendingOperationStore`.
 5. Migrar `CarritoController` a `SaleCart` y hacer que ambos clientes
@@ -268,7 +278,7 @@ móvil y desktop; las diferencias se limitan a UI/plataforma.
 facturación → reportes/finanzas.
 
 Para cada módulo aplicar el patrón: tipos de dominio, comandos y puertos,
-infraestructura, migración de consumidores y retiro del adaptador legacy.
+infraestructura, migración de consumidores y eliminación de cualquier alias obsoleto.
 Después de estabilizarlo, añadir de forma incremental:
 
 - compras y órdenes de proveedor;
@@ -299,8 +309,8 @@ Al concluir cada fase, agregar aquí:
 
 1. fecha y archivos migrados;
 2. comandos locales ejecutados y resultado;
-3. adaptadores legacy pendientes;
-4. decisión de esquema o compatibilidad tomada;
+3. aliases o formatos no canónicos pendientes;
+4. contrato canónico y decisión de esquema documentados;
 5. riesgos abiertos antes de iniciar la fase siguiente.
 
 ### 2026-08-30 — Fase 0 en ejecución
