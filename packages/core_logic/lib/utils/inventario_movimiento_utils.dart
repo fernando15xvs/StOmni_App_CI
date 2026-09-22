@@ -51,7 +51,6 @@ class InventarioMovimientoUtils {
   static String unidadBase(Map<String, dynamic> movimiento) {
     final tipo = tipoVenta(movimiento);
 
-    // Los productos históricos SOLO_CAJAS/CAJA almacenaban cajas 1 a 1.
     if (tipo == SaleUnitType.caja) return 'Caja';
 
     final snapshot = movimiento['unidad_base_snapshot']?.toString().trim();
@@ -184,7 +183,6 @@ class InventarioMovimientoUtils {
           if (paquetes == 0) return '$sign${cajas}C';
           return '$sign${cajas}C ${paquetes}P';
         case SaleUnitType.cajaUnidades:
-        case SaleUnitType.ambos:
           if (contenido <= 1) return '$sign${qty}U';
           final cajas = qty ~/ contenido;
           final unidades = qty % contenido;
