@@ -27,9 +27,7 @@ class ProductUnitConfigurationMapper {
   static ProductUnitProfile decodeProfile(Map<String, dynamic> value) {
     final rows = value['presentations'];
     final version = value['schema_version'];
-    if (version != 2 ||
-        rows is! List ||
-        value['base_code'] is! String) {
+    if (version != 2 || rows is! List || value['base_code'] is! String) {
       throw const FormatException('El perfil de unidades no es compatible.');
     }
     final units = rows

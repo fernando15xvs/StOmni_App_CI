@@ -4,10 +4,7 @@ class ProductWarehouseOption {
   final int id;
   final String name;
 
-  Map<String, dynamic> toMap() => <String, dynamic>{
-    'id': id,
-    'nombre': name,
-  };
+  Map<String, dynamic> toMap() => <String, dynamic>{'id': id, 'nombre': name};
 }
 
 class ProductSupplierOption {
@@ -16,10 +13,7 @@ class ProductSupplierOption {
   final int id;
   final String name;
 
-  Map<String, dynamic> toMap() => <String, dynamic>{
-    'id': id,
-    'nombre': name,
-  };
+  Map<String, dynamic> toMap() => <String, dynamic>{'id': id, 'nombre': name};
 }
 
 class ProductFormCatalog {

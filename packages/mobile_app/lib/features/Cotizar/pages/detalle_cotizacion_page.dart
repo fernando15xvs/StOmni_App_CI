@@ -67,10 +67,7 @@ class _DetalleCotizacionPageState extends ConsumerState<DetalleCotizacionPage> {
       .carritoConPreciosFinales
       .lines
       .map(
-        (line) => SaleLinePersistenceMapper.map(
-          line,
-          requireExactTotals: true,
-        ),
+        (line) => SaleLinePersistenceMapper.map(line, requireExactTotals: true),
       )
       .toList(growable: false);
 

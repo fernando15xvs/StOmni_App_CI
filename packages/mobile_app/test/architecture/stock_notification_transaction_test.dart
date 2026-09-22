@@ -124,75 +124,48 @@ void main() {
     );
   });
 
-  test('scripts incluyen mensajes separados para stock bajo y agotado', () {
+  test('instalador manual global queda retirado en SaaS', () {
     final script = repositoryFile(
       'scripts/trigger_notificaciones.sql',
     ).readAsStringSync();
 
-    expect(script, contains("v_tipo_alerta := 'agotado'"));
-    expect(script, contains("v_tipo_alerta := 'stock_bajo'"));
+    expect(script, contains('RETIRED: pre-SaaS global stock push installer'));
+    expect(script, contains('tenant-aware operational_alerts'));
+    expect(script, isNot(contains('net.http_post(')));
+    expect(script, isNot(contains("'included_segments'")));
     expect(
       script,
-      contains("chr(128680) || ' ' || chr(161) || 'Producto Agotado!'"),
+      isNot(
+        contains(
+          'CREATE CONSTRAINT TRIGGER trigger_stock_alert_evaluar_tx',
+        ),
+      ),
     );
+  });
+
+  test('F6.2 mantiene alertas de stock tenant-aware y event-driven', () {
+    final migration = repositoryFile(
+      'supabase/migrations/20260908051200_saas_operational_alert_event_driven_stock.sql',
+    ).readAsStringSync();
+
     expect(
-      script,
-      contains("chr(9888) || chr(65039) || ' Alerta de Stock Bajo'"),
+      migration,
+      contains('private.refresh_low_stock_alert_for_product'),
     );
-    expect(script, contains("'stock_alert_type', 'agotado'"));
-    expect(script, contains("'stock_alert_type', 'stock_bajo'"));
+    expect(migration, contains('operational_stock_alert_evaluate_tx'));
+    expect(migration, contains('ia.organization_id=p_organization_id'));
+    expect(migration, isNot(contains('included_segments')));
+    expect(migration, isNot(contains('net.http_post(')));
   });
 
-  test('script operativo queda ASCII para evitar mojibake al copiar', () {
-    final script = repositoryFile(
-      'scripts/trigger_notificaciones.sql',
-    ).readAsStringSync();
-
-    expect(script.runes.every((rune) => rune <= 0x7f), isTrue);
-    expect(script, isNot(contains('AsÃ')));
-    expect(script, isNot(contains('ðŸ')));
-    expect(script, isNot(contains('Â¡')));
-    expect(script, isNot(contains('estÃ')));
-    expect(script, contains('chr(225)'));
-    expect(script, contains('chr(161)'));
-  });
-
-  test('scripts de notificacion no versionan credenciales REST de OneSignal', () {
-    final script = repositoryFile(
-      'scripts/trigger_notificaciones.sql',
-    ).readAsStringSync();
+  test('fuente pre-bootstrap no versiona credenciales REST de OneSignal', () {
     final migration = repositoryFile(
       'supabase/migration_sources/pre_bootstrap/20260821191000_stock_alert_transactional_fix.sql',
     ).readAsStringSync();
 
-    for (final source in [script, migration]) {
-      expect(source, contains('vault.decrypted_secrets'));
-      expect(source, contains('onesignal_rest_api_key'));
-      expect(source, isNot(contains('os_v2_')));
-      expect(source, isNot(contains('Basic os_')));
-    }
-  });
-
-  test('alertas usan endpoint y autenticacion modernos de OneSignal', () {
-    final script = repositoryFile(
-      'scripts/trigger_notificaciones.sql',
-    ).readAsStringSync();
-    final migration = repositoryFile(
-      'supabase/migration_sources/pre_bootstrap/20260821191000_stock_alert_transactional_fix.sql',
-    ).readAsStringSync();
-
-    for (final source in [script, migration]) {
-      expect(source, contains('https://api.onesignal.com/notifications'));
-      expect(
-        source,
-        contains("'Authorization', 'Key ' || v_onesignal_rest_api_key"),
-      );
-      expect(source, contains("'target_channel', 'push'"));
-      expect(
-        source,
-        isNot(contains('https://onesignal.com/api/v1/notifications')),
-      );
-      expect(source, isNot(contains("'Authorization', 'Basic '")));
-    }
+    expect(migration, contains('vault.decrypted_secrets'));
+    expect(migration, contains('onesignal_rest_api_key'));
+    expect(migration, isNot(contains('os_v2_')));
+    expect(migration, isNot(contains('Basic os_')));
   });
 }

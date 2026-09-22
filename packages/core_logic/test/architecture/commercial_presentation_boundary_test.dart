@@ -10,8 +10,7 @@ String _read(String path) {
 
 void main() {
   test(
-    'el modelo comercial genérico no depende del contrato de topología '
-    'comercial ni de UI',
+    'el modelo comercial genérico no depende del contrato de topología comercial ni de UI',
     () {
       final source = _read(
         'lib/features/almacen/domain/commercial_presentation.dart',

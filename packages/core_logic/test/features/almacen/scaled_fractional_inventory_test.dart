@@ -63,7 +63,10 @@ void main() {
         ),
       );
 
-      final mapped = SaleLinePersistenceMapper.map(line, requireExactTotals: true);
+      final mapped = SaleLinePersistenceMapper.map(
+        line,
+        requireExactTotals: true,
+      );
 
       expect(mapped.quantity, 0.5);
       expect(mapped.baseQuantity, 0.5);

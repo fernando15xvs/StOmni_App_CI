@@ -26,8 +26,8 @@ SELECT is(public._require_product_sale_type('PAQUETE'),'PAQUETE','acepta PAQUETE
 SELECT is(public._require_product_sale_type('CAJA_PAQUETES'),'CAJA_PAQUETES','acepta CAJA_PAQUETES');
 SELECT is(public._require_product_sale_type('CAJA_UNIDADES'),'CAJA_UNIDADES','acepta CAJA_UNIDADES');
 SELECT throws_ok($$ SELECT public._require_product_sale_type('AMBOS') $$, NULL, NULL, 'rechaza AMBOS');
-SELECT throws_ok($ SELECT public._require_product_sale_type('PAQUETES') $, NULL, NULL, 'rechaza PAQUETES');
-SELECT throws_ok($ SELECT public._require_product_sale_type('unidad') $, NULL, NULL, 'rechaza minúsculas');
+SELECT throws_ok($$ SELECT public._require_product_sale_type('PAQUETES') $$, NULL, NULL, 'rechaza PAQUETES');
+SELECT throws_ok($$ SELECT public._require_product_sale_type('unidad') $$, NULL, NULL, 'rechaza minúsculas');
 
 SELECT ok(
   position('_require_product_sale_type' IN pg_get_functiondef(
