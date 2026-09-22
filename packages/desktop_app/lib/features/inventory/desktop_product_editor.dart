@@ -48,7 +48,7 @@ class _DesktopProductEditorState extends ConsumerState<DesktopProductEditor> {
     _minimumStock = TextEditingController(
       text: product == null ? '0' : product.stockMinimo.toString(),
     );
-    _saleType = product?.legacySaleType ?? SaleUnitType.unidad;
+    _saleType = product?.saleUnitType ?? SaleUnitType.unidad;
     _supplierId = product?.proveedorId;
     _allowWithoutStock = product?.permitirSinStock ?? false;
   }
@@ -84,6 +84,7 @@ class _DesktopProductEditorState extends ConsumerState<DesktopProductEditor> {
           purchasePrice: _number(_purchasePrice),
           unitsPerPackage: int.tryParse(_unitsPerPackage.text.trim()) ?? 1,
           saleUnitType: _saleType,
+          unitConfiguration: widget.product?.unitConfiguration,
           minimumStock: _number(_minimumStock),
           supplierId: _supplierId,
           allowWithoutStock: _allowWithoutStock,
@@ -114,12 +115,13 @@ class _DesktopProductEditorState extends ConsumerState<DesktopProductEditor> {
     SaleUnitType.paquete => 'Paquete',
     SaleUnitType.cajaUnidades => 'Caja + unidades',
     SaleUnitType.cajaPaquetes => 'Caja + paquetes',
-    SaleUnitType.ambos => 'Caja + unidades (ambos)',
   };
 
   @override
   Widget build(BuildContext context) {
     final catalog = ref.watch(desktopProductFormCatalogProvider);
+    final minimumStockAllowsDecimals =
+        (widget.product?.unitConfiguration?.storagePrecision ?? 0) > 0;
     return AlertDialog(
       title: Text(
         widget.product == null ? 'Nuevo producto' : 'Editar producto',
@@ -164,7 +166,7 @@ class _DesktopProductEditorState extends ConsumerState<DesktopProductEditor> {
                       child: DropdownButtonFormField<SaleUnitType>(
                         initialValue: _saleType,
                         decoration: const InputDecoration(
-                          labelText: 'Tipo de venta legacy',
+                          labelText: 'Tipo de venta',
                         ),
                         items: SaleUnitType.values
                             .map(
@@ -239,13 +241,14 @@ class _DesktopProductEditorState extends ConsumerState<DesktopProductEditor> {
                     Expanded(
                       child: TextField(
                         controller: _minimumStock,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
+                        keyboardType: TextInputType.numberWithOptions(
+                          decimal: minimumStockAllowsDecimals,
                         ),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Stock mínimo',
-                          helperText:
-                              'Admite decimales para perfiles escalados.',
+                          helperText: minimumStockAllowsDecimals
+                              ? 'Usa la precisión de la unidad base configurada.'
+                              : 'Usa cantidades enteras.',
                         ),
                       ),
                     ),
