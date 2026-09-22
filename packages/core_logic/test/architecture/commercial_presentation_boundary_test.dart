@@ -10,7 +10,7 @@ String _read(String path) {
 
 void main() {
   test(
-    'el modelo comercial genérico no depende del contrato legacy ni de UI',
+    'el modelo comercial genérico no depende del contrato de topología comercial ni de UI',
     () {
       final source = _read(
         'lib/features/almacen/domain/commercial_presentation.dart',
@@ -40,11 +40,11 @@ void main() {
   );
 
   test(
-    'StockUtils funciona como adaptador del esquema comercial histórico',
+    'StockUtils funciona como adaptador de presets comerciales canónicos',
     () {
       final source = _read('lib/utils/stock_utils.dart');
 
-      expect(source, contains('static ProductUnitProfile legacyUnitProfile('));
+      expect(source, contains('static ProductUnitProfile unitProfileForSaleType('));
       expect(source, contains('.formatBaseQuantity('));
       expect(source, contains('.toBaseQuantity('));
       expect(source, contains('.supports('));
@@ -60,7 +60,7 @@ void main() {
 
       expect(source, contains('ProductUnitProfile get commercialProfile'));
       expect(source, contains('String get formattedStock'));
-      expect(source, contains('StockUtils.legacyUnitProfile('));
+      expect(source, contains('StockUtils.unitProfileForSaleType('));
     },
   );
 
