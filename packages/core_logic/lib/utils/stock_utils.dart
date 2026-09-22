@@ -207,7 +207,8 @@ class StockUtils {
     final raw = (valor ?? '').trim();
     final lower = raw.toLowerCase();
     if (lower.startsWith(_customDisplayPrefix)) {
-      return '$_customDisplayPrefix${raw.substring(_customDisplayPrefix.length)}';
+      final suffix = raw.substring(_customDisplayPrefix.length);
+      return '$_customDisplayPrefix$suffix';
     }
     final tipo = lower;
     if (const {'caja', 'cajas', 'box', 'bx'}.contains(tipo)) return 'caja';

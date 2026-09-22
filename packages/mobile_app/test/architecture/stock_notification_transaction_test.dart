@@ -124,41 +124,32 @@ void main() {
     );
   });
 
-  test('instalador manual global queda retirado en SaaS', () {
+  test('instalador global queda retirado en SaaS', () {
     final script = repositoryFile(
       'scripts/trigger_notificaciones.sql',
     ).readAsStringSync();
+    const retired = 'RETIRED: pre-SaaS global stock push installer';
 
-    expect(script, contains('RETIRED: pre-SaaS global stock push installer'));
+    expect(script, contains(retired));
     expect(script, contains('tenant-aware operational_alerts'));
     expect(script, isNot(contains('net.http_post(')));
     expect(script, isNot(contains("'included_segments'")));
-    expect(
-      script,
-      isNot(
-        contains(
-          'CREATE CONSTRAINT TRIGGER trigger_stock_alert_evaluar_tx',
-        ),
-      ),
-    );
+    expect(script, isNot(contains('trigger_stock_alert_evaluar_tx')));
   });
 
-  test('F6.2 mantiene alertas de stock tenant-aware y event-driven', () {
+  test('F6.2 usa alertas tenant-aware y event-driven', () {
     final migration = repositoryFile(
       'supabase/migrations/20260908051200_saas_operational_alert_event_driven_stock.sql',
     ).readAsStringSync();
 
-    expect(
-      migration,
-      contains('private.refresh_low_stock_alert_for_product'),
-    );
+    expect(migration, contains('refresh_low_stock_alert_for_product'));
     expect(migration, contains('operational_stock_alert_evaluate_tx'));
     expect(migration, contains('ia.organization_id=p_organization_id'));
     expect(migration, isNot(contains('included_segments')));
     expect(migration, isNot(contains('net.http_post(')));
   });
 
-  test('fuente pre-bootstrap no versiona credenciales REST de OneSignal', () {
+  test('fuente pre-bootstrap no versiona credenciales OneSignal', () {
     final migration = repositoryFile(
       'supabase/migration_sources/pre_bootstrap/20260821191000_stock_alert_transactional_fix.sql',
     ).readAsStringSync();

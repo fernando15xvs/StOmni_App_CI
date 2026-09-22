@@ -62,10 +62,8 @@ void main() {
       expect(prepared.baseUnitPrice, 10);
     });
 
-    test(
-      'rechaza cantidad fraccionaria mientras el inventario sea sin perfil configurable',
-      () {
-        final line = SaleCartMapper.decodeLine({
+    test('rechaza fracciones sin perfil configurable', () {
+      final line = SaleCartMapper.decodeLine({
         'id': 20,
         'cantidad': 1.5,
         'subtotal': 15.0,
@@ -78,20 +76,19 @@ void main() {
           'tipo_venta': 'UNIDAD',
           'cantidad_por_caja': 1,
         },
-        });
+      });
 
-        expect(
-          () => SaleLinePersistenceMapper.map(line),
+      expect(
+        () => SaleLinePersistenceMapper.map(line),
         throwsA(
           isA<StateError>().having(
             (error) => error.message,
             'message',
             contains('cantidad fraccionaria'),
           ),
-          ),
-        );
-      },
-    );
+        ),
+      );
+    });
 
     test('rechaza precios inconsistentes antes de persistir', () {
       final line = SaleCartMapper.decodeLine({
