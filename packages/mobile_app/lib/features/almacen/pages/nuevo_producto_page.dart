@@ -176,7 +176,7 @@ class _NuevoProductoPageState extends ConsumerState<NuevoProductoPage> {
       stockMinimoController.text = (p['stock_minimo'] ?? 0).toString();
       _permitirSinStock = p['permitir_sin_stock'] ?? false;
 
-      _tipoVenta = StockUtils.toOfficialType(StockUtils.getTipoVentaFromMap(p));
+      _tipoVenta = StockUtils.getTipoVentaFromMap(p);
       int pcsValue = (p['cantidad_por_caja'] as num?)?.toInt() ?? 1;
 
       if (pcsValue > 0) {
@@ -632,8 +632,7 @@ class _NuevoProductoPageState extends ConsumerState<NuevoProductoPage> {
                 setState(() {
                   _tipoVenta = nuevo;
 
-                  // PAQUETES no tiene venta suelta por unidad/paquete
-                  // adicional; su precio completo se calcula con precioCaja × PCS.
+                  // Paquete usa su propia presentación base.
                   if (_tipoVenta == SaleUnitType.paquete) {
                     precioUnidadController.clear();
                   }
@@ -665,7 +664,7 @@ class _NuevoProductoPageState extends ConsumerState<NuevoProductoPage> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ✅ MOSTRAR PRECIO UNIDAD SOLO SI ES "UNIDAD" O "AMBOS"
+              // Precio de la presentación base cuando existe caja + contenido.
               if (_tipoVenta == SaleUnitType.cajaPaquetes ||
                   _tipoVenta == SaleUnitType.cajaUnidades)
                 Expanded(
@@ -692,7 +691,7 @@ class _NuevoProductoPageState extends ConsumerState<NuevoProductoPage> {
                   _tipoVenta == SaleUnitType.cajaUnidades)
                 const SizedBox(width: 10),
 
-              // ✅ MOSTRAR PRECIO CAJA SOLO SI ES "CAJA" O "AMBOS"
+              // Precio base del empaque cuando la modalidad utiliza empaque.
               if (_tipoVenta == SaleUnitType.paquete ||
                   _tipoVenta == SaleUnitType.cajaPaquetes ||
                   _tipoVenta == SaleUnitType.cajaUnidades)
