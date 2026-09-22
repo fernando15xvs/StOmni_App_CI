@@ -2,6 +2,15 @@
 
 > Documento vivo. Marcar una fase cuando su implementación, gate específico y auditoría estén cerrados. La validación integral local de todo el producto se ejecuta al final mediante `docs/saas/99_MAPA_MAESTRO_PRUEBAS_SAAS.md`; no se confunde un check de fase con el GO comercial final.
 
+
+## Decisión vigente — producto nuevo y contrato canónico
+
+- StOmni parte sin datos productivos que requieran migración histórica de tipos de venta.
+- No se aceptan aliases obsoletos de producto en Dart, SQL, Edge Functions ni tests.
+- `tipo_venta` usa sólo `UNIDAD`, `CAJA`, `PAQUETE`, `CAJA_PAQUETES`, `CAJA_UNIDADES`.
+- Los perfiles configurables usan únicamente `schema_version: 2`.
+- Las migraciones históricas se conservan intactas como evidencia; cualquier corrección del estado efectivo se implementa en una migración posterior.
+
 ## Precondiciones ya cerradas
 
 - [x] Refactor arquitectónico `core_logic` / mobile / desktop validado.
