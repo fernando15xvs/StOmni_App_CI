@@ -48,7 +48,7 @@ class _DesktopSalesPanelState extends ConsumerState<DesktopSalesPanel> {
     return SaleProductSnapshot(
       code: product.codigo ?? '',
       name: product.nombre,
-      saleType: product.legacySaleType,
+      saleType: product.saleUnitType,
       unitsPerPackage: product.cantidadPorCaja ?? 1,
       defaultUnitPrice: product.precioUnidad,
       defaultPackageBasePrice: (product.precioCaja ?? 0) > 0
