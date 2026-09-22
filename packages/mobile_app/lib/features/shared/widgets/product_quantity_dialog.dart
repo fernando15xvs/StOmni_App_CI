@@ -108,7 +108,7 @@ class _ProductQuantityDialogState extends State<ProductQuantityDialog> {
           final quantity = raw.isEmpty ? 0 : int.tryParse(raw);
           if (quantity == null ||
               quantity < 0 ||
-              quantity > IntegerPresentationPolicy.maxQuantity) {
+              quantity > DiscretePresentationPolicy.maxQuantity) {
             throw const FormatException(
               'Las cantidades deben ser enteros no negativos dentro del rango permitido.',
             );

@@ -1,4 +1,4 @@
-import 'legacy_sale_line_mapper.dart';
+import 'sale_line_persistence_mapper.dart';
 import 'procesar_venta_command.dart';
 import 'sale_processing_models.dart';
 
@@ -41,7 +41,7 @@ class ValidateSaleUseCase {
       throw StateError('Los descuentos de 10 % o más requieren un motivo.');
     }
     final lines = command.cart.lines
-        .map(LegacySaleLineMapper.map)
+        .map(SaleLinePersistenceMapper.map)
         .toList(growable: false);
     final subtotal = lines.fold<double>(0, (sum, line) => sum + line.subtotal);
     if (!subtotal.isFinite ||

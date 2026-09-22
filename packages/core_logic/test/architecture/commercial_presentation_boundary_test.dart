@@ -10,7 +10,8 @@ String _read(String path) {
 
 void main() {
   test(
-    'el modelo comercial genérico no depende del contrato de topología comercial ni de UI',
+    'el modelo comercial genérico no depende del contrato de topología '
+    'comercial ni de UI',
     () {
       final source = _read(
         'lib/features/almacen/domain/commercial_presentation.dart',
@@ -44,7 +45,10 @@ void main() {
     () {
       final source = _read('lib/utils/stock_utils.dart');
 
-      expect(source, contains('static ProductUnitProfile unitProfileForSaleType('));
+      expect(
+        source,
+        contains('static ProductUnitProfile unitProfileForSaleType('),
+      );
       expect(source, contains('.formatBaseQuantity('));
       expect(source, contains('.toBaseQuantity('));
       expect(source, contains('.supports('));

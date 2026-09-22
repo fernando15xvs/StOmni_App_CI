@@ -27,7 +27,7 @@ class ProductUnitConfigurationMapper {
   static ProductUnitProfile decodeProfile(Map<String, dynamic> value) {
     final rows = value['presentations'];
     final version = value['schema_version'];
-    if ((version != 1 && version != 2) ||
+    if (version != 2 ||
         rows is! List ||
         value['base_code'] is! String) {
       throw const FormatException('El perfil de unidades no es compatible.');
@@ -44,9 +44,7 @@ class ProductUnitConfigurationMapper {
                   row['code']) {
             throw const FormatException('La presentación está dañada.');
           }
-          final precision = version == 1
-              ? ((row['fractional'] as bool) ? 3 : 0)
-              : row['precision'];
+          final precision = row['precision'];
           if (precision is! num || precision != precision.round()) {
             throw const FormatException(
               'La precisión de la presentación está dañada.',
@@ -83,7 +81,6 @@ class ProductUnitConfigurationMapper {
       presentations: units,
     );
     PresentationPolicy.validate(profile);
-    if (version == 1) IntegerPresentationPolicy.validate(profile);
     return profile;
   }
 
@@ -94,29 +91,22 @@ class ProductUnitConfigurationMapper {
 
   static Map<String, dynamic> encodeProfile(ProductUnitProfile profile) {
     PresentationPolicy.validate(profile);
-    final requiresV2 = profile.presentations.any(
-      (unit) =>
-          unit.quantityPrecision > 0 ||
-          unit.baseQuantity != unit.baseQuantity.roundToDouble() ||
-          unit.fiscalUnitCode != null,
-    );
     return {
-      'schema_version': requiresV2 ? 2 : 1,
+      'schema_version': 2,
       'base_code': profile.baseUnit.code,
       'presentations': profile.presentations
-          .map((unit) {
-            final encoded = <String, dynamic>{
+          .map(
+            (unit) => <String, dynamic>{
               'code': unit.code,
               'singular': unit.singularLabel.trim(),
               'plural': unit.pluralLabel.trim(),
               'factor': unit.baseQuantity,
               'fractional': unit.allowsFractionalSale,
+              'precision': unit.quantityPrecision,
               if (unit.fiscalUnitCode != null)
                 'fiscal_unit_code': unit.fiscalUnitCode,
-            };
-            if (requiresV2) encoded['precision'] = unit.quantityPrecision;
-            return encoded;
-          })
+            },
+          )
           .toList(growable: false),
     };
   }

@@ -29,17 +29,12 @@ class Producto {
   bool get esInventariable => itemType.isInventoriable;
   bool get esBundle => itemType.isBundle;
 
-  SaleUnitType get legacySaleType {
+  SaleUnitType get saleUnitType {
     final explicit = tipoVenta?.trim() ?? '';
-    if (explicit.isNotEmpty) return StockUtils.getTipoVentaFromString(explicit);
-    final unit = (unidadMedida ?? '').toLowerCase();
-    if (unit.contains('paquete')) return SaleUnitType.paquete;
-    if (unit.contains('caja')) {
-      return (cantidadPorCaja ?? 1) > 1
-          ? SaleUnitType.ambos
-          : SaleUnitType.caja;
+    if (explicit.isEmpty) {
+      throw StateError('Producto $id sin tipo_venta canónico.');
     }
-    return SaleUnitType.unidad;
+    return StockUtils.getTipoVentaFromString(explicit);
   }
 
   Producto({

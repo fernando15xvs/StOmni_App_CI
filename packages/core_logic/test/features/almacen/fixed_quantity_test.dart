@@ -48,7 +48,7 @@ void main() {
       throwsArgumentError,
     );
     expect(
-      () => IntegerPresentationPolicy.validate(profile),
+      () => DiscretePresentationPolicy.validate(profile),
       throwsArgumentError,
     );
   });
@@ -90,7 +90,7 @@ void main() {
     },
   );
 
-  test('codec v2 conserva precisión y sigue decodificando perfiles v1', () {
+  test('codec usa exclusivamente schema v2 y rechaza v1', () {
     final kg = CommercialPresentation.base(
       code: 'kg',
       singularLabel: 'kg',
@@ -103,20 +103,21 @@ void main() {
     final restored = ProductUnitConfigurationMapper.decodeProfile(encoded);
     expect(restored.baseUnit.quantityPrecision, 3);
 
-    final legacy = ProductUnitConfigurationMapper.decodeProfile({
-      'schema_version': 1,
-      'base_code': 'unidad',
-      'presentations': [
-        {
-          'code': 'unidad',
-          'singular': 'Unidad',
-          'plural': 'Unidades',
-          'factor': 1,
-          'fractional': false,
-        },
-      ],
-    });
-    expect(legacy.baseUnit.quantityPrecision, 0);
-    expect(() => IntegerPresentationPolicy.validate(legacy), returnsNormally);
+    expect(
+      () => ProductUnitConfigurationMapper.decodeProfile({
+        'schema_version': 1,
+        'base_code': 'unidad',
+        'presentations': [
+          {
+            'code': 'unidad',
+            'singular': 'Unidad',
+            'plural': 'Unidades',
+            'factor': 1,
+            'fractional': false,
+          },
+        ],
+      }),
+      throwsFormatException,
+    );
   });
 }

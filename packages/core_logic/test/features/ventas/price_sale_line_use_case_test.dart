@@ -38,19 +38,19 @@ void main() {
       expect(priced.recordedBaseQuantity, 0.5);
       expect(priced.subtotal, 10);
       expect(priced.baseUnitPrice, 20);
-      final persisted = LegacySaleLineMapper.map(priced);
+      final persisted = SaleLinePersistenceMapper.map(priced);
       expect(persisted.baseQuantity, 0.5);
       expect(persisted.storedBaseQuantity, 500);
       expect(persisted.storageScale, 1000);
     },
   );
 
-  test('mantiene cantidad entera para productos legacy', () {
+  test('mantiene cantidad entera para productos sin perfil configurable', () {
     final line = SaleCartLine(
       productId: 10,
       warehouseId: 2,
       product: const SaleProductSnapshot(
-        name: 'Producto legacy',
+        name: 'Producto estándar',
         saleType: SaleUnitType.unidad,
       ),
       quantity: 0.5,
@@ -64,7 +64,7 @@ void main() {
         isA<StateError>().having(
           (error) => error.message,
           'message',
-          contains('legacy'),
+          contains('entera'),
         ),
       ),
     );

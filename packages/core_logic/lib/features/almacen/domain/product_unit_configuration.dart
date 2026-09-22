@@ -144,9 +144,9 @@ class PresentationPolicy {
   }
 }
 
-/// Contrato de compatibilidad de perfiles v1 no escalados.
-class IntegerPresentationPolicy {
-  const IntegerPresentationPolicy._();
+/// Reglas para perfiles discretos que almacenan cantidades enteras.
+class DiscretePresentationPolicy {
+  const DiscretePresentationPolicy._();
 
   static const maxQuantity = PresentationPolicy.maxStoredQuantity;
 
@@ -158,7 +158,7 @@ class IntegerPresentationPolicy {
           unit.baseQuantity != unit.baseQuantity.roundToDouble() ||
           unit.baseQuantity > maxQuantity) {
         throw ArgumentError(
-          'Este perfil requiere almacenamiento escalado y no pertenece al contrato v1.',
+          'Este perfil no pertenece al contrato de cantidades discretas.',
         );
       }
     }

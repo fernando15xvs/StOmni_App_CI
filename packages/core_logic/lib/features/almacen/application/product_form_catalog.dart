@@ -4,7 +4,7 @@ class ProductWarehouseOption {
   final int id;
   final String name;
 
-  Map<String, dynamic> toLegacyMap() => <String, dynamic>{
+  Map<String, dynamic> toMap() => <String, dynamic>{
     'id': id,
     'nombre': name,
   };
@@ -16,7 +16,7 @@ class ProductSupplierOption {
   final int id;
   final String name;
 
-  Map<String, dynamic> toLegacyMap() => <String, dynamic>{
+  Map<String, dynamic> toMap() => <String, dynamic>{
     'id': id,
     'nombre': name,
   };

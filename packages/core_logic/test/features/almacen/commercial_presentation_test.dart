@@ -135,9 +135,9 @@ void main() {
     });
   });
 
-  group('adaptador legacy de StockUtils', () {
+  group('presets canónicos de StockUtils', () {
     test('traduce caja + unidades al perfil genérico', () {
-      final profile = StockUtils.legacyUnitProfile(
+      final profile = StockUtils.unitProfileForSaleType(
         SaleUnitType.cajaUnidades,
         unitsPerPackage: 12,
       );
@@ -148,8 +148,8 @@ void main() {
       expect(profile.formatBaseQuantity(27), '2 Cajas y 3 Unidades');
     });
 
-    test('mantiene paquete como unidad base histórica', () {
-      final profile = StockUtils.legacyUnitProfile(
+    test('mantiene paquete como unidad base del preset', () {
+      final profile = StockUtils.unitProfileForSaleType(
         SaleUnitType.paquete,
         unitsPerPackage: 10,
       );

@@ -31,13 +31,13 @@ void main() {
 
   test('convierte presentaciones enteras sin depender del rubro', () {
     final value = profile();
-    expect(IntegerPresentationPolicy.baseQuantity(value, 'caja_24', 2), 48);
+    expect(DiscretePresentationPolicy.baseQuantity(value, 'caja_24', 2), 48);
     expect(value.formatBaseQuantity(30), '1 Caja y 1 Pack');
     expect(
-      () => IntegerPresentationPolicy.baseQuantity(
+      () => DiscretePresentationPolicy.baseQuantity(
         value,
         'caja_24',
-        IntegerPresentationPolicy.maxQuantity.toDouble(),
+        DiscretePresentationPolicy.maxQuantity.toDouble(),
       ),
       throwsArgumentError,
     );
@@ -52,7 +52,7 @@ void main() {
     );
     final value = ProductUnitProfile(baseUnit: kg, presentations: [kg]);
     expect(
-      () => IntegerPresentationPolicy.validate(value),
+      () => DiscretePresentationPolicy.validate(value),
       throwsArgumentError,
     );
   });
@@ -66,7 +66,7 @@ void main() {
     final value = ProductUnitProfile(baseUnit: base, presentations: [base]);
 
     expect(
-      () => IntegerPresentationPolicy.validate(value),
+      () => DiscretePresentationPolicy.validate(value),
       throwsArgumentError,
     );
   });
@@ -111,7 +111,7 @@ void main() {
     );
     expect(priced.recordedBaseQuantity, 12);
     expect(priced.baseUnitPrice, closeTo(11 / 6, 0.000001));
-    final persisted = LegacySaleLineMapper.map(priced);
+    final persisted = SaleLinePersistenceMapper.map(priced);
     expect(persisted.baseQuantity, 12);
     expect(persisted.presentationRevision, 3);
     expect(persisted.commercialUnitLabel, 'Pack');

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import '../../catalogo/domain/catalog_item_type.dart';
+import '../../../utils/stock_utils.dart';
 
 class ProductoBusqueda {
   final int id;
@@ -60,13 +61,20 @@ class ProductoBusqueda {
       legacyService: legacyService,
     );
 
+    final rawSaleType = map['tipo_venta']?.toString().trim() ?? '';
+    if (rawSaleType.isEmpty) {
+      throw const FormatException('Producto sin tipo_venta canónico.');
+    }
+    final saleType = rawSaleType;
+    StockUtils.getTipoVentaFromString(saleType);
+
     return ProductoBusqueda(
       id: (map['id'] as num).toInt(),
       codigo: map['codigo']?.toString(),
       nombre: map['nombre']?.toString() ?? 'Sin Nombre',
       codigoBarras: map['codigo_barras']?.toString(),
       proveedorNombre: provNombre,
-      tipoVenta: map['tipo_venta']?.toString() ?? 'CAJA_UNIDADES',
+      tipoVenta: saleType,
       cantidadPorCaja: (map['cantidad_por_caja'] as num?)?.toInt() ?? 1,
       itemType: itemType,
       inventarioAlmacenes: itemType.isInventoriable ? inventario : const [],

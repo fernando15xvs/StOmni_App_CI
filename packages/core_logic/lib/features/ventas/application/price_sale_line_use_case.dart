@@ -1,7 +1,7 @@
 import '../../../utils/stock_utils.dart';
 import '../../almacen/domain/product_unit_configuration.dart';
 import '../domain/sale_cart.dart';
-import 'legacy_sale_line_mapper.dart';
+import 'sale_line_persistence_mapper.dart';
 
 /// Aplica el precio comercial y deriva importes/equivalencias en el core.
 class PriceSaleLineUseCase {
@@ -28,7 +28,7 @@ class PriceSaleLineUseCase {
     if (configuration == null) {
       if (line.quantity != line.quantity.roundToDouble()) {
         throw StateError(
-          'Este producto legacy requiere una cantidad entera válida.',
+          'Este producto requiere una cantidad entera válida mientras no tenga precisión decimal configurada.',
         );
       }
       baseQuantity = StockUtils.calcularCantidadBaseVenta(
@@ -66,7 +66,7 @@ class PriceSaleLineUseCase {
       manualTotalWeightKg: line.manualTotalWeightKg,
       serialNumbers: line.serialNumbers,
     );
-    LegacySaleLineMapper.map(priced);
+    SaleLinePersistenceMapper.map(priced);
     return priced;
   }
 }

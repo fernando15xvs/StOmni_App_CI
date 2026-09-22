@@ -9,8 +9,10 @@ class GreItemRules {
   const GreItemRules._();
 
   static String unidadBaseProducto(Map<String, dynamic> producto) {
-    final tipo = producto['tipo_venta']?.toString().toUpperCase() ?? '';
-    return tipo == 'PAQUETES' || tipo == 'CAJA_PAQUETES' ? 'PK' : 'NIU';
+    final tipo = StockUtils.getTipoVentaFromMap(producto);
+    return tipo == SaleUnitType.paquete || tipo == SaleUnitType.cajaPaquetes
+        ? 'PK'
+        : 'NIU';
   }
 
   static String unidadGreProducto(Map<String, dynamic> producto) {
@@ -58,7 +60,7 @@ class GreItemRules {
     final unidades = switch (tipo) {
       SaleUnitType.paquete => <String>['PK'],
       SaleUnitType.cajaPaquetes => <String>['BX', 'PK'],
-      SaleUnitType.cajaUnidades || SaleUnitType.ambos => <String>['BX', 'NIU'],
+      SaleUnitType.cajaUnidades => <String>['BX', 'NIU'],
       SaleUnitType.caja => <String>['BX'],
       SaleUnitType.unidad => <String>['NIU'],
     };

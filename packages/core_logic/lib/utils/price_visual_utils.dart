@@ -116,5 +116,4 @@ class PriceVisualUtils {
         return [PriceVisualItem(label: 'Precio unitario', value: precioUnidad)];
     }
   }
-
 }

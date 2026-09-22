@@ -4,7 +4,7 @@ import 'package:core_logic/core_logic.dart';
 void main() {
   group('GreItemRules', () {
     test('usa PK como unidad base para paquetes y caja+paquetes', () {
-      expect(GreItemRules.unidadBaseProducto({'tipo_venta': 'PAQUETES'}), 'PK');
+      expect(GreItemRules.unidadBaseProducto({'tipo_venta': 'PAQUETE'}), 'PK');
       expect(
         GreItemRules.unidadBaseProducto({'tipo_venta': 'CAJA_PAQUETES'}),
         'PK',
@@ -88,7 +88,7 @@ void main() {
     test('rechaza una presentación no permitida por el producto', () {
       expect(
         () => GreItemRules.calcularPiezasDetalle(
-          producto: {'tipo_venta': 'PAQUETES', 'cantidad_por_caja': 4},
+          producto: {'tipo_venta': 'PAQUETE', 'cantidad_por_caja': 4},
           unidadSunat: 'NIU',
           cantidadVisual: 2,
         ),

@@ -6,6 +6,7 @@ import '../../../errors/user_facing_exception.dart';
 import '../../../auth/application/operation_authorizer.dart';
 import '../../../auth/domain/app_permission.dart';
 import '../../../utils/stock_utils.dart';
+import '../domain/product_unit_configuration.dart';
 
 class ProductImageUpload {
   const ProductImageUpload({required this.url});
@@ -64,6 +65,7 @@ class SaveProductCommand {
     required this.purchasePrice,
     required this.unitsPerPackage,
     required this.saleUnitType,
+    this.unitConfiguration,
     required this.minimumStock,
     required this.supplierId,
     required this.allowWithoutStock,
@@ -84,6 +86,7 @@ class SaveProductCommand {
   final double purchasePrice;
   final int unitsPerPackage;
   final SaleUnitType saleUnitType;
+  final ProductUnitConfiguration? unitConfiguration;
   final num minimumStock;
   final int? supplierId;
   final bool allowWithoutStock;
@@ -189,6 +192,8 @@ class SaveProductUseCase {
         finalImageUrl = uploadedImage.url;
       }
 
+      final storedMinimumStock = _storedMinimumStock(command);
+
       final productData = <String, dynamic>{
         'codigo': code,
         'nombre': name,
@@ -196,12 +201,11 @@ class SaveProductUseCase {
         'precio_caja': command.packageBasePrice,
         'precio_compra': command.purchasePrice,
         'imagen_path': finalImageUrl,
-        'unidad_medida': StockUtils.unidadBasePlural(command.saleUnitType),
         'cantidad_por_caja': command.unitsPerPackage,
         'proveedor_id': command.supplierId,
         'permitir_sin_stock': command.allowWithoutStock,
         'tipo_venta': saleTypeDb,
-        'stock_minimo': command.minimumStock,
+        'stock_minimo': storedMinimumStock,
       };
 
       late final int savedProductId;
@@ -239,6 +243,27 @@ class SaveProductUseCase {
       }
       rethrow;
     }
+  }
+
+  int _storedMinimumStock(SaveProductCommand command) {
+    final visible = command.minimumStock.toDouble();
+    final configuration = command.unitConfiguration;
+    if (configuration != null) {
+      try {
+        return configuration.toStoredBaseQuantity(visible);
+      } on ArgumentError catch (error) {
+        throw UserFacingException(
+          error.message?.toString() ?? 'El stock mínimo no es válido.',
+        );
+      }
+    }
+    if (visible != visible.roundToDouble()) {
+      throw const UserFacingException(
+        'El stock mínimo debe ser entero mientras el producto no tenga una '
+        'unidad base con precisión decimal configurada.',
+      );
+    }
+    return visible.toInt();
   }
 
   void _validate(

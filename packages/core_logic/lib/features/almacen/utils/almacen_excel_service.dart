@@ -31,7 +31,6 @@ class AlmacenExcelService {
       case SaleUnitType.cajaPaquetes:
         return 'Caja + Paquetes';
       case SaleUnitType.cajaUnidades:
-      case SaleUnitType.ambos:
         return 'Caja + Unidades';
       case SaleUnitType.caja:
         return 'Cajas';

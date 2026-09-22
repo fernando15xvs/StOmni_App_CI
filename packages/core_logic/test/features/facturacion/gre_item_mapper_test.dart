@@ -50,7 +50,7 @@ void main() {
           'id': 2,
           'codigo': 'PK-2',
           'nombre': 'Tarugos',
-          'tipo_venta': 'PAQUETES',
+          'tipo_venta': 'PAQUETE',
           'cantidad_por_caja': 20,
           'peso_kg': 0.4,
         },

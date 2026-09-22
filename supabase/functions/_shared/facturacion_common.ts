@@ -170,14 +170,28 @@ function sunatSendDeadlineExpired(
 function unitCode(tipoUnidad: unknown): string {
   switch (cleanText(tipoUnidad).toLowerCase()) {
     case 'caja':
-    case 'cajas':
       return 'BX'
     case 'paquete':
-    case 'paquetes':
       return 'PK'
     default:
       return 'NIU'
   }
+}
+
+const canonicalSaleTypes = new Set([
+  'UNIDAD',
+  'CAJA',
+  'PAQUETE',
+  'CAJA_PAQUETES',
+  'CAJA_UNIDADES',
+])
+
+function canonicalSaleType(value: unknown): string {
+  const type = cleanText(value)
+  if (!canonicalSaleTypes.has(type)) {
+    throw new HttpError(409, `tipo_venta no canónico: ${type || '<vacío>'}`)
+  }
+  return type
 }
 
 type FiscalPresentation = {
@@ -230,19 +244,19 @@ function configuredFiscalPresentation(
 function presentationDescription(detail: Record<string, unknown>, product: Record<string, unknown>): string {
   const name = cleanText(product.nombre, 'Producto')
   const tipoUnidad = cleanText(detail.tipo_unidad).toLowerCase()
-  const tipoVenta = cleanText(detail.tipo_venta_snapshot || product.tipo_venta).toUpperCase()
+  const tipoVenta = canonicalSaleType(detail.tipo_venta_snapshot || product.tipo_venta)
   const pcs = Math.max(1, asInt(detail.pcs_snapshot || product.cantidad_por_caja, 1))
 
   if (tipoUnidad === 'caja') {
     if (tipoVenta === 'CAJA_PAQUETES') return `${name} - Caja x ${pcs} paquetes`
-    if (tipoVenta === 'CAJA_UNIDADES' || tipoVenta === 'AMBOS') {
+    if (tipoVenta === 'CAJA_UNIDADES') {
       return `${name} - Caja x ${pcs} unidades`
     }
     return `${name} - Caja`
   }
 
   if (tipoUnidad === 'paquete') {
-    if (tipoVenta === 'PAQUETES' || tipoVenta === 'PAQUETE') {
+    if (tipoVenta === 'PAQUETE') {
       return `${name} - Paquete x ${pcs} piezas`
     }
     return `${name} - Paquete`

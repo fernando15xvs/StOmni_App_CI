@@ -27,13 +27,13 @@ class NuevoProductoState {
   /// Compatibilidad temporal con la pantalla actual mientras se elimina el
   /// uso de Map<String, dynamic> de la presentación móvil.
   List<Map<String, dynamic>> get almacenes => warehouseOptions
-      .map((warehouse) => warehouse.toLegacyMap())
+      .map((warehouse) => warehouse.toMap())
       .toList(growable: false);
 
   /// Compatibilidad temporal con la pantalla actual mientras se elimina el
   /// uso de Map<String, dynamic> de la presentación móvil.
   List<Map<String, dynamic>> get proveedores => supplierOptions
-      .map((supplier) => supplier.toLegacyMap())
+      .map((supplier) => supplier.toMap())
       .toList(growable: false);
 
   NuevoProductoState copyWith({

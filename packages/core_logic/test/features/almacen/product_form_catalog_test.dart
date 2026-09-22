@@ -39,12 +39,12 @@ void main() {
       expect(result.suppliers.single.name, 'Proveedor A');
     });
 
-    test('mantiene una conversión legacy acotada para la UI móvil actual', () {
+    test('expone un mapa de infraestructura estable para la UI móvil', () {
       const warehouse = ProductWarehouseOption(id: 7, name: 'Central');
       const supplier = ProductSupplierOption(id: 15, name: 'Marca Uno');
 
-      expect(warehouse.toLegacyMap(), {'id': 7, 'nombre': 'Central'});
-      expect(supplier.toLegacyMap(), {'id': 15, 'nombre': 'Marca Uno'});
+      expect(warehouse.toMap(), {'id': 7, 'nombre': 'Central'});
+      expect(supplier.toMap(), {'id': 15, 'nombre': 'Marca Uno'});
     });
   });
 }

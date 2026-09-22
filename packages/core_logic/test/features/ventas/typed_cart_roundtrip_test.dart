@@ -13,7 +13,7 @@ void main() {
       baseUnitPrice: 1.01,
     );
     expect(
-      () => LegacySaleLineMapper.map(line, requireExactTotals: true),
+      () => SaleLinePersistenceMapper.map(line, requireExactTotals: true),
       throwsStateError,
     );
   });
@@ -116,7 +116,7 @@ void main() {
       'precio_unitario': 10,
       'piezas_reales': 2.5,
     });
-    expect(() => LegacySaleLineMapper.map(line), throwsStateError);
+    expect(() => SaleLinePersistenceMapper.map(line), throwsStateError);
   });
 
   test('precio compartido no habilita inventario decimal por accidente', () {
@@ -149,6 +149,6 @@ void main() {
       'tipo_venta_snapshot': 'CAJA_UNIDADES',
       'producto_data': {'tipo_venta': 'CAJA_UNIDADES', 'cantidad_por_caja': 24},
     });
-    expect(() => LegacySaleLineMapper.map(line), throwsStateError);
+    expect(() => SaleLinePersistenceMapper.map(line), throwsStateError);
   });
 }

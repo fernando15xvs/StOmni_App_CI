@@ -38,7 +38,7 @@ const typedSalesBoundaries = new Set([
   'domain/sale_models.dart',
   'application/procesar_venta_command.dart',
   'application/venta_submission_coordinator.dart',
-  'application/legacy_sale_line_mapper.dart',
+  'application/sale_line_persistence_mapper.dart',
   'application/price_sale_line_use_case.dart',
   'usecases/procesar_venta_usecase.dart',
 ].map((path) => `features/ventas/${path}`));
@@ -58,7 +58,7 @@ for (const [name, directory] of packages) {
     if (
       isCoreLib &&
       typedSalesBoundaries.has(normalize(relative(join(directory, 'lib'), path))) &&
-      /Map\s*<\s*String\s*,\s*dynamic\s*>|\blegacyPayload\b/.test(source)
+      /Map\s*<\s*String\s*,\s*dynamic\s*>/.test(source)
     ) {
       error(path, 'mapa de persistencia escondido en frontera tipada de ventas');
     }
@@ -387,7 +387,7 @@ for (const [path, requirements] of [
   ]],
   [core('features', 'almacen', 'domain', 'product_unit_configuration.dart'), [
     'PresentationPolicy',
-    'IntegerPresentationPolicy',
+    'DiscretePresentationPolicy',
     'storageScale',
     'toStoredBaseQuantity',
     'fromStoredBaseQuantity',
@@ -407,7 +407,7 @@ for (const [path, requirements] of [
   [core('features', 'almacen', 'data', 'supabase_product_unit_configuration_gateway.dart'), [
     'save_product_unit_profile_v6',
     'PresentationPolicy.validate(profile)',
-    'IntegerPresentationPolicy.validate(profile)',
+    'ProductUnitConfigurationMapper.encodeProfile(profile)',
   ]],
   [core('features', 'almacen', 'application', 'save_product_unit_configuration_use_case.dart'), [
     'PresentationPolicy.validate(profile)',

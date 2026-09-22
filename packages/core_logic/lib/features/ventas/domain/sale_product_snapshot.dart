@@ -29,7 +29,10 @@ class SaleProductSnapshot {
 
   ProductUnitProfile get commercialProfile =>
       unitConfiguration?.profile ??
-      StockUtils.unitProfileForSaleType(saleType, unitsPerPackage: unitsPerPackage);
+      StockUtils.unitProfileForSaleType(
+        saleType,
+        unitsPerPackage: unitsPerPackage,
+      );
 
   String normalizeUnit(String code) => unitConfiguration != null
       ? CommercialPresentation.normalizeCode(code)

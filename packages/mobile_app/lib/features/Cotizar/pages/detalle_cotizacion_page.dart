@@ -66,7 +66,12 @@ class _DetalleCotizacionPageState extends ConsumerState<DetalleCotizacionPage> {
   List<SaleProcessingLine> _construirDetalles() => widget
       .carritoConPreciosFinales
       .lines
-      .map((line) => SaleLinePersistenceMapper.map(line, requireExactTotals: true))
+      .map(
+        (line) => SaleLinePersistenceMapper.map(
+          line,
+          requireExactTotals: true,
+        ),
+      )
       .toList(growable: false);
 
   Future<void> _procesarCotizacion() async {

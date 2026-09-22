@@ -63,7 +63,7 @@ void main() {
         ),
       );
 
-      final mapped = LegacySaleLineMapper.map(line, requireExactTotals: true);
+      final mapped = SaleLinePersistenceMapper.map(line, requireExactTotals: true);
 
       expect(mapped.quantity, 0.5);
       expect(mapped.baseQuantity, 0.5);
@@ -113,8 +113,8 @@ void main() {
     },
   );
 
-  test('legacy integer profiles keep scale one', () {
-    final profile = StockUtils.legacyUnitProfile(
+  test('discrete preset profiles keep scale one', () {
+    final profile = StockUtils.unitProfileForSaleType(
       SaleUnitType.cajaUnidades,
       unitsPerPackage: 12,
     );

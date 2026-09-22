@@ -88,7 +88,7 @@ BEGIN
   SELECT
     p.stock_minimo,
     p.nombre,
-    COALESCE(UPPER(p.tipo_venta), ''),
+    COALESCE(p.tipo_venta, ''),
     GREATEST(COALESCE(p.cantidad_por_caja, 1), 1)
   INTO
     v_stock_minimo,
@@ -122,7 +122,7 @@ BEGIN
   END IF;
 
   IF v_tipo_alerta = 'stock_bajo' THEN
-    IF v_tipo_venta IN ('CAJA_PAQUETES', 'CAJA+PAQUETES', 'CAJA + PAQUETES') THEN
+    IF v_tipo_venta = 'CAJA_PAQUETES' THEN
       IF v_cantidad_por_caja <= 1 THEN
         v_texto_stock := v_stock_total_nuevo ||
           CASE WHEN v_stock_total_nuevo = 1 THEN ' paquete' ELSE ' paquetes' END;
@@ -141,10 +141,7 @@ BEGIN
             v_sueltos || CASE WHEN v_sueltos = 1 THEN ' paquete' ELSE ' paquetes' END;
         END IF;
       END IF;
-    ELSIF v_tipo_venta IN (
-      'CAJA_UNIDADES', 'CAJA+UNIDADES', 'CAJA + UNIDADES',
-      'AMBOS', 'CAJA_UNIDAD', 'CAJAS_UNIDADES'
-    ) THEN
+    ELSIF v_tipo_venta = 'CAJA_UNIDADES' THEN
       IF v_cantidad_por_caja <= 1 THEN
         v_texto_stock := v_stock_total_nuevo ||
           CASE WHEN v_stock_total_nuevo = 1 THEN ' unidad' ELSE ' unidades' END;
@@ -163,10 +160,10 @@ BEGIN
             v_sueltos || CASE WHEN v_sueltos = 1 THEN ' unidad' ELSE ' unidades' END;
         END IF;
       END IF;
-    ELSIF v_tipo_venta IN ('PAQUETES', 'PAQUETE') THEN
+    ELSIF v_tipo_venta = 'PAQUETE' THEN
       v_texto_stock := v_stock_total_nuevo ||
         CASE WHEN v_stock_total_nuevo = 1 THEN ' paquete' ELSE ' paquetes' END;
-    ELSIF v_tipo_venta IN ('CAJA', 'SOLO_CAJAS') THEN
+    ELSIF v_tipo_venta = 'CAJA' THEN
       v_texto_stock := v_stock_total_nuevo ||
         CASE WHEN v_stock_total_nuevo = 1 THEN ' caja' ELSE ' cajas' END;
     ELSE

@@ -68,10 +68,18 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
 
     // Solo el administrador puede cargar datos del Kardex.
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_canLoadDashboardData()) return;
       if (ref.read(rolProvider) == 'admin') {
         ref.read(kardexProvider.notifier).cargarKardex(silent: true);
       }
     });
+  }
+
+  bool _canLoadDashboardData() {
+    if (!mounted) return false;
+    final auth = ref.read(authControllerProvider);
+    return auth.sessionStatus == SessionValidationStatus.online &&
+        ref.read(supabaseProvider).auth.currentUser != null;
   }
 
   Future<void> _obtenerUsuario() async {
@@ -87,9 +95,14 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
 
   Future<void> _cargarTodosLosDatos({bool isSilent = false}) async {
     if (!mounted) return;
+    if (!_canLoadDashboardData()) {
+      if (!isSilent) setState(() => _cargando = false);
+      return;
+    }
     if (!isSilent) setState(() => _cargando = true);
     try {
       await _cargarResumen();
+      if (!mounted || !_canLoadDashboardData()) return;
       try {
         ref.invalidate(
           graficoTendenciaProvider(
@@ -143,6 +156,7 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
         });
       }
     } catch (e) {
+      if (!mounted || !_canLoadDashboardData()) return;
       debugPrint("Error en _cargarResumen: $e");
       if (mounted) {
         setState(() {

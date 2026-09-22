@@ -62,7 +62,9 @@ void main() {
       expect(prepared.baseUnitPrice, 10);
     });
 
-    test('rechaza cantidad fraccionaria mientras el inventario sea sin perfil configurable', () {
+    test(
+      'rechaza cantidad fraccionaria mientras el inventario sea sin perfil configurable',
+      () {
       final line = SaleCartMapper.decodeLine({
         'id': 20,
         'cantidad': 1.5,
@@ -88,7 +90,8 @@ void main() {
           ),
         ),
       );
-    });
+      },
+    );
 
     test('rechaza precios inconsistentes antes de persistir', () {
       final line = SaleCartMapper.decodeLine({

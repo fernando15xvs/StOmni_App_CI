@@ -282,41 +282,41 @@ class _DesktopHomeShellState extends ConsumerState<DesktopHomeShell> {
           SingleChildScrollView(
             child: NavigationRail(
               extended: true,
-            selectedIndex: selectedIndex,
-            onDestinationSelected: (index) {
-              setState(() => _selectedModule = destinations[index].module);
-            },
-            leading: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 18, 12, 28),
-              child: SizedBox(
-                width: 210,
-                child: Row(
-                  children: [
-                    _DesktopTenantBrandLogo(branding: branding),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        branding?.effectiveDisplayName ??
-                            BusinessBranding.fallbackDisplayName,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w800),
+              selectedIndex: selectedIndex,
+              onDestinationSelected: (index) {
+                setState(() => _selectedModule = destinations[index].module);
+              },
+              leading: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 18, 12, 28),
+                child: SizedBox(
+                  width: 210,
+                  child: Row(
+                    children: [
+                      _DesktopTenantBrandLogo(branding: branding),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          branding?.effectiveDisplayName ??
+                              BusinessBranding.fallbackDisplayName,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w800),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            destinations: destinations
-                .map(
-                  (destination) => NavigationRailDestination(
-                    icon: Icon(destination.icon),
-                    selectedIcon: Icon(destination.selectedIcon),
-                    label: Text(destination.label),
-                  ),
-                )
-                .toList(growable: false),
+              destinations: destinations
+                  .map(
+                    (destination) => NavigationRailDestination(
+                      icon: Icon(destination.icon),
+                      selectedIcon: Icon(destination.selectedIcon),
+                      label: Text(destination.label),
+                    ),
+                  )
+                  .toList(growable: false),
             ),
           ),
           const VerticalDivider(width: 1),
