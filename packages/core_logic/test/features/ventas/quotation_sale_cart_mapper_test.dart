@@ -41,7 +41,7 @@ void main() {
       'base_label': 'Botella',
       'revision': 4,
       'profile': {
-        'schema_version': 1,
+        'schema_version': 2,
         'base_code': 'botella',
         'presentations': [
           {
@@ -50,6 +50,7 @@ void main() {
             'plural': 'Botellas',
             'factor': 1,
             'fractional': false,
+            'precision': 0,
           },
           {
             'code': 'pack_6',
@@ -57,6 +58,7 @@ void main() {
             'plural': 'Packs',
             'factor': 6,
             'fractional': false,
+            'precision': 0,
           },
         ],
       },

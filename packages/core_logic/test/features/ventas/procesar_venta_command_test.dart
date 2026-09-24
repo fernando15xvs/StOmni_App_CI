@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('ProcesarVentaCommand', () {
-    test('normaliza ticket legacy y conserva modelos tipados', () {
+    test('normaliza ticket y conserva modelos tipados', () {
       final command = ProcesarVentaCommand(
         requestId: 'req-1',
         customer: const SaleCustomer(
@@ -16,7 +16,16 @@ void main() {
         montoAbono: 25,
         payments: const [SalePayment(metodo: 'Efectivo', monto: 25)],
         cart: SaleCartMapper.decode([
-          {'id': 1, 'cantidad': 2, 'subtotal': 25, 'tipo_unidad': 'unidad'},
+          {
+            'id': 1,
+            'cantidad': 2,
+            'subtotal': 25,
+            'tipo_unidad': 'unidad',
+            'producto_data': {
+              'tipo_venta': 'UNIDAD',
+              'cantidad_por_caja': 1,
+            },
+          },
         ]),
         fecha: DateTime(2026, 8, 30),
         tipoComprobante: ' TICKET ',
@@ -50,7 +59,16 @@ void main() {
         ),
         pagos: const [SalePayment(metodo: 'Efectivo', monto: 20)],
         detalles: SaleCartMapper.decode([
-          {'id': 7, 'cantidad': 1, 'subtotal': 110, 'tipo_unidad': 'caja'},
+          {
+            'id': 7,
+            'cantidad': 1,
+            'subtotal': 110,
+            'tipo_unidad': 'caja',
+            'producto_data': {
+              'tipo_venta': 'CAJA_UNIDADES',
+              'cantidad_por_caja': 12,
+            },
+          },
         ]),
         vendedorId: 4,
         authUserId: 'auth-1',

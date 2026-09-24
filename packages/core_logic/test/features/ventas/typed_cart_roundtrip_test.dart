@@ -105,7 +105,7 @@ void main() {
     );
   });
 
-  test('cantidad base fraccionaria antigua no se trunca al validar', () {
+  test('cantidad base fraccionaria inconsistente no se trunca', () {
     final line = SaleCartMapper.decodeLine({
       'id': 1,
       'almacen_id': 1,
@@ -115,6 +115,10 @@ void main() {
       'precio': 10,
       'precio_unitario': 10,
       'piezas_reales': 2.5,
+      'producto_data': {
+        'tipo_venta': 'UNIDAD',
+        'cantidad_por_caja': 1,
+      },
     });
     expect(() => SaleLinePersistenceMapper.map(line), throwsStateError);
   });

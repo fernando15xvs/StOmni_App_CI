@@ -103,8 +103,26 @@ void main() {
 
   test('SaleCartSummaryFormatter conserva unidades comerciales genericas', () {
     final cart = SaleCartMapper.decode([
-      {'id': 1, 'cantidad': 2, 'subtotal': 20, 'tipo_unidad': 'caja'},
-      {'id': 2, 'cantidad': 1.5, 'subtotal': 15, 'tipo_unidad': 'kg'},
+      {
+        'id': 1,
+        'cantidad': 2,
+        'subtotal': 20,
+        'tipo_unidad': 'caja',
+        'producto_data': {
+          'tipo_venta': 'CAJA_UNIDADES',
+          'cantidad_por_caja': 12,
+        },
+      },
+      {
+        'id': 2,
+        'cantidad': 1.5,
+        'subtotal': 15,
+        'tipo_unidad': 'kg',
+        'producto_data': {
+          'tipo_venta': 'UNIDAD',
+          'cantidad_por_caja': 1,
+        },
+      },
     ]);
 
     expect(SaleCartSummaryFormatter.format(cart), '2 cajas · 1.5 kg');

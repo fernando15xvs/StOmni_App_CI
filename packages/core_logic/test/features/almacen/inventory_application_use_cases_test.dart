@@ -142,7 +142,7 @@ Producto _product({
     nombre: name,
     precioUnidad: price,
     precioCompra: price / 2,
-    tipoVenta: 'unidad',
+    tipoVenta: 'UNIDAD',
     proveedorId: supplierId,
     permitirSinStock: false,
     stockMinimo: minimumStock,
