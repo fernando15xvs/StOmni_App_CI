@@ -131,17 +131,12 @@ void main() {
     const retired = 'RETIRED: pre-SaaS global stock push installer';
 
     expect(script, contains(retired));
+    const retiredTrigger =
+        'CREATE CONSTRAINT TRIGGER trigger_stock_alert_evaluar_tx';
     expect(script, contains('tenant-aware operational_alerts'));
     expect(script, isNot(contains('net.http_post(')));
     expect(script, isNot(contains("'included_segments'")));
-    expect(
-      script,
-      isNot(
-        contains(
-          'CREATE CONSTRAINT TRIGGER trigger_stock_alert_evaluar_tx',
-        ),
-      ),
-    );
+    expect(script, isNot(contains(retiredTrigger)));
   });
 
   test('F6.2 usa alertas tenant-aware y event-driven', () {
