@@ -115,10 +115,7 @@ void main() {
       'precio': 10,
       'precio_unitario': 10,
       'piezas_reales': 2.5,
-      'producto_data': {
-        'tipo_venta': 'UNIDAD',
-        'cantidad_por_caja': 1,
-      },
+      'producto_data': {'tipo_venta': 'UNIDAD', 'cantidad_por_caja': 1},
     });
     expect(() => SaleLinePersistenceMapper.map(line), throwsStateError);
   });

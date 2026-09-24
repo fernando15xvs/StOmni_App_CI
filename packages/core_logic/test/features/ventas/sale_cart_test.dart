@@ -57,10 +57,7 @@ void main() {
           'cantidad': 4,
           'subtotal': 8,
           'tipo_unidad': 'paq',
-          'producto_data': {
-            'tipo_venta': 'PAQUETE',
-            'cantidad_por_caja': 1,
-          },
+          'producto_data': {'tipo_venta': 'PAQUETE', 'cantidad_por_caja': 1},
         },
       ]);
 
