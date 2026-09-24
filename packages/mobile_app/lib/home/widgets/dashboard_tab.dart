@@ -78,8 +78,7 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
   bool _canLoadDashboardData() {
     if (!mounted) return false;
     final auth = ref.read(authControllerProvider);
-    return auth.sessionStatus == SessionValidationStatus.online &&
-        ref.read(supabaseProvider).auth.currentUser != null;
+    return auth.sessionStatus == SessionValidationStatus.online;
   }
 
   Future<void> _obtenerUsuario() async {
