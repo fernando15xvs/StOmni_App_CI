@@ -1,12 +1,6 @@
 import '../features/almacen/domain/commercial_presentation.dart';
 
-enum SaleUnitType {
-  unidad,
-  caja,
-  paquete,
-  cajaPaquetes,
-  cajaUnidades,
-}
+enum SaleUnitType { unidad, caja, paquete, cajaPaquetes, cajaUnidades }
 
 class StockUtils {
   static const _customDisplayPrefix = 'custom_display:';
