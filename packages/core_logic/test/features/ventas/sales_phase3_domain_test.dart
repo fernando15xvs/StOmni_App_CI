@@ -118,10 +118,7 @@ void main() {
         'cantidad': 1.5,
         'subtotal': 15,
         'tipo_unidad': 'kg',
-        'producto_data': {
-          'tipo_venta': 'UNIDAD',
-          'cantidad_por_caja': 1,
-        },
+        'producto_data': {'tipo_venta': 'UNIDAD', 'cantidad_por_caja': 1},
       },
     ]);
 

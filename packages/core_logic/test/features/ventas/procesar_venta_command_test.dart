@@ -21,10 +21,7 @@ void main() {
             'cantidad': 2,
             'subtotal': 25,
             'tipo_unidad': 'unidad',
-            'producto_data': {
-              'tipo_venta': 'UNIDAD',
-              'cantidad_por_caja': 1,
-            },
+            'producto_data': {'tipo_venta': 'UNIDAD', 'cantidad_por_caja': 1},
           },
         ]),
         fecha: DateTime(2026, 8, 30),

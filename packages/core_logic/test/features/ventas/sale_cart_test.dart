@@ -20,10 +20,7 @@ void main() {
           'cantidad': 3,
           'subtotal': 7.5,
           'tipo_unidad': 'unidad',
-          'producto_data': {
-            'tipo_venta': 'UNIDAD',
-            'cantidad_por_caja': 1,
-          },
+          'producto_data': {'tipo_venta': 'UNIDAD', 'cantidad_por_caja': 1},
         },
       ]);
 
@@ -78,20 +75,14 @@ void main() {
           'cantidad': 5,
           'subtotal': 25,
           'tipo_unidad': 'kg',
-          'producto_data': {
-            'tipo_venta': 'UNIDAD',
-            'cantidad_por_caja': 1,
-          },
+          'producto_data': {'tipo_venta': 'UNIDAD', 'cantidad_por_caja': 1},
         },
         {
           'id': 2,
           'cantidad': 12,
           'subtotal': 36,
           'tipo_unidad': 'metro',
-          'producto_data': {
-            'tipo_venta': 'UNIDAD',
-            'cantidad_por_caja': 1,
-          },
+          'producto_data': {'tipo_venta': 'UNIDAD', 'cantidad_por_caja': 1},
         },
       ]);
 
@@ -107,20 +98,14 @@ void main() {
           'cantidad': 1.5,
           'subtotal': 12.75,
           'tipo_unidad': 'kg',
-          'producto_data': {
-            'tipo_venta': 'UNIDAD',
-            'cantidad_por_caja': 1,
-          },
+          'producto_data': {'tipo_venta': 'UNIDAD', 'cantidad_por_caja': 1},
         },
         {
           'id': 21,
           'cantidad': 2.25,
           'subtotal': 18,
           'tipo_unidad': 'metro',
-          'producto_data': {
-            'tipo_venta': 'UNIDAD',
-            'cantidad_por_caja': 1,
-          },
+          'producto_data': {'tipo_venta': 'UNIDAD', 'cantidad_por_caja': 1},
         },
       ]);
 
@@ -146,10 +131,7 @@ void main() {
           'cantidad': 2,
           'subtotal': 4,
           'tipo_unidad': 'unidad',
-          'producto_data': {
-            'tipo_venta': 'UNIDAD',
-            'cantidad_por_caja': 1,
-          },
+          'producto_data': {'tipo_venta': 'UNIDAD', 'cantidad_por_caja': 1},
         },
       ]);
 
@@ -195,10 +177,7 @@ void main() {
           'cantidad': 1,
           'subtotal': 4,
           'tipo_unidad': 'unidad',
-          'producto_data': {
-            'tipo_venta': 'UNIDAD',
-            'cantidad_por_caja': 1,
-          },
+          'producto_data': {'tipo_venta': 'UNIDAD', 'cantidad_por_caja': 1},
         },
       ]);
 
