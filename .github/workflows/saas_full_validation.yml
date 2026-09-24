@@ -307,7 +307,20 @@ jobs:
           git diff --exit-code
 
       - name: T13 format check
-        run: dart format --output=none --set-exit-if-changed packages/core_logic packages/mobile_app packages/desktop_app
+        shell: bash
+        run: |
+          set -euo pipefail
+          dart format \
+            packages/core_logic/test/features/ventas/procesar_venta_command_test.dart \
+            packages/core_logic/test/features/ventas/sale_cart_test.dart \
+            packages/core_logic/test/features/ventas/sales_phase3_domain_test.dart \
+            packages/core_logic/test/features/ventas/typed_cart_roundtrip_test.dart
+          git diff -- \
+            packages/core_logic/test/features/ventas/procesar_venta_command_test.dart \
+            packages/core_logic/test/features/ventas/sale_cart_test.dart \
+            packages/core_logic/test/features/ventas/sales_phase3_domain_test.dart \
+            packages/core_logic/test/features/ventas/typed_cart_roundtrip_test.dart
+          exit 1
 
       - name: T13 analyze core
         working-directory: packages/core_logic
