@@ -90,16 +90,25 @@ class LocalDbService {
       }
     }
     if (oldVersion < 9) {
-      await db.execute(
-        'ALTER TABLE productos ADD COLUMN unit_configuration TEXT',
+      await _addColumnIfMissing(
+        db,
+        table: 'productos',
+        column: 'unit_configuration',
+        definition: 'TEXT',
       );
     }
     if (oldVersion < 10) {
-      await db.execute(
-        "ALTER TABLE productos ADD COLUMN item_type TEXT NOT NULL DEFAULT 'stock_product'",
+      await _addColumnIfMissing(
+        db,
+        table: 'productos',
+        column: 'item_type',
+        definition: "TEXT NOT NULL DEFAULT 'stock_product'",
       );
-      await db.execute(
-        'ALTER TABLE productos ADD COLUMN es_servicio INTEGER NOT NULL DEFAULT 0',
+      await _addColumnIfMissing(
+        db,
+        table: 'productos',
+        column: 'es_servicio',
+        definition: 'INTEGER NOT NULL DEFAULT 0',
       );
       await db.execute(
         "UPDATE productos SET item_type='service', es_servicio=1 WHERE lower(trim(coalesce(unidad_medida,'')))='servicios'",
@@ -108,6 +117,19 @@ class LocalDbService {
         'CREATE INDEX IF NOT EXISTS idx_productos_item_type ON productos(item_type)',
       );
     }
+  }
+
+  Future<void> _addColumnIfMissing(
+    Database db, {
+    required String table,
+    required String column,
+    required String definition,
+  }) async {
+    final columns = await db.rawQuery('PRAGMA table_info($table)');
+    final exists = columns.any((row) => row['name'] == column);
+    if (exists) return;
+
+    await db.execute('ALTER TABLE $table ADD COLUMN $column $definition');
   }
 
   Future _createDB(Database db, int version) async {
