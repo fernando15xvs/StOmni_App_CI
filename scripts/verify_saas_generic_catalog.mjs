@@ -83,8 +83,18 @@ function verify(sqlSource, dartSource) {
   need(errors, dartSource, /'es_servicio': product\.esServicio/i, 'compatibilidad es_servicio');
   need(errors, dartSource, /item_type,cantidad_por_caja/i, 'sync remoto solicita item_type');
   need(errors, dartSource, /version: 10/i, 'SQLite v10');
-  need(errors, dartSource, /ALTER TABLE productos ADD COLUMN item_type TEXT NOT NULL DEFAULT 'stock_product'/i, 'migración SQLite item_type');
-  need(errors, dartSource, /ALTER TABLE productos ADD COLUMN es_servicio INTEGER NOT NULL DEFAULT 0/i, 'migración SQLite es_servicio');
+  need(
+    errors,
+    dartSource,
+    /Future<void> _addColumnIfMissing\([\s\S]{0,500}?PRAGMA table_info\(\$table\)[\s\S]{0,350}?row\['name'\] == column[\s\S]{0,250}?if \(exists\) return;[\s\S]{0,250}?ALTER TABLE \$table ADD COLUMN \$column \$definition/i,
+    'helper SQLite idempotente para columnas',
+  );
+  need(
+    errors,
+    dartSource,
+    /if \(oldVersion < 10\)[\s\S]{0,700}?_addColumnIfMissing\(\s*db,\s*table: 'productos',\s*column: 'item_type',\s*definition: "TEXT NOT NULL DEFAULT 'stock_product'",\s*\)[\s\S]{0,450}?_addColumnIfMissing\(\s*db,\s*table: 'productos',\s*column: 'es_servicio',\s*definition: 'INTEGER NOT NULL DEFAULT 0',\s*\)/i,
+    'migración SQLite item_type/es_servicio idempotente',
+  );
 
   if (/ON CONFLICT\(organization_id,producto_id,almacen_id\)/i.test(sqlSource.slice(sqlSource.lastIndexOf('CREATE OR REPLACE FUNCTION private.consume_bundle_components_on_sale_detail')))) {
     errors.push('El contrato final no debe usar ON CONFLICT compuesto inexistente en F3.4');
@@ -103,6 +113,28 @@ function selfTest() {
     ['sin tenant bundle FK', mutated(validSql, /FOREIGN KEY\(organization_id,bundle_product_id\)/i, 'FOREIGN KEY(bundle_product_id)', 'sin tenant bundle FK'), validDart, true],
     ['bundle trazable abierto', mutated(validSql, /IF v_component_type='stock_product' AND v_trace_mode<>'none' THEN/i, 'IF false THEN', 'bundle trazable abierto'), validDart, true],
     ['cache v9', validSql, mutated(validDart, /version:\s*10/i, 'version: 9', 'cache v9'), true],
+    [
+      'SQLite item_type sin guarda',
+      validSql,
+      mutated(
+        validDart,
+        /column:\s*'item_type'/i,
+        "column: 'item_type_roto'",
+        'SQLite item_type sin guarda',
+      ),
+      true,
+    ],
+    [
+      'SQLite es_servicio sin guarda',
+      validSql,
+      mutated(
+        validDart,
+        /column:\s*'es_servicio'/i,
+        "column: 'es_servicio_roto'",
+        'SQLite es_servicio sin guarda',
+      ),
+      true,
+    ],
     ['mapper sin item type', validSql, mutated(validDart, /'item_type':\s*product\.itemType\.code,?/i, '', 'mapper sin item type'), true],
     ['no-stock trigger abierto', mutated(validSql, /IF v_type IN \('non_stock_product','service','bundle'\) THEN NEW\.cantidad:=0; END IF;/i, 'IF false THEN NEW.cantidad:=0; END IF;', 'no-stock trigger abierto'), validDart, true],
     ['no-stock sin limpieza tenant', mutated(validSql, /WHERE organization_id=v_org AND producto_id=p_product_id;/i, 'WHERE false;', 'no-stock sin limpieza tenant'), validDart, true],
