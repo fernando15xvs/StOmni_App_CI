@@ -82,7 +82,7 @@ class _DesktopHomeShellState extends ConsumerState<DesktopHomeShell> {
     }
   }
 
-  List<_DesktopDestination> _visibleDestinations(String role) {
+  List<DesktopNavigationItem> _visibleDestinations(String role) {
     final capabilities = _businessProfile?.capabilities;
     final isAdmin = AppRoles.isAdmin(role);
     bool enabled(BusinessModule module) => capabilities == null
@@ -99,106 +99,106 @@ class _DesktopHomeShellState extends ConsumerState<DesktopHomeShell> {
         : BusinessModulePolicy.isEnabled(capabilities, module);
 
     return [
-      const _DesktopDestination(
+      const DesktopNavigationItem(
         BusinessModule.dashboard,
         Icons.dashboard_outlined,
         Icons.dashboard,
         'Inicio',
       ),
-      const _DesktopDestination(
+      const DesktopNavigationItem(
         BusinessModule.sales,
         Icons.point_of_sale_outlined,
         Icons.point_of_sale,
         'Ventas',
       ),
-      const _DesktopDestination(
+      const DesktopNavigationItem(
         BusinessModule.catalog,
         Icons.category_outlined,
         Icons.category,
         'Productos',
       ),
       if (enabled(BusinessModule.services))
-        const _DesktopDestination(
+        const DesktopNavigationItem(
           BusinessModule.services,
           Icons.design_services_outlined,
           Icons.design_services,
           'Servicios',
         ),
       if (enabled(BusinessModule.traceability) && isAdmin)
-        const _DesktopDestination(
+        const DesktopNavigationItem(
           BusinessModule.traceability,
           Icons.qr_code_2_outlined,
           Icons.qr_code_2,
           'Trazabilidad',
         ),
       if (enabled(BusinessModule.variants))
-        const _DesktopDestination(
+        const DesktopNavigationItem(
           BusinessModule.variants,
           Icons.account_tree_outlined,
           Icons.account_tree,
           'Variantes',
         ),
-      const _DesktopDestination(
+      const DesktopNavigationItem(
         BusinessModule.pricing,
         Icons.sell_outlined,
         Icons.sell,
         'Precios',
       ),
       if (enabled(BusinessModule.inventory))
-        const _DesktopDestination(
+        const DesktopNavigationItem(
           BusinessModule.inventory,
           Icons.inventory_outlined,
           Icons.inventory,
           'Inventario',
         ),
-      const _DesktopDestination(
+      const DesktopNavigationItem(
         BusinessModule.customers,
         Icons.people_outline,
         Icons.people,
         'Clientes',
       ),
       if (enabled(BusinessModule.suppliers))
-        const _DesktopDestination(
+        const DesktopNavigationItem(
           BusinessModule.suppliers,
           Icons.local_shipping_outlined,
           Icons.local_shipping,
           'Proveedores',
         ),
       if (enabled(BusinessModule.purchases))
-        const _DesktopDestination(
+        const DesktopNavigationItem(
           BusinessModule.purchases,
           Icons.shopping_cart_checkout_outlined,
           Icons.shopping_cart_checkout,
           'Compras',
         ),
       if (enabled(BusinessModule.electronicDocuments))
-        const _DesktopDestination(
+        const DesktopNavigationItem(
           BusinessModule.electronicDocuments,
           Icons.receipt_long_outlined,
           Icons.receipt_long,
           'Facturación',
         ),
-      const _DesktopDestination(
+      const DesktopNavigationItem(
         BusinessModule.reports,
         Icons.analytics_outlined,
         Icons.analytics,
         'Reportes',
       ),
-      const _DesktopDestination(
+      const DesktopNavigationItem(
         BusinessModule.metrics,
         Icons.speed_outlined,
         Icons.speed,
         'Métricas',
       ),
       if (isAdmin)
-        const _DesktopDestination(
+        const DesktopNavigationItem(
           BusinessModule.moduleSettings,
           Icons.tune_outlined,
           Icons.tune,
           'Módulos',
         ),
       if (isAdmin)
-        const _DesktopDestination(
+        const DesktopNavigationItem(
           BusinessModule.permissions,
           Icons.admin_panel_settings_outlined,
           Icons.admin_panel_settings,
@@ -279,45 +279,13 @@ class _DesktopHomeShellState extends ConsumerState<DesktopHomeShell> {
     return Scaffold(
       body: Row(
         children: [
-          SingleChildScrollView(
-            child: NavigationRail(
-              extended: true,
-              selectedIndex: selectedIndex,
-              onDestinationSelected: (index) {
-                setState(() => _selectedModule = destinations[index].module);
-              },
-              leading: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 18, 12, 28),
-                child: SizedBox(
-                  width: 210,
-                  child: Row(
-                    children: [
-                      _DesktopTenantBrandLogo(branding: branding),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          branding?.effectiveDisplayName ??
-                              BusinessBranding.fallbackDisplayName,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w800),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              destinations: destinations
-                  .map(
-                    (destination) => NavigationRailDestination(
-                      icon: Icon(destination.icon),
-                      selectedIcon: Icon(destination.selectedIcon),
-                      label: Text(destination.label),
-                    ),
-                  )
-                  .toList(growable: false),
-            ),
+          DesktopNavigationSidebar(
+            branding: branding,
+            destinations: destinations,
+            selectedIndex: selectedIndex,
+            onDestinationSelected: (index) {
+              setState(() => _selectedModule = destinations[index].module);
+            },
           ),
           const VerticalDivider(width: 1),
           Expanded(
@@ -353,6 +321,92 @@ class _DesktopHomeShellState extends ConsumerState<DesktopHomeShell> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class DesktopNavigationSidebar extends StatelessWidget {
+  const DesktopNavigationSidebar({
+    super.key,
+    required this.branding,
+    required this.destinations,
+    required this.selectedIndex,
+    required this.onDestinationSelected,
+  });
+
+  final BusinessBranding? branding;
+  final List<DesktopNavigationItem> destinations;
+  final int selectedIndex;
+  final ValueChanged<int> onDestinationSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 250,
+      child: Material(
+        color: Theme.of(context).colorScheme.surface,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 18, 12, 18),
+              child: SizedBox(
+                width: 210,
+                child: Row(
+                  children: [
+                    _DesktopTenantBrandLogo(branding: branding),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        branding?.effectiveDisplayName ??
+                            BusinessBranding.fallbackDisplayName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                itemCount: destinations.length,
+                itemBuilder: (context, index) {
+                  final destination = destinations[index];
+                  final selected = index == selectedIndex;
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    child: ListTile(
+                      key: ValueKey(
+                        'desktop-nav-${destination.module.name}-$index',
+                      ),
+                      selected: selected,
+                      leading: Icon(
+                        selected
+                            ? destination.selectedIcon
+                            : destination.icon,
+                      ),
+                      title: Text(destination.label),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      onTap: () => onDestinationSelected(index),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -395,8 +449,8 @@ class _DesktopTenantBrandLogo extends StatelessWidget {
   }
 }
 
-class _DesktopDestination {
-  const _DesktopDestination(
+class DesktopNavigationItem {
+  const DesktopNavigationItem(
     this.module,
     this.icon,
     this.selectedIcon,
