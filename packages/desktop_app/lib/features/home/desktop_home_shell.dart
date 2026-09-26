@@ -391,9 +391,7 @@ class DesktopNavigationSidebar extends StatelessWidget {
                       ),
                       selected: selected,
                       leading: Icon(
-                        selected
-                            ? destination.selectedIcon
-                            : destination.icon,
+                        selected ? destination.selectedIcon : destination.icon,
                       ),
                       title: Text(destination.label),
                       shape: RoundedRectangleBorder(
