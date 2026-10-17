@@ -300,6 +300,7 @@ class _DesktopHomeShellState extends ConsumerState<DesktopHomeShell> {
                   signingOut: _signingOut,
                   onSignOut: _handleSignOut,
                 ),
+                const QaUpdateNotice(platform: QaUpdatePlatform.windows),
                 if (_loadingProfile)
                   const LinearProgressIndicator(minHeight: 2),
                 if (widget.offlineAuthorization)

@@ -205,7 +205,10 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       extendBody: true,
-      body: NotificationListener<UserScrollNotification>(
+      body: Column(
+        children: [
+          const QaUpdateNotice(platform: QaUpdatePlatform.android),
+          Expanded(child: NotificationListener<UserScrollNotification>(
         onNotification: (notification) {
           if (notification.direction == ScrollDirection.forward) {
             if (!_isFabVisible) setState(() => _isFabVisible = true);
@@ -222,6 +225,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                 : const SizedBox.shrink();
           }),
         ),
+      ),
+          ),
+        ],
       ),
       bottomNavigationBar: CustomBottomNav(
         dragNotifier: _dragNotifier,

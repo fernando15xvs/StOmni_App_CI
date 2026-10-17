@@ -1,3 +1,3 @@
-source_sha=d4bc210427c6db6553883e145423ae2438c5b5ac
-requested_at_utc=2026-10-17T16:27:42.207Z
-reason=qa-two-interfaces-android-windows
+source_sha=b1706d7f7fa6ca674fd00dee7a5afcf3e8281244
+requested=2026-10-17
+purpose=qa-update-notice-android-windows

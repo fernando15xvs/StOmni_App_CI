@@ -75,6 +75,31 @@ class InstallerPolicyTests(unittest.TestCase):
                 qa.publish()
             api.assert_not_called()
 
+    def test_public_feed_has_only_metadata_and_private_asset_names(self):
+        data = qa.release_feed(10001, 'saas-qa-2.0.1-10001-attempt-2')
+        self.assertEqual(data['build_number'], 10001)
+        self.assertEqual(data['product'], 'stomni-saas-qa')
+        self.assertIn('android', data['assets'])
+        self.assertIn('windows', data['assets'])
+        self.assertNotIn('token', json.dumps(data).lower())
+        self.assertNotIn('download_url', json.dumps(data))
+
+    def test_reject_malformed_release_tag(self):
+        for tag in ('../../evil', 'saas-qa-2.0.1-10001-attempt-0',
+                    'saas-qa-2.0.1-10001-attempt-2/other'):
+            with self.subTest(tag=tag), self.assertRaises(RuntimeError):
+                qa.release_feed(10001, tag)
+
+    def test_update_feed_never_uses_private_release_token(self):
+        with patch.dict(qa.os.environ, {'STOMNI_CI_FEED_TOKEN': 'temporary-test-token'}), \
+             patch.object(qa.urllib.request, 'urlopen') as opened:
+            opened.return_value.__enter__.return_value.read.return_value = b'{}'
+            # The feed uses a separate token regardless of the source PAT.
+            with patch.dict(qa.os.environ, {'STOMNI_SOURCE_RELEASE_TOKEN': 'private-should-not-be-used'}):
+                qa.ci_api('/repos/' + qa.MIRROR)
+            req = opened.call_args.args[0]
+            self.assertEqual(req.get_header('Authorization'), 'Bearer temporary-test-token')
+
     def test_upload_digest_failure_leaves_draft(self):
         with tempfile.TemporaryDirectory() as tmp:
             dist = Path(tmp)

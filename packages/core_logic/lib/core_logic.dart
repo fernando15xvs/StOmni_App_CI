@@ -1,3 +1,4 @@
+export 'updates/qa_update_notice.dart';
 library core_logic;
 
 export 'documents/domain/generated_document.dart';

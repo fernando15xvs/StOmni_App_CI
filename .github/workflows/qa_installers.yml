@@ -42,6 +42,8 @@ jobs:
 
   installers:
     needs: validation
+    permissions:
+      contents: write # CI-only: publish a metadata-only update feed in a separate branch.
     runs-on: windows-2022
     timeout-minutes: 100
     steps:
@@ -72,6 +74,7 @@ jobs:
       - name: Publish both installers exclusively in the private source repository
         env:
           STOMNI_SOURCE_RELEASE_TOKEN: ${{ secrets.STOMNI_SOURCE_RELEASE_TOKEN }}
+          STOMNI_CI_FEED_TOKEN: ${{ github.token }}
         run: python scripts/qa_installers.py publish
       - name: Remove signing material
         if: always()

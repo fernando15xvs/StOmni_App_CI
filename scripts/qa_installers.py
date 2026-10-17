@@ -1,5 +1,6 @@
 """Build QA installers on CI; publish only to the private source repository."""
 import base64
+import datetime
 import hashlib
 import json
 import os
@@ -17,6 +18,7 @@ MIRROR = 'fernando15xvs/StOmni_App_CI'
 BRANCH = 'feature/saas-multitenant-foundation'
 QA_URL = 'https://iqooedpkihmzkmynsisl.supabase.co'
 VERSION = '2.0.1'
+FEED_BRANCH = 'qa-update-feed'
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / 'dist/qa'
 ANDROID = ROOT / 'packages/mobile_app/android'
@@ -185,6 +187,65 @@ def package():
     (DIST / 'SHA256SUMS.txt').write_text(checksums, encoding='utf-8')
 
 
+
+def release_feed(number, tag):
+    """Public version metadata only; never expose private credentials or binaries."""
+    require(re.fullmatch(r'saas-qa-[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-attempt-[1-9][0-9]*', tag),
+            'Invalid QA tag')
+    return {
+        'schema': 1, 'product': 'stomni-saas-qa',
+        'version': VERSION, 'build_number': number, 'release_tag': tag,
+        'assets': {
+            'android': f'StOmni-SaaS-QA-{VERSION}-{number}-android.apk',
+            'windows': f'StOmni-SaaS-QA-{VERSION}-{number}-windows-x64-setup.exe',
+        },
+    }
+
+
+def ci_api(path, payload=None, method=None, allow_missing=False):
+    """Use CI's own short-lived workflow token, never the private source PAT."""
+    token = os.environ['STOMNI_CI_FEED_TOKEN']
+    body = json.dumps(payload).encode() if payload is not None else None
+    req = urllib.request.Request('https://api.github.com' + path, data=body,
+        headers={'Authorization': 'Bearer ' + token,
+                 'Accept': 'application/vnd.github+json',
+                 'X-GitHub-Api-Version': '2022-11-28',
+                 'Content-Type': 'application/json'}, method=method)
+    try:
+        with urllib.request.urlopen(req, timeout=45) as response:
+            return json.load(response)
+    except urllib.error.HTTPError as error:
+        if allow_missing and error.code == 404:
+            return None
+        raise RuntimeError(f'CI update feed API failed: HTTP {error.code}') from None
+
+
+def publish_feed(number, tag):
+    """Metadata-only CI branch, separate from the sanitized source snapshot."""
+    require(os.environ['GITHUB_REPOSITORY'] == MIRROR, 'Update feed only from CI')
+    metadata = release_feed(number, tag)
+    # Create a dedicated branch if absent. GitHub Actions on the SaaS branch
+    # remain the only compilation entrypoint; this branch contains NO assets.
+    ref = ci_api(f'/repos/{MIRROR}/git/ref/heads/{FEED_BRANCH}', allow_missing=True)
+    if ref is None:
+        ci_api(f'/repos/{MIRROR}/git/refs',
+               {'ref': 'refs/heads/' + FEED_BRANCH, 'sha': os.environ['GITHUB_SHA']},
+               method='POST')
+    old = ci_api(f'/repos/{MIRROR}/contents/latest.json?ref={FEED_BRANCH}',
+                 allow_missing=True)
+    message = f'ci(updates): publish QA metadata {VERSION} build {number}'
+    body = {
+        'branch': FEED_BRANCH, 'message': message,
+        'content': base64.b64encode((json.dumps(metadata, sort_keys=True) + '\n').encode()).decode(),
+    }
+    if old is not None:
+        body['sha'] = old['sha']
+        # Never downgrade the public feed on a late rerun of an older build.
+        previous = json.loads(base64.b64decode(old['content']).decode())
+        require(int(previous.get('build_number', 0)) <= number, 'Refuse feed rollback')
+    ci_api(f'/repos/{MIRROR}/contents/latest.json', body, method='PUT')
+
+
 def publish():
     m, number = context()
     provenance(m)
@@ -218,6 +279,7 @@ def publish():
                     payload={'draft': False, 'prerelease': True, 'make_latest': 'false'}, method='PATCH')
     with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
         summary.write(f'Installers published only in [private source Releases]({published["html_url"]}).\n')
+    publish_feed(number, tag)
     print(published['html_url'])
 
 
