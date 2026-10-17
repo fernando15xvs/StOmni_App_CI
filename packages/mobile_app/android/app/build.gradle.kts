@@ -38,8 +38,8 @@ android {
     }
 
     defaultConfig {
-        // El applicationId definitivo se define antes de la primera distribución.
-        applicationId = "com.example.ferreteria_app"
+        // Identidad estable de QA SaaS, independiente del producto StOmni M.
+        applicationId = "com.stomni.saas.qa"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -71,3 +71,4 @@ android {
 flutter {
     source = "../.."
 }
+

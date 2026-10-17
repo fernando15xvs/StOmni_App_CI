@@ -25,8 +25,9 @@ void main() {
     expect(gitignore, contains('**/*.jks'));
   });
 
-  test('applicationId placeholder sigue marcado como pendiente', () {
-    expect(gradle, contains('applicationId = "com.example.ferreteria_app"'));
-    expect(gradle, contains('applicationId definitivo'));
+  test('applicationId QA queda separado del producto StOmni M', () {
+    expect(gradle, contains('applicationId = "com.stomni.saas.qa"'));
+    expect(gradle, isNot(contains('applicationId = "com.example.ferreteria_app"')));
   });
 }
+

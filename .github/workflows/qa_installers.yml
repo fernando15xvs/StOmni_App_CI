@@ -1,0 +1,82 @@
+name: StOmni QA installers to private source
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/saas-multitenant-foundation
+    paths:
+      - .github/saas-installers-trigger
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stomni-qa-installers
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    if: github.repository == 'fernando15xvs/StOmni_App_CI' && github.ref == 'refs/heads/feature/saas-multitenant-foundation'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate configuration without printing secrets
+        env:
+          STOMNI_QA_PUBLISHABLE_KEY: ${{ secrets.STOMNI_QA_PUBLISHABLE_KEY }}
+          STOMNI_ANDROID_KEYSTORE_BASE64: ${{ secrets.STOMNI_ANDROID_KEYSTORE_BASE64 }}
+          STOMNI_ANDROID_STORE_PASSWORD: ${{ secrets.STOMNI_ANDROID_STORE_PASSWORD }}
+          STOMNI_ANDROID_KEY_PASSWORD: ${{ secrets.STOMNI_ANDROID_KEY_PASSWORD }}
+          STOMNI_ANDROID_KEY_ALIAS: ${{ secrets.STOMNI_ANDROID_KEY_ALIAS }}
+          STOMNI_SOURCE_RELEASE_TOKEN: ${{ secrets.STOMNI_SOURCE_RELEASE_TOKEN }}
+        run: python scripts/qa_installers.py preflight
+      - name: Test installer publication policy
+        run: python -m unittest discover -s scripts/tests -p 'test_qa_installers.py' -v
+
+  validation:
+    needs: preflight
+    uses: ./.github/workflows/saas_full_validation.yml
+
+  installers:
+    needs: validation
+    runs-on: windows-2022
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.9'
+          channel: stable
+          cache: true
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Build signed Android APK and Windows application
+        env:
+          STOMNI_QA_PUBLISHABLE_KEY: ${{ secrets.STOMNI_QA_PUBLISHABLE_KEY }}
+          STOMNI_ANDROID_KEYSTORE_BASE64: ${{ secrets.STOMNI_ANDROID_KEYSTORE_BASE64 }}
+          STOMNI_ANDROID_STORE_PASSWORD: ${{ secrets.STOMNI_ANDROID_STORE_PASSWORD }}
+          STOMNI_ANDROID_KEY_PASSWORD: ${{ secrets.STOMNI_ANDROID_KEY_PASSWORD }}
+          STOMNI_ANDROID_KEY_ALIAS: ${{ secrets.STOMNI_ANDROID_KEY_ALIAS }}
+        run: python scripts/qa_installers.py build
+      - name: Package Windows setup and verify installation
+        run: python scripts/qa_installers.py package
+      - name: Publish both installers exclusively in the private source repository
+        env:
+          STOMNI_SOURCE_RELEASE_TOKEN: ${{ secrets.STOMNI_SOURCE_RELEASE_TOKEN }}
+        run: python scripts/qa_installers.py publish
+      - name: Remove signing material
+        if: always()
+        shell: pwsh
+        run: |
+          Remove-Item packages/mobile_app/android/key.properties -ErrorAction SilentlyContinue
+          Remove-Item packages/mobile_app/android/app/stomni-qa.jks -ErrorAction SilentlyContinue
+

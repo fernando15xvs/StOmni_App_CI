@@ -1,3 +1,15 @@
+## Descargar StOmni SaaS QA
+
+[**Abrir descargas de Android y Windows**](https://github.com/fernando15xvs/StOmni_App/releases)
+
+Las versiones de desarrollo se publican como pre-releases en el repositorio original privado.
+Se necesita una cuenta con acceso a `StOmni_App`. Si todavía no aparece una versión QA,
+la primera compilación y publicación está pendiente. Los instaladores no se alojan en CI.
+
+[Configuración y estado del flujo de instaladores](docs/saas/104_INSTALADORES_QA_GITHUB.md).
+
+---
+
 # 🏗️ Ferretería App
 
 Sistema integral de gestión comercial para ferreterías, desarrollado con Flutter y Supabase.
@@ -148,3 +160,4 @@ Luis Fernando Aguilar Chaponan
 ---
 
 **Última actualización**: 2026-07-27
+

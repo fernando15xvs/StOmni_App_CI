@@ -2,6 +2,7 @@ name: StOmni SaaS Full Validation
 
 on:
   workflow_dispatch:
+  workflow_call:
   push:
     branches:
       - feature/saas-multitenant-foundation
@@ -12,7 +13,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: saas-full-${{ github.ref }}
+  group: saas-full-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -24,6 +25,7 @@ env:
 jobs:
   t00-t02-static:
     name: T00-T02 static gates
+    if: github.repository == 'fernando15xvs/StOmni_App_CI'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -117,6 +119,9 @@ jobs:
           test -f docs/saas/101_AUDITORIA_FRONTERA_PLATAFORMAS_Y_WEB_FUTURA.md
           echo "Platform contract OK: mobile=Android/iOS, desktop=Windows/Linux/macOS, dedicated Web deferred."
 
+      - name: Installer publication policy tests
+        run: python -m unittest discover -s scripts/tests -p 'test_qa_installers.py' -v
+
       - name: T02 complete non-stop audit
         run: node scripts/run_saas_t02_ci.mjs
 
@@ -142,6 +147,7 @@ jobs:
 
   t03-t12-t14-t17-t18-backend:
     name: Automated backend validation
+    if: github.repository == 'fernando15xvs/StOmni_App_CI'
     runs-on: ubuntu-latest
     timeout-minutes: 105
     steps:
@@ -276,6 +282,7 @@ jobs:
 
   t01-t13-t15-mobile-android:
     name: Flutter core/mobile + Android
+    if: github.repository == 'fernando15xvs/StOmni_App_CI'
     runs-on: ubuntu-latest
     timeout-minutes: 70
     steps:
@@ -329,14 +336,10 @@ jobs:
         working-directory: packages/mobile_app
         run: flutter build apk --debug --dart-define=SUPABASE_URL=http://127.0.0.1:54321 --dart-define=SUPABASE_ANON_KEY=ci-local-placeholder
 
-      - name: Upload Android APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: mobile-android-build
-          path: packages/mobile_app/build/app/outputs/flutter-apk/app-debug.apk
 
   t13-t15-windows:
     name: Windows desktop validation
+    if: github.repository == 'fernando15xvs/StOmni_App_CI'
     runs-on: windows-latest
     timeout-minutes: 70
     steps:
@@ -369,14 +372,10 @@ jobs:
         working-directory: packages/desktop_app
         run: flutter build windows --release
 
-      - name: Upload Windows build
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-release
-          path: packages/desktop_app/build/windows/x64/runner/Release/**
 
   t15-linux:
     name: Linux desktop compile smoke
+    if: github.repository == 'fernando15xvs/StOmni_App_CI'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -420,6 +419,7 @@ jobs:
 
   macos-ios-smoke:
     name: macOS/iOS compile smoke
+    if: github.repository == 'fernando15xvs/StOmni_App_CI'
     runs-on: macos-latest
     timeout-minutes: 70
     steps:
@@ -461,7 +461,7 @@ jobs:
 
   validation-summary:
     name: CI candidate summary
-    if: always()
+    if: always() && github.repository == 'fernando15xvs/StOmni_App_CI'
     needs:
       - t00-t02-static
       - t03-t12-t14-t17-t18-backend
@@ -501,3 +501,4 @@ jobs:
           fi
           echo "CI CANDIDATE GREEN"
           echo "Local acceptance L00-L08 and T19 are still required. This workflow never deploys or merges."
+
