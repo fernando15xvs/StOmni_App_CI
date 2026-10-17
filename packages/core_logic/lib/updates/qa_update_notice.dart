@@ -39,8 +39,9 @@ class QaReleaseAnnouncement {
         build is! int ||
         build <= 0 ||
         tag is! String ||
-        !RegExp(r'^saas-qa-[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-attempt-[1-9][0-9]*$')
-            .hasMatch(tag) ||
+        !RegExp(
+          r'^saas-qa-[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-attempt-[1-9][0-9]*$',
+        ).hasMatch(tag) ||
         !tag.startsWith('saas-qa-$version-$build-attempt-') ||
         assets is! Map<String, dynamic>) {
       throw const FormatException('Invalid QA version announcement');
@@ -64,9 +65,9 @@ class QaReleaseAnnouncement {
   /// The authenticated browser handles access to this *private* release.
   /// No public URL and no credentials are accepted from the announcement.
   Uri get releaseUri => Uri.https(
-        'github.com',
-        '/fernando15xvs/StOmni_App/releases/tag/$releaseTag',
-      );
+    'github.com',
+    '/fernando15xvs/StOmni_App/releases/tag/$releaseTag',
+  );
 }
 
 class QaUpdateChecker {
@@ -179,10 +180,7 @@ class _QaUpdateNoticeState extends State<QaUpdateNotice> {
           onPressed: () => setState(() => _dismissed = true),
           child: const Text('Después'),
         ),
-        TextButton(
-          onPressed: _open,
-          child: const Text('Ver actualización'),
-        ),
+        TextButton(onPressed: _open, child: const Text('Ver actualización')),
       ],
     );
   }

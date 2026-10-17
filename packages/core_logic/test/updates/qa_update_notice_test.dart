@@ -61,10 +61,9 @@ void main() {
     final client = MockClient(
       (request) async => http.Response('unavailable', 503),
     );
-    final result = await QaUpdateChecker(client: client).check(
-      platform: QaUpdatePlatform.android,
-      installedBuild: 10001,
-    );
+    final result = await QaUpdateChecker(
+      client: client,
+    ).check(platform: QaUpdatePlatform.android, installedBuild: 10001);
     expect(result, isNull);
     client.close();
   });
@@ -75,10 +74,9 @@ void main() {
       expect(request.headers.containsKey('authorization'), isFalse);
       return http.Response(releaseJson, 200);
     });
-    final result = await QaUpdateChecker(client: client).check(
-      platform: QaUpdatePlatform.android,
-      installedBuild: 10001,
-    );
+    final result = await QaUpdateChecker(
+      client: client,
+    ).check(platform: QaUpdatePlatform.android, installedBuild: 10001);
     expect(result?.buildNumber, 10002);
     client.close();
   });
