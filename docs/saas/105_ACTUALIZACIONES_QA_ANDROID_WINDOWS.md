@@ -48,3 +48,11 @@ mismo packageName y keystore para instalar por encima y retener datos.
 4. Abrir el enlace, autenticar en GitHub, descargar e instalar la actualización.
 5. Reiniciar y confirmar que deja de aparecer el aviso y que los datos sobreviven.
 6. Probar sin conexión: Home permanece utilizable y no aparece un bloqueo.
+
+## Separación de capas
+
+La lectura HTTP, validación estricta de metadatos y comparación del build pertenecen
+al módulo puro `core_logic/lib/updates`. Los widgets, `PackageInfo` y
+`url_launcher` se implementan por separado en `mobile_app` y `desktop_app`.
+El núcleo nunca importa Flutter UI ni plugins de sistema, respetando el gate
+`core_layer_boundaries_test.dart`.

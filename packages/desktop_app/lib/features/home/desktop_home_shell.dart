@@ -19,6 +19,7 @@ import '../services/desktop_services_panel.dart';
 import '../settings/desktop_business_modules_panel.dart';
 import '../suppliers/desktop_suppliers_panel.dart';
 import '../traceability/desktop_traceability_config_panel.dart';
+import '../updates/qa_update_notice.dart';
 import 'desktop_dashboard_panel.dart';
 
 class DesktopHomeShell extends ConsumerStatefulWidget {

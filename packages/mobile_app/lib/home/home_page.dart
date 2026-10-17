@@ -14,6 +14,7 @@ import '../features/precios/pages/precios_promociones_page.dart';
 import '../features/servicios/pages/servicios_page.dart';
 import '../features/trazabilidad/pages/trazabilidad_config_page.dart';
 import '../features/variantes/pages/variantes_page.dart';
+import '../updates/qa_update_notice.dart';
 import 'controllers/home_controller.dart';
 import 'home_notifier.dart';
 import 'widgets/custom_bottom_nav.dart';
