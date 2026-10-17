@@ -2,12 +2,14 @@
 
 Decisión del propietario, 2026-10-17:
 
+StOmni SaaS mantiene **dos interfaces independientes**: `packages/mobile_app` (Android/iOS) y `packages/desktop_app` (Windows/Linux/macOS), con `packages/core_logic` compartido. En esta fase QA se distribuyen el APK Android y el instalador Windows.
+
 - Fuente original privada: `fernando15xvs/StOmni_App`.
 - Rama SaaS: `feature/saas-multitenant-foundation`.
 - Ejecutar Actions exclusivamente en `fernando15xvs/StOmni_App_CI`.
 - Publicar APK y setup EXE exclusivamente en **Releases del original privado**.
 - Backend QA: `https://iqooedpkihmzkmynsisl.supabase.co` (`StOmniApp`).
-- `App_StOmni_M` es otro producto. No sincronizarlo ni usar su backend/firma.
+- Este flujo corresponde **únicamente a StOmni App SaaS**. No incorporar ramas, código, backend ni firmas de productos ajenos.
 
 ## Acceso a las descargas
 
@@ -62,7 +64,7 @@ un cambio explícito nuevo en el espejo. No añadir ese disparador al original.
 
 ## Identidad y versiones
 
-- Android QA: `com.stomni.saas.qa`, independiente de StOmni M.
+- Android QA: `com.stomni.saas.qa`, identidad propia y estable del cliente SaaS.
 - Namespace Kotlin sin cambios.
 - Windows QA: AppId fijo `{F455C916-8664-42BB-B357-4C51DD97F282}`;
   instalación por usuario en `Programs/StOmni SaaS QA`.

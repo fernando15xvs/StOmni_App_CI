@@ -1,163 +1,65 @@
-## Descargar StOmni SaaS QA
+# StOmni App — SaaS (desarrollo)
 
-[**Abrir descargas de Android y Windows**](https://github.com/fernando15xvs/StOmni_App/releases)
+Aplicación de gestión comercial multiempresa con **dos interfaces Flutter independientes** que comparten lógica de negocio y backend Supabase.
 
-Las versiones de desarrollo se publican como pre-releases en el repositorio original privado.
-Se necesita una cuenta con acceso a `StOmni_App`. Si todavía no aparece una versión QA,
-la primera compilación y publicación está pendiente. Los instaladores no se alojan en CI.
+| Interfaz | Paquete | Plataformas |
+| --- | --- | --- |
+| Móvil | `packages/mobile_app` | Android e iOS |
+| Escritorio | `packages/desktop_app` | Windows, Linux y macOS |
+| Lógica compartida | `packages/core_logic` | Modelos, servicios y reglas reutilizados por ambos clientes |
 
-[Configuración y estado del flujo de instaladores](docs/saas/104_INSTALADORES_QA_GITHUB.md).
+**No hay un cliente web publicable actualmente**. Una futura interfaz web se desarrollaría por separado; no se debe compilar la interfaz móvil como sitio web.
 
----
+## Descargar instaladores de pruebas
 
-# 🏗️ Ferretería App
+[**Releases de StOmni App (repositorio privado)**](https://github.com/fernando15xvs/StOmni_App/releases)
 
-Sistema integral de gestión comercial para ferreterías, desarrollado con Flutter y Supabase.
+Cuando se complete la primera publicación QA, allí estarán:
 
-## 📋 Características Principales
+- **Android:** APK firmado, generado desde la interfaz de `mobile_app`.
+- **Windows:** instalador `.exe` (x64), generado desde la interfaz de `desktop_app`.
+- Sumas SHA-256 e información pública de la firma Android.
 
-### 🛒 Gestión de Ventas
-- Cotizaciones y notas de venta
-- Generación de PDFs automáticos
-- Gestión de clientes y cuentas por cobrar
-- Historial de transacciones
+Se requiere acceso al repositorio privado. Una compilación de CI aprobada **no** significa que los instaladores ya estén publicados. Por ahora el objetivo son instaladores de desarrollo, no lanzamientos comerciales.
 
-### 📦 Gestión de Inventario
-- Control de stock en tiempo real
-- Movimientos y kardex
-- Alertas de bajo stock
-- Gestión de múltiples almacenes
-- Reportes de inventario
+[Guía de compilación y publicación QA](docs/saas/104_INSTALADORES_QA_GITHUB.md).
 
-### 👥 Gestión de Empleados
-- Control de nómina y pagos
-- Historial de pagos
-- Asignación de roles y permisos
-- Perfil de usuario
+## Repositorios y validación
 
-### 📊 Reportes y Análisis
-- Reportes de ventas y gastos
-- Balance y caja chica
-- Exportación a PDF y Excel
-- Gráficos de tendencias
-- Dashboard interactivo
+- **Fuente de verdad:** `fernando15xvs/StOmni_App`, rama `feature/saas-multitenant-foundation`.
+- **Espejo para GitHub Actions:** `fernando15xvs/StOmni_App_CI`, rama con el mismo nombre.
+- No desarrollar directamente en el espejo. No ejecutar Actions en el original.
+- Las pruebas y compilaciones se ejecutan en el espejo; los instaladores se publican **exclusivamente** en Releases del original.
+- Backend de pruebas: proyecto Supabase `StOmniApp`, ref `iqooedpkihmzkmynsisl`. No confundir QA con producción.
 
-### 💰 Gestión Financiera
-- Registro de gastos
-- Cuentas por pagar a proveedores
-- Cierre de caja
-- Balance general
+## Ejecutar durante el desarrollo
 
-## 🔐 Seguridad
+Instalar Flutter compatible con el proyecto y obtener las dependencias desde la raíz:
 
-- Autenticación con Supabase
-- Control de roles (Admin, Vendedor, Empleado)
-- Sincronización en tiempo real
-- Soporte offline con LocalStorage
-
-## 🛠️ Stack Tecnológico
-
-- **Frontend**: Flutter 3.x
-- **Backend**: Supabase (PostgreSQL)
-- **State Management**: Riverpod
-- **PDF Generation**: pdf package
-- **Charts**: fl_chart
-- **Data Export**: Excel package
-
-## 📱 Plataformas Soportadas
-
-- Android
-- iOS
-- Web
-- Windows
-- macOS
-- Linux
-
-## 🚀 Instalación
-
-### Requisitos Previos
-```bash
-- Flutter SDK 3.x o superior
-- Dart 3.x o superior
-- Git
-```
-
-### Pasos de Instalación
-
-1. Clonar el repositorio
-```bash
-git clone https://github.com/usuario/ferreteria_app.git
-cd ferreteria_app
-```
-
-2. Instalar dependencias
 ```bash
 flutter pub get
 ```
 
-3. Configurar Supabase
-- Crear proyecto en [supabase.com](https://supabase.com)
-- Actualizar credenciales en `lib/main.dart`
+Luego, desde el paquete correspondiente, ejecutar Flutter en el destino elegido:
 
-4. Ejecutar la aplicación
 ```bash
-flutter run
+cd packages/mobile_app
+flutter run -d <dispositivo-android-o-ios> --dart-define=SUPABASE_URL=<url-qa> --dart-define=SUPABASE_ANON_KEY=<clave-publicable-qa>
 ```
 
-## 📝 Estructura del Proyecto
+Para escritorio, regresar a la raíz y cambiar al paquete `packages/desktop_app`:
 
-```
-lib/
-├── auth/                 # Autenticación y login
-├── core/                 # Servicios y utilidades
-│   ├── services/         # Supabase, PDF, Excel
-│   ├── theme/            # Colores y estilos
-│   └── utils/            # Helpers y formatos
-├── features/             # Módulos funcionales
-│   ├── almacen/          # Inventario
-│   ├── balance/          # Caja y finanzas
-│   ├── empleados/        # Gestión de personal
-│   ├── ventas/           # Ventas y cotizaciones
-│   ├── reportes/         # Reportes
-│   ├── deudas/           # Cuentas por cobrar
-│   └── kardex/           # Kardex de inventario
-├── home/                 # Dashboard principal
-├── splash/               # Pantalla de inicio
-└── main.dart             # Punto de entrada
+```bash
+flutter run -d windows --dart-define=SUPABASE_URL=<url-qa> --dart-define=SUPABASE_ANON_KEY=<clave-publicable-qa>
 ```
 
-## 📚 Documentación
+Los valores deben proceder del entorno de QA. No añadir contraseñas, claves privadas, `service_role` ni archivos de firma al repositorio.
 
-Ver carpeta `docs/` para:
-- Arquitectura del proyecto
-- Flujos de datos
-- Guía de desarrollo
-- Auditoría del código
+## Documentación
 
-## 🐛 Problemas Conocidos
+- [Auditoría de continuidad QA](docs/saas/103_AUDITORIA_MAESTRA_CONTINUIDAD_QA_20260929.md)
+- [Mapa maestro de pruebas](docs/saas/99_MAPA_MAESTRO_PRUEBAS_SAAS.md)
+- [Separación de clientes y límites de plataformas](docs/saas/101_AUDITORIA_FRONTERA_PLATAFORMAS_Y_WEB_FUTURA.md)
+- [Instaladores de desarrollo](docs/saas/104_INSTALADORES_QA_GITHUB.md)
 
-- Sincronización con Supabase puede retrasar con conexión lenta
-- Reportes grandes pueden tardar en generar
-
-## 🤝 Contribuciones
-
-1. Fork el proyecto
-2. Crear rama de feature (`git checkout -b feature/AmazingFeature`)
-3. Commit cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abrir Pull Request
-
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT - ver `LICENSE` para más detalles.
-
-## 📧 Contacto
-
-Luis Fernando Aguilar Chaponan
-- Email: luisfernandoaguilarchaponan@gmail.com
-- GitHub: [@usuario](https://github.com/usuario)
-
----
-
-**Última actualización**: 2026-07-27
-
+No desplegar migraciones ni Edge Functions desde el flujo de compilación de instaladores.

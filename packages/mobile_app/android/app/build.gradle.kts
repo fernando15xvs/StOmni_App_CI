@@ -38,7 +38,7 @@ android {
     }
 
     defaultConfig {
-        // Identidad estable de QA SaaS, independiente del producto StOmni M.
+        // Identidad estable de la app móvil StOmni SaaS para pruebas QA.
         applicationId = "com.stomni.saas.qa"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion

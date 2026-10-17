@@ -35,9 +35,20 @@ class InstallerPolicyTests(unittest.TestCase):
                 qa.context({**self.env, key: value}, self.manifest)
 
     def test_reject_invalid_provenance(self):
-        for key, value in [('source_repository', qa.MIRROR), ('source_branch', 'App_StOmni_M'), ('source_sha', 'main')]:
+        for key, value in [('source_repository', qa.MIRROR), ('source_branch', 'branch-outside-saas'), ('source_sha', 'main')]:
             with self.subTest(key=key), self.assertRaises(RuntimeError):
                 qa.context(self.env, {**self.manifest, key: value})
+
+    def test_mobile_and_desktop_entrypoints_are_distinct(self):
+        root = Path(__file__).resolve().parents[2]
+        self.assertTrue((root / 'packages/mobile_app/lib/main.dart').is_file())
+        self.assertTrue((root / 'packages/desktop_app/lib/main.dart').is_file())
+        self.assertTrue((root / 'packages/mobile_app/android').is_dir())
+        self.assertTrue((root / 'packages/mobile_app/ios').is_dir())
+        self.assertTrue((root / 'packages/desktop_app/windows').is_dir())
+        self.assertTrue((root / 'packages/desktop_app/linux').is_dir())
+        self.assertTrue((root / 'packages/desktop_app/macos').is_dir())
+        self.assertFalse((root / 'packages/mobile_app/web').exists())
 
     def test_reject_windows_version_overflow(self):
         with self.assertRaises(RuntimeError):
