@@ -5,7 +5,7 @@
   "synchronized_at_utc": "2026-10-17T16:25:52.251Z",
   "sync_mode": "git-tree-api-mirror",
   "bootstrap_path": "supabase/migrations/20260822052116_bootstrap_public_schema.sql",
-  "bootstrap_sha256_checkout": "c6421682c5a64ee026d864483315c32d6e814b595fa91dfde527699236ad31ed",
+  "bootstrap_sha256_checkout": "c6421682c5a64ee026d864483315c32e6e814b595fa91dfde527699236ad31ed",
   "bootstrap_identity_kind": "canonical-git-lf",
   "actions_trigger_requested": true
 }
