@@ -1,2 +1,3 @@
 source_sha=d4bc210427c6db6553883e145423ae2438c5b5ac
-triggered_at_utc=2026-10-17T16:25:52.251Z
+triggered_at_utc=2026-10-17T16:26:41.750Z
+reason=validate-fixed-snapshot-manifest
