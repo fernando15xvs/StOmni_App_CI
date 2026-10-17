@@ -27,7 +27,9 @@ void main() {
 
   test('applicationId QA queda separado del producto StOmni M', () {
     expect(gradle, contains('applicationId = "com.stomni.saas.qa"'));
-    expect(gradle, isNot(contains('applicationId = "com.example.ferreteria_app"')));
+    expect(
+      gradle,
+      isNot(contains('applicationId = "com.example.ferreteria_app"')),
+    );
   });
 }
-
