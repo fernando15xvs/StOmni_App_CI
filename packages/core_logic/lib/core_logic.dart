@@ -1,5 +1,6 @@
-export 'updates/qa_update_notice.dart';
 library core_logic;
+
+export 'updates/qa_update_notice.dart';
 
 export 'documents/domain/generated_document.dart';
 export 'services/notification_controller.dart';

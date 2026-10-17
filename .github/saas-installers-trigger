@@ -1,3 +1,3 @@
-source_sha=b1706d7f7fa6ca674fd00dee7a5afcf3e8281244
+source_sha=723ecc41e390319e43edb61b1c796aa246debc33
 requested=2026-10-17
-purpose=qa-update-notice-android-windows
+purpose=qa-update-notice-desktop-plugin-fix

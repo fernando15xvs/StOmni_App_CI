@@ -208,24 +208,25 @@ class _HomePageState extends ConsumerState<HomePage> {
       body: Column(
         children: [
           const QaUpdateNotice(platform: QaUpdatePlatform.android),
-          Expanded(child: NotificationListener<UserScrollNotification>(
-        onNotification: (notification) {
-          if (notification.direction == ScrollDirection.forward) {
-            if (!_isFabVisible) setState(() => _isFabVisible = true);
-          } else if (notification.direction == ScrollDirection.reverse) {
-            if (_isFabVisible) setState(() => _isFabVisible = false);
-          }
-          return false;
-        },
-        child: IndexedStack(
-          index: currentIndex.clamp(0, _pestanas.length - 1).toInt(),
-          children: List.generate(4, (index) {
-            return _paginasVisitadas[index]
-                ? _pestanas[index]
-                : const SizedBox.shrink();
-          }),
-        ),
-      ),
+          Expanded(
+            child: NotificationListener<UserScrollNotification>(
+              onNotification: (notification) {
+                if (notification.direction == ScrollDirection.forward) {
+                  if (!_isFabVisible) setState(() => _isFabVisible = true);
+                } else if (notification.direction == ScrollDirection.reverse) {
+                  if (_isFabVisible) setState(() => _isFabVisible = false);
+                }
+                return false;
+              },
+              child: IndexedStack(
+                index: currentIndex.clamp(0, _pestanas.length - 1).toInt(),
+                children: List.generate(4, (index) {
+                  return _paginasVisitadas[index]
+                      ? _pestanas[index]
+                      : const SizedBox.shrink();
+                }),
+              ),
+            ),
           ),
         ],
       ),

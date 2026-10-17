@@ -19,14 +19,20 @@ const releaseJson = '''
 
 void main() {
   test('Android checks only strictly newer QA builds', () {
-    final release = QaReleaseAnnouncement.parse(releaseJson, QaUpdatePlatform.android);
+    final release = QaReleaseAnnouncement.parse(
+      releaseJson,
+      QaUpdatePlatform.android,
+    );
     expect(release.newerThan(10001), isTrue);
     expect(release.newerThan(10002), isFalse);
     expect(release.newerThan(10003), isFalse);
   });
 
   test('Windows opens only a source-private GitHub release', () {
-    final release = QaReleaseAnnouncement.parse(releaseJson, QaUpdatePlatform.windows);
+    final release = QaReleaseAnnouncement.parse(
+      releaseJson,
+      QaUpdatePlatform.windows,
+    );
     expect(
       release.releaseUri.toString(),
       'https://github.com/fernando15xvs/StOmni_App/releases/tag/'
@@ -52,7 +58,9 @@ void main() {
   });
 
   test('HTTP failures never block application', () async {
-    final client = MockClient((request) async => http.Response('unavailable', 503));
+    final client = MockClient(
+      (request) async => http.Response('unavailable', 503),
+    );
     final result = await QaUpdateChecker(client: client).check(
       platform: QaUpdatePlatform.android,
       installedBuild: 10001,

@@ -20,7 +20,10 @@ class QaReleaseAnnouncement {
   final int buildNumber;
   final String releaseTag;
 
-  static QaReleaseAnnouncement parse(String jsonText, QaUpdatePlatform platform) {
+  static QaReleaseAnnouncement parse(
+    String jsonText,
+    QaUpdatePlatform platform,
+  ) {
     final data = jsonDecode(jsonText);
     if (data is! Map<String, dynamic> ||
         data['schema'] != 1 ||
@@ -49,7 +52,11 @@ class QaReleaseAnnouncement {
     if (asset != expected) {
       throw const FormatException('Missing or inconsistent platform installer');
     }
-    return QaReleaseAnnouncement(version: version, buildNumber: build, releaseTag: tag);
+    return QaReleaseAnnouncement(
+      version: version,
+      buildNumber: build,
+      releaseTag: tag,
+    );
   }
 
   bool newerThan(int installedBuild) => buildNumber > installedBuild;
@@ -77,8 +84,9 @@ class QaUpdateChecker {
     final ownClient = _client == null;
     final client = _client ?? http.Client();
     try {
-      final response =
-          await client.get(Uri.parse(feedUri)).timeout(const Duration(seconds: 8));
+      final response = await client
+          .get(Uri.parse(feedUri))
+          .timeout(const Duration(seconds: 8));
       if (response.statusCode != 200 || response.bodyBytes.length > 8192) {
         return null;
       }
@@ -146,7 +154,9 @@ class _QaUpdateNoticeState extends State<QaUpdateNotice> {
       if (!mounted) return;
     }
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('No se pudo abrir GitHub. Comprueba tu navegador.')),
+      const SnackBar(
+        content: Text('No se pudo abrir GitHub. Comprueba tu navegador.'),
+      ),
     );
   }
 
@@ -154,7 +164,9 @@ class _QaUpdateNoticeState extends State<QaUpdateNotice> {
   Widget build(BuildContext context) {
     final update = _available;
     if (_dismissed || update == null) return const SizedBox.shrink();
-    final kind = widget.platform == QaUpdatePlatform.android ? 'Android' : 'Windows';
+    final kind = widget.platform == QaUpdatePlatform.android
+        ? 'Android'
+        : 'Windows';
     return MaterialBanner(
       leading: const Icon(Icons.system_update_alt_outlined),
       content: Text(
