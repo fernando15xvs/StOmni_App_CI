@@ -45,14 +45,17 @@ function verify(sources) {
   need(errors, mobileHome, /BusinessModulePolicy\.isEnabled\(/i, 'mobile gestión usa política compartida');
   need(errors, mobileHome, /'modules'\s*=>\s*const ModulosNegocioPage\(\)/i, 'mobile mantiene configuración de módulos alcanzable');
   need(errors, mobileHome, /if \(destination == 'modules'\) await _loadBusinessProfile\(\)/i, 'mobile refresca perfil al volver de configuración');
-  need(errors, mobileHome, /if \(!profile\.capabilities\.inventoryEnabled && current >= 2\)[\s\S]{0,120}?state = 0/i, 'mobile expulsa tab inventario al deshabilitarse');
+  need(errors, mobileHome, /if \(!profile\.capabilities\.inventoryEnabled && \(current == 2 \|\| current == 4\)\)[\s\S]{0,130}?state = 0/i, 'mobile expulsa inventario y traslados cuando inventoryEnabled=false');
   need(errors, mobileHome, /inventoryEnabled:\s*inventoryEnabled/i, 'mobile propaga inventoryEnabled a navegación principal');
 
   need(errors, mobileNav, /final bool inventoryEnabled;/i, 'bottom nav recibe capability de inventario');
-  need(errors, mobileNav, /List<_HomeNavItem> get _items[\s\S]{0,320}?if \(inventoryEnabled\)[\s\S]{0,180}?Almacén[\s\S]{0,180}?Movimientos/i, 'bottom nav construye tabs visibles desde capability');
-  need(errors, mobileNav, /final items = _items;/i, 'bottom nav usa lista dinámica');
-  need(errors, mobileNav, /width\s*\/\s*items\.length/i, 'hit-testing usa cantidad visible');
-  need(errors, mobileNav, /clamp\(\s*0,\s*items\.length - 1,?\s*\)/i, 'drag clamp usa cantidad visible');
+  need(errors, mobileNav, /final items = \[/i, 'bottom nav mantiene colección dinámica');
+  need(errors, mobileNav, /const _NavItem\(0,[\s\S]{0,80}?'Inicio'\)/i, 'bottom nav Inicio estable');
+  need(errors, mobileNav, /const _NavItem\(1,[\s\S]{0,100}?'Balance'\)/i, 'bottom nav Balance estable');
+  need(errors, mobileNav, /if \(inventoryEnabled\)\s*const _NavItem\(2,[\s\S]{0,100}?'Inventario'\)/i, 'bottom nav oculta inventario sin capability');
+  need(errors, mobileNav, /const _NavItem\(3,[\s\S]{0,100}?'Centro'\)/i, 'bottom nav incluye Centro disponible');
+  need(errors, mobileNav, /if \(inventoryEnabled\)\s*const _NavItem\(4,[\s\S]{0,100}?'Movimientos'\)/i, 'bottom nav oculta traslados sin inventario');
+  need(errors, mobileNav, /homeTabProvider\.notifier\)\.state\s*=\s*item\.index/i, 'navigation usa clave estable, no posición visible');
   need(errors, mobileNav, /for \(final item in items\)/i, 'render usa tabs visibles');
 
   need(errors, mobileSettings, /updateBusinessCapabilitiesUseCaseProvider/i, 'mobile configura capacidades vía use case');
@@ -83,6 +86,8 @@ function selfTest() {
     ['desktop índice fijo', { ...base, desktopShell: `${base.desktopShell}\nswitch (_selectedIndex) {}` }, true],
     ['mobile sin política', { ...base, mobileHome: base.mobileHome.replaceAll('BusinessModulePolicy.isEnabled', 'removedPolicy') }, true],
     ['nav cuatro tabs fijo', { ...base, mobileNav: `${base.mobileNav}\nfinal tabWidth = width / 4; final x = 0.clamp(0, 3);` }, true],
+    ['nav sin capacidad', { ...base, mobileNav: base.mobileNav.replaceAll('if (inventoryEnabled)', 'if (true)') }, true],
+    ['nav sin centro', { ...base, mobileNav: base.mobileNav.replaceAll("'Centro'", "'Otro'") }, true],
     ['sin settings estable', { ...base, policy: base.policy.replaceAll('BusinessModule.moduleSettings', 'BusinessModule.dashboard') }, true],
   ];
   const failed = [];

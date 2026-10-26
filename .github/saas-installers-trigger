@@ -1,3 +1,3 @@
-source_sha=c52d145e0782503a59a4be2eee392d1da2175f63
-requested=2026-10-26T17:04:53.029Z
-purpose=mobile-ci-dart-format-and-type-fixes
+source_sha=6e456a62ee03807c14164ebaeae96b40de31122b
+requested=2026-10-26T17:08:28.372Z
+purpose=validate-five-tab-capabilities-static-gate
