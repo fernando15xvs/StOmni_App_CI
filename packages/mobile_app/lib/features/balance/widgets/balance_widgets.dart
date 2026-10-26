@@ -23,109 +23,65 @@ class BalanceResumenCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const colorRojo = Color(0xFFD32F2F);
-    final Color primaryColor = Theme.of(context).brightness == Brightness.dark
-        ? Colors.greenAccent
-        : Theme.of(context).colorScheme.primary;
-
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
+    final negative = const Color(0xFFE65A60);
     return Container(
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 20,
-        left: 16,
-        right: 16,
-        bottom: 20,
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.black, AppColors.primary],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(35)),
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.6)),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "BALANCE NETO",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                    Text(
-                      AppFormatters.currency(balance),
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w900,
-                        color: balance >= 0 ? primaryColor : colorRojo,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 15),
-                const Divider(height: 1, color: Colors.black12),
-                const SizedBox(height: 15),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _InfoBox(
-                        label: "Ingresos",
-                        valor: ingresos,
-                        icon: Icons.arrow_circle_up_rounded,
-                        color: primaryColor,
-                      ),
-                    ),
-                    Container(width: 1, height: 40, color: Colors.grey[200]),
-                    Expanded(
-                      child: _InfoBox(
-                        label: "Egresos",
-                        valor: egresos,
-                        icon: Icons.arrow_circle_down_rounded,
-                        color: Colors.red,
-                      ),
-                    ),
-                    if (descuentos > 0) ...[
-                      Container(width: 1, height: 40, color: Colors.grey[200]),
-                      Expanded(
-                        child: _InfoBox(
-                          label: "Descuentos",
-                          valor: descuentos,
-                          icon: Icons.loyalty_rounded,
-                          color: Colors.orange,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  height: 30,
-                  child: OutlinedButton(
-                    onPressed: onVerDetalle,
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide.none,
-                      foregroundColor: primaryColor,
-                    ),
-                    child: Text(
-                      "Ver Reporte >",
-                      style: TextStyle(fontSize: 12, color: primaryColor),
-                    ),
-                  ),
-                ),
-              ],
+          Text('BALANCE NETO',
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant)),
+          const SizedBox(height: 6),
+          Text(AppFormatters.currency(balance),
+            style: theme.textTheme.headlineLarge?.copyWith(
+              fontWeight: FontWeight.w900,
+              color: balance < 0 ? negative : theme.colorScheme.onSurface)),
+          const SizedBox(height: 18),
+          const Divider(),
+          const SizedBox(height: 16),
+          Row(children: [
+            Expanded(child: _InfoBox(
+              label: 'Ingresos',
+              valor: ingresos,
+              icon: Icons.arrow_circle_up_outlined,
+              color: primary,
+            )),
+            SizedBox(height: 56, child: VerticalDivider(
+              color: theme.colorScheme.outline)),
+            Expanded(child: _InfoBox(
+              label: 'Egresos',
+              valor: egresos,
+              icon: Icons.arrow_circle_down_outlined,
+              color: negative,
+            )),
+          ]),
+          if (descuentos > 0) ...[
+            const SizedBox(height: 10),
+            Text('Descuentos: ${AppFormatters.currency(descuentos)}'),
+          ],
+          const SizedBox(height: 12),
+          const Divider(),
+          InkWell(
+            onTap: onVerDetalle,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(children: [
+                Icon(Icons.bar_chart_outlined, color: primary),
+                const SizedBox(width: 12),
+                const Expanded(child: Text('Ver reporte',
+                  style: TextStyle(fontWeight: FontWeight.w700))),
+                const Icon(Icons.chevron_right_rounded),
+              ]),
             ),
           ),
         ],
@@ -192,9 +148,7 @@ class BalanceTabsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color primaryColor = Theme.of(context).brightness == Brightness.dark
-        ? Colors.greenAccent
-        : Theme.of(context).colorScheme.primary;
+    final Color primaryColor = Theme.of(context).colorScheme.primary;
 
     return Container(
       height: 48,

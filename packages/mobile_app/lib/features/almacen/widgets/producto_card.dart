@@ -46,14 +46,16 @@ class ProductoCardMobile extends StatelessWidget {
         Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
 
     final primaryTexto = Theme.of(context).brightness == Brightness.dark
-        ? Colors.greenAccent
+        ? Theme.of(context).colorScheme.primary
         : Theme.of(context).colorScheme.primary;
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: stockBajo ? Border.all(color: Colors.orange, width: 1.5) : null,
+        border: Border.all(
+          color: stockBajo ? Colors.orange : Theme.of(context).colorScheme.outline.withValues(alpha: 0.55),
+        ),
         boxShadow: Theme.of(context).brightness == Brightness.dark
             ? []
             : [
@@ -235,7 +237,7 @@ class ProductoCardDesktop extends StatelessWidget {
         Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
 
     final primaryTexto = Theme.of(context).brightness == Brightness.dark
-        ? Colors.greenAccent
+        ? Theme.of(context).colorScheme.primary
         : Theme.of(context).colorScheme.primary;
     return Container(
       decoration: BoxDecoration(

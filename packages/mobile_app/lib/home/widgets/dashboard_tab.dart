@@ -58,7 +58,6 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
   bool _resumenDisponible = true;
 
   int _diasFiltroGrafico = 7;
-  int _diasFiltroGraficoEgresos = 7;
 
   @override
   void initState() {
@@ -106,11 +105,6 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
         ref.invalidate(
           graficoTendenciaProvider(
             TendenciaRequest('ingreso', _diasFiltroGrafico),
-          ),
-        );
-        ref.invalidate(
-          graficoTendenciaProvider(
-            TendenciaRequest('egreso', _diasFiltroGraficoEgresos),
           ),
         );
       } catch (e) {
@@ -275,8 +269,8 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
                     DashboardModuloItem(
                       icon: Icons.settings_rounded,
                       color: Colors.blueGrey,
-                      titulo: "Configuración Local",
-                      subtitulo: "Tema y inicio",
+                      titulo: "Apariencia",
+                      subtitulo: "Tema, color y personalización",
                       onTap: () {
                         Navigator.pop(ctx);
                         _navTo(const PreferenciasPage());
@@ -387,238 +381,171 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
   }
 
   Widget _buildDashboardContent(BusinessBranding? branding) {
-    final hora = AppTime.now().hour;
-    String saludoCompleto = hora < 12
+    final theme = Theme.of(context);
+    final accent = colorPrincipal;
+    final now = AppTime.now();
+    final greeting = now.hour < 12
         ? 'Buenos días'
-        : (hora < 19 ? 'Buenas tardes' : 'Buenas noches');
-    final anchoPantalla = MediaQuery.of(context).size.width;
-    final esCelular = anchoPantalla < 600;
-
-    final TextStyle estiloTituloSeccion = TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.w800,
-      color: colorTextoOscuro,
-    );
+        : (now.hour < 19 ? 'Buenas tardes' : 'Buenas noches');
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: CustomScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        slivers: [
-          SliverToBoxAdapter(
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  height: 160,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.black, colorPrincipal],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: const BorderRadius.vertical(
-                      bottom: Radius.circular(35),
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: SafeArea(
+        bottom: false,
+        child: RefreshIndicator(
+          onRefresh: () => _cargarTodosLosDatos(isSilent: true),
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 18, 16, 140),
+            children: [
+              Row(
+                children: [
+                  _TenantBrandLogo(branding: branding, size: 30),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      branding?.effectiveDisplayName ??
+                          BusinessBranding.fallbackDisplayName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800),
                     ),
                   ),
+                  IconButton(
+                    tooltip: 'Más herramientas',
+                    onPressed: () => _mostrarMenuAcciones(context),
+                    icon: const Icon(Icons.more_horiz_rounded),
+                  ),
+                  IconButton(
+                    tooltip: 'Perfil',
+                    onPressed: () => _navTo(const PerfilPage()),
+                    icon: const Icon(Icons.account_circle_outlined),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: theme.cardColor,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(
+                    color: theme.colorScheme.outline.withValues(alpha: 0.55)),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 60, left: 24, right: 24),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                _TenantBrandLogo(branding: branding, size: 32),
-                                const SizedBox(width: 9),
-                                Expanded(
-                                  child: Text(
-                                    branding?.effectiveDisplayName ??
-                                        BusinessBranding.fallbackDisplayName,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.88,
-                                      ),
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 7),
-                            Text(
-                              "$saludoCompleto,",
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.85),
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              _nombreUsuario,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 26,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                          ],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      MaterialLocalizations.of(context).formatMediumDate(now),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant),
+                    ),
+                    const SizedBox(height: 6),
+                    Text('$greeting 👋',
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 4),
+                    Text(_nombreUsuario,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant)),
+                    const SizedBox(height: 16),
+                    Text('Resumen del negocio',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 14),
+                    _buildMetricasRapidas(true),
+                    const SizedBox(height: 20),
+                    DashboardCharts(
+                      titulo: 'Evolución de ventas',
+                      diasFiltro: _diasFiltroGrafico,
+                      isEgreso: false,
+                      colorPrincipal: accent,
+                      onFiltroChanged: (val) {
+                        setState(() => _diasFiltroGrafico = val);
+                      },
+                    ),
+                    const SizedBox(height: 18),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () =>
+                            ref.read(homeTabProvider.notifier).state = 3,
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: theme.colorScheme.outline.withValues(alpha: 0.6)),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const ListTile(
+                            leading: Icon(Icons.grid_view_rounded),
+                            title: Text('Centro de trabajo',
+                                style: TextStyle(fontWeight: FontWeight.w700)),
+                            subtitle: Text(
+                              'Cotizaciones, clientes, deudas, documentos y más'),
+                            trailing: Icon(Icons.chevron_right_rounded),
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Row(
-                        children: [
-                          InkWell(
-                            onTap: () => _mostrarMenuAcciones(context),
-                            borderRadius: BorderRadius.circular(30),
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.grid_view_rounded,
-                                size: 24,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          InkWell(
-                            onTap: () => _navTo(const PerfilPage()),
-                            borderRadius: BorderRadius.circular(30),
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const CircleAvatar(
-                                radius: 22,
-                                backgroundColor: Colors.white,
-                                child: Icon(
-                                  Icons.person_rounded,
-                                  size: 28,
-                                  color: Color(0xFF1B3A6F),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 20)),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                children: [
-                  DashboardCharts(
-                    titulo: "Tendencia de ingresos",
-                    diasFiltro: _diasFiltroGrafico,
-                    isEgreso: false,
-                    colorPrincipal: colorPrincipal,
-                    onFiltroChanged: (val) {
-                      setState(() => _diasFiltroGrafico = val);
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  DashboardCharts(
-                    titulo: "Tendencia de egresos",
-                    diasFiltro: _diasFiltroGraficoEgresos,
-                    isEgreso: true,
-                    colorPrincipal: colorPrincipal,
-                    onFiltroChanged: (val) {
-                      setState(() => _diasFiltroGraficoEgresos = val);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.only(
-                left: 20,
-                right: 20,
-                top: 10,
-                bottom: 20,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4, bottom: 16),
-                    child: Text(
-                      "Estado actual y alertas",
-                      style: estiloTituloSeccion,
                     ),
-                  ),
-                  _buildMetricasRapidas(esCelular),
-                  const SizedBox(height: 16),
-                  DashboardAlerts(
-                    cargando: _cargando,
-                    resumenDisponible: _resumenDisponible,
-                    deudasPorPagar: _deudasPorPagar,
-                    lowStockCount: _lowStockCount,
-                    outOfStockCount: _outOfStockCount,
-                    deudasPorCobrar: _deudasPorCobrar,
-                    onNavigate: _navTo,
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+              const SizedBox(height: 20),
+              Text('Estado actual y alertas',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700)),
+              const SizedBox(height: 12),
+              DashboardAlerts(
+                cargando: _cargando,
+                resumenDisponible: _resumenDisponible,
+                deudasPorPagar: _deudasPorPagar,
+                lowStockCount: _lowStockCount,
+                outOfStockCount: _outOfStockCount,
+                deudasPorCobrar: _deudasPorCobrar,
+                onNavigate: _navTo,
+              ),
+            ],
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 130)),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildMetricasRapidas(bool esCelular) {
-    String margenStr = _resumenDisponible ? "0%" : "—";
-    if (_resumenDisponible && _ventasHoy > 0) {
-      double margen = ((_ventasHoy - _gastosHoy) / _ventasHoy) * 100;
-      margenStr = "${margen.toStringAsFixed(0)}%";
-    }
-
-    final children = [
-      Expanded(
-        child: DashboardMetricCard(
-          titulo: "Productos",
-          valor: _resumenDisponible ? "$_totalProductos" : "—",
-          icon: Icons.inventory_2_rounded,
-          color: Colors.blue.shade600,
-        ),
-      ),
-      const SizedBox(width: 12),
-      Expanded(
-        child: DashboardMetricCard(
-          titulo: "Flujo neto",
-          valor: margenStr,
-          icon: Icons.trending_up_rounded,
-          color: Colors.amber.shade600,
-        ),
-      ),
-    ];
-
-    return Row(children: children);
+    final margin = _resumenDisponible && _ventasHoy > 0
+        ? '${((_ventasHoy - _gastosHoy) / _ventasHoy * 100).toStringAsFixed(0)}%'
+        : '—';
+    Widget cell(String title, String value, IconData icon, Color color) =>
+        Expanded(
+          child: DashboardMetricCard(
+            titulo: title,
+            valor: value,
+            icon: icon,
+            color: color,
+          ),
+        );
+    return Column(
+      children: [
+        Row(children: [
+          cell('Ventas hoy', _resumenDisponible
+              ? AppFormatters.currency(_ventasHoy) : '—',
+              Icons.trending_up_rounded, const Color(0xFF00B98D)),
+          const SizedBox(width: 10),
+          cell('Egresos hoy', _resumenDisponible
+              ? AppFormatters.currency(_gastosHoy) : '—',
+              Icons.trending_down_rounded, const Color(0xFFE65A60)),
+        ]),
+        const SizedBox(height: 10),
+        Row(children: [
+          cell('Productos', _resumenDisponible ? '$_totalProductos' : '—',
+              Icons.inventory_2_outlined, Theme.of(context).colorScheme.primary),
+          const SizedBox(width: 10),
+          cell('Flujo neto', margin,
+              Icons.bar_chart_rounded, Theme.of(context).colorScheme.primary),
+        ]),
+      ],
+    );
   }
 
   Widget _buildShimmerLoading() {

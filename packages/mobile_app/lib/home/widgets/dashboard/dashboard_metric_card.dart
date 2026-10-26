@@ -15,70 +15,36 @@ class DashboardMetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool esNegativo = titulo == "Margen Diario" && valor.startsWith('-');
-    final Color colorValorFinal = esNegativo
-        ? Colors.red
-        : (Theme.of(context).textTheme.bodyLarge?.color ??
-              const Color(0xFF1E293B));
-
+    final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      constraints: const BoxConstraints(minHeight: 118),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Theme.of(context).brightness == Brightness.dark
-            ? null
-            : Border.all(color: Colors.grey.shade100),
-        boxShadow: Theme.of(context).brightness == Brightness.dark
-            ? []
-            : [
-                BoxShadow(
-                  color: Colors.grey.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  spreadRadius: 1,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.6)),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+          Row(children: [
+            Icon(icon, size: 20, color: color),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(titulo, maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant)),
             ),
-            child: Icon(icon, color: color, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  titulo,
-                  style: TextStyle(
-                    color: Colors.grey[500],
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  valor,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 16,
-                    color: colorValorFinal,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
+          ]),
+          const SizedBox(height: 16),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(valor,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w800)),
           ),
         ],
       ),

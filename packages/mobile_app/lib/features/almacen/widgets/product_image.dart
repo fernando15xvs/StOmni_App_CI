@@ -31,21 +31,21 @@ class ProductImage extends StatelessWidget {
           memCacheHeight: 250,
           fadeInDuration: Duration.zero,
           fadeOutDuration: Duration.zero,
-          errorWidget: (context, error, stackTrace) => _placeholder(br),
+          errorWidget: (context, error, stackTrace) => _placeholder(context, br),
         ),
       );
     }
-    return _placeholder(br);
+    return _placeholder(context, br);
   }
 
-  Widget _placeholder(BorderRadius br) {
+  Widget _placeholder(BuildContext context, BorderRadius br) {
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: Theme.of(context).cardColor,
         borderRadius: br,
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Icon(
         Icons.image_not_supported_outlined,

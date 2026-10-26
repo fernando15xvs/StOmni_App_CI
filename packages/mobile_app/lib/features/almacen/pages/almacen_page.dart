@@ -213,9 +213,7 @@ class _AlmacenPageState extends ConsumerState<AlmacenPage>
   @override
   Widget build(BuildContext context) {
     final esAdmin = ref.watch(rolProvider) == 'admin';
-    final primaryColor = Theme.of(context).brightness == Brightness.dark
-        ? Colors.greenAccent
-        : AppColors.primary;
+    final primaryColor = Theme.of(context).colorScheme.primary;
 
     final asyncList = widget.modoInactivos
         ? ref.watch(productosInactivosFiltradoProvider)
@@ -235,8 +233,8 @@ class _AlmacenPageState extends ConsumerState<AlmacenPage>
                     : widget.soloStockBajo
                     ? 'Alerta de Stock'
                     : 'Inventario',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                 ),
                 overflow: TextOverflow.ellipsis,
@@ -273,23 +271,8 @@ class _AlmacenPageState extends ConsumerState<AlmacenPage>
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: widget.soloStockBajo
-                  ? [Colors.deepOrange.shade800, Colors.orange]
-                  : [Colors.black, AppColors.primary],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: const BorderRadius.vertical(
-              bottom: Radius.circular(35),
-            ),
-          ),
-        ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(35)),
-        ),
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
+        shape: const RoundedRectangleBorder(),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(80),
           child: BuscadorInventario(
@@ -313,7 +296,7 @@ class _AlmacenPageState extends ConsumerState<AlmacenPage>
             },
           ),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
         actions: [
           if (MediaQuery.of(context).size.width > 800) ...[
             Padding(
@@ -445,7 +428,7 @@ class _AlmacenPageState extends ConsumerState<AlmacenPage>
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ],

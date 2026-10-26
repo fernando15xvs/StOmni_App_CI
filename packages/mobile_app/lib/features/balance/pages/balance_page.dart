@@ -178,7 +178,7 @@ class _BalancePageState extends ConsumerState<BalancePage>
             style: TextStyle(
               color: isDesktop
                   ? (isDark ? Colors.white : Colors.black87)
-                  : Colors.white,
+                  : Theme.of(context).colorScheme.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.w800,
             ),
@@ -188,7 +188,7 @@ class _BalancePageState extends ConsumerState<BalancePage>
             style: TextStyle(
               color: isDesktop
                   ? (isDark ? Colors.white70 : Colors.black54)
-                  : Colors.white70,
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 13,
             ),
           ),
@@ -223,9 +223,7 @@ class _BalancePageState extends ConsumerState<BalancePage>
             ),
             child: Icon(
               Icons.tune_rounded,
-              color: isDesktop
-                  ? (isDark ? Colors.white : Colors.black87)
-                  : Colors.white,
+              color: Theme.of(context).colorScheme.onSurface,
               size: 22,
             ),
           ),
@@ -266,14 +264,14 @@ class _BalancePageState extends ConsumerState<BalancePage>
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      extendBodyBehindAppBar: !isDesktop,
+      extendBodyBehindAppBar: false,
       appBar: isDesktop
           ? null
           : AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
               title: buildTitle(),
-              iconTheme: const IconThemeData(color: Colors.white),
+              iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
               actions: [buildActions(), const SizedBox(width: 8)],
             ),
       body: SafeArea(
