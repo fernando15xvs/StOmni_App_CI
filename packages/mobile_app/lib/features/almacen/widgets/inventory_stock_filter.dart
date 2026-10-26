@@ -17,12 +17,14 @@ class InventoryStockFiltering {
     InventoryStockFilter filter,
   ) {
     if (filter == InventoryStockFilter.all) return products;
-    return products.where((product) {
-      final stock = product['_totalStock'];
-      // Missing or invalid stock must not be interpreted as zero.
-      if (stock is! num) return false;
-      if (filter == InventoryStockFilter.available) return stock > 0;
-      return stock <= 0;
-    }).toList(growable: false);
+    return products
+        .where((product) {
+          final stock = product['_totalStock'];
+          // Missing or invalid stock must not be interpreted as zero.
+          if (stock is! num) return false;
+          if (filter == InventoryStockFilter.available) return stock > 0;
+          return stock <= 0;
+        })
+        .toList(growable: false);
   }
 }

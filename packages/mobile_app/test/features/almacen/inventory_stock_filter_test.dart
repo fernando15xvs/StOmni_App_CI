@@ -11,18 +11,25 @@ void main() {
   ];
 
   test('Todos conserva el orden y productos de stock desconocido', () {
-    expect(InventoryStockFiltering.apply(products, InventoryStockFilter.all), products);
+    expect(
+      InventoryStockFiltering.apply(products, InventoryStockFilter.all),
+      products,
+    );
   });
 
   test('Con stock incluye únicamente existencias positivas', () {
-    final result =
-        InventoryStockFiltering.apply(products, InventoryStockFilter.available);
+    final result = InventoryStockFiltering.apply(
+      products,
+      InventoryStockFilter.available,
+    );
     expect(result.map((p) => p['codigo']), ['A', 'E']);
   });
 
   test('Sin stock acepta cero o negativos, nunca stock desconocido', () {
-    final result =
-        InventoryStockFiltering.apply(products, InventoryStockFilter.empty);
+    final result = InventoryStockFiltering.apply(
+      products,
+      InventoryStockFilter.empty,
+    );
     expect(result.map((p) => p['codigo']), ['B', 'C']);
   });
 
