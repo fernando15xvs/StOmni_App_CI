@@ -690,7 +690,7 @@ class _TenantBrandLogo extends StatelessWidget {
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(9),
       ),
-      child: const Icon(
+      child: Icon(
         Icons.storefront_rounded,
         size: 20,
         color: Theme.of(context).colorScheme.onSurfaceVariant,
