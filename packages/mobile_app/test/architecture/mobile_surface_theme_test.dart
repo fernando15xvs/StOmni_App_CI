@@ -15,16 +15,19 @@ void main() {
     expect(source, isNot(contains('Colors.greenAccent')));
   });
 
-  test('Balance presenta superficie y filtro compatibles con claro y oscuro', () {
-    final source = File(
-      'lib/features/balance/pages/balance_page.dart',
-    ).readAsStringSync();
+  test(
+    'Balance presenta superficie y filtro compatibles con claro y oscuro',
+    () {
+      final source = File(
+        'lib/features/balance/pages/balance_page.dart',
+      ).readAsStringSync();
 
-    expect(source, contains("'Balance financiero'"));
-    expect(source, contains('"Hoy · '));
-    expect(source, contains('Theme.of(context).cardColor'));
-    expect(source, contains('colorScheme.surfaceContainerHighest'));
-  });
+      expect(source, contains("'Balance financiero'"));
+      expect(source, contains('"Hoy · '));
+      expect(source, contains('Theme.of(context).cardColor'));
+      expect(source, contains('colorScheme.surfaceContainerHighest'));
+    },
+  );
 
   test('Carga del inicio y logotipo no fuerzan superficies blancas', () {
     final source = File(
