@@ -7,7 +7,10 @@ import 'package:core_logic/business/domain/business_profile.dart';
 class WorkCenterAccess {
   const WorkCenterAccess._();
 
-  static bool enabled(BusinessCapabilities? capabilities, BusinessModule module) {
+  static bool enabled(
+    BusinessCapabilities? capabilities,
+    BusinessModule module,
+  ) {
     return capabilities != null &&
         BusinessModulePolicy.isEnabled(capabilities, module);
   }

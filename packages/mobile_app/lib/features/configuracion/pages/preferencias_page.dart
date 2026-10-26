@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/appearance_controller.dart';
+import '../../../core/theme/appearance_preview.dart';
 
 /// Local mobile appearance settings. No server permissions or business data
 /// are changed by choosing a visual preference.
@@ -129,39 +130,9 @@ class _PreferenciasPageState extends ConsumerState<PreferenciasPage> {
               title: 'Vista previa',
               icon: Icons.visibility_outlined,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AccentPalette.colorAt(
-                      selection.accentIndex,
-                    ).withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.home_rounded,
-                        color: AccentPalette.colorAt(selection.accentIndex),
-                      ),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'StOmni',
-                              style: TextStyle(fontWeight: FontWeight.w800),
-                            ),
-                            Text('Vista previa del acento elegido'),
-                          ],
-                        ),
-                      ),
-                      Icon(
-                        Icons.check_circle,
-                        color: AccentPalette.colorAt(selection.accentIndex),
-                      ),
-                    ],
-                  ),
+                AppearanceThemePreview(
+                  accent: AccentPalette.colorAt(selection.accentIndex),
+                  selectedTheme: theme,
                 ),
               ],
             ),
