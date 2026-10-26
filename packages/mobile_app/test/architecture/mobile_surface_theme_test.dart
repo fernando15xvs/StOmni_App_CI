@@ -29,6 +29,21 @@ void main() {
     },
   );
 
+  test('Gráfica de inicio usa superficie plana y contraste del tema', () {
+    final chart = File(
+      'lib/home/widgets/dashboard/dashboard_charts.dart',
+    ).readAsStringSync();
+    final decoration = chart.substring(
+      chart.indexOf('BoxDecoration _decoracionNeumorfica('),
+    );
+
+    expect(decoration, contains('theme.cardColor'));
+    expect(decoration, contains('theme.colorScheme.outline'));
+    expect(decoration, isNot(contains('boxShadow:')));
+    expect(chart, contains('trendColor.withValues(alpha: 0.12)'));
+    expect(chart, contains('theme.colorScheme.onSurfaceVariant'));
+  });
+
   test('Carga del inicio y logotipo no fuerzan superficies blancas', () {
     final source = File(
       'lib/home/widgets/dashboard_tab.dart',
@@ -38,5 +53,7 @@ void main() {
     );
     expect(loading, contains('scheme.surfaceContainerHighest'));
     expect(loading, isNot(contains('Colors.white')));
+    expect(loading, contains('child: Icon('));
+    expect(loading, isNot(contains('child: const Icon(')));
   });
 }
