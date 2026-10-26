@@ -76,7 +76,13 @@ class _HomePageState extends ConsumerState<HomePage> {
     try {
       final profile = await ref.read(businessProfileGatewayProvider).load();
       if (!mounted) return;
-      setState(() => _businessProfile = profile);
+      setState(() {
+        _businessProfile = profile;
+        _pestanas[3] = WorkCenterTab(
+          onAdminManagement: _showAdminManagement,
+          capabilities: profile.capabilities,
+        );
+      });
       final current = ref.read(homeTabProvider);
       if (!profile.capabilities.inventoryEnabled &&
           (current == 2 || current == 4)) {
@@ -171,7 +177,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     final currentIndex = ref.watch(homeTabProvider);
-    final isAdmin = AppRoles.isAdmin(ref.watch(rolProvider));
     final inventoryEnabled =
         _businessProfile?.capabilities.inventoryEnabled == true;
     if (currentIndex >= 0 && currentIndex < _paginasVisitadas.length) {
@@ -179,14 +184,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     }
 
     Widget? fab;
-    if (currentIndex == 3 && isAdmin) {
-      fab = FloatingActionButton.extended(
-        heroTag: 'home_management',
-        onPressed: _showAdminManagement,
-        icon: const Icon(Icons.admin_panel_settings_outlined),
-        label: const Text('Gestión'),
-      );
-    } else if (currentIndex == 1 || currentIndex == 2) {
+    if (currentIndex == 1 || currentIndex == 2) {
       fab = Padding(
         key: ValueKey('fab_$currentIndex'),
         padding: const EdgeInsets.symmetric(horizontal: 20),

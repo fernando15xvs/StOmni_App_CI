@@ -1,4 +1,5 @@
 import 'package:core_logic/core_logic.dart';
+import 'work_center_access.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,9 +18,14 @@ import '../../features/reportes/pages/reportes_page.dart';
 /// Dedicated fifth workspace tab. Existing business screens are reused;
 /// access to admin-only modules is not widened by this new navigation.
 class WorkCenterTab extends ConsumerStatefulWidget {
-  const WorkCenterTab({super.key, required this.onAdminManagement});
+  const WorkCenterTab({
+    super.key,
+    required this.onAdminManagement,
+    this.capabilities,
+  });
 
   final VoidCallback onAdminManagement;
+  final BusinessCapabilities? capabilities;
 
   @override
   ConsumerState<WorkCenterTab> createState() => _WorkCenterTabState();
@@ -49,11 +55,15 @@ class _WorkCenterTabState extends ConsumerState<WorkCenterTab> {
         ClientesPage(),
       ),
       const _WorkModule('Deudas', Icons.credit_card_outlined, DeudasPage()),
-      const _WorkModule(
-        'Documentos',
-        Icons.article_outlined,
-        DocumentosElectronicosPage(),
-      ),
+      if (WorkCenterAccess.enabled(
+        widget.capabilities,
+        BusinessModule.electronicDocuments,
+      ))
+        const _WorkModule(
+          'Documentos',
+          Icons.article_outlined,
+          DocumentosElectronicosPage(),
+        ),
     ];
     final internal = <_WorkModule>[
       const _WorkModule(
@@ -75,25 +85,36 @@ class _WorkCenterTabState extends ConsumerState<WorkCenterTab> {
           ReportesPage(),
           subtitle: 'Resultados y estadísticas',
         ),
-        _WorkModule(
+      ],
+      if (admin &&
+          WorkCenterAccess.enabled(
+            widget.capabilities,
+            BusinessModule.inventory,
+          ))
+        const _WorkModule(
           'Kardex',
           Icons.receipt_long_outlined,
           KardexPage(),
           subtitle: 'Historial de inventario',
         ),
-        _WorkModule(
+      if (admin &&
+          WorkCenterAccess.enabled(
+            widget.capabilities,
+            BusinessModule.suppliers,
+          ))
+        const _WorkModule(
           'Proveedores',
           Icons.storefront_outlined,
           GestionProveedoresPage(),
           subtitle: 'Directorio de proveedores',
         ),
-        _WorkModule(
+      if (admin)
+        const _WorkModule(
           'Personal',
           Icons.badge_outlined,
           GestionEmpleadosPage(),
           subtitle: 'Gestión de personal',
         ),
-      ],
     ];
     bool matches(_WorkModule item) => (item.label + ' ' + (item.subtitle ?? ''))
         .toLowerCase()
