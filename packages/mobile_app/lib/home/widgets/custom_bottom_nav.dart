@@ -69,11 +69,20 @@ class CustomBottomNav extends ConsumerWidget {
                             color: current == item.index
                                 ? (appearance.colorNavigation
                                       ? (appearance.reduceTransparency
-                                          ? Color.lerp(theme.cardColor, accent, 0.16)!
-                                          : accent.withValues(alpha: 0.13))
+                                            ? Color.lerp(
+                                                theme.cardColor,
+                                                accent,
+                                                0.16,
+                                              )!
+                                            : accent.withValues(alpha: 0.13))
                                       : (appearance.reduceTransparency
-                                          ? Color.lerp(theme.cardColor, theme.colorScheme.onSurface, 0.08)!
-                                          : theme.colorScheme.onSurface.withValues(alpha: 0.08)))
+                                            ? Color.lerp(
+                                                theme.cardColor,
+                                                theme.colorScheme.onSurface,
+                                                0.08,
+                                              )!
+                                            : theme.colorScheme.onSurface
+                                                  .withValues(alpha: 0.08)))
                                 : Colors.transparent,
                           ),
                           child: Column(
