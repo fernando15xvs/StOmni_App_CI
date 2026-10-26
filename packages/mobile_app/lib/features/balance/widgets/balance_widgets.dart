@@ -289,9 +289,8 @@ class _MovimientosListState extends State<MovimientosList> {
                       const SizedBox(height: 20),
                       Text(
                         'No hay movimientos en esta fecha',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
