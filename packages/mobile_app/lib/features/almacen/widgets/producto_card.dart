@@ -31,7 +31,8 @@ class ProductoCardMobile extends StatelessWidget {
     final code = (p['codigo'] ?? '').toString().trim();
     final brand = (p['_marcaNombre'] ?? '').toString().trim();
     final image = p['imagen_path']?.toString() ?? '';
-    final hasImage = image.startsWith('https://') || image.startsWith('http://');
+    final hasImage =
+        image.startsWith('https://') || image.startsWith('http://');
     final total = (p['_totalStock'] as num?)?.toInt() ?? 0;
     final perBox = (p['cantidad_por_caja'] as num?)?.toInt() ?? 1;
     final kind = StockUtils.getTipoVentaFromMap(p);
@@ -42,8 +43,8 @@ class ProductoCardMobile extends StatelessWidget {
     final statusColor = out
         ? const Color(0xFFE35959)
         : low
-            ? const Color(0xFFC28B23)
-            : scheme.primary;
+        ? const Color(0xFFC28B23)
+        : scheme.primary;
     Widget placeholder() => Icon(
       Icons.inventory_2_outlined,
       size: 29,
@@ -83,7 +84,8 @@ class ProductoCardMobile extends StatelessWidget {
                           memCacheWidth: 228,
                           memCacheHeight: 228,
                           fadeInDuration: Duration.zero,
-                          placeholder: (context, url) => Center(child: placeholder()),
+                          placeholder: (context, url) =>
+                              Center(child: placeholder()),
                           errorWidget: (context, url, error) =>
                               Center(child: placeholder()),
                         )
@@ -130,7 +132,11 @@ class ProductoCardMobile extends StatelessWidget {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.inventory_2_outlined, size: 14, color: statusColor),
+                          Icon(
+                            Icons.inventory_2_outlined,
+                            size: 14,
+                            color: statusColor,
+                          ),
                           const SizedBox(width: 5),
                           Flexible(
                             child: Text(
