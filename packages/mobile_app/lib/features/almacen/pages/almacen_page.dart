@@ -296,7 +296,9 @@ class _AlmacenPageState extends ConsumerState<AlmacenPage>
             },
           ),
         ),
-        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
         actions: [
           if (MediaQuery.of(context).size.width > 800) ...[
             Padding(

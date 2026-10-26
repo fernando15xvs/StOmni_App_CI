@@ -31,7 +31,8 @@ class ProductImage extends StatelessWidget {
           memCacheHeight: 250,
           fadeInDuration: Duration.zero,
           fadeOutDuration: Duration.zero,
-          errorWidget: (context, error, stackTrace) => _placeholder(context, br),
+          errorWidget: (context, error, stackTrace) =>
+              _placeholder(context, br),
         ),
       );
     }

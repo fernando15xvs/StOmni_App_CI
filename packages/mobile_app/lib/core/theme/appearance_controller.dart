@@ -4,18 +4,27 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AccentPalette {
   static const names = [
-    'Esmeralda', 'Azul', 'Índigo', 'Púrpura',
-    'Rosa', 'Naranja', 'Ámbar', 'Rojo',
+    'Esmeralda',
+    'Azul',
+    'Índigo',
+    'Púrpura',
+    'Rosa',
+    'Naranja',
+    'Ámbar',
+    'Rojo',
   ];
   static const colors = [
-    Color(0xFF00A87E), Color(0xFF1688E8),
-    Color(0xFF5859E8), Color(0xFF9448DB),
-    Color(0xFFE83D80), Color(0xFFEE841E),
-    Color(0xFFE3A718), Color(0xFFDE4548),
+    Color(0xFF00A87E),
+    Color(0xFF1688E8),
+    Color(0xFF5859E8),
+    Color(0xFF9448DB),
+    Color(0xFFE83D80),
+    Color(0xFFEE841E),
+    Color(0xFFE3A718),
+    Color(0xFFDE4548),
   ];
 
-  static Color colorAt(int index) =>
-      colors[index.clamp(0, colors.length - 1)];
+  static Color colorAt(int index) => colors[index.clamp(0, colors.length - 1).toInt()];
 }
 
 class AppearanceSettings {
@@ -53,7 +62,7 @@ class AppearanceController extends StateNotifier<AppearanceSettings> {
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
     state = AppearanceSettings(
-      accentIndex: (prefs.getInt('mobileAccentIndex') ?? 0).clamp(0, 7),
+      accentIndex: (prefs.getInt('mobileAccentIndex') ?? 0).clamp(0, 7).toInt(),
       colorNavigation: prefs.getBool('mobileColorNavigation') ?? true,
       highContrast: prefs.getBool('mobileHighContrast') ?? false,
       reduceTransparency: prefs.getBool('mobileReduceTransparency') ?? false,

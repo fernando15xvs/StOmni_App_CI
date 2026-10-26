@@ -271,7 +271,9 @@ class _BalancePageState extends ConsumerState<BalancePage>
               backgroundColor: Colors.transparent,
               elevation: 0,
               title: buildTitle(),
-              iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+              iconTheme: IconThemeData(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
               actions: [buildActions(), const SizedBox(width: 8)],
             ),
       body: SafeArea(

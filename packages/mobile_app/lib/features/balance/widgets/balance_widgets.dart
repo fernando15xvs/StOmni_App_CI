@@ -33,38 +33,53 @@ class BalanceResumenCard extends StatelessWidget {
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.6)),
+          color: theme.colorScheme.outline.withValues(alpha: 0.6),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('BALANCE NETO',
+          Text(
+            'BALANCE NETO',
             style: theme.textTheme.labelLarge?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant)),
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
           const SizedBox(height: 6),
-          Text(AppFormatters.currency(balance),
+          Text(
+            AppFormatters.currency(balance),
             style: theme.textTheme.headlineLarge?.copyWith(
               fontWeight: FontWeight.w900,
-              color: balance < 0 ? negative : theme.colorScheme.onSurface)),
+              color: balance < 0 ? negative : theme.colorScheme.onSurface,
+            ),
+          ),
           const SizedBox(height: 18),
           const Divider(),
           const SizedBox(height: 16),
-          Row(children: [
-            Expanded(child: _InfoBox(
-              label: 'Ingresos',
-              valor: ingresos,
-              icon: Icons.arrow_circle_up_outlined,
-              color: primary,
-            )),
-            SizedBox(height: 56, child: VerticalDivider(
-              color: theme.colorScheme.outline)),
-            Expanded(child: _InfoBox(
-              label: 'Egresos',
-              valor: egresos,
-              icon: Icons.arrow_circle_down_outlined,
-              color: negative,
-            )),
-          ]),
+          Row(
+            children: [
+              Expanded(
+                child: _InfoBox(
+                  label: 'Ingresos',
+                  valor: ingresos,
+                  icon: Icons.arrow_circle_up_outlined,
+                  color: primary,
+                ),
+              ),
+              SizedBox(
+                height: 56,
+                child: VerticalDivider(color: theme.colorScheme.outline),
+              ),
+              Expanded(
+                child: _InfoBox(
+                  label: 'Egresos',
+                  valor: egresos,
+                  icon: Icons.arrow_circle_down_outlined,
+                  color: negative,
+                ),
+              ),
+            ],
+          ),
           if (descuentos > 0) ...[
             const SizedBox(height: 10),
             Text('Descuentos: ${AppFormatters.currency(descuentos)}'),
@@ -75,13 +90,19 @@ class BalanceResumenCard extends StatelessWidget {
             onTap: onVerDetalle,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Row(children: [
-                Icon(Icons.bar_chart_outlined, color: primary),
-                const SizedBox(width: 12),
-                const Expanded(child: Text('Ver reporte',
-                  style: TextStyle(fontWeight: FontWeight.w700))),
-                const Icon(Icons.chevron_right_rounded),
-              ]),
+              child: Row(
+                children: [
+                  Icon(Icons.bar_chart_outlined, color: primary),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      'Ver reporte',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right_rounded),
+                ],
+              ),
             ),
           ),
         ],

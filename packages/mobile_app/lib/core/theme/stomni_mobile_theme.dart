@@ -61,7 +61,9 @@ class StOmniMobileTheme {
         bodyColor: foreground,
         displayColor: foreground,
       ),
-      visualDensity: highContrast ? VisualDensity.standard : VisualDensity.compact,
+      visualDensity: highContrast
+          ? VisualDensity.standard
+          : VisualDensity.compact,
     );
   }
 }

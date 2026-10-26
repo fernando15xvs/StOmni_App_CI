@@ -54,7 +54,9 @@ class ProductoCardMobile extends StatelessWidget {
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: stockBajo ? Colors.orange : Theme.of(context).colorScheme.outline.withValues(alpha: 0.55),
+          color: stockBajo
+              ? Colors.orange
+              : Theme.of(context).colorScheme.outline.withValues(alpha: 0.55),
         ),
         boxShadow: Theme.of(context).brightness == Brightness.dark
             ? []
