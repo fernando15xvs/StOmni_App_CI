@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../widgets/buscador_inventario.dart';
+import '../widgets/inventory_stock_filter.dart';
 import 'package:core_logic/core_logic.dart';
 
 import 'nuevo_producto_page.dart';
@@ -34,6 +35,8 @@ class AlmacenPage extends ConsumerStatefulWidget {
 
 class _AlmacenPageState extends ConsumerState<AlmacenPage>
     with TickerProviderStateMixin {
+  InventoryStockFilter _stockFilter = InventoryStockFilter.all;
+
   final Color colorDorado = const Color(0xFFF59E0B);
   final Color colorNaranja = Colors.deepOrange;
   Color get colorTexto =>
@@ -587,6 +590,8 @@ class _AlmacenPageState extends ConsumerState<AlmacenPage>
       ),
       body: Column(
         children: [
+          if (!widget.modoInactivos && !widget.soloStockBajo)
+            _buildStockFilters(),
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
@@ -677,28 +682,98 @@ class _AlmacenPageState extends ConsumerState<AlmacenPage>
     );
   }
 
-  Widget _renderLista(List<Map<String, dynamic>> visuales) {
-    if (visuales.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.inventory_2_outlined, size: 60, color: Colors.grey[300]),
-            const SizedBox(height: 10),
-            Text(
-              "No se encontraron productos",
-              style: TextStyle(color: Colors.grey[500]),
-            ),
-          ],
+  Widget _buildStockFilters() {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (final filter in InventoryStockFilter.values) ...[
+                ChoiceChip(
+                  label: Text(filter.label),
+                  selected: _stockFilter == filter,
+                  selectedColor: scheme.primary.withValues(alpha: 0.15),
+                  checkmarkColor: scheme.primary,
+                  labelStyle: TextStyle(
+                    color: _stockFilter == filter
+                        ? scheme.primary
+                        : scheme.onSurfaceVariant,
+                    fontWeight: _stockFilter == filter
+                        ? FontWeight.w700
+                        : FontWeight.w500,
+                  ),
+                  onSelected: (_) => setState(() => _stockFilter = filter),
+                ),
+                const SizedBox(width: 8),
+              ],
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _renderLista(List<Map<String, dynamic>> visuales) {
+    // The catalog provider already applies search and sorting.
+    // This local UI-only filter preserves its order and its access policy.
+    final products = widget.modoInactivos || widget.soloStockBajo
+        ? visuales
+        : InventoryStockFiltering.apply(visuales, _stockFilter);
+
+    if (products.isEmpty) {
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(20, 70, 20, 180),
+        children: [
+          Icon(
+            Icons.inventory_2_outlined,
+            size: 56,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            visuales.isEmpty
+                ? 'No se encontraron productos'
+                : 'No hay productos para este filtro',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Prueba otra búsqueda o cambia el filtro.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
       );
     }
+
     return ListView.builder(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 180),
-      itemCount: visuales.length,
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 180),
+      itemCount: products.length + 1,
       itemBuilder: (context, index) {
-        final p = visuales[index];
-        return ProductoCardMobile(p: p, onTap: _mostrarDetalle);
+        if (index == 0) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              '${products.length} ${products.length == 1 ? 'producto' : 'productos'}',
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          );
+        }
+        return ProductoCardMobile(
+          p: products[index - 1],
+          onTap: _mostrarDetalle,
+        );
       },
     );
   }
