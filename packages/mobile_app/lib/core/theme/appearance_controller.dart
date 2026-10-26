@@ -24,7 +24,8 @@ class AccentPalette {
     Color(0xFFDE4548),
   ];
 
-  static Color colorAt(int index) => colors[index.clamp(0, colors.length - 1).toInt()];
+  static Color colorAt(int index) =>
+      colors[index.clamp(0, colors.length - 1).toInt()];
 }
 
 class AppearanceSettings {
