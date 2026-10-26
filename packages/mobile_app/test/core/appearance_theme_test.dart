@@ -43,7 +43,10 @@ void main() {
       highContrast: true,
     );
     expect(strong.colorScheme.outline, isNot(normal.colorScheme.outline));
-    expect(strong.dividerTheme.thickness, greaterThan(normal.dividerTheme.thickness!));
+    expect(
+      strong.dividerTheme.thickness,
+      greaterThan(normal.dividerTheme.thickness!),
+    );
   });
 
   test('Cambiar acento conserva controles independientes', () {
