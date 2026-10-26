@@ -22,8 +22,10 @@ void main() {
 
     expect(dashboard, contains('_resumenDisponible = false'));
     expect(
-      dashboard,
-      contains('valor: _resumenDisponible ? "\$_totalProductos" : "—"'),
+      RegExp(
+        r"cell\(\s*'Productos',\s*_resumenDisponible\s*\?\s*'\$_totalProductos'\s*:\s*'—'",
+      ).hasMatch(dashboard),
+      isTrue,
     );
     expect(dashboard, contains('resumenDisponible: _resumenDisponible'));
   });
