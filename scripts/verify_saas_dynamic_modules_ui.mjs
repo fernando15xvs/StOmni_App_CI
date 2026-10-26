@@ -45,7 +45,7 @@ function verify(sources) {
   need(errors, mobileHome, /BusinessModulePolicy\.isEnabled\(/i, 'mobile gestión usa política compartida');
   need(errors, mobileHome, /'modules'\s*=>\s*const ModulosNegocioPage\(\)/i, 'mobile mantiene configuración de módulos alcanzable');
   need(errors, mobileHome, /if \(destination == 'modules'\) await _loadBusinessProfile\(\)/i, 'mobile refresca perfil al volver de configuración');
-  need(errors, mobileHome, /if \(!profile\.capabilities\.inventoryEnabled && \(current == 2 \|\| current == 4\)\)[\s\S]{0,130}?state = 0/i, 'mobile expulsa inventario y traslados cuando inventoryEnabled=false');
+  need(errors, mobileHome, /if \(!profile\.capabilities\.inventoryEnabled\s*&&\s*\(current == 2 \|\| current == 4\)\)[\s\S]{0,130}?state = 0/i, 'mobile expulsa inventario y traslados cuando inventoryEnabled=false');
   need(errors, mobileHome, /inventoryEnabled:\s*inventoryEnabled/i, 'mobile propaga inventoryEnabled a navegación principal');
 
   need(errors, mobileNav, /final bool inventoryEnabled;/i, 'bottom nav recibe capability de inventario');

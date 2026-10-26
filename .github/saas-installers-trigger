@@ -1,3 +1,3 @@
-source_sha=6d91da2ccb5c42f97a9fe73dede7dc21a7ff925d
-requested=2026-10-26T17:10:35.212Z
-purpose=validate-final-mobile-theme-format-and-static-gates
+source_sha=267976f8be69e85559e3c68dc07434172ff4f4ad
+requested=2026-10-26T18:47:42.331Z
+purpose=correct-mobile-const-evaluation-and-static-gates

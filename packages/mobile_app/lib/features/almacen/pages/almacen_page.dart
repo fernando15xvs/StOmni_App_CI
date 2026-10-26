@@ -427,7 +427,7 @@ class _AlmacenPageState extends ConsumerState<AlmacenPage>
                     const SizedBox(width: 12),
                     Text(
                       ordenAscendente ? 'Ascendente' : 'Descendente',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: Theme.of(context).colorScheme.onSurface,
