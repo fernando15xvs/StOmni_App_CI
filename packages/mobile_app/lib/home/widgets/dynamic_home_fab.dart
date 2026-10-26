@@ -79,7 +79,8 @@ class DynamicHomeFab extends ConsumerWidget {
       final botonIngreso = Expanded(
         child: GlassFab(
           onPressed: abrirIngreso,
-          baseColor: Colors.black,
+          baseColor: Theme.of(context).cardColor,
+          outlined: true,
           icon: Icons.move_to_inbox,
           label: 'INGRESO PROD.',
         ),
