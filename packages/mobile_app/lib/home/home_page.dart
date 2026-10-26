@@ -19,6 +19,7 @@ import 'controllers/home_controller.dart';
 import 'home_notifier.dart';
 import 'widgets/custom_bottom_nav.dart';
 import 'widgets/dashboard_tab.dart';
+import 'widgets/work_center_tab.dart';
 import 'widgets/dynamic_home_fab.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -37,16 +38,18 @@ class _HomePageState extends ConsumerState<HomePage> {
   bool _isFabVisible = true;
   final ValueNotifier<double?> _dragNotifier = ValueNotifier<double?>(null);
 
-  final List<Widget> _pestanas = [
-    const DashboardTab(),
-    const BalancePage(),
-    const AlmacenPage(),
-    const MoverStockPage(),
-  ];
+  late final List<Widget> _pestanas;
 
   @override
   void initState() {
     super.initState();
+    _pestanas = [
+      const DashboardTab(),
+      const BalancePage(),
+      const AlmacenPage(),
+      WorkCenterTab(onAdminManagement: _showAdminManagement),
+      const MoverStockPage(),
+    ];
     _legacyRefreshBridgeCallback = () {
       ref.read(homeRefreshRevisionProvider.notifier).state++;
     };
@@ -57,7 +60,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       await _loadBusinessProfile();
     });
     _paginasVisitadas = List.generate(
-      4,
+      _pestanas.length,
       (index) => index == widget.pestanaInicial,
     );
   }
@@ -75,7 +78,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       if (!mounted) return;
       setState(() => _businessProfile = profile);
       final current = ref.read(homeTabProvider);
-      if (!profile.capabilities.inventoryEnabled && current >= 2) {
+      if (!profile.capabilities.inventoryEnabled && (current == 2 || current == 4)) {
         ref.read(homeTabProvider.notifier).state = 0;
       }
     } catch (_) {
@@ -175,14 +178,14 @@ class _HomePageState extends ConsumerState<HomePage> {
     }
 
     Widget? fab;
-    if (currentIndex == 0 && isAdmin) {
+    if (currentIndex == 3 && isAdmin) {
       fab = FloatingActionButton.extended(
         heroTag: 'home_management',
         onPressed: _showAdminManagement,
         icon: const Icon(Icons.admin_panel_settings_outlined),
         label: const Text('Gestión'),
       );
-    } else if (currentIndex != 0 && currentIndex != 3) {
+    } else if (currentIndex == 1 || currentIndex == 2) {
       fab = Padding(
         key: ValueKey('fab_$currentIndex'),
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -221,7 +224,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               },
               child: IndexedStack(
                 index: currentIndex.clamp(0, _pestanas.length - 1).toInt(),
-                children: List.generate(4, (index) {
+                children: List.generate(_pestanas.length, (index) {
                   return _paginasVisitadas[index]
                       ? _pestanas[index]
                       : const SizedBox.shrink();

@@ -1,9 +1,8 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/theme/appearance_controller.dart';
 import '../controllers/home_controller.dart';
 
 class CustomBottomNav extends ConsumerWidget {
@@ -16,197 +15,109 @@ class CustomBottomNav extends ConsumerWidget {
   final ValueNotifier<double?> dragNotifier;
   final bool inventoryEnabled;
 
-  List<_HomeNavItem> get _items => [
-    const _HomeNavItem(0, Icons.home_filled, 'Inicio'),
-    const _HomeNavItem(1, Icons.account_balance_wallet_rounded, 'Balance'),
-    if (inventoryEnabled) ...const [
-      _HomeNavItem(2, Icons.inventory_2_rounded, 'Almacén'),
-      _HomeNavItem(3, Icons.swap_horiz_rounded, 'Movimientos'),
-    ],
-  ];
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final items = _items;
-    final currentIndex = ref.watch(homeTabProvider);
-    final selectedPosition = items.indexWhere(
-      (item) => item.index == currentIndex,
-    );
-    final safeSelectedPosition = selectedPosition < 0 ? 0 : selectedPosition;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colorPrincipal = isDark
-        ? Colors.greenAccent
-        : Theme.of(context).colorScheme.primary;
-
+    final items = [
+      const _NavItem(0, Icons.home_outlined, 'Inicio'),
+      const _NavItem(1, Icons.account_balance_wallet_outlined, 'Balance'),
+      if (inventoryEnabled)
+        const _NavItem(2, Icons.inventory_2_outlined, 'Inventario'),
+      const _NavItem(3, Icons.grid_view_rounded, 'Centro'),
+      if (inventoryEnabled)
+        const _NavItem(4, Icons.swap_horiz_rounded, 'Movimientos'),
+    ];
+    final theme = Theme.of(context);
+    final current = ref.watch(homeTabProvider);
+    final appearance = ref.watch(appearanceProvider);
+    final accent = theme.colorScheme.primary;
+    final outline = theme.colorScheme.outline.withValues(alpha: 0.65);
     return SafeArea(
+      top: false,
       child: Padding(
-        padding: const EdgeInsets.only(left: 12, right: 12, bottom: 16),
-        child: GestureDetector(
-          onPanUpdate: (details) {
-            final width = MediaQuery.of(context).size.width - 24;
-            final dx = details.localPosition.dx.clamp(0.0, width);
-            final position = (dx / (width / items.length)).floor().clamp(
-              0,
-              items.length - 1,
-            );
-            final target = items[position].index;
-            dragNotifier.value = items.length == 1
-                ? 0
-                : -1.0 + ((position / (items.length - 1)) * 2.0);
-            if (target != currentIndex) {
-              HapticFeedback.selectionClick();
-              ref.read(homeTabProvider.notifier).state = target;
-            }
-          },
-          onPanEnd: (_) => dragNotifier.value = null,
-          onPanCancel: () => dragNotifier.value = null,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(28),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(
-                height: 65,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(28),
-                  border: Border.all(
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.12)
-                        : Colors.white.withValues(alpha: 0.8),
-                    width: 1.5,
-                  ),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: isDark
-                        ? [
-                            Colors.white.withValues(alpha: 0.15),
-                            Colors.white.withValues(alpha: 0.05),
-                          ]
-                        : [
-                            Colors.white.withValues(alpha: 0.20),
-                            Colors.white.withValues(alpha: 0.05),
-                          ],
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: ValueListenableBuilder<double?>(
-                        valueListenable: dragNotifier,
-                        builder: (context, dragX, child) {
-                          final targetAlignment = items.length == 1
-                              ? 0.0
-                              : -1.0 +
-                                    (safeSelectedPosition *
-                                        (2.0 / (items.length - 1)));
-                          return AnimatedAlign(
-                            duration: dragX == null
-                                ? const Duration(milliseconds: 280)
-                                : Duration.zero,
-                            curve: Curves.easeOutCubic,
-                            alignment: Alignment(dragX ?? targetAlignment, 0),
-                            child: child,
-                          );
-                        },
-                        child: FractionallySizedBox(
-                          widthFactor: 1 / items.length,
-                          heightFactor: 1,
-                          child: Center(
-                            child: Container(
-                              width: 52,
-                              height: 52,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: colorPrincipal.withValues(alpha: 0.12),
-                                border: Border.all(
-                                  color: colorPrincipal.withValues(alpha: 0.18),
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+        child: Container(
+          height: 70,
+          decoration: BoxDecoration(
+            color: theme.cardColor,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: outline),
+          ),
+          child: Row(
+            children: [
+              for (final item in items)
+                Expanded(
+                  child: Semantics(
+                    button: true,
+                    selected: current == item.index,
+                    label: item.label,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () {
+                        if (current == item.index) return;
+                        HapticFeedback.selectionClick();
+                        ref.read(homeTabProvider.notifier).state = item.index;
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 2,
+                        ),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(18),
+                            color: current == item.index
+                                ? (appearance.colorNavigation
+                                      ? accent.withValues(alpha: 0.13)
+                                      : theme.colorScheme.onSurface.withValues(alpha: 0.08))
+                                : Colors.transparent,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                item.icon,
+                                size: 23,
+                                color: current == item.index
+                                    ? (appearance.colorNavigation
+                                          ? accent
+                                          : theme.colorScheme.onSurface)
+                                    : theme.colorScheme.onSurfaceVariant,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                item.label,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: current == item.index
+                                      ? FontWeight.w700
+                                      : FontWeight.w500,
+                                  color: current == item.index
+                                      ? (appearance.colorNavigation
+                                            ? accent
+                                            : theme.colorScheme.onSurface)
+                                      : theme.colorScheme.onSurfaceVariant,
                                 ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                       ),
                     ),
-                    Row(
-                      children: [
-                        for (final item in items)
-                          Expanded(
-                            child: _buildNavItem(
-                              item,
-                              currentIndex,
-                              colorPrincipal,
-                              ref,
-                              context,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
+            ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(
-    _HomeNavItem item,
-    int currentIndex,
-    Color colorPrincipal,
-    WidgetRef ref,
-    BuildContext context,
-  ) {
-    final isSelected = currentIndex == item.index;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final inactive = isDark ? Colors.white54 : Colors.grey.shade500;
-    final color = isSelected ? colorPrincipal : inactive;
-
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        if (!isSelected) {
-          HapticFeedback.lightImpact();
-          ref.read(homeTabProvider.notifier).state = item.index;
-        }
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedScale(
-              scale: isSelected ? 1.18 : 1,
-              duration: const Duration(milliseconds: 250),
-              child: Icon(item.icon, color: color, size: 24),
-            ),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
-              height: isSelected ? 3 : 0,
-            ),
-            AnimatedOpacity(
-              duration: const Duration(milliseconds: 180),
-              opacity: isSelected ? 1 : 0,
-              child: Text(
-                item.label,
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 10,
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );
   }
 }
 
-class _HomeNavItem {
-  const _HomeNavItem(this.index, this.icon, this.label);
-
+class _NavItem {
+  const _NavItem(this.index, this.icon, this.label);
   final int index;
   final IconData icon;
   final String label;
