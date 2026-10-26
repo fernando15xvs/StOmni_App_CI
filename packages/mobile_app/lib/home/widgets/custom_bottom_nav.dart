@@ -69,7 +69,9 @@ class CustomBottomNav extends ConsumerWidget {
                             color: current == item.index
                                 ? (appearance.colorNavigation
                                       ? accent.withValues(alpha: 0.13)
-                                      : theme.colorScheme.onSurface.withValues(alpha: 0.08))
+                                      : theme.colorScheme.onSurface.withValues(
+                                          alpha: 0.08,
+                                        ))
                                 : Colors.transparent,
                           ),
                           child: Column(

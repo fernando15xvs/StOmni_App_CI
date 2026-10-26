@@ -11,8 +11,9 @@ void main() {
     expect(AccentPalette.colorAt(100), AccentPalette.colors.last);
   });
 
-  testWidgets('Ambos temas respetan sus superficies sin blanco forzado',
-      (tester) async {
+  testWidgets('Ambos temas respetan sus superficies sin blanco forzado', (
+    tester,
+  ) async {
     final dark = StOmniMobileTheme.create(
       accent: AccentPalette.colors[2],
       brightness: Brightness.dark,

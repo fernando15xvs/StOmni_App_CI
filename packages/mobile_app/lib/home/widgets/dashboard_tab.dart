@@ -408,7 +408,8 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800),
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
                   IconButton(
@@ -430,7 +431,8 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
                   color: theme.cardColor,
                   borderRadius: BorderRadius.circular(22),
                   border: Border.all(
-                    color: theme.colorScheme.outline.withValues(alpha: 0.55)),
+                    color: theme.colorScheme.outline.withValues(alpha: 0.55),
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -438,20 +440,30 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
                     Text(
                       MaterialLocalizations.of(context).formatMediumDate(now),
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant),
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: 6),
-                    Text('$greeting 👋',
-                        style: theme.textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.w800)),
+                    Text(
+                      '$greeting 👋',
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                     const SizedBox(height: 4),
-                    Text(_nombreUsuario,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant)),
+                    Text(
+                      _nombreUsuario,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
                     const SizedBox(height: 16),
-                    Text('Resumen del negocio',
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700)),
+                    Text(
+                      'Resumen del negocio',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                     const SizedBox(height: 14),
                     _buildMetricasRapidas(true),
                     const SizedBox(height: 20),
@@ -474,15 +486,21 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
                         child: Ink(
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: theme.colorScheme.outline.withValues(alpha: 0.6)),
+                              color: theme.colorScheme.outline.withValues(
+                                alpha: 0.6,
+                              ),
+                            ),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: const ListTile(
                             leading: Icon(Icons.grid_view_rounded),
-                            title: Text('Centro de trabajo',
-                                style: TextStyle(fontWeight: FontWeight.w700)),
+                            title: Text(
+                              'Centro de trabajo',
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
                             subtitle: Text(
-                              'Cotizaciones, clientes, deudas, documentos y más'),
+                              'Cotizaciones, clientes, deudas, documentos y más',
+                            ),
                             trailing: Icon(Icons.chevron_right_rounded),
                           ),
                         ),
@@ -492,9 +510,12 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
                 ),
               ),
               const SizedBox(height: 20),
-              Text('Estado actual y alertas',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700)),
+              Text(
+                'Estado actual y alertas',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               const SizedBox(height: 12),
               DashboardAlerts(
                 cargando: _cargando,
@@ -527,23 +548,41 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
         );
     return Column(
       children: [
-        Row(children: [
-          cell('Ventas hoy', _resumenDisponible
-              ? AppFormatters.currency(_ventasHoy) : '—',
-              Icons.trending_up_rounded, const Color(0xFF00B98D)),
-          const SizedBox(width: 10),
-          cell('Egresos hoy', _resumenDisponible
-              ? AppFormatters.currency(_gastosHoy) : '—',
-              Icons.trending_down_rounded, const Color(0xFFE65A60)),
-        ]),
+        Row(
+          children: [
+            cell(
+              'Ventas hoy',
+              _resumenDisponible ? AppFormatters.currency(_ventasHoy) : '—',
+              Icons.trending_up_rounded,
+              const Color(0xFF00B98D),
+            ),
+            const SizedBox(width: 10),
+            cell(
+              'Egresos hoy',
+              _resumenDisponible ? AppFormatters.currency(_gastosHoy) : '—',
+              Icons.trending_down_rounded,
+              const Color(0xFFE65A60),
+            ),
+          ],
+        ),
         const SizedBox(height: 10),
-        Row(children: [
-          cell('Productos', _resumenDisponible ? '$_totalProductos' : '—',
-              Icons.inventory_2_outlined, Theme.of(context).colorScheme.primary),
-          const SizedBox(width: 10),
-          cell('Flujo neto', margin,
-              Icons.bar_chart_rounded, Theme.of(context).colorScheme.primary),
-        ]),
+        Row(
+          children: [
+            cell(
+              'Productos',
+              _resumenDisponible ? '$_totalProductos' : '—',
+              Icons.inventory_2_outlined,
+              Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 10),
+            cell(
+              'Flujo neto',
+              margin,
+              Icons.bar_chart_rounded,
+              Theme.of(context).colorScheme.primary,
+            ),
+          ],
+        ),
       ],
     );
   }

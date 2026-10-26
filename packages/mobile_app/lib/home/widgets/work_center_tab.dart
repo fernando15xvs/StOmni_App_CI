@@ -38,30 +38,66 @@ class _WorkCenterTabState extends ConsumerState<WorkCenterTab> {
     final scheme = theme.colorScheme;
     final admin = AppRoles.isAdmin(ref.watch(rolProvider));
     final commercial = <_WorkModule>[
-      const _WorkModule('Cotizaciones', Icons.description_outlined, ListaCotizacionesPage()),
-      const _WorkModule('Clientes', Icons.people_outline_rounded, ClientesPage()),
+      const _WorkModule(
+        'Cotizaciones',
+        Icons.description_outlined,
+        ListaCotizacionesPage(),
+      ),
+      const _WorkModule(
+        'Clientes',
+        Icons.people_outline_rounded,
+        ClientesPage(),
+      ),
       const _WorkModule('Deudas', Icons.credit_card_outlined, DeudasPage()),
-      const _WorkModule('Documentos', Icons.article_outlined, DocumentosElectronicosPage()),
+      const _WorkModule(
+        'Documentos',
+        Icons.article_outlined,
+        DocumentosElectronicosPage(),
+      ),
     ];
     final internal = <_WorkModule>[
-      const _WorkModule('Apariencia', Icons.palette_outlined, PreferenciasPage(),
-          subtitle: 'Tema, color y personalización'),
-      const _WorkModule('Transporte', Icons.local_shipping_outlined, GestionTransportePage(),
-          subtitle: 'Vehículos y conductores'),
+      const _WorkModule(
+        'Apariencia',
+        Icons.palette_outlined,
+        PreferenciasPage(),
+        subtitle: 'Tema, color y personalización',
+      ),
+      const _WorkModule(
+        'Transporte',
+        Icons.local_shipping_outlined,
+        GestionTransportePage(),
+        subtitle: 'Vehículos y conductores',
+      ),
       if (admin) ...const [
-        _WorkModule('Reportes', Icons.bar_chart_outlined, ReportesPage(),
-            subtitle: 'Resultados y estadísticas'),
-        _WorkModule('Kardex', Icons.receipt_long_outlined, KardexPage(),
-            subtitle: 'Historial de inventario'),
-        _WorkModule('Proveedores', Icons.storefront_outlined, GestionProveedoresPage(),
-            subtitle: 'Directorio de proveedores'),
-        _WorkModule('Personal', Icons.badge_outlined, GestionEmpleadosPage(),
-            subtitle: 'Gestión de personal'),
+        _WorkModule(
+          'Reportes',
+          Icons.bar_chart_outlined,
+          ReportesPage(),
+          subtitle: 'Resultados y estadísticas',
+        ),
+        _WorkModule(
+          'Kardex',
+          Icons.receipt_long_outlined,
+          KardexPage(),
+          subtitle: 'Historial de inventario',
+        ),
+        _WorkModule(
+          'Proveedores',
+          Icons.storefront_outlined,
+          GestionProveedoresPage(),
+          subtitle: 'Directorio de proveedores',
+        ),
+        _WorkModule(
+          'Personal',
+          Icons.badge_outlined,
+          GestionEmpleadosPage(),
+          subtitle: 'Gestión de personal',
+        ),
       ],
     ];
-    bool matches(_WorkModule item) =>
-        (item.label + ' ' + (item.subtitle ?? ''))
-            .toLowerCase().contains(_query.trim().toLowerCase());
+    bool matches(_WorkModule item) => (item.label + ' ' + (item.subtitle ?? ''))
+        .toLowerCase()
+        .contains(_query.trim().toLowerCase());
     final filteredCommercial = commercial.where(matches).toList();
     final filteredInternal = internal.where(matches).toList();
     return Scaffold(
@@ -71,12 +107,19 @@ class _WorkCenterTabState extends ConsumerState<WorkCenterTab> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(18, 14, 18, 118),
           children: [
-            Text('Centro de trabajo', style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w800)),
+            Text(
+              'Centro de trabajo',
+              style: theme.textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
             const SizedBox(height: 8),
-            Text('Todas las herramientas de tu negocio, organizadas en un solo lugar.',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: scheme.onSurfaceVariant)),
+            Text(
+              'Todas las herramientas de tu negocio, organizadas en un solo lugar.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
             const SizedBox(height: 24),
             TextField(
               onChanged: (value) => setState(() => _query = value),
@@ -89,20 +132,22 @@ class _WorkCenterTabState extends ConsumerState<WorkCenterTab> {
             if (filteredCommercial.isNotEmpty) ...[
               _heading(context, 'Comercial'),
               const SizedBox(height: 12),
-              LayoutBuilder(builder: (context, constraints) {
-                final tileWidth = (constraints.maxWidth - 12) / 2;
-                return Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: [
-                    for (final item in filteredCommercial)
-                      SizedBox(
-                        width: tileWidth,
-                        child: _moduleTile(context, item),
-                      ),
-                  ],
-                );
-              }),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final tileWidth = (constraints.maxWidth - 12) / 2;
+                  return Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: [
+                      for (final item in filteredCommercial)
+                        SizedBox(
+                          width: tileWidth,
+                          child: _moduleTile(context, item),
+                        ),
+                    ],
+                  );
+                },
+              ),
               const SizedBox(height: 24),
             ],
             if (filteredInternal.isNotEmpty) ...[
@@ -134,8 +179,9 @@ class _WorkCenterTabState extends ConsumerState<WorkCenterTab> {
 
   Widget _heading(BuildContext context, String label) => Text(
     label,
-    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-      fontWeight: FontWeight.w700),
+    style: Theme.of(
+      context,
+    ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
   );
 
   BoxDecoration _decoration(BuildContext context) {
@@ -143,7 +189,9 @@ class _WorkCenterTabState extends ConsumerState<WorkCenterTab> {
     return BoxDecoration(
       color: theme.cardColor,
       borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.60)),
+      border: Border.all(
+        color: theme.colorScheme.outline.withValues(alpha: 0.60),
+      ),
     );
   }
 
@@ -161,12 +209,19 @@ class _WorkCenterTabState extends ConsumerState<WorkCenterTab> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Icon(item.icon, size: 26),
-            Row(children: [
-              Expanded(child: Text(item.label, maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w700))),
-              const Icon(Icons.chevron_right_rounded, size: 18),
-            ]),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    item.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ),
+                const Icon(Icons.chevron_right_rounded, size: 18),
+              ],
+            ),
           ],
         ),
       ),
@@ -181,9 +236,15 @@ class _WorkCenterTabState extends ConsumerState<WorkCenterTab> {
       child: Ink(
         decoration: _decoration(context),
         child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 5,
+          ),
           leading: Icon(item.icon),
-          title: Text(item.label, style: const TextStyle(fontWeight: FontWeight.w700)),
+          title: Text(
+            item.label,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
           subtitle: item.subtitle == null ? null : Text(item.subtitle!),
           trailing: const Icon(Icons.chevron_right_rounded),
         ),

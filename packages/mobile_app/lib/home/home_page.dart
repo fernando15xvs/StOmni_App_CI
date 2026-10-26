@@ -78,7 +78,8 @@ class _HomePageState extends ConsumerState<HomePage> {
       if (!mounted) return;
       setState(() => _businessProfile = profile);
       final current = ref.read(homeTabProvider);
-      if (!profile.capabilities.inventoryEnabled && (current == 2 || current == 4)) {
+      if (!profile.capabilities.inventoryEnabled &&
+          (current == 2 || current == 4)) {
         ref.read(homeTabProvider.notifier).state = 0;
       }
     } catch (_) {
