@@ -13,7 +13,6 @@ import 'ingreso_mercaderia_page.dart';
 
 import '../presentation/controllers/almacen_controller.dart';
 import 'package:mobile_app/home/home_notifier.dart';
-import 'package:mobile_app/core/theme/app_colors.dart';
 import '../../../core/utils/navigation_utils.dart';
 
 import '../widgets/producto_card.dart';
@@ -41,9 +40,7 @@ class _AlmacenPageState extends ConsumerState<AlmacenPage>
   final Color colorNaranja = Colors.deepOrange;
   Color get colorTexto =>
       Theme.of(context).textTheme.bodyLarge?.color ?? const Color(0xFF1F2937);
-  Color get primaryTexto => Theme.of(context).brightness == Brightness.dark
-      ? Colors.greenAccent
-      : Theme.of(context).colorScheme.primary;
+  Color get primaryTexto => Theme.of(context).colorScheme.primary;
   final Color colorGrisSuave = const Color(0xFFF3F4F6);
 
   @override
@@ -478,7 +475,7 @@ class _AlmacenPageState extends ConsumerState<AlmacenPage>
                               : FontWeight.normal,
                           color: ordenarPor == 'nombre'
                               ? Theme.of(context).colorScheme.primary
-                              : Colors.black87,
+                              : Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -513,7 +510,7 @@ class _AlmacenPageState extends ConsumerState<AlmacenPage>
                               : FontWeight.normal,
                           color: ordenarPor == 'precio'
                               ? Theme.of(context).colorScheme.primary
-                              : Colors.black87,
+                              : Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -534,7 +531,7 @@ class _AlmacenPageState extends ConsumerState<AlmacenPage>
                       Icons.inventory_2_rounded,
                       size: 20,
                       color: ordenarPor == 'stock'
-                          ? AppColors.primary
+                          ? Theme.of(context).colorScheme.primary
                           : Colors.grey.shade500,
                     ),
                     const SizedBox(width: 12),
@@ -547,15 +544,15 @@ class _AlmacenPageState extends ConsumerState<AlmacenPage>
                               ? FontWeight.w600
                               : FontWeight.normal,
                           color: ordenarPor == 'stock'
-                              ? AppColors.primary
-                              : Colors.black87,
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
                     if (ordenarPor == 'stock')
                       Icon(
                         Icons.check_circle_rounded,
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                         size: 18,
                       ),
                   ],

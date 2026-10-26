@@ -174,7 +174,7 @@ class _BalancePageState extends ConsumerState<BalancePage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Balance Financiero',
+            isDesktop ? 'Balance Financiero' : 'Balance financiero',
             style: TextStyle(
               color: isDesktop
                   ? (isDark ? Colors.white : Colors.black87)
@@ -184,7 +184,9 @@ class _BalancePageState extends ConsumerState<BalancePage>
             ),
           ),
           Text(
-            "Día: ${DateFormat('dd MMMM', 'es').format(AppTime.now())}",
+            isDesktop
+                ? "Día: ${DateFormat('dd MMMM', 'es').format(AppTime.now())}"
+                : "Hoy · ${DateFormat('dd MMMM', 'es').format(AppTime.now())}",
             style: TextStyle(
               color: isDesktop
                   ? (isDark ? Colors.white70 : Colors.black54)
@@ -203,7 +205,9 @@ class _BalancePageState extends ConsumerState<BalancePage>
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
-            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            color: isDesktop
+                ? (isDark ? const Color(0xFF1E1E1E) : Colors.white)
+                : Theme.of(context).cardColor,
             elevation: 10,
           ),
         ),
@@ -216,9 +220,7 @@ class _BalancePageState extends ConsumerState<BalancePage>
                   ? (isDark
                         ? Colors.white12
                         : Colors.grey.withValues(alpha: 0.2))
-                  : (isDark
-                        ? Colors.black.withValues(alpha: 0.15)
-                        : Colors.white.withValues(alpha: 0.15)),
+                  : Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(

@@ -588,6 +588,7 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
   }
 
   Widget _buildShimmerLoading() {
+    final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       color: Theme.of(context).scaffoldBackgroundColor,
@@ -605,16 +606,24 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(width: 100, height: 16, color: Colors.white),
+                      Container(
+                        width: 100,
+                        height: 16,
+                        color: scheme.surfaceContainerHighest,
+                      ),
                       const SizedBox(height: 8),
-                      Container(width: 140, height: 24, color: Colors.white),
+                      Container(
+                        width: 140,
+                        height: 24,
+                        color: scheme.surfaceContainerHighest,
+                      ),
                     ],
                   ),
                   Container(
                     width: 45,
                     height: 45,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: scheme.surfaceContainerHighest,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -625,7 +634,7 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
                 width: double.infinity,
                 height: 100,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: scheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
@@ -634,7 +643,7 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
                 width: double.infinity,
                 height: 200,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: scheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
@@ -647,8 +656,8 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Container(
                         height: 70,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
+                        decoration: BoxDecoration(
+                          color: scheme.surfaceContainerHighest,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -678,13 +687,13 @@ class _TenantBrandLogo extends StatelessWidget {
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(9),
       ),
       child: const Icon(
         Icons.storefront_rounded,
         size: 20,
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
     );
     if (uri == null) return fallback;
@@ -694,7 +703,7 @@ class _TenantBrandLogo extends StatelessWidget {
       child: Container(
         width: size,
         height: size,
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         child: Image.network(
           uri.toString(),
           fit: BoxFit.contain,
