@@ -25,7 +25,10 @@ void main() {
     );
     expect(find.text('Ingreso prod.'), findsOneWidget);
     final icon = tester.widget<Icon>(find.byIcon(Icons.move_to_inbox));
-    expect(icon.color, ThemeData.dark(useMaterial3: true).colorScheme.onSurface);
+    expect(
+      icon.color,
+      ThemeData.dark(useMaterial3: true).colorScheme.onSurface,
+    );
     await tester.tap(find.text('Ingreso prod.'));
     expect(taps, 1);
   });

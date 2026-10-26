@@ -34,8 +34,10 @@ void main() {
   });
 
   test('Filtrar no modifica la colección ni sus mapas', () {
-    final result =
-        InventoryStockFiltering.apply(products, InventoryStockFilter.empty);
+    final result = InventoryStockFiltering.apply(
+      products,
+      InventoryStockFilter.empty,
+    );
     expect(products, hasLength(5));
     expect(result, hasLength(2));
     expect(products.first['_totalStock'], 8);
