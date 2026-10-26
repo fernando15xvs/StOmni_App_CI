@@ -255,6 +255,7 @@ class _MovimientosListState extends State<MovimientosList> {
         .where((m) => m['tipo'] == widget.tipo)
         .toList();
     if (filtrados.isEmpty) {
+      final isIncome = widget.tipo == 'ingreso';
       return RefreshIndicator(
         onRefresh: () async => widget.onRefresh(),
         color: primaryColor,
@@ -262,10 +263,49 @@ class _MovimientosListState extends State<MovimientosList> {
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverFillRemaining(
-              child: const Center(
-                child: Text(
-                  "No hay movimientos en esta fecha",
-                  style: TextStyle(color: Colors.grey),
+              hasScrollBody: false,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 28),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 88,
+                        height: 88,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          borderRadius: BorderRadius.circular(22),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.receipt_long_outlined,
+                          size: 40,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'No hay movimientos en esta fecha',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        isIncome
+                            ? 'Aún no hay ingresos registrados para este día.'
+                            : 'Aún no hay egresos registrados para este día.',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

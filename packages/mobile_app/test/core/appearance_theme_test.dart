@@ -31,6 +31,21 @@ void main() {
     expect(light.colorScheme.primary, AccentPalette.colors[2]);
   });
 
+  test('Contraste mejorado distingue superficies en ambos temas', () {
+    final normal = StOmniMobileTheme.create(
+      accent: AccentPalette.colors[0],
+      brightness: Brightness.dark,
+      highContrast: false,
+    );
+    final strong = StOmniMobileTheme.create(
+      accent: AccentPalette.colors[0],
+      brightness: Brightness.dark,
+      highContrast: true,
+    );
+    expect(strong.colorScheme.outline, isNot(normal.colorScheme.outline));
+    expect(strong.dividerTheme.thickness, greaterThan(normal.dividerTheme.thickness!));
+  });
+
   test('Cambiar acento conserva controles independientes', () {
     const settings = AppearanceSettings(
       colorNavigation: false,

@@ -68,10 +68,12 @@ class CustomBottomNav extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(18),
                             color: current == item.index
                                 ? (appearance.colorNavigation
-                                      ? accent.withValues(alpha: 0.13)
-                                      : theme.colorScheme.onSurface.withValues(
-                                          alpha: 0.08,
-                                        ))
+                                      ? (appearance.reduceTransparency
+                                          ? Color.lerp(theme.cardColor, accent, 0.16)!
+                                          : accent.withValues(alpha: 0.13))
+                                      : (appearance.reduceTransparency
+                                          ? Color.lerp(theme.cardColor, theme.colorScheme.onSurface, 0.08)!
+                                          : theme.colorScheme.onSurface.withValues(alpha: 0.08)))
                                 : Colors.transparent,
                           ),
                           child: Column(

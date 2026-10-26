@@ -9,7 +9,9 @@ class StOmniMobileTheme {
     final dark = brightness == Brightness.dark;
     final background = dark ? const Color(0xFF090C0E) : const Color(0xFFF5F7F9);
     final surface = dark ? const Color(0xFF14191D) : Colors.white;
-    final outline = dark ? const Color(0xFF30383E) : const Color(0xFFDCE3E8);
+    final outline = highContrast
+        ? (dark ? const Color(0xFF96ABB6) : const Color(0xFF50616E))
+        : (dark ? const Color(0xFF30383E) : const Color(0xFFDCE3E8));
     final foreground = dark ? const Color(0xFFF4F7F8) : const Color(0xFF152027);
     final scheme = ColorScheme.fromSeed(
       seedColor: accent,
@@ -44,7 +46,10 @@ class StOmniMobileTheme {
         backgroundColor: surface,
         surfaceTintColor: Colors.transparent,
       ),
-      dividerTheme: DividerThemeData(color: outline, thickness: 0.7),
+      dividerTheme: DividerThemeData(
+        color: outline,
+        thickness: highContrast ? 1.2 : 0.7,
+      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: surface,
