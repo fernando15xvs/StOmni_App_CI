@@ -214,7 +214,11 @@ class DashboardCharts extends ConsumerWidget {
     required Function(int) onFiltroChanged,
   }) {
     bool graficoVacio = spots.isEmpty || spots.every((spot) => spot.y == 0);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final trendColor = variacion >= 0
+        ? (isDark ? const Color(0xFF51DBAD) : const Color(0xFF007F60))
+        : (isDark ? const Color(0xFFFF7979) : const Color(0xFFC93038));
     final colorTextoOscuro =
         Theme.of(context).textTheme.bodyLarge?.color ?? const Color(0xFF1E293B);
     final TextStyle estiloTituloSeccion = TextStyle(
@@ -236,22 +240,22 @@ class DashboardCharts extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
+                  color: theme.colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<int>(
                     value: diasFiltro,
                     isDense: true,
-                    dropdownColor: isDark ? Colors.grey.shade900 : Colors.white,
+                    dropdownColor: theme.cardColor,
                     icon: Icon(
                       Icons.keyboard_arrow_down_rounded,
                       size: 16,
-                      color: isDark ? Colors.white70 : Colors.grey.shade700,
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                     style: TextStyle(
                       fontSize: 12,
-                      color: isDark ? Colors.white : Colors.grey.shade700,
+                      color: theme.colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                     ),
                     onChanged: (val) {
@@ -272,7 +276,7 @@ class DashboardCharts extends ConsumerWidget {
             isEgreso ? "Total egresos" : "Total ventas",
             style: TextStyle(
               fontSize: 12,
-              color: Colors.grey.shade500,
+              color: theme.colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -294,17 +298,13 @@ class DashboardCharts extends ConsumerWidget {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: variacion >= 0
-                        ? Colors.green.shade50
-                        : Colors.red.shade50,
+                    color: trendColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     "${variacion >= 0 ? '+' : ''}${variacion.toStringAsFixed(1)}%",
                     style: TextStyle(
-                      color: variacion >= 0
-                          ? Colors.green.shade700
-                          : Colors.red.shade700,
+                      color: trendColor,
                       fontWeight: FontWeight.bold,
                       fontSize: 11,
                     ),
@@ -322,7 +322,7 @@ class DashboardCharts extends ConsumerWidget {
                         ? "No hay egresos en este período"
                         : "No hay ventas en este período",
                     style: TextStyle(
-                      color: Colors.grey.shade500,
+                      color: theme.colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -428,25 +428,13 @@ class DashboardCharts extends ConsumerWidget {
   }
 
   BoxDecoration _decoracionNeumorfica(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
     return BoxDecoration(
-      color: Theme.of(context).cardColor,
+      color: theme.cardColor,
       borderRadius: BorderRadius.circular(20),
-      border: isDark ? null : Border.all(color: Colors.grey.shade100),
-      boxShadow: isDark
-          ? []
-          : [
-              BoxShadow(
-                color: Colors.grey.shade200,
-                blurRadius: 10,
-                offset: const Offset(4, 4),
-              ),
-              const BoxShadow(
-                color: Colors.white,
-                blurRadius: 10,
-                offset: Offset(-4, -4),
-              ),
-            ],
+      border: Border.all(
+        color: theme.colorScheme.outline.withValues(alpha: 0.6),
+      ),
     );
   }
 }
