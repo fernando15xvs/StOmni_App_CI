@@ -16,16 +16,17 @@ class StOmniMobileTheme {
     final onAccent = accent.computeLuminance() > 0.179
         ? Colors.black
         : Colors.white;
-    final scheme = ColorScheme.fromSeed(
-      seedColor: accent,
-      brightness: brightness,
-      surface: surface,
-    ).copyWith(
-      primary: accent,
-      onPrimary: onAccent,
-      onSurface: foreground,
-      outline: outline,
-    );
+    final scheme =
+        ColorScheme.fromSeed(
+          seedColor: accent,
+          brightness: brightness,
+          surface: surface,
+        ).copyWith(
+          primary: accent,
+          onPrimary: onAccent,
+          onSurface: foreground,
+          outline: outline,
+        );
     final base = ThemeData(
       useMaterial3: true,
       brightness: brightness,

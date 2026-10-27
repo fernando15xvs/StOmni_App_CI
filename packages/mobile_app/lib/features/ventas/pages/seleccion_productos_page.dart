@@ -197,7 +197,9 @@ class _SeleccionProductosV2State extends ConsumerState<SeleccionProductosV2> {
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onTertiaryContainer,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onTertiaryContainer,
                       ),
                     ),
                   ],
@@ -245,7 +247,9 @@ class _SeleccionProductosV2State extends ConsumerState<SeleccionProductosV2> {
                         ? IconButton(
                             icon: Icon(
                               Icons.clear,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
                             onPressed: () {
                               _searchController.clear();
@@ -288,7 +292,9 @@ class _SeleccionProductosV2State extends ConsumerState<SeleccionProductosV2> {
                         Text(
                           "No se encontraron productos",
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],

@@ -125,7 +125,8 @@ class ProductCard extends StatelessWidget {
       spacing: 5,
       runSpacing: 4,
       children: [
-        if (codigo != null && codigo.isNotEmpty) _badge(context, codigo, colorTema),
+        if (codigo != null && codigo.isNotEmpty)
+          _badge(context, codigo, colorTema),
         _badge(context, marca.toUpperCase(), Colors.blueGrey),
         _badge(
           context,
