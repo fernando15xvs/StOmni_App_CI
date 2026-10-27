@@ -307,10 +307,10 @@ class _NuevoGastoPageState extends ConsumerState<NuevoGastoPage>
       appBar: AppBar(
         title: const Text(
           'Nuevo Gasto',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: colorRojo,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
       ),
       body: Column(
@@ -706,9 +706,7 @@ class _NuevoGastoPageState extends ConsumerState<NuevoGastoPage>
                   ? const CircularProgressIndicator(color: Colors.white)
                   : Text(
                       _esDeuda ? 'REGISTRAR DEUDA' : 'GUARDAR GASTO',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                      style: const TextStyle(fontWeight: FontWeight.bold,
                         fontSize: 16,
                         letterSpacing: 1,
                       ),

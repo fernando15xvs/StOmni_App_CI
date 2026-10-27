@@ -203,10 +203,10 @@ class _VerCotizacionPageState extends ConsumerState<VerCotizacionPage> {
         appBar: AppBar(
           title: const Text(
             'Detalle de Cotización',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          backgroundColor: colorTema,
-          iconTheme: const IconThemeData(color: Colors.white),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
           elevation: 0,
         ),
         body: const ShimmerDetalle(),
@@ -219,10 +219,10 @@ class _VerCotizacionPageState extends ConsumerState<VerCotizacionPage> {
         appBar: AppBar(
           title: const Text(
             'Detalle de Cotización',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          backgroundColor: colorTema,
-          iconTheme: const IconThemeData(color: Colors.white),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
           elevation: 0,
         ),
         body: _buildErrorView(),
@@ -249,10 +249,10 @@ class _VerCotizacionPageState extends ConsumerState<VerCotizacionPage> {
       appBar: AppBar(
         title: const Text(
           'Detalle de Cotización',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: colorTema,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
         actions: [
           IconButton(

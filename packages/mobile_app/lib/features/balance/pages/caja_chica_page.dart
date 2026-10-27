@@ -579,11 +579,11 @@ class _CajaChicaPageState extends ConsumerState<CajaChicaPage> {
       appBar: AppBar(
         title: const Text(
           'Caja Chica',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: colorVerde,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         actions: [
           IconButton(
             icon: const Icon(Icons.history_rounded),

@@ -1071,13 +1071,12 @@ class _NuevoProductoPageState extends ConsumerState<NuevoProductoPage> {
       appBar: AppBar(
         title: Text(
           widget.productoEditar == null ? 'Nuevo Producto' : 'Editar Producto',
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+          style: const TextStyle(fontWeight: FontWeight.bold,
+            
           ),
         ),
-        backgroundColor: colorVerde,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
         centerTitle: true,
       ),
