@@ -168,10 +168,10 @@ class _VerGastoPageState extends ConsumerState<VerGastoPage> {
         appBar: AppBar(
           title: const Text(
             'Detalle del Gasto',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.w800),
           ),
-          backgroundColor: colorVerde,
-          iconTheme: const IconThemeData(color: Colors.white),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
           elevation: 0,
         ),
         body: const ShimmerDetalle(),
@@ -185,10 +185,10 @@ class _VerGastoPageState extends ConsumerState<VerGastoPage> {
         appBar: AppBar(
           title: const Text(
             'Detalle del Gasto',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.w800),
           ),
-          backgroundColor: colorVerde,
-          iconTheme: const IconThemeData(color: Colors.white),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
           elevation: 0,
         ),
         body: Center(
@@ -232,10 +232,10 @@ class _VerGastoPageState extends ConsumerState<VerGastoPage> {
       appBar: AppBar(
         title: const Text(
           'Detalle del Gasto',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.w800),
         ),
-        backgroundColor: colorVerde,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
       ),
       body: SingleChildScrollView(

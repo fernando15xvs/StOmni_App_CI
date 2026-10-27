@@ -160,14 +160,10 @@ class _DetalleBalancePageState extends State<DetalleBalancePage> {
       appBar: AppBar(
         title: const Text(
           'Detalle del balance',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
+          style: TextStyle(fontWeight: FontWeight.w800),
         ),
-        backgroundColor: colorPrincipal,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
         actions: [
           Tooltip(

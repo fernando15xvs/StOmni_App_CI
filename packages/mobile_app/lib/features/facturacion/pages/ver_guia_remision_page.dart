@@ -377,10 +377,10 @@ class _VerGuiaRemisionPageState extends ConsumerState<VerGuiaRemisionPage> {
       appBar: AppBar(
         title: const Text(
           'Detalle de Guía',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.w800),
         ),
-        backgroundColor: _color,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         actions: [
           if (_guia != null && _guia!['ticket_sunat'] != null)
             Padding(
@@ -389,16 +389,14 @@ class _VerGuiaRemisionPageState extends ConsumerState<VerGuiaRemisionPage> {
                 onPressed: _procesando
                     ? null
                     : () => _cargar(consultarSunat: true),
-                icon: const Icon(Icons.sync, color: Colors.white, size: 18),
+                icon: const Icon(Icons.sync, size: 18),
                 label: const Text(
                   'Consultar SUNAT',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 style: TextButton.styleFrom(
-                  backgroundColor: Colors.white.withValues(alpha: 0.2),
+                  foregroundColor: Theme.of(context).colorScheme.onSurface,
+                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),

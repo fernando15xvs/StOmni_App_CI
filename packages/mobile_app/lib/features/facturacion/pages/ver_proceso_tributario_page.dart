@@ -190,10 +190,10 @@ class _VerProcesoTributarioPageState
       appBar: AppBar(
         title: const Text(
           'Detalle tributario',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.w800),
         ),
-        backgroundColor: _color,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
       ),
       body: _cargando
           ? Center(child: CircularProgressIndicator(color: _color))

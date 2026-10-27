@@ -84,10 +84,10 @@ class _SolicitarBajaTributariaPageState
       appBar: AppBar(
         title: const Text(
           'Comunicar baja tributaria',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.w800),
         ),
-        backgroundColor: color,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
       ),
       body: Form(
         key: _formKey,
