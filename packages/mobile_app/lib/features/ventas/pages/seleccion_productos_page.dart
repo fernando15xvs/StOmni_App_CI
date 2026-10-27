@@ -248,7 +248,9 @@ class _SeleccionProductosV2State extends ConsumerState<SeleccionProductosV2> {
                     fillColor: Theme.of(context).cardColor,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       vertical: 0,

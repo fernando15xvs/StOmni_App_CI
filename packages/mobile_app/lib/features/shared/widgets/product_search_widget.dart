@@ -145,7 +145,7 @@ class _ProductSearchWidgetState extends ConsumerState<ProductSearchWidget> {
             offset: Offset(0, size.height + 5),
             child: Material(
               elevation: 0,
-               borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12),
               color: Theme.of(context).cardColor,
               child: Container(
                 constraints: const BoxConstraints(maxHeight: 280),
@@ -204,7 +204,8 @@ class _ProductSearchWidgetState extends ConsumerState<ProductSearchWidget> {
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 color: p.activo
-                                    ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                                    ? Theme.of(context).colorScheme.primary
+                                          .withValues(alpha: 0.1)
                                     : Colors.grey.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -223,7 +224,9 @@ class _ProductSearchWidgetState extends ConsumerState<ProductSearchWidget> {
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: p.activo
-                                          ? Theme.of(context).colorScheme.primary
+                                          ? Theme.of(
+                                              context,
+                                            ).colorScheme.primary
                                           : Colors.grey,
                                       fontSize: 15,
                                     ),
@@ -253,7 +256,9 @@ class _ProductSearchWidgetState extends ConsumerState<ProductSearchWidget> {
                             subtitle: Text(
                               'Venta por: ${p.tipoVenta}\nStock: $stockMostrado',
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
                                 fontSize: 12,
                               ),
                             ),
@@ -319,7 +324,10 @@ class _ProductSearchWidgetState extends ConsumerState<ProductSearchWidget> {
             color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.bold,
           ),
-          prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
+          prefixIcon: Icon(
+            Icons.search,
+            color: Theme.of(context).colorScheme.primary,
+          ),
           suffixIcon: _controller.text.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.clear),
@@ -349,7 +357,10 @@ class _ProductSearchWidgetState extends ConsumerState<ProductSearchWidget> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+            borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.primary,
+              width: 2,
+            ),
           ),
         ),
       ),

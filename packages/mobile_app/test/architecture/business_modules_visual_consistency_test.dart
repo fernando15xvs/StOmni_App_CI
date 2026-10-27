@@ -56,7 +56,12 @@ void main() {
     final source = File(
       'lib/features/shared/widgets/product_card.dart',
     ).readAsStringSync();
-    final mobile = source.substring(source.indexOf('    return Card(', source.indexOf('    if (isDesktop) {')));
+    final mobile = source.substring(
+      source.indexOf(
+        '    return Card(',
+        source.indexOf('    if (isDesktop) {'),
+      ),
+    );
     expect(mobile, contains('elevation: 0,'));
     expect(mobile, contains('color: Theme.of(context).cardColor'));
     expect(mobile, contains('Theme.of(context).colorScheme.outline'));

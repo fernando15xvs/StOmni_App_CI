@@ -1711,8 +1711,7 @@ class _VerVentaPageState extends ConsumerState<VerVentaPage> {
                 ),
                 label: const Text(
                   'CREAR GUÍA DE REMISIÓN',
-                  style: TextStyle(fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurple,
@@ -1751,8 +1750,7 @@ class _VerVentaPageState extends ConsumerState<VerVentaPage> {
                             ),
                             label: const Text(
                               'EMITIR NOTA DE CRÉDITO',
-                              style: TextStyle(fontWeight: FontWeight.bold,
-                              ),
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.orange.shade800,

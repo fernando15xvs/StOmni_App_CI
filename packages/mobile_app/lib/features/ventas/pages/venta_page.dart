@@ -293,7 +293,6 @@ class _DetalleVentaPageState extends ConsumerState<DetalleVentaPage>
                 indicator: BoxDecoration(
                   color: colorTemaActual,
                   borderRadius: BorderRadius.circular(12),
-
                 ),
                 labelColor: Colors.white,
                 unselectedLabelColor: isDark
