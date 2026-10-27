@@ -31,6 +31,31 @@ void main() {
     expect(light.colorScheme.primary, AccentPalette.colors[2]);
   });
 
+  test('Ocho acentos ofrecen contraste de al menos 4.5 en acciones', () {
+    for (final accent in AccentPalette.colors) {
+      for (final brightness in [Brightness.light, Brightness.dark]) {
+        final scheme = StOmniMobileTheme.create(
+          accent: accent,
+          brightness: brightness,
+          highContrast: false,
+        ).colorScheme;
+        final primaryLuminance = scheme.primary.computeLuminance();
+        final textLuminance = scheme.onPrimary.computeLuminance();
+        final lighter = primaryLuminance > textLuminance
+            ? primaryLuminance
+            : textLuminance;
+        final darker = primaryLuminance < textLuminance
+            ? primaryLuminance
+            : textLuminance;
+        expect(
+          (lighter + 0.05) / (darker + 0.05),
+          greaterThanOrEqualTo(4.5),
+          reason: 'Acento $accent en $brightness',
+        );
+      }
+    }
+  });
+
   test('Contraste mejorado distingue superficies en ambos temas', () {
     final normal = StOmniMobileTheme.create(
       accent: AccentPalette.colors[0],

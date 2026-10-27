@@ -230,14 +230,19 @@ class _SeleccionProductosV2State extends ConsumerState<SeleccionProductosV2> {
                   controller: _searchController,
                   decoration: InputDecoration(
                     hintText: 'Buscar por código, nombre o marca...',
-                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    hintStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                     prefixIcon: Icon(
                       Icons.search,
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear, color: Colors.grey),
+                            icon: Icon(
+                              Icons.clear,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                             onPressed: () {
                               _searchController.clear();
                               setState(() => busqueda = "");
@@ -273,12 +278,14 @@ class _SeleccionProductosV2State extends ConsumerState<SeleccionProductosV2> {
                         Icon(
                           Icons.search_off,
                           size: 60,
-                          color: Colors.grey[300],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         const SizedBox(height: 10),
-                        const Text(
+                        Text(
                           "No se encontraron productos",
-                          style: TextStyle(color: Colors.grey),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ],
                     ),
@@ -309,33 +316,42 @@ class _SeleccionProductosV2State extends ConsumerState<SeleccionProductosV2> {
         ),
         child: SafeArea(
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    resumenCantidades,
-                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                  ),
-                  Text(
-                    'Total Ref: S/ ${NumberFormat('#,##0.00').format(dineroTotal)}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      resumenCantidades,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 12,
+                      ),
                     ),
-                  ),
-                ],
+                    Text(
+                      'Total Ref: S/ ${NumberFormat('#,##0.00').format(dineroTotal)}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               ElevatedButton(
                 onPressed: carrito.isNotEmpty ? _continuar : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 25,
+                    horizontal: 16,
                     vertical: 12,
                   ),
                   shape: RoundedRectangleBorder(

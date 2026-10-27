@@ -125,16 +125,17 @@ class ProductCard extends StatelessWidget {
       spacing: 5,
       runSpacing: 4,
       children: [
-        if (codigo != null && codigo.isNotEmpty) _badge(codigo, colorTema),
-        _badge(marca.toUpperCase(), Colors.blueGrey),
+        if (codigo != null && codigo.isNotEmpty) _badge(context, codigo, colorTema),
+        _badge(context, marca.toUpperCase(), Colors.blueGrey),
         _badge(
+          context,
           snapshot.unitConfiguration == null
               ? StockUtils.etiquetaContenido(tipoVenta, pcs)
               : 'BASE: ${snapshot.commercialProfile.baseUnit.singularLabel.toUpperCase()}',
           Colors.amber,
         ),
         if (producto['permitir_sin_stock'] == true)
-          _badge('S/ STOCK', Colors.deepOrange),
+          _badge(context, 'S/ STOCK', Colors.deepOrange),
       ],
     );
 
@@ -205,7 +206,7 @@ class ProductCard extends StatelessWidget {
                         Positioned(
                           right: 0,
                           bottom: 0,
-                          child: _seleccionBadge(resumen),
+                          child: _seleccionBadge(context, resumen),
                         ),
                     ],
                   ),
@@ -247,7 +248,7 @@ class ProductCard extends StatelessWidget {
               const SizedBox(width: 8),
               Column(
                 children: [
-                  if (seleccionado) _seleccionBadge(resumen),
+                  if (seleccionado) _seleccionBadge(context, resumen),
                   const SizedBox(height: 8),
                   if (seleccionado && onDeleteFromCart != null)
                     IconButton(
@@ -270,7 +271,7 @@ class ProductCard extends StatelessWidget {
   String _resumenCarrito(Iterable<SaleCartLine> lineas) =>
       SaleCartSummaryFormatter.format(SaleCart(lineas));
 
-  Widget _seleccionBadge(String texto) {
+  Widget _seleccionBadge(BuildContext context, String texto) {
     return Container(
       constraints: const BoxConstraints(minWidth: 34),
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 7),
@@ -281,8 +282,8 @@ class ProductCard extends StatelessWidget {
       child: Text(
         texto,
         textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onPrimary,
           fontWeight: FontWeight.bold,
           fontSize: 10,
         ),
@@ -296,14 +297,14 @@ class ProductCard extends StatelessWidget {
     double precio,
     IconData icono,
   ) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color actualColor = isDark ? Colors.greenAccent : colorTema;
+    final theme = Theme.of(context);
+    final Color actualColor = theme.colorScheme.onSurface;
     return Padding(
       padding: const EdgeInsets.only(bottom: 2),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icono, size: 12, color: actualColor),
+          Icon(icono, size: 12, color: theme.colorScheme.primary),
           const SizedBox(width: 4),
           Flexible(
             child: Text(
@@ -320,7 +321,7 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  Widget _badge(String texto, Color color) {
+  Widget _badge(BuildContext context, String texto, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
@@ -333,7 +334,7 @@ class ProductCard extends StatelessWidget {
         style: TextStyle(
           fontSize: 8.5,
           fontWeight: FontWeight.bold,
-          color: color,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
       ),
     );

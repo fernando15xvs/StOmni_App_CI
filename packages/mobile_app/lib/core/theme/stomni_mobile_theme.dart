@@ -13,11 +13,19 @@ class StOmniMobileTheme {
         ? (dark ? const Color(0xFF96ABB6) : const Color(0xFF50616E))
         : (dark ? const Color(0xFF30383E) : const Color(0xFFDCE3E8));
     final foreground = dark ? const Color(0xFFF4F7F8) : const Color(0xFF152027);
+    final onAccent = ThemeData.estimateBrightnessForColor(accent) == Brightness.dark
+        ? Colors.white
+        : Colors.black;
     final scheme = ColorScheme.fromSeed(
       seedColor: accent,
       brightness: brightness,
       surface: surface,
-    ).copyWith(primary: accent, onSurface: foreground, outline: outline);
+    ).copyWith(
+      primary: accent,
+      onPrimary: onAccent,
+      onSurface: foreground,
+      outline: outline,
+    );
     final base = ThemeData(
       useMaterial3: true,
       brightness: brightness,

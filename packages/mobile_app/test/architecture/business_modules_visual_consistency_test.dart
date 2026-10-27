@@ -50,6 +50,9 @@ void main() {
     expect(source, contains("'Seleccionar productos'"));
     expect(source, contains('Theme.of(context).cardColor'));
     expect(source, isNot(contains('Colors.greenAccent')));
+    expect(source, contains('colorScheme.onSurfaceVariant'));
+    expect(source, contains('colorScheme.onPrimary'));
+    expect(source, contains('TextOverflow.ellipsis'));
   });
 
   test('Tarjetas de producto móviles no aplican sombras antiguas', () {
@@ -65,5 +68,8 @@ void main() {
     expect(mobile, contains('elevation: 0,'));
     expect(mobile, contains('color: Theme.of(context).cardColor'));
     expect(mobile, contains('Theme.of(context).colorScheme.outline'));
+    expect(source, isNot(contains('Colors.greenAccent')));
+    expect(source, contains('colorScheme.onPrimary'));
+    expect(source, contains('colorScheme.onSurface'));
   });
 }
