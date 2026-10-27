@@ -90,14 +90,11 @@ class _NuevaCotizacionPageState extends ConsumerState<NuevaCotizacionPage> {
 
     if (!almacenStateAsync.hasValue && almacenStateAsync.isLoading) {
       return Scaffold(
-        backgroundColor: Colors.grey[100],
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
-          title: const Text(
-            'Nueva Cotización',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: colorTema,
-          iconTheme: const IconThemeData(color: Colors.white),
+          title: const Text('Nueva cotización'),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
         ),
         body: Center(child: CircularProgressIndicator(color: colorTema)),
       );
@@ -105,14 +102,11 @@ class _NuevaCotizacionPageState extends ConsumerState<NuevaCotizacionPage> {
 
     if (almacenStateAsync.hasError && !almacenStateAsync.hasValue) {
       return Scaffold(
-        backgroundColor: Colors.grey[100],
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
-          title: const Text(
-            'Nueva Cotización',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: colorTema,
-          iconTheme: const IconThemeData(color: Colors.white),
+          title: const Text('Nueva cotización'),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
         ),
         body: Center(child: Text('Error: ${almacenStateAsync.error}')),
       );
@@ -140,12 +134,9 @@ class _NuevaCotizacionPageState extends ConsumerState<NuevaCotizacionPage> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text(
-          'Nueva Cotización',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: colorTema,
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text('Nueva cotización'),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
       ),
       body: Column(
@@ -159,10 +150,7 @@ class _NuevaCotizacionPageState extends ConsumerState<NuevaCotizacionPage> {
           Container(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
             decoration: BoxDecoration(
-              color: colorTema,
-              borderRadius: const BorderRadius.vertical(
-                bottom: Radius.circular(20),
-              ),
+              color: Theme.of(context).scaffoldBackgroundColor,
             ),
             child: Center(
               child: Container(
@@ -183,12 +171,12 @@ class _NuevaCotizacionPageState extends ConsumerState<NuevaCotizacionPage> {
                           )
                         : null,
                     filled: true,
-                    fillColor: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.grey.shade900
-                        : Colors.white,
+                    fillColor: Theme.of(context).cardColor,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       vertical: 0,
@@ -347,7 +335,7 @@ class _NuevaCotizacionPageState extends ConsumerState<NuevaCotizacionPage> {
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1F2937),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 25,

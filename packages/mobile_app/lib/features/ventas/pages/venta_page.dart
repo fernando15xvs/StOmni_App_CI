@@ -270,29 +270,22 @@ class _DetalleVentaPageState extends ConsumerState<DetalleVentaPage>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? Theme.of(context).scaffoldBackgroundColor
-          : Colors.grey[50],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text(
-          'Procesar Venta',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: colorTema,
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text('Procesar venta'),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
       ),
       body: Column(
         children: [
           Container(
-            color: isDark ? Theme.of(context).cardColor : Colors.white,
+            color: Theme.of(context).cardColor,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Container(
               height: 50,
               decoration: BoxDecoration(
-                color: isDark
-                    ? Theme.of(context).scaffoldBackgroundColor
-                    : Colors.grey[100],
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: TabBar(
@@ -300,13 +293,7 @@ class _DetalleVentaPageState extends ConsumerState<DetalleVentaPage>
                 indicator: BoxDecoration(
                   color: colorTemaActual,
                   borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colorTemaActual.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
+
                 ),
                 labelColor: Colors.white,
                 unselectedLabelColor: isDark
@@ -372,7 +359,7 @@ class _DetalleVentaPageState extends ConsumerState<DetalleVentaPage>
                           style: TextStyle(
                             fontSize: 36,
                             fontWeight: FontWeight.w900,
-                            color: isDark ? Colors.white : Colors.black87,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ],
@@ -425,14 +412,10 @@ class _DetalleVentaPageState extends ConsumerState<DetalleVentaPage>
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isDark ? Theme.of(context).cardColor : Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: isDark ? Colors.black54 : Colors.black12,
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
+          color: Theme.of(context).cardColor,
+          border: Border(
+            top: BorderSide(color: Theme.of(context).colorScheme.outline),
+          ),
         ),
         child: SafeArea(
           child: SizedBox(
@@ -474,7 +457,7 @@ class _DetalleVentaPageState extends ConsumerState<DetalleVentaPage>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? Theme.of(context).cardColor : Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isDark ? Colors.grey[700]! : Colors.grey.shade200,
@@ -692,7 +675,7 @@ class _DetalleVentaPageState extends ConsumerState<DetalleVentaPage>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? Theme.of(context).cardColor : Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isDark ? Colors.grey[700]! : Colors.grey.shade200,
@@ -773,7 +756,7 @@ class _DetalleVentaPageState extends ConsumerState<DetalleVentaPage>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? Theme.of(context).cardColor : Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isDark ? Colors.grey[700]! : Colors.grey.shade200,

@@ -151,9 +151,7 @@ class ProductCard extends StatelessWidget {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 15,
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.white
-                : Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 7),
@@ -221,12 +219,16 @@ class ProductCard extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      elevation: seleccionado ? 4 : 1,
+      elevation: 0,
+      color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-        side: seleccionado
-            ? BorderSide(color: colorTema, width: 2)
-            : BorderSide.none,
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: seleccionado
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.outline,
+          width: seleccionado ? 2 : 1,
+        ),
       ),
       child: InkWell(
         onTap: onTap,

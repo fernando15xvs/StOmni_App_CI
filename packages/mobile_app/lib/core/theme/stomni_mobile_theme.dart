@@ -31,6 +31,10 @@ class StOmniMobileTheme {
         foregroundColor: foreground,
         elevation: 0,
         centerTitle: false,
+        titleTextStyle: base.textTheme.titleLarge?.copyWith(
+          color: foreground,
+          fontWeight: FontWeight.w800,
+        ),
         surfaceTintColor: Colors.transparent,
       ),
       cardTheme: CardThemeData(

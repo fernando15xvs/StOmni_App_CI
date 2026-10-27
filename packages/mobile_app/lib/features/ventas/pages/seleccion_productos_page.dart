@@ -128,14 +128,11 @@ class _SeleccionProductosV2State extends ConsumerState<SeleccionProductosV2> {
 
     if (!almacenStateAsync.hasValue && almacenStateAsync.isLoading) {
       return Scaffold(
-        backgroundColor: Colors.grey[100],
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
-          title: const Text(
-            'Seleccionar Productos',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          iconTheme: const IconThemeData(color: Colors.white),
+          title: const Text('Seleccionar productos'),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
         ),
         body: Center(
           child: CircularProgressIndicator(
@@ -147,14 +144,11 @@ class _SeleccionProductosV2State extends ConsumerState<SeleccionProductosV2> {
 
     if (almacenStateAsync.hasError && !almacenStateAsync.hasValue) {
       return Scaffold(
-        backgroundColor: Colors.grey[100],
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
-          title: const Text(
-            'Seleccionar Productos',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          iconTheme: const IconThemeData(color: Colors.white),
+          title: const Text('Seleccionar productos'),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
         ),
         body: Center(child: Text("Error: ${almacenStateAsync.error}")),
       );
@@ -181,13 +175,7 @@ class _SeleccionProductosV2State extends ConsumerState<SeleccionProductosV2> {
       appBar: AppBar(
         title: Row(
           children: [
-            const Text(
-              'Seleccionar Productos',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            const Text('Seleccionar productos'),
             if (_modoOffline) ...[
               const SizedBox(width: 10),
               Container(
@@ -214,8 +202,8 @@ class _SeleccionProductosV2State extends ConsumerState<SeleccionProductosV2> {
             ],
           ],
         ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
       ),
       body: Column(
@@ -233,10 +221,7 @@ class _SeleccionProductosV2State extends ConsumerState<SeleccionProductosV2> {
           Container(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-              borderRadius: const BorderRadius.vertical(
-                bottom: Radius.circular(20),
-              ),
+              color: Theme.of(context).scaffoldBackgroundColor,
             ),
             child: Center(
               child: Container(
@@ -260,12 +245,10 @@ class _SeleccionProductosV2State extends ConsumerState<SeleccionProductosV2> {
                           )
                         : null,
                     filled: true,
-                    fillColor: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.grey[900]
-                        : Colors.white,
+                    fillColor: Theme.of(context).cardColor,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       vertical: 0,
@@ -318,13 +301,9 @@ class _SeleccionProductosV2State extends ConsumerState<SeleccionProductosV2> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
-            ),
-          ],
+          border: Border(
+            top: BorderSide(color: Theme.of(context).colorScheme.outline),
+          ),
         ),
         child: SafeArea(
           child: Row(
@@ -343,9 +322,7 @@ class _SeleccionProductosV2State extends ConsumerState<SeleccionProductosV2> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.greenAccent
-                          : Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ],
