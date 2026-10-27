@@ -141,11 +141,15 @@ class _DeudasPageState extends ConsumerState<DeudasPage>
               child: TabBar(
                 controller: _tabController,
                 indicator: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.14),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(22),
                 ),
                 labelColor: Theme.of(context).colorScheme.primary,
-                unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                unselectedLabelColor: Theme.of(
+                  context,
+                ).colorScheme.onSurfaceVariant,
                 labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                 dividerColor: Colors.transparent,
                 tabs: const [

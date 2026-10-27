@@ -120,7 +120,9 @@ class GlobalDateFilterWidget {
         border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Theme(
-        data: Theme.of(context).copyWith(canvasColor: Theme.of(context).cardColor),
+        data: Theme.of(
+          context,
+        ).copyWith(canvasColor: Theme.of(context).cardColor),
         child: DropdownButtonHideUnderline(
           child: DropdownButton<String>(
             value: filterState.filtroTipo == 'Personalizado'

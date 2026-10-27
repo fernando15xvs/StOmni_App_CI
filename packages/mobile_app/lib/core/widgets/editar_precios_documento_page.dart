@@ -88,8 +88,7 @@ class _EditarPreciosDocumentoPageState
       appBar: AppBar(
         title: Text(
           widget.titulo,
-          style: const TextStyle(fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         foregroundColor: Theme.of(context).colorScheme.onSurface,
