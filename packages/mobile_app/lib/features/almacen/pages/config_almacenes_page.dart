@@ -20,10 +20,10 @@ class ConfigAlmacenesPage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text(
           'Configurar almacenes',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.w800),
         ),
-        backgroundColor: AppColors.almacenes,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
       ),
       body: asyncState.when(
         loading: () => Center(

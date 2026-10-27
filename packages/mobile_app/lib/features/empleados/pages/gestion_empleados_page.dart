@@ -509,10 +509,10 @@ class _GestionEmpleadosPageState extends ConsumerState<GestionEmpleadosPage> {
       appBar: AppBar(
         title: const Text(
           'Gestión de Personal',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.w800),
         ),
-        backgroundColor: AppColors.personal,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
         actions: [
           IconButton(

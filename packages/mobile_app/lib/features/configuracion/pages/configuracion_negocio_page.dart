@@ -679,12 +679,12 @@ class _ConfiguracionNegocioPageState
         appBar: AppBar(
           title: const Text(
             'Configuración de la Empresa',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+            style: TextStyle(fontWeight: FontWeight.w800),
           ),
-          backgroundColor: AppColors.empresa,
-          iconTheme: const IconThemeData(color: Colors.white),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
           elevation: 0,
-          centerTitle: true,
+          centerTitle: false,
         ),
         body: Center(
           child: CircularProgressIndicator(color: AppColors.empresa),
@@ -697,12 +697,12 @@ class _ConfiguracionNegocioPageState
       appBar: AppBar(
         title: const Text(
           'Configuración de la Empresa',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          style: TextStyle(fontWeight: FontWeight.w800),
         ),
-        backgroundColor: AppColors.empresa,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
-        centerTitle: true,
+        centerTitle: false,
         actions: [
           IconButton(
             tooltip: 'Capacidades del negocio',

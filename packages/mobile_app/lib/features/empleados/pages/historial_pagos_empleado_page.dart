@@ -170,11 +170,7 @@ class _HistorialPagosEmpleadoPageState
           children: [
             const Text(
               'Historial de Pagos',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w800),
             ),
             GlobalDateFilterWidget.buildTitleWidget(
               filterState: _dateFilter,
@@ -182,8 +178,8 @@ class _HistorialPagosEmpleadoPageState
             ),
           ],
         ),
-        backgroundColor: AppColors.personal,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
         actions: [
           Theme(
@@ -201,12 +197,12 @@ class _HistorialPagosEmpleadoPageState
               icon: Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.tune_rounded,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                   size: 22,
                 ),
               ),

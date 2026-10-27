@@ -202,13 +202,10 @@ class _NuevoPagoEmpleadoPageState extends ConsumerState<NuevoPagoEmpleadoPage> {
         title: Text(
           'Pago a $nombreEmpleado',
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontWeight: FontWeight.w800),
         ),
-        backgroundColor: colorTema,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
       ),
       body: SingleChildScrollView(

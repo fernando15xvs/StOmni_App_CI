@@ -118,22 +118,22 @@ class _HistorialCajaPageState extends ConsumerState<HistorialCajaPage> {
           ? Theme.of(context).scaffoldBackgroundColor
           : Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Historial', style: TextStyle(color: Colors.white)),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text('Historial', style: TextStyle(fontWeight: FontWeight.w800)),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: _filtroSeleccionado,
-                dropdownColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                icon: const Icon(
+                dropdownColor: Theme.of(context).cardColor,
+                icon: Icon(
                   Icons.filter_alt_outlined,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                 ),
                 selectedItemBuilder: (_) => _filtros.map<Widget>((item) {
@@ -142,7 +142,7 @@ class _HistorialCajaPageState extends ConsumerState<HistorialCajaPage> {
                       item == 'Personalizado' && _fechaInicio != null
                           ? '${DateFormat('dd/MM').format(_fechaInicio!)} - ${DateFormat('dd/MM').format(_fechaFin!)}'
                           : item,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                     ),
                   );
                 }).toList(),
@@ -152,7 +152,7 @@ class _HistorialCajaPageState extends ConsumerState<HistorialCajaPage> {
                     child: Text(
                       value,
                       style: TextStyle(
-                        color: isDark ? Colors.white : Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   );

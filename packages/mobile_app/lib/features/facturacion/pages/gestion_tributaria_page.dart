@@ -176,10 +176,10 @@ class _GestionTributariaPageState extends ConsumerState<GestionTributariaPage> {
         appBar: AppBar(
           title: const Text(
             'Procesos tributarios',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.w800),
           ),
-          backgroundColor: color,
-          iconTheme: const IconThemeData(color: Colors.white),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
         ),
         body: const Center(
           child: Padding(
@@ -201,11 +201,7 @@ class _GestionTributariaPageState extends ConsumerState<GestionTributariaPage> {
           children: [
             const Text(
               'Procesos tributarios',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w800),
             ),
             GlobalDateFilterWidget.buildTitleWidget(
               filterState: _dateFilter,
@@ -213,8 +209,8 @@ class _GestionTributariaPageState extends ConsumerState<GestionTributariaPage> {
             ),
           ],
         ),
-        backgroundColor: color,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         actions: [
           Theme(
             data: Theme.of(context).copyWith(
