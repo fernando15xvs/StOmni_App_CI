@@ -144,17 +144,15 @@ class _ProductSearchWidgetState extends ConsumerState<ProductSearchWidget> {
             showWhenUnlinked: false,
             offset: Offset(0, size.height + 5),
             child: Material(
-              elevation: 4,
-              borderRadius: BorderRadius.circular(12),
+              elevation: 0,
+               borderRadius: BorderRadius.circular(12),
               color: Theme.of(context).cardColor,
               child: Container(
                 constraints: const BoxConstraints(maxHeight: 280),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white.withValues(alpha: 0.05)
-                        : Colors.grey.shade200,
+                    color: Theme.of(context).colorScheme.outline,
                   ),
                 ),
                 child: _buscando
@@ -166,7 +164,7 @@ class _ProductSearchWidgetState extends ConsumerState<ProductSearchWidget> {
                             height: 24,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: widget.primaryColor,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
                         ),
@@ -206,14 +204,14 @@ class _ProductSearchWidgetState extends ConsumerState<ProductSearchWidget> {
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 color: p.activo
-                                    ? widget.primaryColor.withValues(alpha: 0.1)
+                                    ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
                                     : Colors.grey.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Icon(
                                 Icons.inventory_2,
                                 color: p.activo
-                                    ? widget.primaryColor
+                                    ? Theme.of(context).colorScheme.primary
                                     : Colors.grey,
                               ),
                             ),
@@ -225,7 +223,7 @@ class _ProductSearchWidgetState extends ConsumerState<ProductSearchWidget> {
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: p.activo
-                                          ? widget.primaryColor
+                                          ? Theme.of(context).colorScheme.primary
                                           : Colors.grey,
                                       fontSize: 15,
                                     ),
@@ -255,11 +253,7 @@ class _ProductSearchWidgetState extends ConsumerState<ProductSearchWidget> {
                             subtitle: Text(
                               'Venta por: ${p.tipoVenta}\nStock: $stockMostrado',
                               style: TextStyle(
-                                color:
-                                    Theme.of(context).brightness ==
-                                        Brightness.dark
-                                    ? Colors.white
-                                    : Colors.grey.shade600,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 fontSize: 12,
                               ),
                             ),
@@ -322,10 +316,10 @@ class _ProductSearchWidgetState extends ConsumerState<ProductSearchWidget> {
           hintText: 'Buscar producto...',
           labelText: 'Nombre del producto',
           floatingLabelStyle: TextStyle(
-            color: widget.primaryColor,
+            color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.bold,
           ),
-          prefixIcon: Icon(Icons.search, color: widget.primaryColor),
+          prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
           suffixIcon: _controller.text.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.clear),
@@ -336,9 +330,7 @@ class _ProductSearchWidgetState extends ConsumerState<ProductSearchWidget> {
                 )
               : null,
           filled: true,
-          fillColor: Theme.of(context).brightness == Brightness.dark
-              ? Colors.white.withValues(alpha: 0.04)
-              : Colors.white,
+          fillColor: Theme.of(context).cardColor,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 20,
             vertical: 12,
@@ -346,22 +338,18 @@ class _ProductSearchWidgetState extends ConsumerState<ProductSearchWidget> {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
             borderSide: BorderSide(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white.withValues(alpha: 0.05)
-                  : Colors.grey.shade300,
+              color: Theme.of(context).colorScheme.outline,
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
             borderSide: BorderSide(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white.withValues(alpha: 0.05)
-                  : Colors.grey.shade300,
+              color: Theme.of(context).colorScheme.outline,
             ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide(color: widget.primaryColor, width: 2),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
           ),
         ),
       ),

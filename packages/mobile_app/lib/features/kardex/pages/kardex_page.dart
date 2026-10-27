@@ -209,7 +209,6 @@ class _KardexPageState extends ConsumerState<KardexPage> {
             const Text(
               'Kardex de Inventario',
               style: TextStyle(
-                color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
               ),
@@ -220,8 +219,8 @@ class _KardexPageState extends ConsumerState<KardexPage> {
             ),
           ],
         ),
-        backgroundColor: colorPrincipal,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         actions: [
           Theme(
             data: Theme.of(context).copyWith(
@@ -247,12 +246,12 @@ class _KardexPageState extends ConsumerState<KardexPage> {
               icon: Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.tune_rounded,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                   size: 22,
                 ),
               ),

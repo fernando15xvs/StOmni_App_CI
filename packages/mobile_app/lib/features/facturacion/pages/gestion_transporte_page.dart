@@ -25,20 +25,19 @@ class GestionTransportePage extends StatelessWidget {
         child: Scaffold(
           backgroundColor: bgColor,
           appBar: AppBar(
-            backgroundColor: brandColor,
-            iconTheme: const IconThemeData(color: Colors.white),
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            foregroundColor: Theme.of(context).colorScheme.onSurface,
             title: const Text(
               'Transporte',
               style: TextStyle(
-                color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            bottom: const TabBar(
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white70,
-              indicatorColor: Colors.white,
-              tabs: [
+            bottom: TabBar(
+              labelColor: Theme.of(context).colorScheme.primary,
+              unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+              indicatorColor: Theme.of(context).colorScheme.primary,
+              tabs: const [
                 Tab(
                   text: 'Transporte Privado',
                   icon: Icon(Icons.directions_car),

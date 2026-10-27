@@ -1141,10 +1141,10 @@ class _VerVentaPageState extends ConsumerState<VerVentaPage> {
         appBar: AppBar(
           title: const Text(
             'Detalle de Venta',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          backgroundColor: colorVerde,
-          iconTheme: const IconThemeData(color: Colors.white),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
           elevation: 0,
         ),
         body: const ShimmerDetalle(),
@@ -1156,10 +1156,10 @@ class _VerVentaPageState extends ConsumerState<VerVentaPage> {
         appBar: AppBar(
           title: const Text(
             'Detalle de Venta',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          backgroundColor: colorVerde,
-          iconTheme: const IconThemeData(color: Colors.white),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
           elevation: 0,
         ),
         body: Center(
@@ -1206,10 +1206,10 @@ class _VerVentaPageState extends ConsumerState<VerVentaPage> {
       appBar: AppBar(
         title: const Text(
           'Detalle de Venta',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: colorVerde,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
         actions: [
           IconButton(
@@ -1711,9 +1711,7 @@ class _VerVentaPageState extends ConsumerState<VerVentaPage> {
                 ),
                 label: const Text(
                   'CREAR GUÍA DE REMISIÓN',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                  style: TextStyle(fontWeight: FontWeight.bold,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -1753,9 +1751,7 @@ class _VerVentaPageState extends ConsumerState<VerVentaPage> {
                             ),
                             label: const Text(
                               'EMITIR NOTA DE CRÉDITO',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                              style: TextStyle(fontWeight: FontWeight.bold,
                               ),
                             ),
                             style: ElevatedButton.styleFrom(

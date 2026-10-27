@@ -332,8 +332,8 @@ class _GestionProveedoresPageState
     return Scaffold(
       appBar: AppBar(
         title: const Text('Proveedores'),
-        backgroundColor: AppColors.proveedores,
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
       ),
       body: Column(
         children: [

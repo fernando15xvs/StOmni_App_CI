@@ -68,43 +68,38 @@ class GlobalDateFilterWidget {
     required GlobalDateFilterState filterState,
     required VoidCallback onSelectFechaEspecifica,
   }) {
-    if (filterState.filtroTipo == 'Diario') {
-      return GestureDetector(
-        onTap: onSelectFechaEspecifica,
-        child: Container(
-          margin: const EdgeInsets.only(top: 2),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                filterState.textoFechaBase,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+    return Builder(
+      builder: (context) {
+        final secondary = Theme.of(context).colorScheme.onSurfaceVariant;
+        if (filterState.filtroTipo != 'Diario') {
+          return Text(
+            filterState.filtroTipo,
+            style: TextStyle(color: secondary, fontSize: 13),
+          );
+        }
+        return GestureDetector(
+          onTap: onSelectFechaEspecifica,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 3),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  filterState.textoFechaBase,
+                  style: TextStyle(
+                    color: secondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 4),
-              const Icon(
-                Icons.date_range_rounded,
-                color: Colors.white,
-                size: 14,
-              ),
-            ],
+                const SizedBox(width: 5),
+                Icon(Icons.date_range_rounded, color: secondary, size: 14),
+              ],
+            ),
           ),
-        ),
-      );
-    } else {
-      return Text(
-        filterState.filtroTipo,
-        style: const TextStyle(color: Colors.white70, fontSize: 13),
-      );
-    }
+        );
+      },
+    );
   }
 
   /// Retorna el DropdownButton estilizado para pantallas grandes
@@ -120,23 +115,23 @@ class GlobalDateFilterWidget {
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       padding: const EdgeInsets.only(left: 14, right: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Theme(
-        data: Theme.of(context).copyWith(canvasColor: primaryColor),
+        data: Theme.of(context).copyWith(canvasColor: Theme.of(context).cardColor),
         child: DropdownButtonHideUnderline(
           child: DropdownButton<String>(
             value: filterState.filtroTipo == 'Personalizado'
                 ? null
                 : filterState.filtroTipo,
-            icon: const Icon(
+            icon: Icon(
               Icons.keyboard_arrow_down_rounded,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.w700,
               fontSize: 13,
             ),

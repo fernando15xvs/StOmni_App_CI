@@ -88,13 +88,11 @@ class _EditarPreciosDocumentoPageState
       appBar: AppBar(
         title: Text(
           widget.titulo,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+          style: const TextStyle(fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: _tema,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
