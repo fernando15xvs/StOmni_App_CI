@@ -459,12 +459,11 @@ class _DetalleDeudasActorPageState
         title: Text(
           widget.nombreActor,
           style: const TextStyle(
-            color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: colorTema,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
       ),
       body: Column(

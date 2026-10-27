@@ -119,10 +119,10 @@ class _DeudasPageState extends ConsumerState<DeudasPage>
       appBar: AppBar(
         title: const Text(
           'Cartera de Deudas',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: AppColors.deudas,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
       ),
       body: Column(
@@ -130,22 +130,22 @@ class _DeudasPageState extends ConsumerState<DeudasPage>
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-            color: AppColors.deudas,
+            color: Theme.of(context).scaffoldBackgroundColor,
             child: Container(
               height: 45,
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.2),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(25),
               ),
               child: TabBar(
                 controller: _tabController,
                 indicator: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(22),
                 ),
-                labelColor: Colors.black,
-                unselectedLabelColor: Colors.white,
+                labelColor: Theme.of(context).colorScheme.primary,
+                unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
                 labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                 dividerColor: Colors.transparent,
                 tabs: const [

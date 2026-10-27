@@ -145,10 +145,10 @@ class _ListaCotizacionesPageState extends ConsumerState<ListaCotizacionesPage> {
       appBar: AppBar(
         title: const Text(
           'Cotizaciones',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: colorCotizacion,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
       ),
       body: _cargando

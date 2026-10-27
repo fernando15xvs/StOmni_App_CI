@@ -157,7 +157,6 @@ class _ReportesPageState extends ConsumerState<ReportesPage>
             const Text(
               'Reportes',
               style: TextStyle(
-                color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
               ),
@@ -168,8 +167,8 @@ class _ReportesPageState extends ConsumerState<ReportesPage>
             ),
           ],
         ),
-        backgroundColor: AppColors.reportes,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(51),
@@ -177,10 +176,10 @@ class _ReportesPageState extends ConsumerState<ReportesPage>
             children: [
               TabBar(
                 controller: _tabController,
-                indicatorColor: Colors.white,
+                indicatorColor: Theme.of(context).colorScheme.primary,
                 indicatorWeight: 3,
-                labelColor: Colors.white,
-                unselectedLabelColor: Colors.white70,
+                labelColor: Theme.of(context).colorScheme.primary,
+                unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
                 labelStyle: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14,

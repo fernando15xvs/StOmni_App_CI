@@ -250,8 +250,8 @@ class _DocumentosElectronicosPageState
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: _color,
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

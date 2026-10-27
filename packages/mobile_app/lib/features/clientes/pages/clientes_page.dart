@@ -185,26 +185,24 @@ class _ClientesPageState extends ConsumerState<ClientesPage> {
       appBar: AppBar(
         title: const Text(
           'Directorio de Clientes',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: AppColors.clientes,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
       ),
       body: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            color: AppColors.clientes,
+            color: Theme.of(context).scaffoldBackgroundColor,
             child: TextField(
               controller: _searchCtrl,
               decoration: InputDecoration(
                 hintText: 'Buscar cliente...',
                 prefixIcon: const Icon(Icons.search, color: Colors.grey),
                 filled: true,
-                fillColor: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.grey[900]
-                    : Colors.white,
+                fillColor: Theme.of(context).cardColor,
                 contentPadding: const EdgeInsets.symmetric(vertical: 0),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
