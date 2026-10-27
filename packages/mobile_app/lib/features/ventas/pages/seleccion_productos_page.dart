@@ -181,19 +181,23 @@ class _SeleccionProductosV2State extends ConsumerState<SeleccionProductosV2> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.orange,
+                  color: Theme.of(context).colorScheme.tertiaryContainer,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.wifi_off, color: Colors.white, size: 12),
+                    Icon(
+                      Icons.wifi_off,
+                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                      size: 12,
+                    ),
                     SizedBox(width: 4),
                     Text(
                       "OFFLINE",
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onTertiaryContainer,
                       ),
                     ),
                   ],
@@ -338,7 +342,7 @@ class _SeleccionProductosV2State extends ConsumerState<SeleccionProductosV2> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ],
