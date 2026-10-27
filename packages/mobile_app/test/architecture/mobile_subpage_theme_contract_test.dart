@@ -49,12 +49,17 @@ void main() {
       'lib/features/facturacion/pages/ver_guia_remision_page.dart',
     ).readAsStringSync();
     expect(history, contains('dropdownColor: Theme.of(context).cardColor'));
-    expect(guide, contains('foregroundColor: Theme.of(context).colorScheme.onSurface'));
+    expect(
+      guide,
+      contains('foregroundColor: Theme.of(context).colorScheme.onSurface'),
+    );
     expect(guide, contains('surfaceContainerHighest'));
   });
 
   for (final brightness in [Brightness.light, Brightness.dark]) {
-    testWidgets('Título compartido legible en modo $brightness', (tester) async {
+    testWidgets('Título compartido legible en modo $brightness', (
+      tester,
+    ) async {
       final theme = StOmniMobileTheme.create(
         accent: const Color(0xFF1473E6),
         brightness: brightness,

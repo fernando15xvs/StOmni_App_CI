@@ -118,7 +118,10 @@ class _HistorialCajaPageState extends ConsumerState<HistorialCajaPage> {
           ? Theme.of(context).scaffoldBackgroundColor
           : Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Historial', style: TextStyle(fontWeight: FontWeight.w800)),
+        title: const Text(
+          'Historial',
+          style: TextStyle(fontWeight: FontWeight.w800),
+        ),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         foregroundColor: Theme.of(context).colorScheme.onSurface,
         actions: [
@@ -142,7 +145,9 @@ class _HistorialCajaPageState extends ConsumerState<HistorialCajaPage> {
                       item == 'Personalizado' && _fechaInicio != null
                           ? '${DateFormat('dd/MM').format(_fechaInicio!)} - ${DateFormat('dd/MM').format(_fechaFin!)}'
                           : item,
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
                   );
                 }).toList(),
