@@ -156,10 +156,7 @@ class _ReportesPageState extends ConsumerState<ReportesPage>
           children: [
             const Text(
               'Reportes',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
             GlobalDateFilterWidget.buildTitleWidget(
               filterState: _dateFilter,
@@ -179,7 +176,9 @@ class _ReportesPageState extends ConsumerState<ReportesPage>
                 indicatorColor: Theme.of(context).colorScheme.primary,
                 indicatorWeight: 3,
                 labelColor: Theme.of(context).colorScheme.primary,
-                unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                unselectedLabelColor: Theme.of(
+                  context,
+                ).colorScheme.onSurfaceVariant,
                 labelStyle: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14,

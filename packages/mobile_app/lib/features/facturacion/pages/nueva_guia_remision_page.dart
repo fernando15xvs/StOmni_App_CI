@@ -382,8 +382,7 @@ class _NuevaGuiaRemisionPageState extends ConsumerState<NuevaGuiaRemisionPage> {
       appBar: AppBar(
         title: Text(
           _esEdicion ? 'Corregir Guía de Remisión' : 'Nueva Guía de Remisión',
-          style: const TextStyle(fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         foregroundColor: Theme.of(context).colorScheme.onSurface,

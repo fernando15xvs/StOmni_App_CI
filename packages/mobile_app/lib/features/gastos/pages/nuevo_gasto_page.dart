@@ -706,7 +706,8 @@ class _NuevoGastoPageState extends ConsumerState<NuevoGastoPage>
                   ? const CircularProgressIndicator(color: Colors.white)
                   : Text(
                       _esDeuda ? 'REGISTRAR DEUDA' : 'GUARDAR GASTO',
-                      style: const TextStyle(fontWeight: FontWeight.bold,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
                         fontSize: 16,
                         letterSpacing: 1,
                       ),

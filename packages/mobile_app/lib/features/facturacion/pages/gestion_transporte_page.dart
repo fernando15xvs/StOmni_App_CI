@@ -29,13 +29,13 @@ class GestionTransportePage extends StatelessWidget {
             foregroundColor: Theme.of(context).colorScheme.onSurface,
             title: const Text(
               'Transporte',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
             bottom: TabBar(
               labelColor: Theme.of(context).colorScheme.primary,
-              unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+              unselectedLabelColor: Theme.of(
+                context,
+              ).colorScheme.onSurfaceVariant,
               indicatorColor: Theme.of(context).colorScheme.primary,
               tabs: const [
                 Tab(

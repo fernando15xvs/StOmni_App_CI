@@ -208,10 +208,7 @@ class _KardexPageState extends ConsumerState<KardexPage> {
           children: [
             const Text(
               'Kardex de Inventario',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
             GlobalDateFilterWidget.buildTitleWidget(
               filterState: state.dateFilter,
