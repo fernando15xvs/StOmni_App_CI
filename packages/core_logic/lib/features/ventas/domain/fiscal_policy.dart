@@ -7,12 +7,14 @@ class FiscalSaleDraft {
     required this.isCredit,
     required this.total,
     required this.customer,
+    this.creditTerms,
   });
   final String documentCode;
   final DateTime date;
   final bool isCredit;
   final double total;
   final SaleCustomer customer;
+  final SaleCreditTerms? creditTerms;
 }
 
 class FiscalDocumentType {
