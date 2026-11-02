@@ -7,6 +7,7 @@ import '../../features/kardex/providers/kardex_provider.dart';
 import '../../features/empleados/pages/perfil_page.dart';
 import 'package:core_logic/core_logic.dart';
 import '../controllers/grafico_tendencia_provider.dart';
+import '../controllers/home_controller.dart';
 
 import 'dashboard/dashboard_metric_card.dart';
 import 'dashboard/dashboard_alerts.dart';

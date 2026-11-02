@@ -1,3 +1,3 @@
-source_sha=a1948c982a285dd90414fe432efaf8a540641b44
-triggered_at_utc=2026-11-02T02:13:20.825Z
-reason=align-dynamic-navigation-gates-four-tab-shell
+source_sha=11fd3dffac3f6ec3085f23f0d29011a79e079a8e
+triggered_at_utc=2026-11-02T02:18:42.013Z
+reason=restore-dashboard-refresh-provider-import
