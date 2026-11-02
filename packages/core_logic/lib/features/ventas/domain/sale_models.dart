@@ -51,10 +51,7 @@ class SaleCreditTerms {
     (sum, installment) => sum + installment.amount,
   );
 
-  String? validate({
-    required DateTime saleDate,
-    required double amountDue,
-  }) {
+  String? validate({required DateTime saleDate, required double amountDue}) {
     if (installments.isEmpty) {
       return 'Agrega al menos una cuota para el saldo pendiente.';
     }
