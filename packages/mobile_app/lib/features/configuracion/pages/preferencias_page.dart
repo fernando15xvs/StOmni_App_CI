@@ -26,6 +26,7 @@ class _PreferenciasPageState extends ConsumerState<PreferenciasPage> {
     final selection = _draft ?? saved;
     final theme = _themeDraft ?? prefs.themeMode;
     final start = _startDraft ?? prefs.startScreen;
+    final normalizedStart = start.clamp(0, 3).toInt();
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: const Text('Apariencia')),
@@ -176,7 +177,7 @@ class _PreferenciasPageState extends ConsumerState<PreferenciasPage> {
               icon: Icons.home_outlined,
               children: [
                 DropdownButtonFormField<int>(
-                  initialValue: start.clamp(0, 4).toInt(),
+                  initialValue: normalizedStart,
                   decoration: const InputDecoration(
                     labelText: 'Abrir al iniciar',
                   ),
@@ -185,7 +186,6 @@ class _PreferenciasPageState extends ConsumerState<PreferenciasPage> {
                     DropdownMenuItem(value: 1, child: Text('Balance')),
                     DropdownMenuItem(value: 2, child: Text('Inventario')),
                     DropdownMenuItem(value: 3, child: Text('Centro')),
-                    DropdownMenuItem(value: 4, child: Text('Movimientos')),
                   ],
                   onChanged: (v) => setState(() => _startDraft = v),
                 ),
@@ -198,10 +198,11 @@ class _PreferenciasPageState extends ConsumerState<PreferenciasPage> {
                 await ref
                     .read(preferencesProvider.notifier)
                     .setThemeMode(theme);
-                if (_startDraft != null) {
+                if (_startDraft != null ||
+                    prefs.startScreen != normalizedStart) {
                   await ref
                       .read(preferencesProvider.notifier)
-                      .setStartScreen(_startDraft!);
+                      .setStartScreen(normalizedStart);
                 }
                 if (!context.mounted) return;
                 setState(() {

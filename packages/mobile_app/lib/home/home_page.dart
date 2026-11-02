@@ -5,7 +5,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../features/almacen/pages/almacen_page.dart';
-import '../features/almacen/pages/mover_stock_page.dart';
 import '../features/balance/pages/balance_page.dart';
 import '../features/compras/pages/compras_page.dart';
 import '../features/configuracion/pages/modulos_negocio_page.dart';
@@ -48,20 +47,20 @@ class _HomePageState extends ConsumerState<HomePage> {
       const BalancePage(),
       const AlmacenPage(),
       WorkCenterTab(onAdminManagement: _showAdminManagement),
-      const MoverStockPage(),
     ];
+    final initialTab = widget.pestanaInicial.clamp(0, 3).toInt();
     _legacyRefreshBridgeCallback = () {
       ref.read(homeRefreshRevisionProvider.notifier).state++;
     };
     homeRefreshNotifier.attach(_legacyRefreshBridgeCallback);
 
     Future.microtask(() async {
-      ref.read(homeTabProvider.notifier).state = widget.pestanaInicial;
+      ref.read(homeTabProvider.notifier).state = initialTab;
       await _loadBusinessProfile();
     });
     _paginasVisitadas = List.generate(
       _pestanas.length,
-      (index) => index == widget.pestanaInicial,
+      (index) => index == initialTab,
     );
   }
 
@@ -85,7 +84,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       });
       final current = ref.read(homeTabProvider);
       if (!profile.capabilities.inventoryEnabled &&
-          (current == 2 || current == 4)) {
+          current == 2) {
         ref.read(homeTabProvider.notifier).state = 0;
       }
     } catch (_) {

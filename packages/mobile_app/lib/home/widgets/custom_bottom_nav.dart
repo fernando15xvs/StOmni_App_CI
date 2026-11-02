@@ -23,8 +23,6 @@ class CustomBottomNav extends ConsumerWidget {
       if (inventoryEnabled)
         const _NavItem(2, Icons.inventory_2_outlined, 'Inventario'),
       const _NavItem(3, Icons.grid_view_rounded, 'Centro'),
-      if (inventoryEnabled)
-        const _NavItem(4, Icons.swap_horiz_rounded, 'Movimientos'),
     ];
     final theme = Theme.of(context);
     final current = ref.watch(homeTabProvider);

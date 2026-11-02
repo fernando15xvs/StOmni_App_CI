@@ -2,28 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../core/utils/navigation_utils.dart';
-import '../../core/theme/app_colors.dart';
 
-import '../../features/almacen/pages/config_almacenes_page.dart';
-import '../../features/deudas/pages/deudas_page.dart';
-import '../../features/proveedores/pages/gestion_proveedores_page.dart';
-import '../../features/empleados/pages/gestion_empleados_page.dart';
-import '../../features/clientes/pages/clientes_page.dart';
-import '../../features/Cotizar/pages/lista_cotizaciones_page.dart';
-import '../../features/configuracion/pages/configuracion_negocio_page.dart';
-import '../../features/configuracion/pages/preferencias_page.dart';
-import '../../features/reportes/pages/reportes_page.dart';
-import '../../features/kardex/pages/kardex_page.dart';
 import '../../features/kardex/providers/kardex_provider.dart';
 import '../../features/empleados/pages/perfil_page.dart';
-import '../../features/facturacion/pages/documentos_electronicos_page.dart';
-import '../../features/facturacion/pages/gestion_transporte_page.dart';
 import 'package:core_logic/core_logic.dart';
 import '../controllers/grafico_tendencia_provider.dart';
 import '../controllers/home_controller.dart';
 
 import 'dashboard/dashboard_metric_card.dart';
-import 'dashboard/dashboard_modules.dart';
 import 'dashboard/dashboard_alerts.dart';
 import 'dashboard/dashboard_charts.dart';
 
@@ -177,187 +163,6 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
     });
   }
 
-  void _mostrarMenuAcciones(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        return Container(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.75,
-          ),
-          padding: const EdgeInsets.only(
-            top: 30,
-            left: 24,
-            right: 24,
-            bottom: 40,
-          ),
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 45,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                "Módulos de Trabajo",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: colorTextoOscuro,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Flexible(
-                child: ListView(
-                  shrinkWrap: true,
-                  padding: EdgeInsets.zero,
-                  children: [
-                    DashboardModuloItem(
-                      icon: Icons.request_quote_rounded,
-                      color: AppColors.cotizar,
-                      titulo: "Cotizar",
-                      subtitulo: "Crear y gestionar cotizaciones",
-                      onTap: () {
-                        Navigator.pop(ctx);
-                        _navTo(const ListaCotizacionesPage());
-                      },
-                    ),
-                    DashboardModuloItem(
-                      icon: Icons.people_alt_rounded,
-                      color: AppColors.clientes,
-                      titulo: "Clientes",
-                      subtitulo: "Directorio de clientes",
-                      onTap: () {
-                        Navigator.pop(ctx);
-                        _navTo(const ClientesPage());
-                      },
-                    ),
-                    DashboardModuloItem(
-                      icon: Icons.credit_score_rounded,
-                      color: AppColors.deudas,
-                      titulo: "Deudas",
-                      subtitulo: "Cuentas por cobrar y pagar",
-                      onTap: () {
-                        Navigator.pop(ctx);
-                        _navTo(const DeudasPage());
-                      },
-                    ),
-                    DashboardModuloItem(
-                      icon: Icons.document_scanner_rounded,
-                      color: Colors.deepPurple,
-                      titulo: "Documentos electrónicos",
-                      subtitulo: "Guías, facturas, boletas y notas",
-                      onTap: () {
-                        Navigator.pop(ctx);
-                        _navTo(const DocumentosElectronicosPage());
-                      },
-                    ),
-                    DashboardModuloItem(
-                      icon: Icons.settings_rounded,
-                      color: Colors.blueGrey,
-                      titulo: "Apariencia",
-                      subtitulo: "Tema, color y personalización",
-                      onTap: () {
-                        Navigator.pop(ctx);
-                        _navTo(const PreferenciasPage());
-                      },
-                    ),
-                    DashboardModuloItem(
-                      icon: Icons.directions_bus_filled_rounded,
-                      color: const Color(0xFF6A1B9A),
-                      titulo: "Transporte",
-                      subtitulo: "Gestión de vehículos y conductores",
-                      onTap: () {
-                        Navigator.pop(ctx);
-                        _navTo(const GestionTransportePage());
-                      },
-                    ),
-                    if (ref.read(rolProvider) == 'admin') ...[
-                      DashboardModuloItem(
-                        icon: Icons.bar_chart_rounded,
-                        color: AppColors.reportes,
-                        titulo: "Reportes",
-                        subtitulo: "Análisis y estadísticas del negocio",
-                        onTap: () {
-                          Navigator.pop(ctx);
-                          _navTo(const ReportesPage());
-                        },
-                      ),
-                      DashboardModuloItem(
-                        icon: Icons.history_edu_rounded,
-                        color: AppColors.kardex,
-                        titulo: "Kardex",
-                        subtitulo: "Movimientos e historial de inventario",
-                        onTap: () {
-                          Navigator.pop(ctx);
-                          _navTo(const KardexPage());
-                        },
-                      ),
-                      DashboardModuloItem(
-                        icon: Icons.local_shipping_rounded,
-                        color: AppColors.proveedores,
-                        titulo: "Proveedores",
-                        subtitulo: "Directorio de proveedores",
-                        onTap: () {
-                          Navigator.pop(ctx);
-                          _navTo(const GestionProveedoresPage());
-                        },
-                      ),
-                      DashboardModuloItem(
-                        icon: Icons.badge_rounded,
-                        color: AppColors.personal,
-                        titulo: "Personal",
-                        subtitulo: "Empleados y gestión de usuarios",
-                        onTap: () {
-                          Navigator.pop(ctx);
-                          _navTo(const GestionEmpleadosPage());
-                        },
-                      ),
-                      DashboardModuloItem(
-                        icon: Icons.storefront_rounded,
-                        color: AppColors.almacenes,
-                        titulo: "Sucursales",
-                        subtitulo: "Gestión de sucursales",
-                        onTap: () {
-                          Navigator.pop(ctx);
-                          _navTo(const ConfigAlmacenesPage());
-                        },
-                      ),
-                      DashboardModuloItem(
-                        icon: Icons.settings_applications_rounded,
-                        color: AppColors.empresa,
-                        titulo: "Empresa",
-                        subtitulo: "Configuración de la empresa",
-                        onTap: () {
-                          Navigator.pop(ctx);
-                          _navTo(const ConfiguracionNegocioPage());
-                        },
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -411,11 +216,6 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                  ),
-                  IconButton(
-                    tooltip: 'Más herramientas',
-                    onPressed: () => _mostrarMenuAcciones(context),
-                    icon: const Icon(Icons.more_horiz_rounded),
                   ),
                   IconButton(
                     tooltip: 'Perfil',
@@ -475,36 +275,6 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
                       onFiltroChanged: (val) {
                         setState(() => _diasFiltroGrafico = val);
                       },
-                    ),
-                    const SizedBox(height: 18),
-                    Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        onTap: () =>
-                            ref.read(homeTabProvider.notifier).state = 3,
-                        child: Ink(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: theme.colorScheme.outline.withValues(
-                                alpha: 0.6,
-                              ),
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const ListTile(
-                            leading: Icon(Icons.grid_view_rounded),
-                            title: Text(
-                              'Centro de trabajo',
-                              style: TextStyle(fontWeight: FontWeight.w700),
-                            ),
-                            subtitle: Text(
-                              'Cotizaciones, clientes, deudas, documentos y más',
-                            ),
-                            trailing: Icon(Icons.chevron_right_rounded),
-                          ),
-                        ),
-                      ),
                     ),
                   ],
                 ),

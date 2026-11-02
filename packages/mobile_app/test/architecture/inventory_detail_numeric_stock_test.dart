@@ -8,14 +8,8 @@ void main() {
       'lib/features/almacen/widgets/producto_detail_sheet.dart',
     ).readAsStringSync();
 
-    expect(
-      source,
-      contains("(p['_totalStock'] as num?)?.toInt() ?? 0"),
-    );
-    expect(
-      source,
-      contains("(producto['_totalStock'] as num?)?.toInt() ?? 0"),
-    );
+    expect(source, contains("(p['_totalStock'] as num?)?.toInt() ?? 0"));
+    expect(source, contains("(producto['_totalStock'] as num?)?.toInt() ?? 0"));
     expect(source, isNot(contains("['_totalStock'] as int?")));
   });
 }

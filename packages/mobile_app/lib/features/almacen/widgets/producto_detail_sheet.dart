@@ -564,8 +564,7 @@ class ProductoDetailSheet extends ConsumerWidget {
     Map<String, dynamic> producto,
   ) async {
     final int idProducto = producto['id'];
-    final int stockTotal =
-        (producto['_totalStock'] as num?)?.toInt() ?? 0;
+    final int stockTotal = (producto['_totalStock'] as num?)?.toInt() ?? 0;
     final modoOffline =
         ref.read(almacenNotifierProvider).value?.modoOffline ?? false;
 

@@ -12,6 +12,7 @@ import '../../features/empleados/pages/gestion_empleados_page.dart';
 import '../../features/facturacion/pages/documentos_electronicos_page.dart';
 import '../../features/facturacion/pages/gestion_transporte_page.dart';
 import '../../features/kardex/pages/kardex_page.dart';
+import '../../features/almacen/pages/mover_stock_page.dart';
 import '../../features/proveedores/pages/gestion_proveedores_page.dart';
 import '../../features/reportes/pages/reportes_page.dart';
 
@@ -66,6 +67,16 @@ class _WorkCenterTabState extends ConsumerState<WorkCenterTab> {
         ),
     ];
     final internal = <_WorkModule>[
+      if (WorkCenterAccess.enabled(
+        widget.capabilities,
+        BusinessModule.stockTransfers,
+      ))
+        const _WorkModule(
+          'Movimientos',
+          Icons.swap_horiz_rounded,
+          MoverStockPage(),
+          subtitle: 'Traslados y mermas de stock',
+        ),
       const _WorkModule(
         'Apariencia',
         Icons.palette_outlined,
