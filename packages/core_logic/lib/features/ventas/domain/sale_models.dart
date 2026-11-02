@@ -51,6 +51,15 @@ class SaleCreditTerms {
     (sum, installment) => sum + installment.amount,
   );
 
+  // Compare normalized cents; tolerate only floating-point representation noise.
+  static int? _moneyCents(double amount) {
+    if (!amount.isFinite || amount.abs() > 999999999999.99) return null;
+    final scaled = amount * 100;
+    final cents = scaled.round();
+    if ((scaled - cents).abs() > 0.000001) return null;
+    return cents;
+  }
+
   String? validate({required DateTime saleDate, required double amountDue}) {
     if (installments.isEmpty) {
       return 'Agrega al menos una cuota para el saldo pendiente.';
@@ -61,7 +70,12 @@ class SaleCreditTerms {
 
     final saleDay = DateTime(saleDate.year, saleDate.month, saleDate.day);
     var expectedNumber = 1;
-    var sum = 0.0;
+    var sumCents = 0;
+    DateTime? previousDueDay;
+    final dueCents = _moneyCents(amountDue);
+    if (dueCents == null) {
+      return 'El saldo pendiente debe tener como máximo dos decimales.';
+    }
 
     for (final installment in installments) {
       if (installment.number != expectedNumber) {
@@ -78,11 +92,19 @@ class SaleCreditTerms {
       if (!dueDay.isAfter(saleDay)) {
         return 'Cada cuota debe vencer después de la fecha de la venta.';
       }
-      sum += installment.amount;
+      if (previousDueDay != null && dueDay.isBefore(previousDueDay)) {
+        return 'Las cuotas deben estar ordenadas por vencimiento.';
+      }
+      final cents = _moneyCents(installment.amount);
+      if (cents == null) {
+        return 'Cada cuota debe tener como máximo dos decimales.';
+      }
+      sumCents += cents;
+      previousDueDay = dueDay;
       expectedNumber++;
     }
 
-    if ((sum - amountDue).abs() > 0.01) {
+    if (sumCents != dueCents) {
       return 'Las cuotas deben sumar exactamente el saldo pendiente.';
     }
     return null;

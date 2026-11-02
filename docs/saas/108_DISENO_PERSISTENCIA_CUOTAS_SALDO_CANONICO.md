@@ -1,0 +1,156 @@
+# Diseño de persistencia financiera y verificación de navegación
+
+Fecha: 2026-11-02, America/Lima.
+Base Git: `45d12acbdcda41b1616e269afc391ab5af58cdc1`.
+Referencias: [roadmap 106](106_ROADMAP_MOBILE_HOME_REPORTES_GESTION_SUNAT.md) y [contrato 107](107_CONTRATO_FINANCIERO_CREDITO_CUOTAS_AJUSTES.md).
+
+**Estado:** diseño técnico de fase 2 y revisión estática de fase 1. No hay migraciones ni cambios de aplicación en esta entrega. Consultas a Supabase solo de catálogos/definiciones; no se auditó ni modificó información de clientes.
+
+## 1. Fase 1: evidencia y límite de cierre
+
+| Punto | Evidencia |
+|---|---|
+| Balance diario | balance_page.dart usa AppTime.startOfToday/endOfToday. |
+| Destino | Balance construye ReportesPage con ReportesInitialContext(tab: financiero). |
+| Contexto | ReportesInitialContext incluye tab, financialFilter, period, specificDate y customRange. |
+| Consumo | ReportesPage.initState aplica índice inicial, fechas, rango, tipo financiero y período. |
+| Compatibilidad | Se mantienen dos pestañas; no hay pestaña Facturación todavía. |
+| Pruebas existentes | reportes_navigation_contract_test.dart verifica mapeo y prioridad del rango; la prueba de Balance busca textos en archivos. No es un test de interacción. |
+
+No se ejecutó Flutter en esta entrega: flutter/dart no están disponibles en el runtime inspeccionado. El CI 7/7 de la línea base es evidencia previa, no una nueva ejecución.
+
+**Fase 1 permanece parcial.** Para cerrarla añadir/ejecutar prueba de widget con proveedores sustituidos que pulse Histórico financiero, abra Reportes, verifique pestaña y datos filtrados; otra con rango personalizado y filtro de egresos. Verificar también retorno y apertura posterior sin arrastrar estado. Evitar limitarse a búsquedas de texto.
+
+## 2. Inspección efectiva de Supabase
+
+Proyecto consultado: StOmniApp (`iqooedpkihmzkmynsisl`). Resultados observados mediante information_schema.columns, pg_constraint, pg_trigger y pg_proc:
+
+- ventas y pagos_venta usan id bigint; notas_credito usa id uuid.
+- Las tres tienen organization_id y UNIQUE(organization_id,id).
+- Las relaciones pago→venta y NC→venta/comprobante incluyen organization_id.
+- En public no se encontraron tablas con los nombres exactos venta_cuotas ni notas_debito.
+- ventas tiene saldo, estado, fue_credito y monto_notas_credito, pero no columna moneda. notas_credito sí tiene moneda. La moneda comercial debe reconciliarse antes de backfill; no inferirla automáticamente de la UI.
+- process_sale_v4 y process_sale_with_units_v4 no tienen parámetro de cuotas.
+- procesar_pago_deuda_v2 usa request tenant-aware, bloquea sesión de caja antes de venta y recalcula total menos suma de pagos. Permite tolerancia de 0.01 en sobrepago.
+- eliminar_pago_venta_v1 ejecuta DELETE de pagos y recalcula total menos pagos; además restringe ventas con comprobante. Debe adaptarse o bloquearse para ventas migradas.
+- pagos_venta conserva FK a pagos_deuda_requests y su FK a ventas tiene ON DELETE CASCADE. El nuevo historial debe impedir eliminación en cascada de ventas migradas.
+- Triggers activos incluyen enforcement de organización, contexto de caja, permisos/capacidades de venta y controles de notas fiscales. No se observó un trigger de actualización de saldo entre los triggers consultados de esas tres tablas.
+
+No se afirma que se haya inventariado cada función capaz de escribir estas tablas. Antes de activar el motor, completar búsqueda de escritores, grants, políticas y llamadas anidadas; revisar particularmente NC, baja tributaria y anulación.
+
+## 3. Fuente de verdad
+
+Adoptar eventos financieros inmutables por venta, con deltas exactos de exigible y cobros netos. Las cuotas y asignaciones explican la distribución; la proyección resume el resultado.
+
+- Total original se registra una sola vez al iniciar la cuenta.
+- Cada pago existente/new se representa una sola vez como evento; no sumar simultáneamente eventos y pagos_venta en el saldo.
+- NC/ND efectivas generan deltas de exigible. Una reversión produce evento opuesto, no modifica el evento original.
+- Reverso/devolución generan deltas de cobros netos y referencias al origen.
+- Proyecciones y ventas.saldo/estado se actualizan en la misma transacción, no con una tarea eventual para autorizar cobros.
+- El cliente nunca escribe directamente eventos, proyecciones, cuotas ni asignaciones.
+
+Para una cuenta migrada, E=sum(delta_exigible), C=sum(delta_cobros), D=max(E-C,0), F=max(C-E,0). Estos eventos incorporan la apertura; ventas.total no se suma de nuevo.
+
+## 4. Objetos propuestos
+
+Nombres definitivos para la primera implementación; aún no creados. Todos incluyen organization_id, FK a organizations y clave tenant-aware. Importes numeric(14,2) con límites explícitos, fechas económicas y created_at separados. Importes del transporte nuevo representados como centavos enteros dentro del rango seguro o cadenas decimales validadas.
+
+| Tabla propuesta | Campos principales y responsabilidad |
+|---|---|
+| venta_cuentas_financieras | PK (organization_id,venta_id); moneda; version_motor; estado_conciliacion; exigible; cobros_netos; saldo_pendiente; excedente; revision. Proyección y punto de identificación de ventas migradas. |
+| venta_operaciones_financieras | id uuid; venta_id; tipo; request_id; actor_id; payload_hash; resultado; created_at. UNIQUE(organization_id,tipo,request_id). Solicitud de cobro, devolución, reverso o ajuste. |
+| venta_eventos_financieros | id uuid; venta_id; operacion_id; secuencia; tipo; delta_exigible; delta_cobros; efectivo_at; registrado_at; reversa_evento_id; pago_id/nota_credito_id según origen. Historial inmutable. |
+| venta_cronogramas | id uuid; venta_id; version; estado; origen_evento_id; creado_por; created_at. Una versión vigente por venta; versiones anteriores conservadas. |
+| venta_cuotas | id uuid; venta_id; cronograma_id; numero; obligacion_id uuid estable; vencimiento date nullable solo para legado explícito; importe_original; importe_vigente. Identidad de obligación conservada entre versiones. |
+| venta_cuota_movimientos | id uuid; venta_id; cuota_id; evento_id; importe_asignado con signo; tipo; reversa_movimiento_id. Explica pagos, liberación por NC, reversos y reasignaciones de versiones. |
+
+La cuenta financiera contiene estado de conciliación explícito (pendiente, conciliada, bloqueada) y moneda; no se fuerza una cuota ficticia para deuda heredada sin cronograma.
+
+### 4.1 Claves e integridad
+
+- FK (organization_id,venta_id) a ventas(organization_id,id), ON DELETE RESTRICT en cuenta/eventos/cronogramas.
+- UNIQUE(organization_id,venta_id,id) en padres que deban ser referenciados desde el mismo expediente; FKs de tres componentes evitan asociar una cuota de otra venta del mismo tenant.
+- Referencias pago y NC deben comprobar misma venta y tenant: agregar índices/UNIQUE necesarios en padres o validación equivalente bajo bloqueo; una FK solo por organización no basta.
+- Cronograma: UNIQUE(organization_id,venta_id,version); índice único parcial de versión vigente.
+- Cuotas: UNIQUE(organization_id,cronograma_id,numero), numero>0; vencimiento no nulo en nuevos contratos; importes no negativos en proyección, importe original positivo.
+- Eventos: UNIQUE(organization_id,venta_id,secuencia); deduplicación fiscal por identidad del documento y transición, no por cada intento HTTP.
+- Evento origen incluye columnas de referencia tipadas, no un JSON arbitrario como única integridad. ND se agregará con FK cuando exista su tabla; no crear una FK a una tabla inexistente.
+- Cobro tiene delta_cobros positivo y delta_exigible cero; ajuste monetario tiene delta_cobros cero; reversión conserva referencia y límite de importe reversible.
+- Invariantes agregadas y sumas de cronograma se verifican por función transaccional bajo bloqueo: un CHECK de fila no puede asegurar sumas entre filas.
+- Saldo pendiente y excedente no negativos, no simultáneamente positivos; E+F=C+D. Sin cuotas para legado, exponer saldo_sin_cronograma de forma separada.
+- Los movimientos históricos de versiones anteriores no se vuelven a sumar al cronograma vigente. Una nueva versión trae transferencia explícita y auditable de asignaciones; nunca duplica cobros.
+
+### 4.2 Índices de acceso
+
+Además de claves únicas: eventos por (organization_id,venta_id,secuencia), cuotas por (organization_id,vencimiento,venta_id), movimientos por (organization_id,cuota_id,evento_id), cuentas por (organization_id,estado_conciliacion). El vencimiento es date; “vencida” se calcula con fecha local y saldo vigente, sin persistir un booleano que quede desactualizado.
+
+## 5. RPC y compatibilidad
+
+| Entrada | Cambio previsto |
+|---|---|
+| process_sale_v4 / process_sale_with_units_v4 | Mantener firma existente. Agregar entrypoints v5 explícitos con cronograma versionado; compartir núcleo privado para evitar dos motores independientes. No crear sobrecargas ambiguas para PostgREST. |
+| v5 de venta | Recibe condiciones de crédito, valida centavos/suma/fechas y persiste venta, pagos, eventos y cuotas atómicamente. Ambos caminos de unidades usan el mismo contrato. |
+| procesar_pago_deuda_v2 | Conservar proveedores; para venta migrada delegar al núcleo canónico. Mantener respuesta compatible y rechazar sobrepago real. |
+| RPC nuevo de cobro | Recibe request_id y fecha explícita, devuelve moneda, revision, D, F y asignaciones. Comparación estricta de payload incluido fecha para contrato nuevo. |
+| eliminar_pago_venta_v1 | Impedir DELETE sobre venta migrada. Clientes nuevos usan reverso autorizado y auditable; no reinterpretar silenciosamente una llamada antigua como devolución de dinero. |
+| RPC de reverso/devolución | Operaciones distintas; vínculo al origen, motivo, request_id y método/fecha real cuando corresponda. Autorización y disponibilidad bajo bloqueo. |
+| nota_credito_finalizar / tributario_finalizar_proceso | Integrar transición financiera efectiva en la misma transacción que confirma estado; conservar semántica de stock existente. No sumar NC otra vez en la proyección. |
+| anular_venta_v2 | Emitir ajuste comercial conforme a 107; proteger historial, fiscalidad y excedentes. Sin borrar venta migrada. |
+| consulta de cuenta/cuotas | Lectura por venta validada en tenant; respuesta canónica y conciliación, sin payload fiscal sensible. |
+
+El cliente debe seguir transportando creditTerms por adapter→repository→RPC. Corregir ambos motores de venta y la conversión de cotizaciones. La cola antigua conserva compatibilidad; el nuevo contrato no habilita emisión electrónica offline.
+
+## 6. Orden transaccional
+
+Para toda operación del motor nuevo:
+
+1. Resolver identidad, tenant y permiso; validar formato y payload.
+2. Tomar lock idempotente por organización/tipo/request y recuperar respuesta previa si corresponde.
+3. Tomar sesión de caja necesaria, siguiendo el orden actual caja→venta; para múltiples sesiones bloquear por ID estable.
+4. Bloquear venta y cuenta; para varias ventas usar IDs ordenados (no habilitar compensación entre ventas en esta entrega).
+5. Bloquear documento fiscal/orígenes afectados y cronograma cuando corresponda; verificar saldo/revision y transición.
+6. Registrar operación, eventos y asignaciones; recalcular cuenta; actualizar compatibilidad de ventas; guardar respuesta.
+7. Commit antes de llamar a servicios fiscales externos. Usar trabajo durable y reconciliación para emisión.
+
+**Condición de implementación:** revisar y adaptar caminos de NC/baja que hoy puedan tomar documento antes de venta. No basta cambiar el cobro: todos los participantes deben respetar un orden compatible. En deadlock/serialización, rollback completo y retry acotado con el mismo request_id.
+
+## 7. Seguridad
+
+RLS en todas las tablas expuestas; lectura solo para tenant actual y permiso de ventas/finanzas. Denegar DML directo de anon/authenticated sobre historial y proyecciones. La escritura entra por RPC mínimo autorizado.
+
+Preferir SECURITY INVOKER donde los permisos lo permitan. Si se necesita núcleo privilegiado para escrituras denegadas al cliente, ubicarlo en private con search_path fijo/vacío, validación de auth/tenant y grants mínimos; no usarlo para sortear controles. Wrappers públicos deben validar explícitamente. Revisar default privileges, EXECUTE de PUBLIC y grants efectivos; views de lectura con security_invoker o RPC protegido.
+
+La revisión de diseño no equivale a una auditoría de RLS del proyecto. Pruebas de acceso con rol real, ORG_A/ORG_B, actor sin permiso y acceso directo a tablas son obligatorias.
+
+## 8. Migración en entregas pequeñas
+
+### 2A — Estructuras aditivas y pruebas de aislamiento
+
+Crear cuenta/operaciones/eventos/cronogramas/cuotas/movimientos, índices y permisos en entorno de prueba. Ninguna ruta de producción cambia. Tests de FK cruzada por tenant y por venta, inmutabilidad y restricciones.
+
+### 2B — Reconciliación y apertura del historial
+
+- Inventariar escritores y datos por tenant/moneda; resolver identidad de moneda de ventas.
+- Backfill idempotente por origen, sin recrear pagos. Representar venta inicial, pagos y NC efectivas como eventos individuales cuando el historial lo permita.
+- Si no puede reconstruirse el pasado, registrar apertura al instante de migración y cobertura histórica desde ese corte; no fabricar secuencia previa ni fechas de pago borradas.
+- No duplicar esos orígenes después al activar callbacks. Comparar total, cobros, ajustes, D y F.
+- Discrepancias se guardan para conciliación; ninguna corrección destructiva automática.
+- Revalidar con escritores controlados/bloqueo al corte; una consulta inicial por sí sola no evita cambios concurrentes.
+
+### 2C — Motor canónico y compatibilidad
+
+Conectar cobros/reversos/NC/bajas/anulación al motor y actualizar lectores de caja/reportes. Una devolución debe reducir ingresos netos o aparecer como egreso separado, nunca ambas cosas a la vez. Ejecutar casos F01–F23/F25–F28 de 107 aplicables, y simular ND hasta fase 4.
+
+### 2D — Contrato de cuotas de venta
+
+Agregar v5 y conectar aplicación; lectura posterior del mismo cronograma; atomicidad de venta/stock/pago, cuotas y unidades; legacy sin vencimientos inventados. Crédito electrónico continúa bloqueado hasta fase 3.
+
+Cada entrega requiere CI y evidencia antes de activar capacidad. Rollback conserva historial; nunca vuelve a total-pagos como autoridad para ventas migradas.
+
+## 9. Qué está verificado y qué falta
+
+**Realizado:** revisión de navegación y tests existentes; consulta de columnas, claves, triggers y dos RPC efectivos de Supabase; confirmación de firmas de venta/NC/baja/anulación; diseño concreto y secuencia de implementación.
+
+**Pendiente:** test de interacción de fase 1; inventario exhaustivo de escritores/permisos; conciliación de datos y moneda; creación y prueba de migraciones; validación fiscal y emisión. No se afirma que los 28 casos de 107 hayan pasado.
+
+**Siguiente cambio de código:** prueba de interacción de navegación y entrega 2A en entorno de prueba, preservando las restricciones actuales de emisión. No generar más documentos de reglas si estos contratos bastan; usar este diseño como base de implementación.

@@ -4,7 +4,7 @@
 
 Reorganizar la experiencia móvil de StOmni SaaS para que cada pantalla tenga una responsabilidad clara, se eliminen duplicaciones y la navegación entre resumen, operación diaria, análisis histórico y gestión tributaria sea coherente.
 
-Este roadmap no pretende rehacer la lógica de negocio existente. La prioridad es reorganizar la experiencia móvil reutilizando contratos, permisos y servicios actuales, y ampliar backend únicamente donde sea necesario para obtener agregados históricos correctos y escalables.
+El alcance combina una reorganización móvil con una ampliación del dominio financiero y fiscal: cuotas persistentes, saldo exigible, venta electrónica a crédito, notas de débito y agregados históricos. Se reutilizarán contratos, permisos y servicios existentes, pero estas ampliaciones requieren cambios de backend, migraciones compatibles y pruebas transaccionales. Cada fase constituye una entrega verificable; no debe confundirse una base de contratos con una funcionalidad terminada.
 
 ## 2. Responsabilidad final de cada área
 
@@ -26,108 +26,56 @@ Este roadmap no pretende rehacer la lógica de negocio existente. La prioridad e
 7. Mantener permisos, capacidades y aislamiento multi-tenant existentes.
 8. Todo cambio se implementa primero en el repositorio privado fuente de verdad y se valida posteriormente mediante el espejo CI.
 
-## 3. Estado actual verificado
+## 3. Línea base y seguimiento
 
-### Balance
+Estado contrastado con el código fuente `519a89d31899e513d57a1826d93c691ed63aafc0`. Fechas expresadas en America/Lima. El documento se creó el 1 de noviembre de 2026 a las 22:17 y se amplió a las 22:40; esta reorganización es del 2 de noviembre de 2026.
 
-Balance está limitado explícitamente al día actual mediante `AppTime.startOfToday()` y `AppTime.endOfToday()`.
+| Entrega observada | Estado y límite |
+|---|---|
+| Contexto inicial de Reportes | Implementado: pestaña, período, fechas y filtro financiero. Solo existen Financiero e Inventario. |
+| CTA de Balance | Implementado: Histórico financiero abre Financiero. Mantener el alcance diario y verificarlo al integrar crédito. |
+| Dominio de cuotas | Implementados SaleCreditInstallment y SaleCreditTerms con validaciones; no equivale a cuotas persistidas. |
+| Propagación de crédito | creditTerms llega hasta VentaProcessingRequest. El adaptador real todavía no lo envía a processSaleRpc. |
+| Cola offline | Esquema 3 con credit_terms, compatibilidad con versiones previas y rechazo de versiones futuras. No habilita emisión electrónica offline. |
+| Crédito electrónico | Pendiente: venta_page fuerza ticket_interno, PeruSunatFiscalPolicy bloquea crédito electrónico y el generador fiscal usa Contado. |
+| ND y saldo canónico | Pendientes dentro de este roadmap; no considerar completa una fase por existir NC o deudas previas. |
+| Inicio y Reportes de facturación | Pendientes: Inicio conserva métricas diarias/productos y Reportes solo tiene dos pestañas. |
+| CI de la línea base | [Run 41386320071](https://github.com/fernando15xvs/StOmni_App_CI/actions/runs/41386320071), 7/7 correcto; mirror 48de8ff referencia el source 519a89d. Valida lo existente, no todos los requisitos futuros. |
+| QA | La ejecución de instaladores observada es anterior a los cambios de cuotas; no acredita una build con ellos. |
 
-Actualmente muestra ingresos, egresos, balance/neto, descuentos y movimientos del día, además del acceso al detalle de venta, gasto o pago. El CTA `Ver detalle` abre actualmente `ReportesPage`.
+La numeración de las fases siguientes es el orden de implementación. Las pruebas se ejecutan en cada entrega; la última fase integra la regresión completa. El detalle existente se conserva, pero su estado inicial es pendiente salvo lo señalado expresamente.
 
-Por tanto, Balance seguirá siendo una pantalla operativa diaria y no se convertirá en histórico.
+Para cerrar una fase registrar: SHA fuente, cambios y migraciones, pruebas ejecutadas y resultados, run del espejo y limitaciones pendientes. Una funcionalidad solo se marca completa cuando cumple sus criterios de aceptación, no por tener modelos o tests aislados.
 
-### Reportes
+# 4. Fase 0 — Cerrar contratos y decisiones de negocio
 
-Actualmente dispone de dos pestañas: **Financiero** e **Inventario**. Soporta períodos Diario, Semanal, Mensual, Anual y Personalizado. Reportes es la pantalla apropiada para análisis histórico.
+**Estado:** contrato financiero definido en [107_CONTRATO_FINANCIERO_CREDITO_CUOTAS_AJUSTES.md](107_CONTRATO_FINANCIERO_CREDITO_CUOTAS_AJUSTES.md), con reglas y 28 casos de aceptación. Implementación pendiente; validación normativa SUNAT pendiente como gate de fases 3 y 4. **Dependencia:** línea base identificada. **Salida financiera:** decisiones documentadas antes de fijar esquema y RPC.
 
-### Documentos electrónicos
+## 4.1 Decisiones definidas en el contrato 107
 
-La pantalla actual es operativa. Permite listar Facturas, Boletas, Notas y Guías; filtrar y buscar; consultar estado SUNAT; reintentar envíos; abrir documentos; crear GRE; y gestionar bajas, anulaciones y procesos tributarios.
+- Definir Ventas (operaciones realizadas), Cobros/Ingresos (dinero recibido), Facturación (documentos fiscales) y Cuentas por cobrar. No asumir que Ventas equivale a Ingresos.
+- Fijar fecha de imputación por métrica/documento, zona horaria, límites de rango, monedas y redondeos. Distinguir saldo actual de ventas de un período de saldo histórico al cierre; este último requiere datos que permitan reconstruirlo.
+- Definir asignación de pagos a cuotas, orden de vencimientos, pagos parciales/anticipados, reversos y redistribución de NC/ND. Determinar si vencida es un estado o una condición calculada compatible con pago parcial.
+- Definir el tratamiento de un excedente tras NC sobre una venta ya cobrada: saldo a favor, devolución o política equivalente con auditoría. No borrar el excedente limitando el saldo a cero.
+- Definir cómo se representan devoluciones y reversos de cobros, y cuándo afectan caja y saldo. Un ajuste fiscal por sí solo no representa una salida de efectivo.
+- Especificar precisión monetaria del servidor y tolerancia única compartida con los clientes. Revisar el uso actual de double y tolerancia 0.01 antes de persistir; cubrir límites y acumulación de redondeos.
+- Definir compatibilidad con ventas/deudas existentes sin cronograma y clientes antiguos. Establecer migración, reconciliación y estrategia de reversión sin perder pagos.
+- Verificar especificaciones y catálogos SUNAT vigentes al implementar crédito/ND, dejando fuente y fecha de consulta. Este documento no certifica cumplimiento normativo.
 
-Esta funcionalidad no debe desaparecer dentro de Reportes. Se renombrará y enfocará como **Gestión SUNAT**.
+## 4.2 Casos mínimos para cerrar las decisiones
 
-# 4. Fase 1 — Reestructuración de Inicio
+- Venta 1,000; abono 200; cuotas que suman 800; cobro parcial y repetición idempotente.
+- Venta 1,000 totalmente cobrada; NC monetaria aceptada de 200: deuda cero y excedente de 200 conservado hasta su resolución.
+- Venta pagada; ND aceptada de 100: reapertura por 100, sin modificar total original ni stock.
+- NC/ND pendiente o rechazada, aceptación repetida y baja posterior: efecto financiero definido y aplicado una sola vez.
+- Dos cobros concurrentes sobre el mismo saldo, pago simultáneo con ajuste y reverso posterior.
+- Cierres de período, rangos vacíos, múltiples monedas si están soportadas y comparación entre empresas.
 
-## 4.1 Eliminar duplicaciones
+**Criterio de salida financiero:** reglas y resultados esperados definidos en el contrato 107. Para dar por verificados los requisitos fiscales todavía se requieren fuentes oficiales y pruebas de las fases 3–4. No marcar la fase completa como validada mientras falte esa evidencia.
 
-Retirar de Inicio:
+# 5. Fase 1 — Consolidar navegación de Reportes y Balance
 
-- cantidad total de productos registrados;
-- cards de Ventas de hoy;
-- cards de Egresos de hoy;
-- Flujo neto como métrica independiente;
-- actividad reciente de ventas/egresos que duplique Balance;
-- la card contenedora grande que agrupa otras cards cuando no agrega jerarquía útil.
-
-Balance ya cubre la actividad financiera diaria.
-
-## 4.2 Nueva sección Rendimiento
-
-Crear una sección visual plana con selector principal:
-
-- Ventas
-- Egresos
-- Facturación
-
-Selector temporal:
-
-- 7 días
-- 30 días
-- Mes
-- Año
-
-Se mostrará un único gráfico que cambia según la selección.
-
-### Ventas
-
-Mostrar tendencia histórica de ventas.
-
-### Egresos
-
-Recuperar el gráfico histórico de egresos que existía anteriormente.
-
-### Facturación
-
-Mostrar evolución de facturación electrónica, separando principalmente Boletas y Facturas. No incluir GRE dentro del importe facturado.
-
-## 4.3 CTA de Inicio
-
-El CTA recomendado será **Analizar período**.
-
-Comportamiento:
-
-- Ventas + período -> Reportes > Financiero > Ingresos + mismo período.
-- Egresos + período -> Reportes > Financiero > Egresos + mismo período.
-- Facturación + período -> Reportes > Facturación + mismo período.
-
-## 4.4 Alertas
-
-Renombrar `Estado actual y alertas` a **Alertas**.
-
-Mostrar únicamente situaciones accionables, por ejemplo:
-
-- productos con stock bajo;
-- productos agotados;
-- cuentas vencidas por cobrar;
-- pagos próximos o vencidos;
-- comprobantes SUNAT rechazados;
-- documentos pendientes de envío.
-
-Cada alerta deberá navegar al módulo que permite resolverla.
-
-Si no existen alertas: **Todo en orden — No tienes alertas pendientes.**
-
-## 4.5 Criterios de aceptación
-
-- Inicio no duplica Ventas/Egresos/Neto de hoy.
-- Inicio no muestra el total de productos registrados.
-- Existe un único gráfico de Rendimiento.
-- Ventas, Egresos y Facturación comparten la misma zona visual.
-- El período seleccionado se conserva al navegar a Reportes.
-- Alertas contiene únicamente elementos accionables.
-- No existen cards decorativas anidadas innecesariamente.
-
-# 5. Fase 2 — Ajuste menor de Balance
+**Estado:** base implementada; revisión estática contrastada en [diseño 108](108_DISENO_PERSISTENCIA_CUOTAS_SALDO_CANONICO.md). Cierre parcial: falta prueba real de interacción; no se ejecutó Flutter en esta entrega. **Dependencia:** conservar contratos actuales; decisiones de fase 0 para extensiones futuras.
 
 Balance conserva su responsabilidad actual: **qué ocurrió hoy con el dinero**.
 
@@ -143,7 +91,7 @@ Balance conserva su responsabilidad actual: **qué ocurrió hoy con el dinero**.
 
 ## 5.2 Cambiar CTA
 
-Cambiar el actual `Ver detalle` por **Histórico financiero**.
+El CTA **Histórico financiero** ya está implementado; conservarlo y verificar su navegación.
 
 Debe abrir directamente `Reportes > Financiero`.
 
@@ -154,79 +102,110 @@ Debe abrir directamente `Reportes > Financiero`.
 - Histórico financiero abre Reportes > Financiero.
 - No se duplica el selector de Rendimiento de Inicio.
 
-# 6. Fase 3 — Ajuste menor de Inventario
+## 5.4 Contrato de navegación existente
 
-Mover el contador de productos registrados desde Inicio hacia Inventario.
+Conservar ReportesInitialContext y sus pruebas: pestaña, filtro financiero, período, fecha y rango. Cubrir apertura real de pantalla y aplicación de filtros, además del mapeo de valores. Facturación y filtros fiscales se añaden en las fases 6 y 7, cuando exista su contrato.
 
-## 6.1 Resumen superior
+**Salida:** Balance diario y contexto inicial de las dos pestañas actuales verificados; no declarar completa la navegación fiscal futura.
 
-Agregar un resumen compacto, sin una gran card contenedora:
+# 6. Fase 2 — Base canónica de deuda, cuotas y cobros
 
-- Productos
-- Stock bajo
-- Sin stock
+**Estado:** diseño de persistencia completado y contrastado con metadatos/RPC efectivos de Supabase en [documento 108](108_DISENO_PERSISTENCIA_CUOTAS_SALDO_CANONICO.md); implementación pendiente. **Dependencia:** fase 0. **Entrega:** contrato central y persistencia tenant-aware; integración inicial con NC/pagos existentes. La integración real de ND se cierra en fase 4.
 
-Ejemplo conceptual: `428 productos · 17 stock bajo · 3 sin stock`.
+Antes de construir estadísticas finales, unificar la forma en la que StOmni calcula cuánto debe realmente un cliente.
 
-## 6.2 Indicadores interactivos
+Actualmente partes del dominio calculan saldo desde `ventas.total - pagos_venta`. Ese cálculo no es suficiente una vez que existen NC y ND.
 
-- tocar Productos -> mostrar todos;
-- tocar Stock bajo -> aplicar filtro de stock bajo;
-- tocar Sin stock -> aplicar filtro de agotados.
+## 6.1 Fórmula canónica
 
-## 6.3 Criterios de aceptación
+Definir server-side:
 
-- El total de productos ya no aparece en Inicio.
-- Inventario muestra total de productos, stock bajo y agotados.
-- Los indicadores aplican filtros reales.
-- No se altera el flujo actual de creación, edición o consulta de productos.
+`Monto exigible = Venta original - NC monetarias aceptadas + ND aceptadas`
 
-# 7. Fase 4 — Reorganización de Reportes
+y:
 
-Convertir Reportes en el centro de análisis histórico.
+`Saldo neto = Monto exigible - cobros netos aplicados`
 
-Nueva estructura: **Financiero | Inventario | Facturación**.
+`Saldo pendiente = max(Saldo neto, 0)`
 
-## 7.1 Filtros globales
+`Excedente a favor = max(-Saldo neto, 0)`
 
-Mantener Diario, Semanal, Mensual, Anual y Personalizado.
+Los cobros netos aplicados deben conservar pagos, reversos y devoluciones según la política cerrada en fase 0. El excedente es una obligación trazable, no un valor descartable.
 
-Reportes deberá poder recibir contexto inicial desde otras pantallas:
+La definición exacta deberá excluir documentos:
 
-- pestaña;
-- período;
-- fecha/rango;
-- tipo financiero;
-- tipo de documento o estado cuando corresponda.
+- rechazados;
+- pendientes;
+- anulados/baja aceptada;
+- que no afecten dinero.
 
-## 7.2 Reportes > Financiero
+## 6.2 Venta original inmutable
 
-Mantener y mejorar:
+No aumentar ni disminuir `ventas.total` por NC/ND.
 
-- Ingresos;
-- Egresos;
-- Flujo neto;
-- Descuentos;
-- movimientos del período;
-- distribución por método de pago;
-- exportación.
+`ventas.total` debe seguir representando la operación original.
 
-### Flujo neto
+Los ajustes fiscales se mantienen separados y se reflejan mediante el cálculo canónico de monto exigible.
 
-Se mantiene únicamente como indicador histórico: `Ingresos - Egresos = Flujo neto`. No se presentará como utilidad o ganancia contable.
+## 6.3 Integración con cuotas
 
-## 7.3 Reportes > Inventario
+Cuando cambie el monto exigible por una NC/ND aceptada:
 
-Mantener entradas, salidas, traslados, filtros por producto, histórico de movimientos y exportaciones actuales.
+- recalcular saldo pendiente;
+- reconciliar cronograma de cuotas;
+- no perder pagos ya aplicados;
+- no mostrar deuda negativa ni perder el excedente a favor del cliente;
+- volver a abrir una deuda si una ND crea nuevo pendiente;
+- ajustar o cerrar cuotas según reglas explícitas y auditables.
 
-## 7.4 Criterios de aceptación
+La política definida en el contrato 107 (cobros por vencimiento ascendente, NC desde saldos más lejanos, ND como obligación adicional y reversos auditables) deberá implementarse centralizada en backend y cubrirse por pruebas.
 
-- Reportes tiene tres pestañas.
-- Puede abrir en una pestaña, filtro y período específicos.
-- Los filtros globales son consistentes entre las tres pestañas.
-- El contexto recibido desde Inicio o Balance se respeta al abrir.
+## 6.4 Integración con pagos
 
-# 8. Fase 5 — Venta electrónica a crédito
+El RPC de cobro no deberá validar únicamente contra `ventas.saldo` derivado del total original.
+
+Deberá usar la fuente canónica de saldo exigible y mantener:
+
+- bloqueo transaccional;
+- idempotencia;
+- validación de sobrepago;
+- asignación a cuotas;
+- actualización de estado de deuda.
+
+## 6.5 Reportes y Balance
+
+**Balance** representa efectivo:
+
+- pagos efectivamente cobrados;
+- egresos efectivamente realizados.
+
+**Facturación** representa documentos fiscales emitidos/aceptados según la definición del reporte.
+
+**Cuentas por cobrar** representa saldo exigible todavía no cobrado.
+
+No mezclar estas tres magnitudes.
+
+## 6.6 Criterios de aceptación
+
+- NC aceptada reduce monto exigible.
+- ND aceptada aumenta monto exigible.
+- Un documento pendiente/rechazado no altera deuda.
+- Los pagos reducen únicamente saldo pendiente.
+- No se modifica el total original de la venta.
+- Una venta pagada puede reabrirse como deuda tras ND aceptada.
+- No existe sobrepago por carrera concurrente.
+
+## 6.7 Persistencia y compatibilidad antes de habilitar crédito
+
+Diseñar y crear el cronograma tenant-aware descrito en la fase 3, con claves/relaciones por organización, RLS, permisos y auditoría. Definir asignaciones de pagos y ajustes auditables. Migrar/reconciliar datos antiguos sin inventar vencimientos ni perder cobros.
+
+Implementar el contrato canónico sobre operaciones existentes y probar el efecto de ND mediante casos de contrato; no anunciar soporte ND real hasta completar su modelo, emisión y reconciliación en fase 4.
+
+**Salida:** persistencia de cuotas, cobros y NC existentes integrada y probada; contrato de ND definido; sobrepago y excedentes cubiertos. La habilitación comercial permanece condicionada a la fase 3.
+
+# 7. Fase 3 — Venta electrónica a crédito de extremo a extremo
+
+**Estado:** parcial en modelos y cola offline; flujo funcional pendiente. **Dependencia:** fase 2 y reglas fiscales verificadas.
 
 La venta a crédito ya existe en StOmni para Ticket Interno, pero actualmente la UI y la política fiscal fuerzan el uso de `ticket_interno` cuando la venta es crédito.
 
@@ -241,7 +220,7 @@ El objetivo de esta fase es permitir también:
 
 La Nota de débito no formará parte del selector de comprobante de una venta nueva. Es un documento fiscal posterior que modifica un comprobante ya emitido.
 
-## 8.1 Cambios en Procesar venta
+## 7.1 Cambios en Procesar venta
 
 Mantener las dos modalidades principales:
 
@@ -260,7 +239,7 @@ Eliminar la lógica móvil que actualmente, al entrar a Crédito / Deuda, fuerza
 
 La selección fiscal seguirá respetando capacidades por empresa y configuración SUNAT.
 
-## 8.2 Condiciones de pago
+## 7.2 Condiciones de pago
 
 Cuando la venta sea a crédito se deberá capturar:
 
@@ -280,9 +259,9 @@ El pendiente puede manejarse como:
 - pago único;
 - dos o más cuotas.
 
-La suma de cuotas deberá ser exactamente igual al monto pendiente, respetando tolerancia monetaria controlada server-side.
+La suma de cuotas deberá ser exactamente igual al monto pendiente normalizado en centavos; tolerancia económica cero en el contrato nuevo, conforme al documento 107.
 
-## 8.3 Modelo de cuotas
+## 7.3 Modelo de cuotas
 
 No limitar el SaaS a una sola fecha de vencimiento.
 
@@ -304,10 +283,11 @@ Los estados deberán permitir distinguir como mínimo:
 - pendiente;
 - parcialmente pagada;
 - pagada;
-- vencida;
 - anulada/invalidada por ajuste cuando corresponda.
 
-## 8.4 Política fiscal
+Vencida es una condición adicional calculada por saldo y fecha local, compatible con parcialmente pagada; no reemplaza el estado de liquidación.
+
+## 7.4 Política fiscal
 
 Modificar `PeruSunatFiscalPolicy` para retirar el bloqueo artificial que hoy prohíbe Factura/Boleta a crédito.
 
@@ -325,7 +305,7 @@ La validación deberá continuar fail-closed y comprobar:
 
 No relajar las restricciones de emisión electrónica offline.
 
-## 8.5 Backend de venta
+## 7.5 Backend de venta
 
 Los entrypoints actuales `process_sale_v4` y `process_sale_with_units_v4` ya reciben simultáneamente:
 
@@ -345,7 +325,7 @@ y, cuando existan cuotas:
 
 La creación de venta, pagos iniciales, deuda/cuotas, stock y comprobante deberá conservar idempotencia y consistencia transaccional.
 
-## 8.6 Emisión SUNAT de crédito
+## 7.6 Emisión SUNAT de crédito
 
 El generador fiscal actual construye los comprobantes con forma de pago `Contado`.
 
@@ -362,7 +342,7 @@ Para Crédito deberá incluir en el XML/contrato fiscal vigente:
 
 La implementación deberá validarse contra el catálogo y especificación SUNAT vigentes al momento de desarrollar esta fase.
 
-## 8.7 Balance
+## 7.7 Balance
 
 Una venta a crédito no debe contabilizar el total facturado como ingreso de caja.
 
@@ -376,7 +356,7 @@ Balance registra hoy únicamente:
 
 Los S/ 800 restantes aparecerán en cuentas por cobrar y sólo entrarán a Balance cuando sean efectivamente pagados.
 
-## 8.8 Deudas y cobros
+## 7.8 Deudas y cobros
 
 Los cobros posteriores deberán:
 
@@ -389,7 +369,7 @@ Los cobros posteriores deberán:
 
 Una venta completamente pagada podrá volver a tener saldo pendiente si posteriormente una Nota de débito aceptada incrementa el monto exigible.
 
-## 8.9 Criterios de aceptación
+## 7.9 Criterios de aceptación
 
 - Crédito no fuerza Ticket Interno.
 - Factura y Boleta pueden emitirse correctamente a crédito.
@@ -400,13 +380,26 @@ Una venta completamente pagada podrá volver a tener saldo pendiente si posterio
 - El XML fiscal representa correctamente Contado/Crédito.
 - El flujo conserva idempotencia y aislamiento por empresa.
 
-# 9. Fase 6 — Nota de débito electrónica
+## 7.10 Secuencia de implementación y salida
+
+1. Reutilizar los modelos y la cola versión 3 ya existentes; completar validaciones conforme a la fase 0.
+2. Conectar creditTerms desde VentaProcessingRequest a _VentaProcessingRepositoryAdapter, VentasRepository y RPC; demostrar lectura posterior del mismo cronograma.
+3. Integrar venta, abono, cuotas, stock y comprobante de forma atómica, con retries idempotentes y validación server-side.
+4. Adaptar emisión Contado/Crédito y verificar XML, respuestas y recuperación de resultado incierto.
+5. Completar formulario de pago único/múltiples cuotas y retirar los bloqueos de UI/política solo cuando backend y emisión estén listos.
+6. Probar el recorrido real UI → RPC → cuotas → emisión → cobros → Balance, incluida compatibilidad con tickets offline existentes.
+
+**Salida:** criterios 7.9 cumplidos con evidencia integrada; no basta un test con gateway simulado. La emisión electrónica offline sigue restringida.
+
+# 8. Fase 4 — Nota de débito e integración de ajustes
+
+**Estado:** pendiente. **Dependencia:** fases 2 y 3. Integrar ND aceptada con el contrato canónico antes de exponerla como funcionalidad completa.
 
 La Nota de débito se implementará como un documento fiscal posterior asociado a una Factura o Boleta existente.
 
 No será un nuevo tipo de venta ni aparecerá como opción al crear una venta.
 
-## 9.1 Origen y elegibilidad
+## 8.1 Origen y elegibilidad
 
 Desde el detalle de una venta con comprobante electrónico elegible se podrá acceder a:
 
@@ -428,7 +421,7 @@ La Nota de débito deberá vincularse al comprobante original y validar server-s
 
 Los motivos y códigos se tomarán del catálogo SUNAT vigente; no se asumirán valores permanentes únicamente desde UI.
 
-## 9.2 Modelo fiscal
+## 8.2 Modelo fiscal
 
 Crear un dominio tenant-aware para Nota de débito equivalente a:
 
@@ -452,7 +445,7 @@ Cada registro deberá conservar:
 - auditoría de envío;
 - baja tributaria cuando corresponda.
 
-## 9.3 Series y correlativos
+## 8.3 Series y correlativos
 
 Añadir soporte de serie/correlativo de Nota de débito dentro del namespace del tenant.
 
@@ -460,7 +453,7 @@ No compartir correlativos globales entre empresas.
 
 La serie deberá configurarse por organización igual que el resto de documentos fiscales.
 
-## 9.4 RPC y seguridad
+## 8.4 RPC y seguridad
 
 Crear entrypoints públicos mínimos y tenant-safe para:
 
@@ -479,7 +472,7 @@ Requisitos:
 - idempotencia;
 - validación de origen dentro del mismo tenant.
 
-## 9.5 Edge Functions y emisión
+## 8.5 Edge Functions y emisión
 
 Añadir soporte para:
 
@@ -494,7 +487,7 @@ Añadir soporte para:
 
 Reutilizar la infraestructura fiscal compartida cuando sea seguro, sin mezclar estados de NC y ND.
 
-## 9.6 Core logic y móvil
+## 8.6 Core logic y móvil
 
 Agregar:
 
@@ -508,13 +501,13 @@ Agregar:
 
 El detalle de una venta deberá mostrar claramente NC y ND relacionadas sin alterar el total original almacenado de la venta.
 
-## 9.7 Stock
+## 8.7 Stock
 
 Por defecto, una Nota de débito es un ajuste monetario/fiscal y no debe consumir ni reponer stock automáticamente.
 
 Cualquier supuesto futuro que requiera efecto de inventario deberá tener un contrato explícito y pruebas propias; no reutilizar ciegamente la lógica de Nota de crédito.
 
-## 9.8 Gestión SUNAT
+## 8.8 Gestión SUNAT
 
 Gestión SUNAT deberá incorporar:
 
@@ -534,7 +527,7 @@ El gateway de documentos electrónicos deberá distinguir al menos:
 - nota_debito;
 - guia.
 
-## 9.9 Criterios de aceptación
+## 8.9 Criterios de aceptación
 
 - ND sólo nace desde un comprobante compatible.
 - ND tiene serie/correlativo por empresa.
@@ -544,86 +537,15 @@ El gateway de documentos electrónicos deberá distinguir al menos:
 - ND aparece en Gestión SUNAT y detalle de venta.
 - Aislamiento ORG_A/ORG_B probado.
 
-# 10. Fase 7 — Modelo canónico de monto exigible y deuda
+## 8.10 Cierre financiero de ND
 
-Antes de construir estadísticas finales, unificar la forma en la que StOmni calcula cuánto debe realmente un cliente.
+Conectar aceptación, rechazo, resultado incierto y baja con deuda/cuotas mediante transiciones idempotentes. Probar reapertura de deuda pagada, ajuste de cronograma sin perder pagos, concurrencia y total original inmutable. Sustituir los casos de contrato de ND de fase 2 por pruebas con documentos persistidos y resultados de emisión.
 
-Actualmente partes del dominio calculan saldo desde `ventas.total - pagos_venta`. Ese cálculo no es suficiente una vez que existen NC y ND.
+**Salida:** DB/RLS/RPC, emisión, CDR, UI y efectos financieros completos; un reintento no duplica correlativo, documento ni ajuste.
 
-## 10.1 Fórmula canónica
+# 9. Fase 5 — Agregados históricos de facturación
 
-Definir server-side:
-
-`Monto exigible = Venta original - NC monetarias aceptadas + ND aceptadas`
-
-y:
-
-`Saldo pendiente = Monto exigible - pagos confirmados`
-
-La definición exacta deberá excluir documentos:
-
-- rechazados;
-- pendientes;
-- anulados/baja aceptada;
-- que no afecten dinero.
-
-## 10.2 Venta original inmutable
-
-No aumentar ni disminuir `ventas.total` por NC/ND.
-
-`ventas.total` debe seguir representando la operación original.
-
-Los ajustes fiscales se mantienen separados y se reflejan mediante el cálculo canónico de monto exigible.
-
-## 10.3 Integración con cuotas
-
-Cuando cambie el monto exigible por una NC/ND aceptada:
-
-- recalcular saldo pendiente;
-- reconciliar cronograma de cuotas;
-- no perder pagos ya aplicados;
-- no generar saldo negativo;
-- volver a abrir una deuda si una ND crea nuevo pendiente;
-- ajustar o cerrar cuotas según reglas explícitas y auditables.
-
-La política concreta de redistribución de ajustes sobre cuotas deberá quedar centralizada en backend y cubierta por pruebas.
-
-## 10.4 Integración con pagos
-
-El RPC de cobro no deberá validar únicamente contra `ventas.saldo` derivado del total original.
-
-Deberá usar la fuente canónica de saldo exigible y mantener:
-
-- bloqueo transaccional;
-- idempotencia;
-- validación de sobrepago;
-- asignación a cuotas;
-- actualización de estado de deuda.
-
-## 10.5 Reportes y Balance
-
-**Balance** representa efectivo:
-
-- pagos efectivamente cobrados;
-- egresos efectivamente realizados.
-
-**Facturación** representa documentos fiscales emitidos/aceptados según la definición del reporte.
-
-**Cuentas por cobrar** representa saldo exigible todavía no cobrado.
-
-No mezclar estas tres magnitudes.
-
-## 10.6 Criterios de aceptación
-
-- NC aceptada reduce monto exigible.
-- ND aceptada aumenta monto exigible.
-- Un documento pendiente/rechazado no altera deuda.
-- Los pagos reducen únicamente saldo pendiente.
-- No se modifica el total original de la venta.
-- Una venta pagada puede reabrirse como deuda tras ND aceptada.
-- No existe sobrepago por carrera concurrente.
-
-# 11. Fase 8 — Backend agregado para facturación
+**Estado:** pendiente. **Dependencia:** fases 2–4 y definiciones temporales/monetarias de fase 0.
 
 La lista operativa de documentos trabaja con paginación y no se usará para sumar estadísticas.
 
@@ -643,7 +565,7 @@ Debe devolver como mínimo:
 - desglose contado/crédito;
 - pendiente por cobrar asociado al período cuando el concepto del reporte lo requiera.
 
-## 11.1 Fórmula de facturación neta
+## 9.1 Fórmula de facturación neta
 
 Conceptualmente:
 
@@ -658,7 +580,7 @@ La implementación deberá definir con precisión:
 - redondeos;
 - notas que no afectan dinero.
 
-## 11.2 Requisitos
+## 9.2 Requisitos
 
 - tenant actual derivado del contexto autenticado;
 - sin posibilidad de consultar otra organización;
@@ -668,7 +590,7 @@ La implementación deberá definir con precisión:
 - respuesta adecuada para gráficos sin descargar miles de documentos;
 - no usar resultados paginados de Gestión SUNAT como fuente de agregación.
 
-## 11.3 Pruebas
+## 9.3 Pruebas
 
 Agregar pruebas de:
 
@@ -684,11 +606,60 @@ Agregar pruebas de:
 - bajas/anulaciones;
 - datasets vacíos.
 
-# 12. Fase 9 — Nueva sección Reportes > Facturación
+# 10. Fase 6 — Reorganización de Reportes
+
+**Estado:** parcial en contexto inicial; tercera pestaña pendiente. **Dependencia:** fase 5. La fase 7 completa el contenido de Facturación.
+
+Convertir Reportes en el centro de análisis histórico.
+
+Nueva estructura: **Financiero | Inventario | Facturación**.
+
+## 10.1 Filtros globales
+
+Mantener Diario, Semanal, Mensual, Anual y Personalizado.
+
+Reportes deberá poder recibir contexto inicial desde otras pantallas:
+
+- pestaña;
+- período;
+- fecha/rango;
+- tipo financiero;
+- tipo de documento o estado cuando corresponda.
+
+## 10.2 Reportes > Financiero
+
+Mantener y mejorar:
+
+- Ingresos;
+- Egresos;
+- Flujo neto;
+- Descuentos;
+- movimientos del período;
+- distribución por método de pago;
+- exportación.
+
+### Flujo neto
+
+Se mantiene únicamente como indicador histórico: `Ingresos - Egresos = Flujo neto`. No se presentará como utilidad o ganancia contable.
+
+## 10.3 Reportes > Inventario
+
+Mantener entradas, salidas, traslados, filtros por producto, histórico de movimientos y exportaciones actuales.
+
+## 10.4 Criterios de aceptación
+
+- Reportes tiene tres pestañas.
+- Puede abrir en una pestaña, filtro y período específicos.
+- Los filtros globales son consistentes entre las tres pestañas.
+- El contexto recibido desde Inicio o Balance se respeta al abrir.
+
+# 11. Fase 7 — Reportes > Facturación
+
+**Estado:** pendiente. **Dependencia:** fases 5 y 6. El recorrido a Gestión SUNAT se cierra en fases 8–9.
 
 Esta sección será exclusivamente analítica.
 
-## 12.1 KPIs por período
+## 11.1 KPIs por período
 
 Mostrar:
 
@@ -707,7 +678,7 @@ Mostrar:
 - facturación a crédito;
 - cuentas por cobrar relacionadas sin confundirlas con caja.
 
-## 12.2 Reglas monetarias
+## 11.2 Reglas monetarias
 
 - Facturas y Boletas forman parte del importe fiscal.
 - NC monetarias aceptadas reducen facturación neta.
@@ -716,7 +687,7 @@ Mostrar:
 - una venta a crédito puede estar facturada sin haber sido cobrada;
 - Balance no debe copiar el total facturado como ingreso.
 
-## 12.3 Gráficos
+## 11.3 Gráficos
 
 Gráfico principal:
 
@@ -735,7 +706,7 @@ Visualizaciones complementarias:
 - evolución temporal;
 - documentos por estado.
 
-## 12.4 Drill-down
+## 11.4 Drill-down
 
 Ejemplos:
 
@@ -744,7 +715,7 @@ Ejemplos:
 - tocar `4 Notas de débito` -> Gestión SUNAT filtrada por ND;
 - tocar `17 Guías` -> Gestión SUNAT filtrada por GRE y mismo período.
 
-## 12.5 Criterios de aceptación
+## 11.5 Criterios de aceptación
 
 - Las estadísticas son completas para todo el período.
 - NC y ND afectan correctamente facturación neta.
@@ -752,7 +723,9 @@ Ejemplos:
 - GRE no afecta el total facturado.
 - Los estados tributarios son navegables hacia Gestión SUNAT.
 
-# 13. Fase 10 — Renombrar Documentos electrónicos a Gestión SUNAT
+# 12. Fase 8 — Renombrar Documentos electrónicos a Gestión SUNAT
+
+**Estado:** pendiente. **Dependencia:** fase 4 para incluir ND.
 
 En Centro de trabajo, **Documentos** pasa a **Gestión SUNAT**.
 
@@ -760,7 +733,7 @@ Subtítulo recomendado: `Comprobantes, envíos, consultas y bajas`.
 
 La pantalla mantiene su función operativa.
 
-## 13.1 Mantener y ampliar
+## 12.1 Mantener y ampliar
 
 - Facturas;
 - Boletas;
@@ -776,15 +749,17 @@ La pantalla mantiene su función operativa.
 - anulaciones/bajas;
 - procesos tributarios.
 
-## 13.2 No convertir en reporte
+## 12.2 No convertir en reporte
 
 Gestión SUNAT no calculará facturación histórica, evolución por período ni KPIs agregados.
 
 Eso pertenece a Reportes > Facturación.
 
-# 14. Fase 11 — Mejorar UX de Gestión SUNAT
+# 13. Fase 9 — UX operativa de Gestión SUNAT
 
-## 14.1 Filtros operativos
+**Estado:** pendiente. **Dependencia:** fases 7 y 8.
+
+## 13.1 Filtros operativos
 
 Prioridad por estado:
 
@@ -803,19 +778,133 @@ Tipo:
 
 Mantener búsqueda por número, cliente y estado.
 
-## 14.2 Jerarquía visual
+## 13.2 Jerarquía visual
 
 Los documentos problemáticos deben destacar más que los aceptados. Un documento rechazado debe mostrar claramente el motivo y la acción de reintento; un documento aceptado puede mostrarse de forma más discreta.
 
-## 14.3 Acceso a análisis
+## 13.3 Acceso a análisis
 
 Agregar **Ver reporte de facturación**, que abre `Reportes > Facturación` con el período actual cuando aplique.
 
-# 15. Fase 12 — Navegación cruzada
+# 14. Fase 10 — Indicadores y filtros de Inventario
+
+**Estado:** pendiente de implementación/verificación del bloque completo. **Dependencia:** contratos de permisos actuales. Coordinar el traslado con fase 11 para no perder el acceso a indicadores.
+
+Mover el contador de productos registrados desde Inicio hacia Inventario.
+
+## 14.1 Resumen superior
+
+Agregar un resumen compacto, sin una gran card contenedora:
+
+- Productos
+- Stock bajo
+- Sin stock
+
+Ejemplo conceptual: `428 productos · 17 stock bajo · 3 sin stock`.
+
+## 14.2 Indicadores interactivos
+
+- tocar Productos -> mostrar todos;
+- tocar Stock bajo -> aplicar filtro de stock bajo;
+- tocar Sin stock -> aplicar filtro de agotados.
+
+## 14.3 Criterios de aceptación
+
+- El total de productos ya no aparece en Inicio.
+- Inventario muestra total de productos, stock bajo y agotados.
+- Los indicadores aplican filtros reales.
+- No se altera el flujo actual de creación, edición o consulta de productos.
+
+# 15. Fase 11 — Reestructuración de Inicio
+
+**Estado:** pendiente. **Dependencia:** fases 5–10; las métricas y destinos deben estar disponibles.
+
+## 15.1 Eliminar duplicaciones
+
+Retirar de Inicio:
+
+- cantidad total de productos registrados;
+- cards de Ventas de hoy;
+- cards de Egresos de hoy;
+- Flujo neto como métrica independiente;
+- actividad reciente de ventas/egresos que duplique Balance;
+- la card contenedora grande que agrupa otras cards cuando no agrega jerarquía útil.
+
+Balance ya cubre la actividad financiera diaria.
+
+## 15.2 Nueva sección Rendimiento
+
+Crear una sección visual plana con selector principal:
+
+- Cobros
+- Egresos
+- Facturación
+
+Selector temporal:
+
+- 7 días
+- 30 días
+- Mes
+- Año
+
+Se mostrará un único gráfico que cambia según la selección.
+
+### Cobros
+
+Mostrar tendencia histórica de dinero cobrado conforme al contrato 107, distinguiendo reversos y devoluciones. No usar ventas realizadas como sustituto de ingresos.
+
+### Egresos
+
+Recuperar el gráfico histórico de egresos que existía anteriormente.
+
+### Facturación
+
+Mostrar evolución de facturación electrónica, separando principalmente Boletas y Facturas. No incluir GRE dentro del importe facturado.
+
+## 15.3 CTA de Inicio
+
+El CTA recomendado será **Analizar período**.
+
+Comportamiento:
+
+- Cobros + período -> Reportes > Financiero > Ingresos + mismo período. La métrica representa dinero cobrado, no ventas realizadas.
+- Egresos + período -> Reportes > Financiero > Egresos + mismo período.
+- Facturación + período -> Reportes > Facturación + mismo período.
+
+## 15.4 Alertas
+
+Renombrar `Estado actual y alertas` a **Alertas**.
+
+Mostrar únicamente situaciones accionables, por ejemplo:
+
+- productos con stock bajo;
+- productos agotados;
+- cuentas vencidas por cobrar;
+- pagos próximos o vencidos;
+- comprobantes SUNAT rechazados;
+- documentos pendientes de envío.
+
+Cada alerta deberá navegar al módulo que permite resolverla.
+
+Si no existen alertas: **Todo en orden — No tienes alertas pendientes.**
+
+## 15.5 Criterios de aceptación
+
+- Inicio no duplica Ventas/Egresos/Neto de hoy.
+- Inicio no muestra el total de productos registrados.
+- Existe un único gráfico de Rendimiento.
+- Cobros, Egresos y Facturación comparten la misma zona visual.
+- El período seleccionado se conserva al navegar a Reportes.
+- Alertas contiene únicamente elementos accionables.
+- No existen cards decorativas anidadas innecesariamente.
+
+# 16. Fase 12 — Navegación cruzada completa
+
+**Estado:** parcial solo en Balance → Financiero. **Dependencia:** fases 7–11.
 
 ## Inicio -> Reportes
 
-- Ventas -> Financiero / Ingresos
+- Cobros -> Financiero / Ingresos. Ventas realizadas es una métrica distinta y queda fuera de este selector.
 - Egresos -> Financiero / Egresos
 - Facturación -> Facturación
 
@@ -848,7 +937,9 @@ Desde Ver Venta:
 
 Toda navegación debe preservar el período cuando sea semánticamente válido.
 
-# 16. Fase 13 — Unificación visual móvil
+# 17. Fase 13 — Unificación visual móvil
+
+**Estado:** existe trabajo visual previo; cierre conjunto pendiente. **Dependencia:** flujos de fases 3–12. Aplicar coherencia visual también durante cada entrega.
 
 Aplicar a:
 
@@ -876,7 +967,9 @@ Objetivos:
 
 No se realizará una refactorización visual de escritorio dentro de este bloque.
 
-# 17. Fase 14 — Pruebas y gates
+# 18. Fase 14 — Regresión integrada, CI y QA
+
+**Estado:** CI de la línea base verde; cierre del roadmap pendiente. **Dependencia:** todas las fases funcionales. Las pruebas unitarias, de integración y seguridad se ejecutan también en cada fase.
 
 ## Inicio
 
@@ -958,34 +1051,24 @@ No se realizará una refactorización visual de escritorio dentro de este bloque
 - filtros por estado/tipo;
 - navegación hacia Reportes.
 
-# 18. Orden de implementación recomendado
+## 18.1 Evidencia por entrega
 
-1. Mantener y validar el contrato de navegación hacia Reportes ya iniciado.
-2. Ampliar modelo de venta para Crédito/Deuda con Factura y Boleta.
-3. Diseñar/persistir cronograma de cuotas tenant-aware.
-4. Ampliar RPC de venta y validaciones de pago/crédito.
-5. Adaptar XML fiscal de Factura/Boleta para Contado/Crédito.
-6. Unificar cálculo canónico de monto exigible y saldo.
-7. Adaptar cobros/deudas/cuotas al saldo canónico.
-8. Implementar dominio DB/RLS/RPC de Nota de débito.
-9. Implementar emisión/reintento/consulta SUNAT de Nota de débito.
-10. Integrar ND en core logic, Ver Venta y Gestión SUNAT.
-11. Crear backend agregado de facturación con Factura/Boleta/NC/ND/GRE y contado/crédito.
-12. Reestructurar Reportes y añadir Reportes > Facturación.
-13. Renombrar Documentos -> Gestión SUNAT y cerrar sus filtros operativos.
-14. Reestructurar Inicio usando los contratos fiscales ya completos.
-15. Ajustar CTA de Balance.
-16. Mover indicadores de productos a Inventario.
-17. Conectar alertas de Inicio, incluyendo cuotas vencidas y documentos SUNAT problemáticos.
-18. Ejecutar pasada visual conjunta sobre las superficies móviles afectadas.
-19. Ejecutar pruebas, formato, análisis y gates.
-20. Sincronizar mirror CI.
-21. Requerir validación completa 7/7.
-22. Generar nueva build QA sólo después de CI verde.
+- Registrar SHA privado y SHA del espejo con correspondencia verificable.
+- Ejecutar formato, análisis y pruebas afectadas; incluir pruebas reales de persistencia y transacciones para crédito/ajustes.
+- Exigir aislamiento ORG_A/ORG_B, reintentos y concurrencia; complementar pruebas estáticas con integración y recorridos móviles.
+- Obtener validación completa 7/7 del candidato.
+- Generar QA únicamente después de CI verde desde el SHA privado validado; registrar build, SHA y resultado de revisión.
+- CI verde de la base no cierra requisitos aún no implementados. No desplegar a producción como parte de este roadmap.
 
-Este orden evita construir Inicio y Reportes sobre un modelo fiscal incompleto y evita rehacerlos inmediatamente después al introducir Crédito o Nota de débito.
+# 19. Ruta de ejecución y actualización de estado
 
-# 19. Fuera de alcance
+La ruta única es: fase 0 (decisiones) → fase 1 (consolidar base de navegación) → fase 2 (deuda/cuotas/cobros) → fase 3 (crédito completo) → fase 4 (ND integrada) → fase 5 (agregados) → fases 6–7 (Reportes) → fases 8–9 (Gestión SUNAT) → fases 10–11 (Inventario e Inicio) → fase 12 (navegación cruzada) → fase 13 (cierre visual) → fase 14 (regresión y QA).
+
+Próximo paso: implementar/ejecutar la prueba de interacción de fase 1 y la entrega 2A del diseño 108 en entorno de prueba. El esquema, claves, triggers y RPC seleccionados ya fueron inspeccionados; completar inventario de escritores y permisos antes de activar el motor. Las reglas financieras ya están definidas; la verificación normativa se mantiene como gate previo a habilitar crédito/ND. No empezar por rediseñar Inicio ni por habilitar Factura/Boleta a crédito en UI.
+
+Actualizar la tabla de línea base y añadir evidencia al cierre de cada fase. Usar los estados pendiente, parcial, implementado y validado; implementado sin evidencia integrada no equivale a validado. Los requisitos fiscales solo se consideran verificados después de contrastar las especificaciones vigentes y probar su implementación.
+
+# 20. Fuera de alcance
 
 - rediseño completo de escritorio;
 - cambios generales de core business no relacionados;
@@ -997,7 +1080,7 @@ Este orden evita construir Inicio y Reportes sobre un modelo fiscal incompleto y
 - tratar Nota de débito como una venta nueva;
 - modificar stock automáticamente por una ND sin contrato explícito.
 
-# 20. Definición de terminado
+# 21. Definición de terminado
 
 El bloque se considera cerrado únicamente cuando:
 
