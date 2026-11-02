@@ -164,6 +164,21 @@ La estructura de la fase 2A se aplicó en el proyecto de desarrollo `iqooedpkihm
 - Se mantuvieron RLS y lectura únicamente de tenant autorizado con permiso `tenant.read`; `anon` sin lectura y `authenticated` sin escrituras directas.
 - Test pgTAP añadido: `supabase/tests/database/financial_2a_tenant_ledger_contract_test.sql`, con 27 aserciones estructurales y transaccionales que se revierten tras ejecutarse.
 - Inspección en la base desplegada: seis tablas con RLS activo y una política SELECT por tabla. El asesor de rendimiento no reporta ya FKs sin índice para estas tablas después de la segunda migración.
-- La ejecución completa de GitHub Actions que incluya ambas migraciones aún debe registrarse antes de marcar esta entrega como validada. El primer candidato se probó con el esquema inicial; se requiere una segunda validación para los índices.
+- La validación definitiva de ambas migraciones terminó 7/7 en GitHub Actions, ejecución 41529616806, commit CI 821347d; la fase 2A está validada.
 
 **Límites actuales:** fases 2B–2D pendientes. Estos objetos no son todavía la fuente de verdad de deudas, pagos ni facturación SUNAT. No habilitar crédito electrónico ni notas de débito a partir de esta migración.
+
+## 11. Fase 2B, bloque inicial: preconciliación segura — 2026-11-02
+
+**Estado:** preanálisis en desarrollo implementado, apertura de historial no iniciada. No marcar 2B como cerrada antes de pruebas CI y reconciliación transaccional del corte.
+
+- Migración: `20261102215345_financial_2b_legacy_reconciliation_preview.sql`. Función administrativa `private.financial_2b_preview_sales(organization_id uuid, limit integer)`, `SECURITY INVOKER`, lectura solamente. Sin permisos de ejecución para `PUBLIC`, `anon`, `authenticated` ni `service_role`; se consulta mediante una sesión de administración de la base.
+- Calcula por venta importes exactos de venta, suma de pagos y saldo estimado. Clasifica como `lista` solo sin discrepancias; `bloqueada` con motivos tipados (saldo incorrecto, falta de fecha de cobro, fracciones de centavo, sobrepago, notas de crédito, documento en otra moneda, venta anulada y cuenta ya abierta).
+- De forma conservadora **bloquea toda venta con notas de crédito** para no dar por aceptada una nota pendiente/baja; ello se refinará con historia tributaria efectiva al completar 2B. No presupone que `ventas.monto_notas_credito` sea historia exhaustiva.
+- Moneda: se verifica el código configurado de la organización y se contrasta contra cada comprobante; la inexistencia de comprobante no implica que la moneda de la operación haya sido probada históricamente. Requiere revisión de acuerdos/monedas heredadas antes de abrir eventos.
+- Prueba pgTAP: `financial_2b_reconciliation_preview_contract_test.sql`, con 15 aserciones y fixtures reversibles. No activa el motor nuevo ni modifica balances heredados.
+- Datos inspeccionados en Supabase de desarrollo: 2 organizaciones (PEN), 0 ventas, 0 pagos de venta, 0 NC, 0 cuentas y 0 eventos. No existe historial real al que aplicar backfill. Se probará la apertura con datos sintéticos de manera transaccional y sin invención de fechas.
+
+**Escritores encontrados inicialmente (no todos auditados):** `process_sale_v3` (núcleo bajo v4), `process_sale_v4`, `process_sale_with_units_v4`, `procesar_pago_deuda_v2`, `eliminar_pago_venta_v1`, `nota_credito_finalizar`, `tributario_finalizar_proceso`, `anular_venta_v2`. Investigar también reintentos, reversos, colas offline, stock y funciones anidadas.
+
+**Para cerrar 2B:** diseñar y probar corte transaccional con escritores controlados, eventos de venta/pago/NC idempotentes por origen, trazabilidad de ventanas sin historia y persistencia auditable de discrepancias. Evitar escribir en `venta_cuentas_financieras` mientras las RPC actuales puedan mutar ventas sin emitir eventos canónicos. `ventas.saldo` sigue siendo compatibilidad legacy, no el nuevo motor autoritativo.

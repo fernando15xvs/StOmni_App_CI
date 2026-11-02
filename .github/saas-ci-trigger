@@ -1,3 +1,3 @@
-source_sha=488f5dca4075977cabde47105a4f61d8bd80f4c8
-triggered_at_utc=2026-11-02T21:34:00.417Z
-reason=phase2a-indexed-tenant-ledger-complete
+source_sha=7d39e72ee7262b850b1d307ec25981f58c41959a
+triggered_at_utc=2026-11-02T21:56:40.555Z
+reason=phase2b-readonly-preview-tenant-reconciliation-pgtap
