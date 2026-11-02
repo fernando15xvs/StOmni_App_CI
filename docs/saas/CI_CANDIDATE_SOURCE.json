@@ -1,8 +1,8 @@
 {
   "source_repository": "fernando15xvs/StOmni_App",
   "source_branch": "feature/saas-multitenant-foundation",
-  "source_sha": "96f5d082e994534cfe7fa37b7ec1243c6a40d380",
-  "synchronized_at_utc": "2026-11-02T17:38:16.030Z",
+  "source_sha": "274865f0638bade65847a49e7d2a9c0eaf62db32",
+  "synchronized_at_utc": "2026-11-02T20:48:05.789Z",
   "sync_mode": "contents-api-mirror",
   "bootstrap_path": "supabase/migrations/20260822052116_bootstrap_public_schema.sql",
   "bootstrap_sha256_checkout": "c6421682c5a64ee026d864483315c32e6e814b595fa91dfde527699236ad31ed",

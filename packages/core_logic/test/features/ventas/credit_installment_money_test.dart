@@ -28,10 +28,7 @@ void main() {
 
   test('accepts exact cent allocation including rounding remainder', () {
     expect(
-      terms([33.33, 33.33, 33.34]).validate(
-        saleDate: saleDate,
-        amountDue: 100,
-      ),
+      terms([33.33, 33.33, 33.34]).validate(saleDate: saleDate, amountDue: 100),
       isNull,
     );
     expect(
@@ -53,17 +50,17 @@ void main() {
 
   test('rejects descending dates and accepts equal due dates', () {
     expect(
-      terms([50, 50], days: [2, 1]).validate(
-        saleDate: saleDate,
-        amountDue: 100,
-      ),
+      terms(
+        [50, 50],
+        days: [2, 1],
+      ).validate(saleDate: saleDate, amountDue: 100),
       isNotNull,
     );
     expect(
-      terms([50, 50], days: [1, 1]).validate(
-        saleDate: saleDate,
-        amountDue: 100,
-      ),
+      terms(
+        [50, 50],
+        days: [1, 1],
+      ).validate(saleDate: saleDate, amountDue: 100),
       isNull,
     );
   });
