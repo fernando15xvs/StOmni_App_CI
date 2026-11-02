@@ -17,6 +17,7 @@ class VentaSubmissionRequest {
     required this.totalAPagar,
     required this.montoAbono,
     required this.concepto,
+    this.creditTerms,
     required this.tipoComprobante,
     required this.subtotalBruto,
     required this.descuentoGlobalPorcentaje,
@@ -36,6 +37,7 @@ class VentaSubmissionRequest {
   final double totalAPagar;
   final double montoAbono;
   final String concepto;
+  final SaleCreditTerms? creditTerms;
   final int? cotizacionId;
   final int? vendedorId;
   final String tipoComprobante;
@@ -60,6 +62,7 @@ class VentaSubmissionRequest {
     totalAPagar: totalAPagar,
     montoAbono: montoAbono,
     payments: pagos,
+    creditTerms: creditTerms,
     cart: carrito,
     cotizacionId: cotizacionId,
     fecha: fecha,
@@ -92,6 +95,7 @@ class VentaSubmissionRequest {
     cliente: cliente,
     pagos: pagos,
     detalles: carrito,
+    creditTerms: creditTerms,
   );
 }
 
