@@ -33,9 +33,52 @@ class PendingSaleMapper {
     'monto': payment.monto,
   };
 
+  static String _dateOnly(DateTime value) =>
+      '${value.year.toString().padLeft(4, '0')}-'
+      '${value.month.toString().padLeft(2, '0')}-'
+      '${value.day.toString().padLeft(2, '0')}';
+
+  static SaleCreditTerms? decodeCreditTerms(Object? raw) {
+    if (raw == null) return null;
+    if (raw is! Map) {
+      throw const FormatException('Cronograma de crédito inválido.');
+    }
+    final map = Map<String, dynamic>.from(raw);
+    return SaleCreditTerms(
+      installments: _rows(map['installments']).map((row) {
+        final number = (row['number'] as num?)?.toInt();
+        final amount = (row['amount'] as num?)?.toDouble();
+        final dueDate = DateTime.tryParse(row['due_date']?.toString() ?? '');
+        if (number == null || amount == null || dueDate == null) {
+          throw const FormatException('Cuota de crédito inválida.');
+        }
+        return SaleCreditInstallment(
+          number: number,
+          amount: amount,
+          dueDate: dueDate,
+        );
+      }),
+    );
+  }
+
+  static Map<String, dynamic>? encodeCreditTerms(SaleCreditTerms? terms) {
+    if (terms == null) return null;
+    return {
+      'installments': terms.installments
+          .map(
+            (installment) => {
+              'number': installment.number,
+              'amount': installment.amount,
+              'due_date': _dateOnly(installment.dueDate),
+            },
+          )
+          .toList(growable: false),
+    };
+  }
+
   static PendingSale decode(Map<String, dynamic> map) {
     final version = map['schema_version'];
-    if (version != null && version != 1 && version != 2) {
+    if (version != null && version != 1 && version != 2 && version != 3) {
       throw const FormatException('Versión de venta pendiente no compatible.');
     }
     final rawCliente = map['cliente'];
@@ -75,11 +118,12 @@ class PendingSaleMapper {
       ),
       pagos: _rows(rawPagos).map(decodePayment),
       detalles: SaleCartMapper.decode(_rows(rawDetalles)),
+      creditTerms: decodeCreditTerms(map['credit_terms']),
     );
   }
 
   static Map<String, dynamic> encode(PendingSale sale) => {
-    'schema_version': 2,
+    'schema_version': 3,
     'request_id': sale.requestId,
     'fecha': sale.fecha,
     'es_credito': sale.esCredito,
@@ -99,6 +143,7 @@ class PendingSaleMapper {
     'cliente': encodeCustomer(sale.cliente),
     'pagos': sale.pagos.map(encodePayment).toList(growable: false),
     'detalles': SaleCartMapper.encode(sale.detalles),
+    'credit_terms': encodeCreditTerms(sale.creditTerms),
   };
 
   static Iterable<Map<String, dynamic>> _rows(Object? raw) {
