@@ -200,7 +200,7 @@ El primer bloque de 2B (preconciliación) fue validado con **CI 7/7**, ejecució
 
 ## 13. Fase 2C1 — Auditoría canónica y preflight estricto (sin escrituras)
 
-**Estado a 2026-11-02:** funciones instaladas en Supabase de desarrollo y 26 pruebas pgTAP incorporadas; cierre CI del candidato pendiente.
+**Estado a 2026-11-02:** funciones instaladas en Supabase de desarrollo y 26 pruebas pgTAP incorporadas; CI completo 7/7 aprobado, ejecución 41545752782 (commit CI e2d7f0a).
 
 Migraciones:
 - `20261102232401_financial_2c_strict_ledger_audit_and_payment_preflight.sql`.
@@ -215,3 +215,5 @@ La etiqueta `historico_auditado` solo se usa en fixtures sintéticos para probar
 Pruebas: `supabase/tests/database/financial_2c_strict_ledger_preflight_contract_test.sql`, 26 aserciones con dos organizaciones ficticias, montos exactos, moneda, cobertura, sobrepago de 0.01, identidad de pago y bloqueos. Transacciones de prueba terminan en `ROLLBACK`.
 
 **No modificar todavía `procesar_pago_deuda_v2`, `eliminar_pago_venta_v1`, notas de crédito ni la interfaz.** El primer escritor transaccional 2C2 necesita resolver caja→venta, autorización, request_id, bloqueo de guardas legacy, asignación de cuotas y atomicidad de saldo, eventos y proyecciones.
+
+**Evidencia de cierre 2C1:** 2026-11-02, GitHub Actions 41545752782: backend, Flutter/Android, Windows, Linux, macOS/iOS, gates estáticos y resumen CI con SUCCESS. Los 26 casos pgTAP se ejecutaron sobre la reconstrucción limpia. Pendientes 2C2/2C3: primer escritor transaccional, permisos/caja y rutas de NC/reversos; el preflight no crea cobros ni autoriza operaciones financieras por sí solo.

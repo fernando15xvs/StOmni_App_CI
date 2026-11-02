@@ -110,7 +110,7 @@ Conservar ReportesInitialContext y sus pruebas: pestaña, filtro financiero, per
 
 # 6. Fase 2 — Base canónica de deuda, cuotas y cobros
 
-**Estado:** 2A validada CI 7/7 (41529616806); 2B diagnóstico y apertura controlada validados CI 7/7 (41532953472 y 41541848185). 2C1 parcial: auditoría de saldos por eventos y preflight estricto de cobros sin escrituras implementados en Supabase; 26 aserciones pgTAP y validación CI completa pendientes de confirmación. El motor de cobros, reversiones, NC, cierre de conciliación y la integración cliente todavía no están activados. 2D pendiente. Evidencia en [documento 108](108_DISENO_PERSISTENCIA_CUOTAS_SALDO_CANONICO.md). **Dependencia:** fase 0. **Entrega:** persistencia tenant-aware, cobro y emisión canónicos en etapas; nota de débito en fase 4.
+**Estado:** 2A validada CI 7/7 (41529616806); 2B diagnóstico y apertura controlada validados CI 7/7 (41532953472 y 41541848185). 2C1 parcial: auditoría de saldos por eventos y preflight estricto de cobros sin escrituras implementados en Supabase; 26 aserciones pgTAP validadas en CI 7/7 (ejecución 41545752782, commit CI e2d7f0a). El motor de cobros, reversiones, NC, cierre de conciliación y la integración cliente todavía no están activados. 2D pendiente. Evidencia en [documento 108](108_DISENO_PERSISTENCIA_CUOTAS_SALDO_CANONICO.md). **Dependencia:** fase 0. **Entrega:** persistencia tenant-aware, cobro y emisión canónicos en etapas; nota de débito en fase 4.
 
 Antes de construir estadísticas finales, unificar la forma en la que StOmni calcula cuánto debe realmente un cliente.
 
