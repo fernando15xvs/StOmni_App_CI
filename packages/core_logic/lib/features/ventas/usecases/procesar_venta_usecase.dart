@@ -109,6 +109,7 @@ class ProcesarVentaUseCase {
         esCredito: command.esCredito,
         montoAbono: command.montoAbono,
         detalles: validated.lines,
+        creditTerms: command.creditTerms,
         pagos: List<SalePayment>.unmodifiable(command.payments),
         cotizacionId: command.cotizacionId,
         vendedorId: vendedorIdDb,
