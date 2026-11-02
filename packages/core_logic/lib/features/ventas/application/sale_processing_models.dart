@@ -53,6 +53,7 @@ class VentaProcessingRequest {
     required this.esCredito,
     required this.montoAbono,
     required this.detalles,
+    this.creditTerms,
     required this.pagos,
     this.cotizacionId,
     this.vendedorId,
@@ -71,6 +72,7 @@ class VentaProcessingRequest {
   final bool esCredito;
   final double montoAbono;
   final List<SaleProcessingLine> detalles;
+  final SaleCreditTerms? creditTerms;
   final List<SalePayment> pagos;
   final int? cotizacionId;
   final int? vendedorId;
