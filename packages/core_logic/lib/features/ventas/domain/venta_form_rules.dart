@@ -20,6 +20,7 @@ class VentaFormRules {
     required double totalFinal,
     required double totalPagado,
     required double montoAbono,
+    SaleCreditTerms? creditTerms,
     required String documentoCliente,
     required String nombreCliente,
   }) {
@@ -52,6 +53,13 @@ class VentaFormRules {
       if (montoAbono > totalFinal) {
         return 'El abono no puede ser mayor al total.';
       }
+      if (creditTerms != null) {
+        final termsError = creditTerms.validate(
+          saleDate: fecha,
+          amountDue: totalFinal - montoAbono,
+        );
+        if (termsError != null) return termsError;
+      }
     }
 
     return fiscalPolicy.validate(
@@ -65,6 +73,7 @@ class VentaFormRules {
           nombre: nombreCliente,
           direccion: '',
         ),
+        creditTerms: creditTerms,
       ),
       now: ahora,
     );
