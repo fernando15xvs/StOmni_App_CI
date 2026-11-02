@@ -110,7 +110,7 @@ Conservar ReportesInitialContext y sus pruebas: pestaña, filtro financiero, per
 
 # 6. Fase 2 — Base canónica de deuda, cuotas y cobros
 
-**Estado:** fase 2A completada y validada en CI (ejecución 41529616806, 7/7). Fase 2B parcial: diagnóstico de conciliación legacy aplicado en Supabase (migración 20261102215345) y pruebas de casos bloqueados; apertura de historial pendiente de coordinación de escritores/locks y migración controlada. Fases 2C–2D pendientes. Diseño y evidencia en [documento 108](108_DISENO_PERSISTENCIA_CUOTAS_SALDO_CANONICO.md). **Dependencia:** fase 0. **Entrega:** contrato central y persistencia tenant-aware; integración inicial con NC/pagos existentes. La integración real de ND se cierra en fase 4.
+**Estado:** fase 2A validada 7/7 y diagnóstico 2B inicial validado 7/7 (ejecuciones 41529616806 y 41532953472). Fase 2B parcial: apertura administrativa controlada implementada en Supabase con guardas de escritores legacy e idempotencia; 22 aserciones sintéticas incorporadas y CI del nuevo bloque pendiente. Fases 2C–2D pendientes. Diseño y evidencia en [documento 108](108_DISENO_PERSISTENCIA_CUOTAS_SALDO_CANONICO.md). **Dependencia:** fase 0. **Entrega:** persistencia tenant-aware; motor canónico de NC/pagos se integra en 2C. ND en fase 4.
 
 Antes de construir estadísticas finales, unificar la forma en la que StOmni calcula cuánto debe realmente un cliente.
 

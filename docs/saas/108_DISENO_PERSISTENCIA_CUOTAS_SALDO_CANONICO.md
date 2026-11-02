@@ -182,3 +182,18 @@ La estructura de la fase 2A se aplicó en el proyecto de desarrollo `iqooedpkihm
 **Escritores encontrados inicialmente (no todos auditados):** `process_sale_v3` (núcleo bajo v4), `process_sale_v4`, `process_sale_with_units_v4`, `procesar_pago_deuda_v2`, `eliminar_pago_venta_v1`, `nota_credito_finalizar`, `tributario_finalizar_proceso`, `anular_venta_v2`. Investigar también reintentos, reversos, colas offline, stock y funciones anidadas.
 
 **Para cerrar 2B:** diseñar y probar corte transaccional con escritores controlados, eventos de venta/pago/NC idempotentes por origen, trazabilidad de ventanas sin historia y persistencia auditable de discrepancias. Evitar escribir en `venta_cuentas_financieras` mientras las RPC actuales puedan mutar ventas sin emitir eventos canónicos. `ventas.saldo` sigue siendo compatibilidad legacy, no el nuevo motor autoritativo.
+
+## 12. Fase 2B: apertura controlada y protección legacy — 2026-11-02
+
+El primer bloque de 2B (preconciliación) fue validado con **CI 7/7**, ejecución `41532953472`. La continuación incluye:
+
+- Migración `20261102225452_financial_2b_guarded_legacy_opening.sql`: `private.financial_2b_open_legacy_sale(uuid,bigint,uuid,text,boolean)` es una entrada **administrativa, SECURITY INVOKER** sin EXECUTE de `PUBLIC`, `anon`, `authenticated` ni `service_role`. No es un RPC público de cliente.
+- Para un corte de mantenimiento confirmado, bloquea escrituras en ventas, pagos, notas de crédito y comprobantes mientras valida saldo, moneda, fechas de pagos y estado de la venta. Rechaza cualquier discrepancia, NC que exija conciliación, moneda distinta o venta fuera de la ventana de diagnóstico.
+- Crea `venta_cuentas_financieras` con estado **pendiente**, registra operación de apertura con un resumen del corte y conserva un evento de venta más uno por cada pago confirmado y rastreable. Las fechas de los eventos proceden de fuentes registradas, no de vencimientos inventados.
+- Identifica cobertura histórica como `fuentes_actuales_no_historial_exhaustivo`: pagos eliminados, ajustes ausentes o estados fiscales antiguos no pueden reconstruirse con certeza. No afirmar balance histórico definitivo.
+- Repetir la apertura con el mismo `request_id` devuelve el resultado existente; otra solicitud para la misma cuenta es rechazada. Los eventos deben cuadrar exactamente con el corte o se aborta toda la transacción.
+- Triggers `zz_fin2b_legacy_*_guard`: bloquean UPDATE/DELETE de la venta abierta, así como INSERT/UPDATE/DELETE sobre sus pagos y notas de crédito. Se ejecutan mediante un núcleo privado SECURITY DEFINER con `search_path` fijo y sin EXECUTE directo concedido. La reparación del tipo heterogéneo de identificador se registra en `20261102225605_financial_2b_guard_legacy_row_identity.sql`. **Estas guardas son temporales**: la fase 2C deberá sustituirlas por operaciones canónicas auditables antes de liberar cobros para cuentas abiertas.
+- Nueva prueba `financial_2b_guarded_legacy_opening_contract_test.sql`: 22 comprobaciones de seguridad, apertura, bloqueo, idempotencia y reconstrucción de eventos, con fixtures revertidos por ROLLBACK; se ejecutó en Supabase de desarrollo sin errores SQL. Validación completa del candidato CI en curso.
+- La base de desarrollo seguía sin ventas, pagos, notas de crédito ni cuentas reales al comenzar este bloque. Ninguna apertura real ni migración masiva se ha ejecutado.
+
+**Condición de operación:** no habilitar aperturas masivas mientras no se auditen todos los escritores, su orden de locks y la evidencia de cobertura temporal. La función es administrativa e intencionadamente conservadora; el motor de saldo canónico y los lectores del cliente permanecen sin activar.
