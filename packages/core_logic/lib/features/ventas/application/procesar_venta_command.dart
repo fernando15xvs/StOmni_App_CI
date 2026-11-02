@@ -14,6 +14,7 @@ class ProcesarVentaCommand {
     required this.totalAPagar,
     required this.montoAbono,
     required Iterable<SalePayment> payments,
+    this.creditTerms,
     required this.cart,
     required this.fecha,
     this.cotizacionId,
@@ -33,6 +34,7 @@ class ProcesarVentaCommand {
   final double totalAPagar;
   final double montoAbono;
   final List<SalePayment> payments;
+  final SaleCreditTerms? creditTerms;
   final SaleCart cart;
   final int? cotizacionId;
   final DateTime fecha;
@@ -51,6 +53,7 @@ class ProcesarVentaCommand {
     isCredit: esCredito,
     total: totalAPagar,
     customer: customer,
+    creditTerms: creditTerms,
   );
 
   String get tipoComprobanteNormalizado {
@@ -69,6 +72,7 @@ class ProcesarVentaCommand {
       totalAPagar: pending.totalAPagar,
       montoAbono: pending.montoAbono,
       payments: pending.pagos,
+      creditTerms: pending.creditTerms,
       cart: pending.detalles,
       cotizacionId: pending.cotizacionId,
       fecha: fecha,
