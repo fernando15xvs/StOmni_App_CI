@@ -18,6 +18,7 @@ void main() {
     double total = 100,
     double pagado = 100,
     double abono = 0,
+    SaleCreditTerms? creditTerms,
     String documento = '',
     String nombre = '',
   }) {
@@ -36,6 +37,7 @@ void main() {
       totalFinal: total,
       totalPagado: pagado,
       montoAbono: abono,
+      creditTerms: creditTerms,
       documentoCliente: documento,
       nombreCliente: nombre,
     );
@@ -53,6 +55,67 @@ void main() {
     expect(
       validar(esCredito: true, tipo: 'factura'),
       contains('solo pueden emitirse al contado'),
+    );
+  });
+
+  test('cronograma de crédito debe cuadrar con el saldo pendiente', () {
+    final terms = SaleCreditTerms.single(
+      amount: 70,
+      dueDate: DateTime(2026, 9, 20),
+    );
+    expect(
+      validar(
+        esCredito: true,
+        total: 100,
+        abono: 20,
+        pagado: 0,
+        creditTerms: terms,
+      ),
+      contains('sumar exactamente'),
+    );
+  });
+
+  test('cronograma exige vencimientos posteriores a la venta', () {
+    final terms = SaleCreditTerms.single(
+      amount: 80,
+      dueDate: DateTime(2026, 8, 20),
+    );
+    expect(
+      validar(
+        esCredito: true,
+        total: 100,
+        abono: 20,
+        pagado: 0,
+        creditTerms: terms,
+      ),
+      contains('después de la fecha'),
+    );
+  });
+
+  test('cronograma válido de ticket a crédito pasa reglas generales', () {
+    final terms = SaleCreditTerms(
+      installments: [
+        SaleCreditInstallment(
+          number: 1,
+          amount: 40,
+          dueDate: DateTime(2026, 9, 20),
+        ),
+        SaleCreditInstallment(
+          number: 2,
+          amount: 40,
+          dueDate: DateTime(2026, 10, 20),
+        ),
+      ],
+    );
+    expect(
+      validar(
+        esCredito: true,
+        total: 100,
+        abono: 20,
+        pagado: 0,
+        creditTerms: terms,
+      ),
+      isNull,
     );
   });
 
