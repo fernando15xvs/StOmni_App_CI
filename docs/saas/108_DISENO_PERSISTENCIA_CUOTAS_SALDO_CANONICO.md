@@ -197,3 +197,21 @@ El primer bloque de 2B (preconciliación) fue validado con **CI 7/7**, ejecució
 - La base de desarrollo seguía sin ventas, pagos, notas de crédito ni cuentas reales al comenzar este bloque. Ninguna apertura real ni migración masiva se ha ejecutado.
 
 **Condición de operación:** no habilitar aperturas masivas mientras no se auditen todos los escritores, su orden de locks y la evidencia de cobertura temporal. La función es administrativa e intencionadamente conservadora; el motor de saldo canónico y los lectores del cliente permanecen sin activar.
+
+## 13. Fase 2C1 — Auditoría canónica y preflight estricto (sin escrituras)
+
+**Estado a 2026-11-02:** funciones instaladas en Supabase de desarrollo y 26 pruebas pgTAP incorporadas; cierre CI del candidato pendiente.
+
+Migraciones:
+- `20261102232401_financial_2c_strict_ledger_audit_and_payment_preflight.sql`.
+- `20261102232505_financial_2c_preflight_null_and_payment_source_guard.sql` (corrige organización nula y verifica importe por cada origen de pago).
+
+Funciones internas (ambas `SECURITY INVOKER`, `STABLE`, `search_path` vacío, revocadas a `PUBLIC`, `anon`, `authenticated` y `service_role`):
+- `private.financial_2c_audit_sale(uuid,bigint)`: reconstruye el exigible, cobros, deuda y excedentes a partir de los eventos y verifica la proyección, la secuencia, cobertura histórica certificada, pagos originales vinculados por identidad e importe, saldo legacy y presencia de NC. Devuelve bloqueos expresos; no marca automáticamente como conciliada una cuenta.
+- `private.financial_2c_preflight_payment(uuid,bigint,uuid,text,numeric,text,timestamptz)`: **simulación sin escrituras**. Exige moneda, fecha, método y monto decimal positivo exacto (dos decimales, tolerancia cero), rechazando hasta un sobrepago de S/ 0.01. Bloquea cuentas pendientes/no auditadas, request existente, efectivo sin integración de caja y discrepancias de fuentes.
+
+La etiqueta `historico_auditado` solo se usa en fixtures sintéticos para probar la ruta de éxito; **ninguna ruta desplegada certifica automáticamente el pasado**. Las aperturas 2B actuales siguen identificadas con `fuentes_actuales_no_historial_exhaustivo`, por lo que no quedan habilitadas para registrar pagos.
+
+Pruebas: `supabase/tests/database/financial_2c_strict_ledger_preflight_contract_test.sql`, 26 aserciones con dos organizaciones ficticias, montos exactos, moneda, cobertura, sobrepago de 0.01, identidad de pago y bloqueos. Transacciones de prueba terminan en `ROLLBACK`.
+
+**No modificar todavía `procesar_pago_deuda_v2`, `eliminar_pago_venta_v1`, notas de crédito ni la interfaz.** El primer escritor transaccional 2C2 necesita resolver caja→venta, autorización, request_id, bloqueo de guardas legacy, asignación de cuotas y atomicidad de saldo, eventos y proyecciones.
