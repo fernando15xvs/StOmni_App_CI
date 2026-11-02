@@ -58,7 +58,7 @@ class ProductoDetailSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final int totalUnidades = p['_totalStock'] as int? ?? 0;
+    final int totalUnidades = (p['_totalStock'] as num?)?.toInt() ?? 0;
     final nombreMarca = p['_marcaNombre'] ?? 'Genérico';
     final int pcs = (p['cantidad_por_caja'] as num?)?.toInt() ?? 1;
     final tipoVenta = StockUtils.getTipoVentaFromMap(p);
@@ -564,7 +564,8 @@ class ProductoDetailSheet extends ConsumerWidget {
     Map<String, dynamic> producto,
   ) async {
     final int idProducto = producto['id'];
-    final int stockTotal = (producto['_totalStock'] as int?) ?? 0;
+    final int stockTotal =
+        (producto['_totalStock'] as num?)?.toInt() ?? 0;
     final modoOffline =
         ref.read(almacenNotifierProvider).value?.modoOffline ?? false;
 
