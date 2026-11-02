@@ -51,10 +51,14 @@ void main() {
           nombre: 'Cliente',
           direccion: 'Lima',
         ),
-        esCredito: false,
+        esCredito: true,
         totalAPagar: 20,
-        montoAbono: 20,
-        payments: const [SalePayment(metodo: 'Efectivo', monto: 20)],
+        montoAbono: 5,
+        payments: const [SalePayment(metodo: 'Efectivo', monto: 5)],
+        creditTerms: SaleCreditTerms.single(
+          amount: 15,
+          dueDate: DateTime(2026, 9, 30),
+        ),
         cart: SaleCartMapper.decode([
           {
             'id': 1,
@@ -88,5 +92,7 @@ void main() {
     expect(request.detalles.single.productId, 1);
     expect(request.detalles.single.baseQuantity, 2);
     expect(request.detalles.single.subtotal, 20);
+    expect(request.creditTerms, isNotNull);
+    expect(request.creditTerms!.installments.single.amount, 15);
   });
 }
