@@ -9,6 +9,7 @@ import '../../../home/controllers/prefetch_providers.dart';
 import '../../empleados/pages/ver_pago_empleado_page.dart';
 import '../../gastos/pages/nuevo_gasto_page.dart';
 import '../../gastos/pages/ver_gasto_page.dart';
+import '../../reportes/navigation/reportes_navigation.dart';
 import '../../reportes/pages/reportes_page.dart';
 import '../../ventas/pages/seleccion_productos_page.dart';
 import '../../ventas/pages/ver_venta_page.dart';
@@ -288,8 +289,14 @@ class _BalancePageState extends ConsumerState<BalancePage>
               ingresos: _totalIngresos,
               egresos: _totalEgresos,
               descuentos: _totalDescuentos,
-              onVerDetalle: () =>
-                  AppNavigator.navegarA(context, const ReportesPage()),
+              onVerDetalle: () => AppNavigator.navegarA(
+                context,
+                const ReportesPage(
+                  initialContext: ReportesInitialContext(
+                    tab: ReportesTab.financiero,
+                  ),
+                ),
+              ),
             );
 
             final tabsHeader = BalanceTabsHeader(tabController: _tabController);

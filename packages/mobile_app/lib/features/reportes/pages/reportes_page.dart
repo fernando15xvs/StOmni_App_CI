@@ -3,6 +3,7 @@ import 'package:core_logic/core_logic.dart';
 import 'package:mobile_app/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../navigation/reportes_navigation.dart';
 import '../providers/reportes_provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:async';
@@ -17,7 +18,12 @@ import 'detalle_balance_page.dart';
 import '../../shared/widgets/product_search_widget.dart';
 
 class ReportesPage extends ConsumerStatefulWidget {
-  const ReportesPage({super.key});
+  const ReportesPage({
+    super.key,
+    this.initialContext = const ReportesInitialContext(),
+  });
+
+  final ReportesInitialContext initialContext;
 
   @override
   ConsumerState<ReportesPage> createState() => _ReportesPageState();
@@ -41,9 +47,9 @@ class _ReportesPageState extends ConsumerState<ReportesPage>
   }
 
   late TabController _tabController;
-  int _tabIndex = 0;
-  final GlobalDateFilterState _dateFilter = GlobalDateFilterState();
-  String _tipoFiltroFinanciero = 'Todos';
+  late int _tabIndex;
+  late final GlobalDateFilterState _dateFilter;
+  late String _tipoFiltroFinanciero;
   String _tipoFiltroInventario = 'Todos';
   int? _productoFiltroId;
   String? _productoFiltroNombre;
@@ -53,7 +59,19 @@ class _ReportesPageState extends ConsumerState<ReportesPage>
   void initState() {
     super.initState();
     ref.read(realtimeFinancialSyncServiceProvider);
-    _tabController = TabController(length: 2, vsync: this);
+    final initialContext = widget.initialContext;
+    _tabIndex = initialContext.tabIndex;
+    _dateFilter = GlobalDateFilterState(
+      filtroTipo: initialContext.dateFilterLabel,
+      fechaEspecifica: initialContext.specificDate,
+      rangoPersonalizado: initialContext.customRange,
+    );
+    _tipoFiltroFinanciero = initialContext.financialFilterLabel;
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: _tabIndex,
+    );
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         if (_tabIndex != _tabController.index) {

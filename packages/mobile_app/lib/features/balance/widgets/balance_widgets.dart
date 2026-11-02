@@ -96,7 +96,7 @@ class BalanceResumenCard extends StatelessWidget {
                   const SizedBox(width: 12),
                   const Expanded(
                     child: Text(
-                      'Ver reporte',
+                      'Histórico financiero',
                       style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ),

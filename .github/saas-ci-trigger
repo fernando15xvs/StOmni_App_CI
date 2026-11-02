@@ -1,3 +1,3 @@
-source_sha=11fd3dffac3f6ec3085f23f0d29011a79e079a8e
-triggered_at_utc=2026-11-02T02:18:42.013Z
-reason=restore-dashboard-refresh-provider-import
+source_sha=bd6291683b62e26d1394e270a46468162c60d4b6
+triggered_at_utc=2026-11-02T03:20:24.382Z
+reason=report-entry-context-and-balance-history-navigation
