@@ -83,7 +83,7 @@ void main() {
 
   test('cola no descarta silenciosamente filas dañadas o versiones nuevas', () {
     expect(
-      () => PendingSaleMapper.decode({'schema_version': 3}),
+      () => PendingSaleMapper.decode({'schema_version': 4}),
       throwsFormatException,
     );
     expect(
