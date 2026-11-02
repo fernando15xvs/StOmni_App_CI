@@ -3,20 +3,23 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('Navegación principal expone solo Inicio Balance Inventario y Centro', () {
-    final nav = File(
-      'lib/home/widgets/custom_bottom_nav.dart',
-    ).readAsStringSync();
-    expect(nav, contains("'Inicio'"));
-    expect(nav, contains("'Balance'"));
-    expect(nav, contains("'Inventario'"));
-    expect(nav, contains("'Centro'"));
-    expect(nav, isNot(contains("'Movimientos'")));
+  test(
+    'Navegación principal expone solo Inicio Balance Inventario y Centro',
+    () {
+      final nav = File(
+        'lib/home/widgets/custom_bottom_nav.dart',
+      ).readAsStringSync();
+      expect(nav, contains("'Inicio'"));
+      expect(nav, contains("'Balance'"));
+      expect(nav, contains("'Inventario'"));
+      expect(nav, contains("'Centro'"));
+      expect(nav, isNot(contains("'Movimientos'")));
 
-    final home = File('lib/home/home_page.dart').readAsStringSync();
-    expect(home, isNot(contains('const MoverStockPage()')));
-    expect(home, contains('widget.pestanaInicial.clamp(0, 3).toInt()'));
-  });
+      final home = File('lib/home/home_page.dart').readAsStringSync();
+      expect(home, isNot(contains('const MoverStockPage()')));
+      expect(home, contains('widget.pestanaInicial.clamp(0, 3).toInt()'));
+    },
+  );
 
   test('Movimientos vive dentro de Centro de trabajo', () {
     final center = File(

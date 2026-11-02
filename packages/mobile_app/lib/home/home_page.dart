@@ -83,8 +83,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         );
       });
       final current = ref.read(homeTabProvider);
-      if (!profile.capabilities.inventoryEnabled &&
-          current == 2) {
+      if (!profile.capabilities.inventoryEnabled && current == 2) {
         ref.read(homeTabProvider.notifier).state = 0;
       }
     } catch (_) {

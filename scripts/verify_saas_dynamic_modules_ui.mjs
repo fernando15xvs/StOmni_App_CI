@@ -11,6 +11,7 @@ const files = {
   desktopSettings: 'packages/desktop_app/lib/features/settings/desktop_business_modules_panel.dart',
   mobileHome: 'packages/mobile_app/lib/home/home_page.dart',
   mobileNav: 'packages/mobile_app/lib/home/widgets/custom_bottom_nav.dart',
+  mobileCenter: 'packages/mobile_app/lib/home/widgets/work_center_tab.dart',
   mobileSettings: 'packages/mobile_app/lib/features/configuracion/pages/modulos_negocio_page.dart',
 };
 
@@ -21,7 +22,7 @@ const need = (errors, source, regex, label) => {
 
 function verify(sources) {
   const errors = [];
-  const { policy, policyTest, desktopShell, desktopSettings, mobileHome, mobileNav, mobileSettings } = sources;
+  const { policy, policyTest, desktopShell, desktopSettings, mobileHome, mobileNav, mobileCenter, mobileSettings } = sources;
 
   need(errors, policy, /enum BusinessModule[\s\S]{0,800}?moduleSettings/i, 'BusinessModule.moduleSettings estable');
   need(errors, policy, /BusinessModule\.services\s*=>\s*c\.services/i, 'Servicios depende de capability');
@@ -45,7 +46,7 @@ function verify(sources) {
   need(errors, mobileHome, /BusinessModulePolicy\.isEnabled\(/i, 'mobile gestión usa política compartida');
   need(errors, mobileHome, /'modules'\s*=>\s*const ModulosNegocioPage\(\)/i, 'mobile mantiene configuración de módulos alcanzable');
   need(errors, mobileHome, /if \(destination == 'modules'\) await _loadBusinessProfile\(\)/i, 'mobile refresca perfil al volver de configuración');
-  need(errors, mobileHome, /if \(!profile\.capabilities\.inventoryEnabled\s*&&\s*\(current == 2 \|\| current == 4\)\)[\s\S]{0,130}?state = 0/i, 'mobile expulsa inventario y traslados cuando inventoryEnabled=false');
+  need(errors, mobileHome, /if \(!profile\.capabilities\.inventoryEnabled\s*&&\s*current == 2\)[\s\S]{0,130}?state = 0/i, 'mobile expulsa inventario cuando inventoryEnabled=false');
   need(errors, mobileHome, /inventoryEnabled:\s*inventoryEnabled/i, 'mobile propaga inventoryEnabled a navegación principal');
 
   need(errors, mobileNav, /final bool inventoryEnabled;/i, 'bottom nav recibe capability de inventario');
@@ -54,7 +55,10 @@ function verify(sources) {
   need(errors, mobileNav, /const _NavItem\(1,[\s\S]{0,100}?'Balance'\)/i, 'bottom nav Balance estable');
   need(errors, mobileNav, /if \(inventoryEnabled\)\s*const _NavItem\(2,[\s\S]{0,100}?'Inventario'\)/i, 'bottom nav oculta inventario sin capability');
   need(errors, mobileNav, /const _NavItem\(3,[\s\S]{0,100}?'Centro'\)/i, 'bottom nav incluye Centro disponible');
-  need(errors, mobileNav, /if \(inventoryEnabled\)\s*const _NavItem\(4,[\s\S]{0,100}?'Movimientos'\)/i, 'bottom nav oculta traslados sin inventario');
+  if (/'Movimientos'/.test(mobileNav)) {
+    errors.push('Bottom nav no debe volver a exponer Movimientos como pestaña raíz.');
+  }
+  need(errors, mobileCenter, /BusinessModule\.stockTransfers[\s\S]{0,220}?'Movimientos'[\s\S]{0,120}?MoverStockPage\(\)/i, 'Centro expone Movimientos condicionado por stockTransfers');
   need(errors, mobileNav, /homeTabProvider\.notifier\)\.state\s*=\s*item\.index/i, 'navigation usa clave estable, no posición visible');
   need(errors, mobileNav, /for \(final item in items\)/i, 'render usa tabs visibles');
 
@@ -88,6 +92,7 @@ function selfTest() {
     ['nav cuatro tabs fijo', { ...base, mobileNav: `${base.mobileNav}\nfinal tabWidth = width / 4; final x = 0.clamp(0, 3);` }, true],
     ['nav sin capacidad', { ...base, mobileNav: base.mobileNav.replaceAll('if (inventoryEnabled)', 'if (true)') }, true],
     ['nav sin centro', { ...base, mobileNav: base.mobileNav.replaceAll("'Centro'", "'Otro'") }, true],
+    ['centro sin movimientos', { ...base, mobileCenter: base.mobileCenter.replaceAll('BusinessModule.stockTransfers', 'BusinessModule.balance') }, true],
     ['sin settings estable', { ...base, policy: base.policy.replaceAll('BusinessModule.moduleSettings', 'BusinessModule.dashboard') }, true],
   ];
   const failed = [];

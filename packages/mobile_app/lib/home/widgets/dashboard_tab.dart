@@ -7,7 +7,6 @@ import '../../features/kardex/providers/kardex_provider.dart';
 import '../../features/empleados/pages/perfil_page.dart';
 import 'package:core_logic/core_logic.dart';
 import '../controllers/grafico_tendencia_provider.dart';
-import '../controllers/home_controller.dart';
 
 import 'dashboard/dashboard_metric_card.dart';
 import 'dashboard/dashboard_alerts.dart';
@@ -29,9 +28,6 @@ class _DashboardTabState extends ConsumerState<DashboardTab>
   bool get wantKeepAlive => true;
 
   Color get colorPrincipal => Theme.of(context).colorScheme.primary;
-  Color get colorTextoOscuro =>
-      Theme.of(context).textTheme.bodyLarge?.color ?? const Color(0xFF1E293B);
-
   String _nombreUsuario = "Usuario";
   double _ventasHoy = 0.0;
   double _gastosHoy = 0.0;
