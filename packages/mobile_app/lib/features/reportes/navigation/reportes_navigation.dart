@@ -39,7 +39,6 @@ class ReportesInitialContext {
     ReportesFinancialFilter.egresos => 'Egresos',
   };
 
-  String get dateFilterLabel => customRange != null
-      ? ReportesPeriod.personalizado.label
-      : period.label;
+  String get dateFilterLabel =>
+      customRange != null ? ReportesPeriod.personalizado.label : period.label;
 }
