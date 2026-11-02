@@ -110,7 +110,7 @@ Conservar ReportesInitialContext y sus pruebas: pestaña, filtro financiero, per
 
 # 6. Fase 2 — Base canónica de deuda, cuotas y cobros
 
-**Estado:** diseño de persistencia completado y contrastado con metadatos/RPC efectivos de Supabase en [documento 108](108_DISENO_PERSISTENCIA_CUOTAS_SALDO_CANONICO.md); implementación pendiente. **Dependencia:** fase 0. **Entrega:** contrato central y persistencia tenant-aware; integración inicial con NC/pagos existentes. La integración real de ND se cierra en fase 4.
+**Estado:** fase 2A aditiva aplicada en Supabase de desarrollo (migraciones 20261102212439 y 20261102213017, seis tablas y 27 aserciones pgTAP); validación CI del candidato completo pendiente. Fases 2B–2D y motor canónico permanecen pendientes. Diseño y evidencia en [documento 108](108_DISENO_PERSISTENCIA_CUOTAS_SALDO_CANONICO.md). **Dependencia:** fase 0. **Entrega:** contrato central y persistencia tenant-aware; integración inicial con NC/pagos existentes. La integración real de ND se cierra en fase 4.
 
 Antes de construir estadísticas finales, unificar la forma en la que StOmni calcula cuánto debe realmente un cliente.
 

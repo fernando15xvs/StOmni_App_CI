@@ -154,3 +154,16 @@ Cada entrega requiere CI y evidencia antes de activar capacidad. Rollback conser
 **Pendiente:** test de interacción de fase 1; inventario exhaustivo de escritores/permisos; conciliación de datos y moneda; creación y prueba de migraciones; validación fiscal y emisión. No se afirma que los 28 casos de 107 hayan pasado.
 
 **Siguiente cambio de código:** prueba de interacción de navegación y entrega 2A en entorno de prueba, preservando las restricciones actuales de emisión. No generar más documentos de reglas si estos contratos bastan; usar este diseño como base de implementación.
+
+## 10. Ejecución aditiva 2A en desarrollo — 2026-11-02
+
+La estructura de la fase 2A se aplicó en el proyecto de desarrollo `iqooedpkihmzkmynsisl` mediante las migraciones versionadas `20261102212439_financial_2a_additive_tenant_ledger.sql` y `20261102213017_financial_2a_cover_cross_sale_fkeys.sql`.
+
+- Creadas seis tablas: cuentas, operaciones, eventos, cronogramas, cuotas y movimientos de cuotas. Ningún backfill ni cambio en RPC de ventas/cobro.
+- Claves foráneas compuestas con organización y venta, índices, una versión de cronograma vigente por venta, restricciones monetarias, `request_id` único por organización/tipo y triggers de historial inmutable.
+- Se mantuvieron RLS y lectura únicamente de tenant autorizado con permiso `tenant.read`; `anon` sin lectura y `authenticated` sin escrituras directas.
+- Test pgTAP añadido: `supabase/tests/database/financial_2a_tenant_ledger_contract_test.sql`, con 27 aserciones estructurales y transaccionales que se revierten tras ejecutarse.
+- Inspección en la base desplegada: seis tablas con RLS activo y una política SELECT por tabla. El asesor de rendimiento no reporta ya FKs sin índice para estas tablas después de la segunda migración.
+- La ejecución completa de GitHub Actions que incluya ambas migraciones aún debe registrarse antes de marcar esta entrega como validada. El primer candidato se probó con el esquema inicial; se requiere una segunda validación para los índices.
+
+**Límites actuales:** fases 2B–2D pendientes. Estos objetos no son todavía la fuente de verdad de deudas, pagos ni facturación SUNAT. No habilitar crédito electrónico ni notas de débito a partir de esta migración.
