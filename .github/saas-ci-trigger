@@ -1,3 +1,3 @@
-source_sha=f8e84a117282c4ba77d6ed4e6042b98e7171a6e5
-triggered_at_utc=2026-11-02T23:28:33.649Z
-reason=finance-phase2c1-strict-ledger-audit-preflight
+source_sha=dc4875132c35fcda15c663fe607748fa8f97fc2b
+triggered_at_utc=2026-11-02T23:56:25.362Z
+reason=phase2c2-private-atomic-transfer-33-pgtap
