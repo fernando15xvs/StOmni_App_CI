@@ -252,7 +252,7 @@ Migración: `20261103003110_financial_2c3_cash_authorization_preflight.sql`.
 
 ## 16. Fase 2C3B — primer escritor atómico de efectivo (interno)
 
-**Estado al 2026-11-02, hora Lima:** instalado y probado en Supabase DEV; validación global GitHub Actions de este candidato pendiente.
+**Estado al 2026-11-02, hora Lima:** instalado y probado en Supabase DEV; **GitHub Actions 7/7 SUCCESS** (ejecución 41560080380, SHA CI f9e19e0, 28 aserciones pgTAP).
 
 Migraciones:
 - `20261103012411_financial_2c3b_cash_intent_and_guard.sql`: extiende las intenciones privadas del flujo 2C2 con `actor_id`, `cash_session_id` y `cash_register_id`. La restricción impide contexto de caja en transferencias y exige identidad, sesión y caja para efectivo. La guarda `financial_2b_guard_legacy_financial_write()` solo permite insertar un pago en efectivo cuyo método, importe, fecha, JWT, caja y sesión coincidan con la intención del mismo `pg_current_xact_id()`, y únicamente para sesiones abiertas de la empresa. Conserva las reglas de transferencia, actualizaciones de saldo y bloqueo de mutaciones legacy.
@@ -261,3 +261,5 @@ Migraciones:
 - `supabase/tests/database/financial_2c3b_atomic_cash_writer_contract_test.sql`: 28 aserciones con fixtures ROLLBACK: S/40 + S/60 sobre venta S/100, reintentos idénticos entre Lima y UTC, rechazo de cambio de payload/sesión, sobrepago de un centavo, fracciones de centavo, falta de JWT, operador sin permiso, sesión cerrada, otro tenant, bloqueo legacy, saldo final y vínculo caja–pago. Las cuentas de prueba solo usan `historico_auditado` artificial en fixtures; **ninguna cuenta real ha sido certificada automáticamente**.
 
 **Condiciones pendientes para habilitar en producto:** revisión de integración del RPC público con permisos y claims verificados, reglas de cierre y conciliación de caja, cuotas, reversos, notas de crédito, pruebas de concurrencia de cobro efectivo/cierre de sesión, y compatibilidad de reportes. Se mantienen las rutas de cobros legacy para cuentas aún no abiertas en ledger; los escritores legacy para cuentas abiertas siguen bloqueados. No se activa UI ni se concede permiso de ejecución a clientes por esta migración.
+
+**Evidencia de cierre del bloque interno 2C3B:** ejecución `41560080380` (primer intento, `SUCCESS`). Contratos pgTAP, aislamiento multiempresa, concurrencia, segunda reconstrucción del esquema, restauración, Android, Windows, Linux y macOS/iOS aprobados. Esta evidencia NO activa API de cliente, cuotas ni reversos; los escritores internos siguen sin EXECUTE para clientes o service_role.
