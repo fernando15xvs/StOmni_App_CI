@@ -359,6 +359,6 @@ No se modificaron funciones ni datos de Supabase en esta revisión. El CI 7/7 an
 
 Implementado en DEV mediante `20261103133623_financial_2c6b_cash_lock_order.sql`. El escritor de efectivo adquiere sesión FOR UPDATE antes de cuenta y venta. Conserva validación JWT/empresa, idempotencia, permisos privados, caja FOR SHARE y preflight posterior a los locks. No cambia importes, pagos ni finalizadores fiscales.
 
-31 aserciones del contrato de efectivo aprobadas con ROLLBACK (28 existentes y tres comprobaciones estructurales de orden). Las tres comprobaciones nuevas no equivalen a una prueba concurrente. CI completo del candidato pendiente.
+31 aserciones del contrato de efectivo aprobadas con ROLLBACK (28 existentes y tres comprobaciones estructurales de orden). Las tres comprobaciones nuevas no equivalen a una prueba concurrente. **CI 7/7 SUCCESS**, ejecución 41645908532. Candidato fuente 8231b6d049c905ccb6a660386fb3e648685c09c2, espejo 65a8242112882329be8ee8cffe668a5d92f32a09. Validación backend y compilaciones Android/Windows/Linux/macOS/iOS completas; no acredita todavía concurrencia específica NC/cobro/baja.
 
 2C6A permanece cerrado con CI 41576975707, 7/7. 2C6B continúa parcial: faltan finalizadores NC/baja, ajuste canónico con cuotas/excedente y concurrencia específica. No se habilita UI ni API cliente.
