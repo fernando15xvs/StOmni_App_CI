@@ -238,6 +238,9 @@ jobs:
           STOMNI_LOAD_READS_PER_TENANT: '40'
         run: node supabase/tests/performance/multi_tenant_concurrency_probe.mjs
 
+      - name: 2C6B NC payment baja concurrent transactions
+        run: node scripts/run_financial_2c6b_concurrency_ci.mjs
+
       - name: T18 backup
         env:
           STOMNI_SAAS_BACKUP_DIR: .dart_tool/saas/backups/ci
