@@ -1,7 +1,7 @@
 BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
-SELECT plan(39);
+SELECT plan(42);
 
 SELECT ok(
   (SELECT count(*)=19 AND bool_and(a.attnotnull)
@@ -186,5 +186,8 @@ SELECT ok(
   'normalizador Storage persiste namespace <organization_id>/'
 );
 
+SELECT ok((SELECT strpos(prosrc,'financial-fiscal-transition')<strpos(prosrc,'SELECT * INTO v_nota') FROM pg_proc WHERE oid='public.nota_credito_finalizar(uuid,uuid,text,jsonb)'::regprocedure),'NC gate precedes document lock');
+SELECT ok((SELECT strpos(prosrc,'financial-fiscal-transition')<strpos(prosrc,'SELECT * INTO v_proceso') FROM pg_proc WHERE oid='public.tributario_finalizar_proceso(uuid,uuid,text,jsonb)'::regprocedure),'baja shares fiscal gate before document lock');
+SELECT ok((SELECT strpos(prosrc,'FROM public.venta_cuentas_financieras')<strpos(prosrc,'FROM public.ventas') AND strpos(prosrc,'FROM public.ventas')<strpos(prosrc,'SELECT * INTO v_nota') FROM pg_proc WHERE oid='public.nota_credito_finalizar(uuid,uuid,text,jsonb)'::regprocedure),'NC locks account and sale before note');
 SELECT * FROM finish();
 ROLLBACK;

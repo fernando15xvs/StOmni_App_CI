@@ -362,3 +362,12 @@ Implementado en DEV mediante `20261103133623_financial_2c6b_cash_lock_order.sql`
 31 aserciones del contrato de efectivo aprobadas con ROLLBACK (28 existentes y tres comprobaciones estructurales de orden). Las tres comprobaciones nuevas no equivalen a una prueba concurrente. **CI 7/7 SUCCESS**, ejecución 41645908532. Candidato fuente 8231b6d049c905ccb6a660386fb3e648685c09c2, espejo 65a8242112882329be8ee8cffe668a5d92f32a09. Validación backend y compilaciones Android/Windows/Linux/macOS/iOS completas; no acredita todavía concurrencia específica NC/cobro/baja.
 
 2C6A permanece cerrado con CI 41576975707, 7/7. 2C6B continúa parcial: faltan finalizadores NC/baja, ajuste canónico con cuotas/excedente y concurrencia específica. No se habilita UI ni API cliente.
+
+## 23. 2C6B2 — coordinación de finalizadores fiscales
+
+DEV: migración `20261103165943_financial_2c6b_nc_finalize_lock_order.sql`.
+nota_credito_finalizar y tributario_finalizar_proceso adquieren el mismo advisory lock transaccional por empresa (financial-fiscal-transition) antes de locks de filas. La NC toma cuenta y venta antes de la nota y revalida venta_id después del bloqueo; un cambio produce 40001. Se conservan firmas, ACL, tokens e idempotencia existentes.
+
+El bloqueo común serializa estas finalizaciones incluso para ventas distintas de una misma empresa; es una medida conservadora y no una prueba de ausencia de deadlocks en todos los escritores. El futuro escritor canónico debe usar el mismo bloqueo antes de cuenta/venta/NC. Las bajas conservan su orden interno bajo esta exclusión mutua. Faltan auditoría de llamadas directas/anidadas y pruebas reales de dos sesiones.
+
+42 comprobaciones del contrato fiscal aprobadas en DEV (39 existentes, 3 estructurales de orden). CI del candidato pendiente. No se afirma validación funcional concurrente ni aplicación canónica de NC. Se mantiene el bloqueo de escrituras legacy para cuentas abiertas; no se relajaron guardas para actualizar monto_notas_credito. 2C6B continúa parcial.
