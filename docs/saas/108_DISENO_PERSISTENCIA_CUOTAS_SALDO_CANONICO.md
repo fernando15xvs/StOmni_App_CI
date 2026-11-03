@@ -235,7 +235,7 @@ Pruebas: `supabase/tests/database/financial_2c2_atomic_transfer_writer_contract_
 
 ## 15. Fase 2C3A — permiso de cobro y preflight de caja
 
-**Estado:** aplicado en Supabase de desarrollo y probado con 26 aserciones pgTAP sintéticas reversibles. CI completo del candidato pendiente.
+**Estado:** aplicado en Supabase de desarrollo y validado en GitHub Actions **7/7 SUCCESS**, ejecución `41554190691` (SHA CI `c7608e2`), con 26 pruebas pgTAP reversibles.
 
 Migración: `20261103003110_financial_2c3_cash_authorization_preflight.sql`.
 
@@ -247,3 +247,5 @@ Migración: `20261103003110_financial_2c3_cash_authorization_preflight.sql`.
 - Validación post-deploy: tablas de ventas, pagos, cuentas, eventos, sesiones e intenciones en cero; sin nuevos avisos de seguridad específicos para `financial_2c3`.
 
 **Próximo bloque 2C3B:** extender el escritor canónico con efectivo solamente tras incorporar `sales.collect`, identidad real y sesión abierta bloqueada, caja/sucursal exactas, guardia de escritura basada en intención privada por transacción, ledger+venta y reversión integral ante cambios de sesión. En paralelo, completar pagos por cuota y notas de crédito antes de habilitar rutas cliente. No modificar todavía `procesar_pago_deuda_v2` ni su UI.
+
+**Evidencia CI 2C3A:** T04 pgTAP, esquema sin drift, aislamiento por tenant, prueba de concurrencia, restauración y compilaciones Android, Windows, Linux y macOS/iOS superadas el 2 de noviembre de 2026 (hora Lima). Todavía no se concede EXECUTE a clientes ni se registran pagos en efectivo.
