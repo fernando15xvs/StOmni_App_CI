@@ -354,3 +354,11 @@ Se comprobó el inventario de 12 funciones mediante la consulta reproducible en 
 5. Probar NC/cobro, NC/baja, cierre/efectivo, repetición y rollback en sesiones concurrentes reales; exigir CI 7/7 antes de activar.
 
 No se modificaron funciones ni datos de Supabase en esta revisión. El CI 7/7 anterior corresponde a 2C6A y no acredita estos pendientes.
+
+## 22. 2C6B1 — sesión de efectivo antes de cuenta y venta
+
+Implementado en DEV mediante `20261103133623_financial_2c6b_cash_lock_order.sql`. El escritor de efectivo adquiere sesión FOR UPDATE antes de cuenta y venta. Conserva validación JWT/empresa, idempotencia, permisos privados, caja FOR SHARE y preflight posterior a los locks. No cambia importes, pagos ni finalizadores fiscales.
+
+31 aserciones del contrato de efectivo aprobadas con ROLLBACK (28 existentes y tres comprobaciones estructurales de orden). Las tres comprobaciones nuevas no equivalen a una prueba concurrente. CI completo del candidato pendiente.
+
+2C6A permanece cerrado con CI 41576975707, 7/7. 2C6B continúa parcial: faltan finalizadores NC/baja, ajuste canónico con cuotas/excedente y concurrencia específica. No se habilita UI ni API cliente.

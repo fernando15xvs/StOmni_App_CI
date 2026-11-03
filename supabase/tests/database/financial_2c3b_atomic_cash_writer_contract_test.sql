@@ -223,7 +223,7 @@ BEGIN
   END IF;
 END
 $check$;
-SELECT plan(28);
+SELECT plan(31);
 SELECT ok(((SELECT passed FROM _c3b_check WHERE name='first_cash')), 'check_first_cash');
 SELECT ok(((SELECT passed FROM _c3b_check WHERE name='retry_same')), 'check_retry_same');
 SELECT ok(((SELECT passed FROM _c3b_check WHERE name='changed_payload_rejected')), 'check_changed_payload_rejected');
@@ -252,5 +252,8 @@ SELECT ok(((SELECT v.saldo=0 AND v.estado='pagado' FROM public.ventas v JOIN _c3
 SELECT ok(((SELECT s.estado='ABIERTA' AND s.fecha_cierre IS NULL FROM public.sesiones_caja s JOIN _c3 f ON s.organization_id=f.org_a AND s.id=f.sess_a)), 'cash_session_open');
 SELECT ok(((SELECT v.saldo=50 FROM public.ventas v JOIN _c3 f ON v.organization_id=f.org_b AND v.id=f.sale_b)), 'other_sale_untouched');
 SELECT ok(((SELECT count(*)=2 FROM public.venta_operaciones_financieras op JOIN _c3 f ON op.organization_id=f.org_a AND op.venta_id=f.sale_a WHERE op.tipo='cobro' AND op.resultado='aplicado')), 'two_ops');
+SELECT ok((SELECT strpos(prosrc,'SELECT s.* INTO v_session') < strpos(prosrc,'SELECT cf.* INTO v_account') FROM pg_proc WHERE oid='private.financial_2c3b_record_cash_payment(uuid,bigint,uuid,uuid,numeric,timestamptz)'::regprocedure),'cash session locked before account');
+SELECT ok((SELECT strpos(prosrc,'SELECT cf.* INTO v_account') < strpos(prosrc,'SELECT v.* INTO v_sale') FROM pg_proc WHERE oid='private.financial_2c3b_record_cash_payment(uuid,bigint,uuid,uuid,numeric,timestamptz)'::regprocedure),'account before sale preserved');
+SELECT ok((SELECT strpos(prosrc,'SELECT v.* INTO v_sale') < strpos(prosrc,'SELECT * INTO v_check') FROM pg_proc WHERE oid='private.financial_2c3b_record_cash_payment(uuid,bigint,uuid,uuid,numeric,timestamptz)'::regprocedure),'preflight rechecked after row locks');
 SELECT * FROM finish();
 ROLLBACK;
