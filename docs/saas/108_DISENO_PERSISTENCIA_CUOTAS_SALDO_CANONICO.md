@@ -266,7 +266,7 @@ Migraciones:
 
 ## 17. Fase 2C4 — Aplicación canónica de cobros a cuotas
 
-**Estado:** implementado y comprobado en Supabase DEV (45 pruebas pgTAP reversibles, distribuidas en 31 por transferencia y 14 por efectivo); CI completo del candidato pendiente. No se expone API al cliente.
+**Estado:** implementado y comprobado en Supabase DEV (45 pruebas pgTAP reversibles, 31 por transferencia y 14 por efectivo) y **GitHub Actions 7/7 SUCCESS** (ejecución 41562326227, SHA CI 3344e3f). No se expone API al cliente.
 
 Migraciones:
 - `20261103014404_financial_2c4_atomic_installment_allocation.sql`: índice único parcial por organización/venta/cuota/evento para asignaciones `cobro`; trigger `zz_fin2c4_allocate_receipt_to_installments` AFTER INSERT de un evento `cobro` para distribuir el importe, sin volver a crear pagos ni modificar la suma ingresada. La función privada `financial_2c4_allocate_cash_receipt()` comprueba que el evento provenga de la intención privada de la transacción (`operation_id`), bloquea cronograma vigente v1 y cuenta, verifica numeración consecutiva y que `SUM(importe_vigente)-SUM(asignado)` coincida exactamente con el saldo anterior al cobro. Ordena por vencimiento ascendente y número de cuota; almacena movimientos positivos inmutables y exige suma de asignaciones igual al pago al centavo. Si falla, aborta el cobro completo.
@@ -278,3 +278,5 @@ Migraciones:
 **Alcance / gate estricto:** se asigna exclusivamente a cronogramas nuevos **v1** completos, no legados, sin NC ni reversos previos. Para venta sin cronograma no se fuerza uno. Cronograma sustituido/v2 se bloquea hasta implementar transferencia explícita de asignaciones entre versiones, sin sumar dos veces pagos históricos. No implementa creación fiscal de venta a crédito v5, edición de cuotas, notas de crédito, reversos o liquidación cliente. Los escritores financieros y la lectura interna permanecen con EXECUTE revocado a PUBLIC, anon, authenticated y service_role.
 
 **Próximo bloque:** reversos y notas de crédito auditables (eventos compensatorios sin borrar pagos originales), junto con la versión contractual de creación de ventas/cuotas y pruebas de concurrencia de todos los escritores antes de activación de UI.
+
+**Evidencia de cierre del bloque interno 2C4:** GitHub Actions `41562326227`, primer intento 7/7 `SUCCESS` con reconstrucciones limpias, pgTAP, aislamiento multiempresa, prueba de concurrencia general, restauración y compilaciones Flutter/Android/Windows/Linux/macOS-iOS. No equivale a validación de concurrencia específica de cierres de caja/NC/versionado de cuotas ni habilita UI o API pública.
