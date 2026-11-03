@@ -283,7 +283,7 @@ Migraciones:
 
 ## 18. Fase 2C5A — Reverso íntegro y auditable de transferencia
 
-**Estado:** instalado en Supabase DEV y verificado con 43 aserciones pgTAP (29 de reverso completo de transferencia y 14 del límite de efectivo); CI completo del candidato pendiente.
+**Estado:** instalado en Supabase DEV y validado en GitHub Actions **7/7 SUCCESS** (ejecución `41568646642`, SHA CI `a2004a8`) con 43 aserciones pgTAP reversibles (29 de reverso completo de transferencia y 14 de frontera efectivo).
 
 **Alcance deliberadamente limitado:** un reverso contable corrige un **cobro de transferencia no válido** y NO constituye devolución ni salida de caja. El dinero en efectivo recibido exige otro registro de egreso verificado, permisos y conciliación de sesión. Tampoco se permiten reversos parciales en 2C5A.
 
@@ -294,3 +294,5 @@ Migraciones:
 - `supabase/tests/database/financial_2c5a_cash_reversal_guard_contract_test.sql`: 14 aserciones. Rechaza el reverso de un cobro en efectivo, conserva su sesión y pago, permite revertir una transferencia adicional en la misma venta y confirma que el cobro de caja original no se anula ni se contabiliza dos veces.
 
 **Límites/etapas siguientes:** la reducción de `cobros_netos` de 2C5A es una **corrección contable de transferencia**, no un egreso físico; no generar movimientos de caja de salida. No se habilita a clientes ni se modifica `eliminar_pago_venta_v1`. Restan: un contrato de devoluciones de excedentes con salida real de fondos, reversos de efectivo con conciliación de caja, notas de crédito y ajustes, cronogramas versionados, cuota v5 y pruebas de concurrencia específicas y de reportes. Los datos heredados nunca se marcan `historico_auditado` por esta migración.
+
+**Evidencia de cierre 2C5A:** CI `41568646642` en primer intento, 7/7 `SUCCESS`, incluyendo pgTAP (43 casos adicionales), aislamiento multiempresa, pruebas generales de concurrencia, restauración, segunda reconstrucción sin drift y compilaciones Android, Windows, Linux y macOS/iOS. Los procedimientos siguen restringidos y no implementan movimiento de caja ni devolución real de dinero. Las pruebas de concurrencia específicas de reversos contra NC, cierres de caja y transferencias simultáneas permanecen como gate futuro.
