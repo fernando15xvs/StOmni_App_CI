@@ -296,3 +296,18 @@ Migraciones:
 **Límites/etapas siguientes:** la reducción de `cobros_netos` de 2C5A es una **corrección contable de transferencia**, no un egreso físico; no generar movimientos de caja de salida. No se habilita a clientes ni se modifica `eliminar_pago_venta_v1`. Restan: un contrato de devoluciones de excedentes con salida real de fondos, reversos de efectivo con conciliación de caja, notas de crédito y ajustes, cronogramas versionados, cuota v5 y pruebas de concurrencia específicas y de reportes. Los datos heredados nunca se marcan `historico_auditado` por esta migración.
 
 **Evidencia de cierre 2C5A:** CI `41568646642` en primer intento, 7/7 `SUCCESS`, incluyendo pgTAP (43 casos adicionales), aislamiento multiempresa, pruebas generales de concurrencia, restauración, segunda reconstrucción sin drift y compilaciones Android, Windows, Linux y macOS/iOS. Los procedimientos siguen restringidos y no implementan movimiento de caja ni devolución real de dinero. Las pruebas de concurrencia específicas de reversos contra NC, cierres de caja y transferencias simultáneas permanecen como gate futuro.
+
+## 19. Fase 2C5B-A — Expediente de devolución sin desembolso
+
+**Estado:** aplicado en Supabase DEV y probado con 23 aserciones pgTAP reversibles; CI completo pendiente.
+
+**Hallazgo:** los escritores canónicos impiden sobrepagos y todavía no existe integración entre NC aceptadas, reducción del exigible y excedentes certificados. No es seguro afirmar una devolución monetaria basándose únicamente en una NC.
+
+**Migración:** `20261103032308_financial_2c5b_internal_refund_case_intake.sql`.
+
+- Tabla privada `private.venta_solicitudes_devolucion` con FK compuesta tenant-venta-cuenta, FK compuesta a NC de esa venta, request UUID único por empresa e índice único por NC para impedir solicitudes paralelas. Importes positivos PEN exactos, actor JWT, motivo de 10 a 500 caracteres, huella SHA-256, estado único `pendiente_conciliacion`. Registro inmutable (trigger bloquea UPDATE y DELETE), RLS activa, sin permisos de escritura/lectura para clientes ni service_role.
+- Escritor `private.financial_2c5b_open_refund_case(uuid,bigint,uuid,uuid,numeric,text)`: SECURITY INVOKER, UTC, search_path vacío, EXECUTE privado. Identidad derivada de `auth.uid()`; `private.current_organization_id()` activa y `tenant.admin`. Bloquea cuenta `FOR UPDATE`; exige cuenta conciliada PEN y NC con `estado=aceptado`, `aceptado_at`, `afecta_dinero=true`, moneda PEN y no dada de baja. Rechaza importes superiores al valor NC o cobros netos, reintentos con contenido diferente y solicitudes duplicadas para la misma NC.
+- Devuelve explícitamente `dinero_entregado=false` y `excedente_reservado=false`. **No** genera evento de devolución, salida de caja, transferencia bancaria, actualización de saldo ni nueva obligación. El estado del expediente **no implica** derecho certificado al reembolso ni orden de pago aprobada.
+- `supabase/tests/database/financial_2c5b_internal_refund_case_contract_test.sql`: 23 aserciones con NC/empresa/ventas ficticias y ROLLBACK; rechazo de operación sin JWT, operador, admin ajeno, NC no aceptada, monto incompatible, fracciones de centavo y request reusado. Comprueba ausencia de efectos monetarios adicionales comparando movimientos antes/después, preservando el movimiento legítimo del cobro de prueba.
+
+**Gate de liquidación 2C5B-B:** primero integrar las NC fiscalmente aceptadas al ledger y a las cuotas, conciliar excedente y reservas bajo bloqueo; después diseñar egreso bancario/caja con autorización, evidencia real, saldo de fondos, sesión/empresa correctas, reversión compensatoria y pruebas concurrentes. Ningún RPC de devolución o UI para usuarios permanece habilitado.
