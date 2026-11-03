@@ -330,3 +330,27 @@ Migraciones:
 **Siguiente bloque 2C6B:** implementar aplicación atómica de NC al ledger y reclasificaciones de cuotas, con identidad del origen fiscal, deduplicación de aceptación, orden de locks compatible entre cobro/NC/baja, compensación por baja y pruebas concurrentes específicas. Revalidar todos los datos dentro de la transacción. Solo después resolver reservas y desembolsos 2C5B-B. No abrir UI ni RPC cliente con este preanálisis.
 
 **Evidencia de cierre 2C6A:** 60 archivos pgTAP / 1.250 aserciones aprobadas en dos reconstrucciones, incluida la nueva suite de 32 casos; sin drift, restauración, aislamiento multiempresa, concurrencia general, gates estáticos, Android, Windows, Linux y macOS/iOS aprobados. La concurrencia específica NC/cobro/baja corresponde al futuro escritor 2C6B, no a esta función de lectura. Supabase DEV permanece sin ventas/NC/cuentas/solicitudes reales después de ROLLBACK de fixtures. Los commits posteriores a este candidato solo registran esta evidencia documental.
+
+## 21. Inicio 2C6B — incompatibilidades transaccionales comprobadas
+
+Revisión del 2026-11-03 (America/Lima), mediante pg_get_functiondef y privilegios efectivos de Supabase DEV. **2C6B sigue pendiente de implementación; esta entrega es diagnóstico, no aplicación de NC ni validación concurrente.**
+
+| Entrada inspeccionada | Orden observado / efecto relevante |
+|---|---|
+| financial_2c2_record_transfer_payment | request advisory → cuenta FOR UPDATE → venta FOR UPDATE |
+| financial_2c3b_record_cash_payment | request advisory → cuenta → venta → sesión de caja → caja FOR SHARE |
+| nota_credito_finalizar | NC FOR UPDATE → actualización NC/intento → stock cuando corresponde → UPDATE ventas |
+| tributario_finalizar_proceso | proceso FOR UPDATE → solicitudes → comprobantes/NC → ventas y reversión de stock |
+
+El orden efectivo de efectivo no coincide con caja→venta propuesto en sección 6. No se ha demostrado un deadlock mediante dos sesiones; la incompatibilidad debe resolverse antes de añadir un escritor que tome venta/cuenta antes de NC. La finalización fiscal además actualiza monto_notas_credito/estado_tributario, fuera de las actualizaciones saldo/estado autorizadas por las intenciones actuales. La guarda de cuentas abiertas no debe relajarse para permitir ese UPDATE legacy.
+
+Se comprobó el inventario de 12 funciones mediante la consulta reproducible en `docs/saas/sql/financial_2c6b_writer_inventory.sql`. Los cuatro escritores internos de cobro/reverso/expediente no tienen EXECUTE para authenticated ni service_role; finalizadores fiscales sí permiten service_role. Esto impide conectar el núcleo privado simplemente desde el cliente o ampliar permisos como solución.
+
+**Orden de trabajo para completar 2C6B:**
+1. Completar grafo de escritores anidados y cierres de caja; fijar un único orden para operaciones de una y varias ventas.
+2. Adaptar conjuntamente finalizadores NC/baja y escritores financieros; revalidar el vínculo documento–venta–empresa después de bloquear, manteniendo validación de token fiscal e idempotencia.
+3. Extender intención transaccional, auditor y deduplicación por documento/transición; emitir ajuste y compensación de baja sin modificar pagos originales.
+4. Persistir reducciones de cuotas y reclasificación del excedente; actualizar proyección y compatibilidad en la misma transacción.
+5. Probar NC/cobro, NC/baja, cierre/efectivo, repetición y rollback en sesiones concurrentes reales; exigir CI 7/7 antes de activar.
+
+No se modificaron funciones ni datos de Supabase en esta revisión. El CI 7/7 anterior corresponde a 2C6A y no acredita estos pendientes.
