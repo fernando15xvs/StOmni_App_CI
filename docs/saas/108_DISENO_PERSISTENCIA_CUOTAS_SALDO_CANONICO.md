@@ -313,3 +313,18 @@ Migraciones:
 **Gate de liquidación 2C5B-B:** primero integrar las NC fiscalmente aceptadas al ledger y a las cuotas, conciliar excedente y reservas bajo bloqueo; después diseñar egreso bancario/caja con autorización, evidencia real, saldo de fondos, sesión/empresa correctas, reversión compensatoria y pruebas concurrentes. Ningún RPC de devolución o UI para usuarios permanece habilitado.
 
 **Evidencia CI 2C5B-A:** `41572511318` (primer intento, 7/7 SUCCESS), con pgTAP, RLS/grants, aislamiento multiempresa, reconstrucción y restauración de PostgreSQL, Android, Windows, Linux y macOS/iOS. El flujo crea solamente expedientes privados pendientes; NO liquida fondos, NO genera excedentes y NO registra devoluciones en caja ni banco.
+
+## 20. Fase 2C6A — Preanálisis privado de la primera NC monetaria
+
+**Estado:** implementado en Supabase DEV; 32 aserciones pgTAP reversibles aprobadas antes y después de instalar. CI completo del nuevo candidato pendiente.
+
+- Migración `20261103041349_financial_2c6a_credit_note_preview.sql`; versión tomada del historial efectivo de Supabase después de generar el archivo con CLI.
+- `private.financial_2c6a_preview_credit_note(uuid,bigint,uuid)`: STABLE, SECURITY INVOKER, search_path vacío, UTC, sin EXECUTE para PUBLIC/anon/authenticated/service_role. Exige JWT, empresa activa y tenant.admin.
+- Simula exclusivamente la primera NC monetaria aceptada PEN sin baja, con fecha válida y monto que no exceda el exigible. Audita cobertura histórica, eventos, pagos y proyección; no cambia el auditor compartido, que continúa bloqueando cobros con NC.
+- Calcula exigible, deuda y excedente propuestos sin modificar cobros ni venta original. En cronograma v1 reduce pendientes por vencimiento y número descendentes; revisa todas las cuotas, incluso las pagadas. Sin cronograma conserva el saldo sin inventar fechas.
+- Bloquea múltiples NC aceptadas, ajustes anteriores, falta de conciliación, historial no certificado, moneda distinta, cuota inconsistente o versiones no soportadas.
+- Resultado explícito: simulacion_sin_escrituras, aplicado=false, autoriza_escritura=false, excedente_reservado=false, dinero_entregado=false. Es una instantánea sin locks; nunca usarla como autorización reutilizable para pagar o escribir.
+- Test `financial_2c6a_credit_note_preview_contract_test.sql`: 32 aserciones, ORG_A/ORG_B, saldo 60 → 40 con NC20, empate de vencimientos, centavos, NC70 sobre deuda60 → excedente10, venta pagada → excedente20, permisos y rechazos. Fixtures terminan en ROLLBACK; no se certifica historia real.
+- Asesor de seguridad sin hallazgos nuevos sobre esta función; persisten avisos anteriores del proyecto, fuera de este cambio.
+
+**Siguiente bloque 2C6B:** implementar aplicación atómica de NC al ledger y reclasificaciones de cuotas, con identidad del origen fiscal, deduplicación de aceptación, orden de locks compatible entre cobro/NC/baja, compensación por baja y pruebas concurrentes específicas. Revalidar todos los datos dentro de la transacción. Solo después resolver reservas y desembolsos 2C5B-B. No abrir UI ni RPC cliente con este preanálisis.
