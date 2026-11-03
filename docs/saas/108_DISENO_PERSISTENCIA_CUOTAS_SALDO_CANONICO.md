@@ -299,7 +299,7 @@ Migraciones:
 
 ## 19. Fase 2C5B-A — Expediente de devolución sin desembolso
 
-**Estado:** aplicado en Supabase DEV y probado con 23 aserciones pgTAP reversibles; CI completo pendiente.
+**Estado:** aplicado en Supabase DEV y validado GitHub Actions **7/7 SUCCESS** (ejecución `41572511318`, SHA CI `04f5e09`, 23 aserciones pgTAP reversibles).
 
 **Hallazgo:** los escritores canónicos impiden sobrepagos y todavía no existe integración entre NC aceptadas, reducción del exigible y excedentes certificados. No es seguro afirmar una devolución monetaria basándose únicamente en una NC.
 
@@ -311,3 +311,5 @@ Migraciones:
 - `supabase/tests/database/financial_2c5b_internal_refund_case_contract_test.sql`: 23 aserciones con NC/empresa/ventas ficticias y ROLLBACK; rechazo de operación sin JWT, operador, admin ajeno, NC no aceptada, monto incompatible, fracciones de centavo y request reusado. Comprueba ausencia de efectos monetarios adicionales comparando movimientos antes/después, preservando el movimiento legítimo del cobro de prueba.
 
 **Gate de liquidación 2C5B-B:** primero integrar las NC fiscalmente aceptadas al ledger y a las cuotas, conciliar excedente y reservas bajo bloqueo; después diseñar egreso bancario/caja con autorización, evidencia real, saldo de fondos, sesión/empresa correctas, reversión compensatoria y pruebas concurrentes. Ningún RPC de devolución o UI para usuarios permanece habilitado.
+
+**Evidencia CI 2C5B-A:** `41572511318` (primer intento, 7/7 SUCCESS), con pgTAP, RLS/grants, aislamiento multiempresa, reconstrucción y restauración de PostgreSQL, Android, Windows, Linux y macOS/iOS. El flujo crea solamente expedientes privados pendientes; NO liquida fondos, NO genera excedentes y NO registra devoluciones en caja ni banco.
