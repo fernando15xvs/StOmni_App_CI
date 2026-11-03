@@ -316,7 +316,7 @@ Migraciones:
 
 ## 20. Fase 2C6A — Preanálisis privado de la primera NC monetaria
 
-**Estado:** implementado en Supabase DEV; 32 aserciones pgTAP reversibles aprobadas antes y después de instalar. CI completo del nuevo candidato pendiente.
+**Estado:** implementado en Supabase DEV; 32 aserciones pgTAP reversibles aprobadas antes y después de instalar. **CI completo 7/7 SUCCESS**, ejecución [41576975707](https://github.com/fernando15xvs/StOmni_App_CI/actions/runs/41576975707), primer intento. Source validado `1100b7b6be5911b7736750c95f3782f8531767ef`; espejo `675a48eda6699cfa10f19bef6c1886fbec75897e`.
 
 - Migración `20261103041349_financial_2c6a_credit_note_preview.sql`; versión tomada del historial efectivo de Supabase después de generar el archivo con CLI.
 - `private.financial_2c6a_preview_credit_note(uuid,bigint,uuid)`: STABLE, SECURITY INVOKER, search_path vacío, UTC, sin EXECUTE para PUBLIC/anon/authenticated/service_role. Exige JWT, empresa activa y tenant.admin.
@@ -328,3 +328,5 @@ Migraciones:
 - Asesor de seguridad sin hallazgos nuevos sobre esta función; persisten avisos anteriores del proyecto, fuera de este cambio.
 
 **Siguiente bloque 2C6B:** implementar aplicación atómica de NC al ledger y reclasificaciones de cuotas, con identidad del origen fiscal, deduplicación de aceptación, orden de locks compatible entre cobro/NC/baja, compensación por baja y pruebas concurrentes específicas. Revalidar todos los datos dentro de la transacción. Solo después resolver reservas y desembolsos 2C5B-B. No abrir UI ni RPC cliente con este preanálisis.
+
+**Evidencia de cierre 2C6A:** 60 archivos pgTAP / 1.250 aserciones aprobadas en dos reconstrucciones, incluida la nueva suite de 32 casos; sin drift, restauración, aislamiento multiempresa, concurrencia general, gates estáticos, Android, Windows, Linux y macOS/iOS aprobados. La concurrencia específica NC/cobro/baja corresponde al futuro escritor 2C6B, no a esta función de lectura. Supabase DEV permanece sin ventas/NC/cuentas/solicitudes reales después de ROLLBACK de fixtures. Los commits posteriores a este candidato solo registran esta evidencia documental.
