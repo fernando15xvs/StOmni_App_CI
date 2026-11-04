@@ -1,6 +1,8 @@
 -- Real RPC v5 with synthetic stock, seller, tenant and two credit purchases.
 -- Only local/DEV, BEGIN...ROLLBACK; no production/customer records are read.
 BEGIN;
+CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
+SELECT plan(11);
 CREATE TEMP TABLE _2db_fixture(
  org uuid,actor uuid,branch uuid,role_id uuid,
  employee_id bigint,customer_id bigint,product_id bigint,warehouse_id bigint,
@@ -63,27 +65,23 @@ UPDATE _2db_fixture SET result0=public.process_sale_credit_v5(
 RESET ROLE;
 
 -- Assertions fail the whole reversible transaction if any contract breaks.
-CREATE FUNCTION pg_temp.credit_e2e_check(p_ok boolean,p_label text)
-RETURNS void LANGUAGE plpgsql AS $$
-BEGIN IF p_ok IS DISTINCT FROM true THEN
- RAISE EXCEPTION '2D-B real sale: %',p_label; END IF; END $$;
-SELECT pg_temp.credit_e2e_check(
+SELECT ok(
  (SELECT (result0->>'success')::boolean AND NOT (result0->>'idempotent')::boolean
    AND (result0->>'balance')::numeric=100 FROM _2db_fixture),'real v5 persisted a credit sale');
-SELECT pg_temp.credit_e2e_check(
+SELECT ok(
  (SELECT count(*)=1 FROM public.venta_cronogramas cr CROSS JOIN _2db_fixture f
  WHERE cr.organization_id=f.org AND cr.venta_id=(f.result0->>'venta_id')::bigint
    AND cr.version=1 AND cr.estado='vigente'),'persisted one versioned schedule');
-SELECT pg_temp.credit_e2e_check(
+SELECT ok(
  (SELECT count(*)=1 AND sum(c.importe_vigente)=100
  FROM public.venta_cuotas c CROSS JOIN _2db_fixture f
  WHERE c.organization_id=f.org AND c.venta_id=(f.result0->>'venta_id')::bigint),'persisted one exact installment');
-SELECT pg_temp.credit_e2e_check(
+SELECT ok(
  (SELECT count(*)=1 AND sum(cf.saldo_pendiente)=100
  FROM public.venta_cuentas_financieras cf CROSS JOIN _2db_fixture f
  WHERE cf.organization_id=f.org AND cf.venta_id=(f.result0->>'venta_id')::bigint
    AND cf.exigible=100 AND cf.cobros_netos=0),'opening ledger balanced');
-SELECT pg_temp.credit_e2e_check(
+SELECT ok(
  (SELECT ia.cantidad=14 FROM public.inventario_almacen ia
  CROSS JOIN _2db_fixture f WHERE ia.organization_id=f.org
  AND ia.producto_id=f.product_id AND ia.almacen_id=f.warehouse_id),'real stock decremented once');
@@ -122,38 +120,38 @@ UPDATE _2db_fixture SET retry20=public.process_sale_credit_v5(
 UPDATE _2db_fixture SET reader20=public.obtener_cronograma_credito_v1(
   (result20->>'venta_id')::bigint);
 RESET ROLE;
-SELECT pg_temp.credit_e2e_check(
+SELECT ok(
  (SELECT (result20->>'success')::boolean
    AND NOT (result20->>'idempotent')::boolean
    AND (result20->>'balance')::numeric=80
    AND (retry20->>'idempotent')::boolean
    AND retry20->>'venta_id'=result20->>'venta_id'
  FROM _2db_fixture),'real bank down-payment and exact request retry');
-SELECT pg_temp.credit_e2e_check(
+SELECT ok(
  (SELECT reader20->>'venta_id'=result20->>'venta_id'
    AND (reader20->>'cobros_netos')::numeric=20
    AND (reader20->>'saldo_pendiente')::numeric=80
    AND jsonb_array_length(reader20->'cuotas')=2
  FROM _2db_fixture),'authenticated reader returns current bank-paid schedule');
-SELECT pg_temp.credit_e2e_check(
+SELECT ok(
  (SELECT count(*)=1 AND SUM(monto)=20
   FROM public.pagos_venta pv CROSS JOIN _2db_fixture f
   WHERE pv.organization_id=f.org AND pv.venta_id=(f.result20->>'venta_id')::bigint),
   'one initial transfer payment after retry');
-SELECT pg_temp.credit_e2e_check(
+SELECT ok(
  (SELECT COUNT(*)=2 AND SUM(c.importe_vigente)=80
   FROM public.venta_cuotas c CROSS JOIN _2db_fixture f
   WHERE c.organization_id=f.org AND c.venta_id=(f.result20->>'venta_id')::bigint),
   'two installments persist and match outstanding balance');
-SELECT pg_temp.credit_e2e_check(
+SELECT ok(
  (SELECT ia.cantidad=13 FROM public.inventario_almacen ia
  CROSS JOIN _2db_fixture f WHERE ia.organization_id=f.org
  AND ia.producto_id=f.product_id AND ia.almacen_id=f.warehouse_id),
  'two sales consume two items, retry none');
 
 SELECT set_config('request.jwt.claim.sub','',true);
-SELECT pg_temp.credit_e2e_check(
+SELECT ok(
  (SELECT public.obtener_cronograma_credito_v1((result0->>'venta_id')::bigint)
    IS NULL FROM _2db_fixture),'no JWT cannot read sale');
-SELECT jsonb_build_object('credit_v5_e2e','passed','type','synthetic-real-sale','fixture_reversible',true) AS result;
+SELECT * FROM finish();
 ROLLBACK;
