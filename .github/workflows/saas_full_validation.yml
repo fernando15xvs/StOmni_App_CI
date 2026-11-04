@@ -181,10 +181,28 @@ jobs:
           set -euo pipefail
           sudo apt-get update
           sudo apt-get install -y curl ca-certificates gnupg lsb-release
-          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /usr/share/keyrings/postgresql.gpg
+          # PGDG key CDN occasionally resets TLS on GitHub-hosted runners.
+          # Retry transient network failures and fall back to the PGDG mirror.
+          key_file="$(mktemp)"
+          trap 'rm -f "$key_file"' EXIT
+          downloaded=false
+          for key_url in \
+            https://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc \
+            https://www.postgresql.org/media/keys/ACCC4CF8.asc; do
+            if curl -fL --retry 5 --retry-all-errors --retry-delay 3 \
+              --connect-timeout 10 --max-time 90 "$key_url" -o "$key_file"; then
+              downloaded=true
+              break
+            fi
+          done
+          if [[ "$downloaded" != true ]] || ! gpg --show-keys "$key_file" >/dev/null 2>&1; then
+            echo "::error::Unable to securely fetch a valid PostgreSQL signing key"
+            exit 1
+          fi
+          sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/postgresql.gpg "$key_file"
           echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client-17
+          sudo apt-get -o Acquire::Retries=5 update
+          sudo apt-get -o Acquire::Retries=5 install -y postgresql-client-17
           echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
           export PATH="/usr/lib/postgresql/17/bin:$PATH"
           test "$(command -v pg_dump)" = "/usr/lib/postgresql/17/bin/pg_dump"
