@@ -121,6 +121,23 @@ class VentasRepository {
     }
   }
 
+  /// Cronograma financiero vigente; null para ventas legacy o sin acceso.
+  /// Nunca acepta organization_id del cliente.
+  Future<Map<String, dynamic>?> obtenerCronogramaCredito(int ventaId) async {
+    try {
+      final result = await _client.rpc(
+        'obtener_cronograma_credito_v1',
+        params: {'p_venta_id': ventaId},
+      );
+      if (result == null) return null;
+      if (result is Map<String, dynamic>) return result;
+      if (result is Map) return Map<String, dynamic>.from(result);
+      throw StateError('El cronograma financiero devolvió datos inválidos.');
+    } on PostgrestException catch (e) {
+      throw Exception('Error al consultar cuotas: ${e.message}');
+    }
+  }
+
   Future<Map<String, dynamic>> obtenerVentaCompleta(int ventaId) async {
     try {
       final futures = await Future.wait(<Future<dynamic>>[
@@ -137,11 +154,13 @@ class VentasRepository {
             )
             .eq('venta_id', ventaId),
         _client.from('pagos_venta').select('*').eq('venta_id', ventaId),
+        obtenerCronogramaCredito(ventaId),
       ]);
       return {
         'venta': futures[0],
         'detalles': SaleDetailPresentationMapper.restoreMany(futures[1]),
         'pagos': futures[2],
+        'credito': futures[3],
       };
     } catch (e) {
       throw Exception('Error al cargar la venta completa: $e');
