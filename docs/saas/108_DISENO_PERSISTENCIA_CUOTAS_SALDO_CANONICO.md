@@ -4,7 +4,7 @@ Fecha: 2026-11-02, America/Lima.
 Base Git: `45d12acbdcda41b1616e269afc391ab5af58cdc1`.
 Referencias: [roadmap 106](106_ROADMAP_MOBILE_HOME_REPORTES_GESTION_SUNAT.md) y [contrato 107](107_CONTRATO_FINANCIERO_CREDITO_CUOTAS_AJUSTES.md).
 
-**Estado:** diseño técnico de fase 2 y revisión estática de fase 1. No hay migraciones ni cambios de aplicación en esta entrega. Consultas a Supabase solo de catálogos/definiciones; no se auditó ni modificó información de clientes.
+**Estado vigente (2026-11-03, America/Lima):** implementados y verificados en CI 7/7 y Supabase DEV los bloques financieros 2A, 2B, 2C1–2C6B y 2C5B-B. La última migración registrada es `20261104010306_financial_2c5b_refund_settlement.sql`, con 49/49 pruebas reversibles ejecutadas en DEV. El diseño y las observaciones de las secciones 1–10 son una fotografía histórica del 2026-11-02, anterior a esas implementaciones; la evidencia de cierre real se encuentra en las secciones posteriores. **Aún no hay habilitación de UI de devoluciones, integración bancaria ni GO a producción.** Próxima dependencia: venta a crédito v5 con cuotas persistidas.
 
 ## 1. Fase 1: evidencia y límite de cierre
 
