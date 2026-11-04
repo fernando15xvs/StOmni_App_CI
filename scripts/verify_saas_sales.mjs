@@ -78,6 +78,12 @@ function verify(s, r, l, vr, dr) {
   need(errors,creditV2NC,/REVOKE ALL ON FUNCTION private\.financial_nc_apply_transition\(\)/i,'2D-D writer keeps deny-by-default client surface');
   need(errors,creditV2NC,/public\.app_tiene_permiso\('sales\.create'\) IS NOT TRUE/i,'2D-D v5 seller permission is null-safe fail-closed');
   need(errors,creditV2NC,/CREATE OR REPLACE FUNCTION public\.process_sale_credit_v5\(/i,'2D-D privileged v5 hardened without changing grants');
+  const tenantNaturalKeys = read('supabase/migrations/20261105010000_financial_2de_product_tenant_unique_indexes.sql');
+  need(errors,tenantNaturalKeys,/CREATE UNIQUE INDEX idx_producto_unico[\s\S]*?organization_id,[\s\S]*?lower\(btrim\(nombre\)\)/i,'2D-E product business name uniqueness scoped to org');
+  need(errors,tenantNaturalKeys,/DROP INDEX IF EXISTS public\.productos_codigo_unique/i,'2D-E drop unsafe global product code gate');
+  need(errors,tenantNaturalKeys,/productos_organization_code_key/i,'2D-E preserve per-tenant product code gate');
+  need(errors,tenantNaturalKeys,/DROP INDEX IF EXISTS public\.clientes_dni_ruc_unique/i,'2D-E drop unsafe global customer document gate');
+  need(errors,tenantNaturalKeys,/clientes_organization_document_key/i,'2D-E preserve per-tenant customer document gate');
   const domainTables = [
     'ventas','detalle_ventas','pagos_venta','cotizaciones','detalle_cotizaciones',
     'pagos_deuda_requests','ventas_requests_anulados',
