@@ -229,8 +229,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # Preserve CLI failure diagnostics; never weaken the no-drift gate.
+          set +e
           output="$(supabase db diff --local --schema public 2>&1)"
+          diff_rc=$?
+          set -e
           printf '%s\n' "$output"
+          if [ "$diff_rc" -ne 0 ]; then
+            echo "::error::supabase db diff exited with code $diff_rc"
+            exit "$diff_rc"
+          fi
           if ! grep -q "No schema changes found" <<<"$output"; then
             echo "Schema drift detectado entre migraciones y DB local."
             exit 1
@@ -286,8 +294,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # Preserve CLI failure diagnostics; never weaken the no-drift gate.
+          set +e
           output="$(supabase db diff --local --schema public 2>&1)"
+          diff_rc=$?
+          set -e
           printf '%s\n' "$output"
+          if [ "$diff_rc" -ne 0 ]; then
+            echo "::error::supabase db diff exited with code $diff_rc"
+            exit "$diff_rc"
+          fi
           if ! grep -q "No schema changes found" <<<"$output"; then
             echo "Schema drift detectado después del segundo reset."
             exit 1
