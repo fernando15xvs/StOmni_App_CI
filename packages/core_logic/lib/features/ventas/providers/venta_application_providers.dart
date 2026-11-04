@@ -82,6 +82,7 @@ class _VentaProcessingRepositoryAdapter implements VentaProcessingGateway {
             },
           )
           .toList(growable: false),
+      creditTerms: request.creditTerms,
       pagos: request.pagos
           .map(
             (payment) => <String, dynamic>{
