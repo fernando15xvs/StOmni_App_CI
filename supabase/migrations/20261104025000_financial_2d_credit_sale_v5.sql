@@ -137,6 +137,10 @@ BEGIN
     OR v_sale_row.saldo IS DISTINCT FROM v_due THEN
   RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Sale engine amount diverged from exact credit contract';
  END IF;
+ -- Legacy v3 stores the outstanding balance but does not set fue_credito.
+ -- Preserve existing UI, aging and reports semantics for the new v5 credit sale.
+ UPDATE public.ventas SET fue_credito=true
+ WHERE organization_id=v_org AND id=v_sale;
  SELECT coalesce(sum(monto),0),count(*) INTO v_paid,v_count FROM public.pagos_venta
   WHERE organization_id=v_org AND venta_id=v_sale;
  IF v_paid<>p_monto_abono OR v_count<>jsonb_array_length(p_pagos)
