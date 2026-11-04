@@ -84,6 +84,7 @@ const explicitlyClassified = new Map([
   ['list_inventory_lots_v1', 'scripts/verify_saas_inventory_runtime.mjs'],
   ['list_inventory_serials_v1', 'scripts/verify_saas_inventory_runtime.mjs'],
   ['process_sale_credit_v5', 'scripts/verify_saas_sales.mjs'],
+  ['obtener_cronograma_credito_v1', 'scripts/verify_saas_sales.mjs'],
   ['resolve_sale_price_v1', 'scripts/verify_saas_sales.mjs'],
   ['delete_sale_price_rule_v1', 'scripts/verify_saas_sales.mjs'],
   ['obtener_tendencia_movimientos', 'scripts/verify_saas_rpc_transversal.mjs'],
