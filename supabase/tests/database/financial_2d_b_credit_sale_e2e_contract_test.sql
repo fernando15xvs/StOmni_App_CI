@@ -2,19 +2,19 @@
 -- Only local/DEV, BEGIN...ROLLBACK; no production/customer records are read.
 BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
-SELECT plan(11);
+SELECT plan(21);
 CREATE TEMP TABLE _2db_fixture(
  org uuid,actor uuid,branch uuid,role_id uuid,
  employee_id bigint,customer_id bigint,product_id bigint,warehouse_id bigint,
- request0 uuid,request20 uuid,sale_at timestamptz,
- result0 jsonb,result20 jsonb,retry20 jsonb,reader20 jsonb
+ request0 uuid,request20 uuid,request_units uuid,sale_at timestamptz,
+ result0 jsonb,result20 jsonb,retry20 jsonb,reader20 jsonb, result_units jsonb,reader_units jsonb
 ) ON COMMIT DROP;
 INSERT INTO _2db_fixture(
  org,actor,branch,role_id,employee_id,customer_id,product_id,warehouse_id,
- request0,request20,sale_at)
+ request0,request20,request_units,sale_at)
 VALUES(gen_random_uuid(),gen_random_uuid(),gen_random_uuid(),gen_random_uuid(),
  840130101,840130102,840130103,840130104,
- gen_random_uuid(),gen_random_uuid(),now()-interval '1 minute');
+ gen_random_uuid(),gen_random_uuid(),gen_random_uuid(),now()-interval '1 minute');
 GRANT SELECT,UPDATE ON TABLE _2db_fixture TO authenticated;
 SET LOCAL session_replication_role=replica;
 INSERT INTO public.organizations(id,display_name,country_code,currency_code,timezone)
@@ -41,6 +41,15 @@ SELECT customer_id,org,'Test Customer' FROM _2db_fixture;
 INSERT INTO public.productos(id,organization_id,nombre,precio_unidad,precio_caja,tipo_venta,permitir_sin_stock,activo,es_servicio,item_type)
 SELECT product_id,org,'Test Item',100,100,'UNIDAD',false,true,false,'stock_product'
 FROM _2db_fixture;
+-- Configured presentation: one "caja" consists of 2 "unidad" base units.
+INSERT INTO public.product_unit_profiles(product_id,organization_id,revision,profile)
+SELECT product_id,org,1, '{
+ "schema_version":2,"base_code":"unidad",
+ "presentations":[
+  {"code":"unidad","singular":"Unidad","plural":"Unidades","factor":1,"fractional":false,"precision":0,"fiscal_unit_code":"NIU"},
+  {"code":"caja","singular":"Caja","plural":"Cajas","factor":2,"fractional":false,"precision":0,"fiscal_unit_code":"BX"}
+ ]
+}'::jsonb FROM _2db_fixture;
 INSERT INTO public.almacenes(id,organization_id,branch_id,nombre)
 SELECT warehouse_id,org,branch,'Test Warehouse' FROM _2db_fixture;
 INSERT INTO public.inventario_almacen(organization_id,producto_id,almacen_id,cantidad)
@@ -148,6 +157,112 @@ SELECT ok(
  CROSS JOIN _2db_fixture f WHERE ia.organization_id=f.org
  AND ia.producto_id=f.product_id AND ia.almacen_id=f.warehouse_id),
  'two sales consume two items, retry none');
+
+-- Third real v5 sale: configured "caja" profile routes via process_sale_with_units_v4,
+-- normalizes 1 box to 2 base units and retains immutable presentation snapshot.
+SET LOCAL ROLE authenticated;
+UPDATE _2db_fixture SET result_units=public.process_sale_credit_v5(
+ request_units,customer_id,200,sale_at,true,0,
+ jsonb_build_array(jsonb_build_object(
+   'producto_id',product_id,'almacen_id',warehouse_id,
+   'cantidad',1,'piezas_reales',2,
+   'precio_unitario',100,'precio_unitario_comercial',200,
+   'subtotal',200,'tipo_unidad','caja','unit_profile_revision',1,'stock_scale',1)),
+ '[]'::jsonb,NULL,NULL,'ticket_interno',0,0,NULL,200,NULL,
+ jsonb_build_array(
+   jsonb_build_object('number',1,'amount',100,
+      'due_date',to_char(sale_at+interval '14 day','YYYY-MM-DD')),
+   jsonb_build_object('number',2,'amount',100,
+      'due_date',to_char(sale_at+interval '28 day','YYYY-MM-DD')))
+);
+UPDATE _2db_fixture SET reader_units=public.obtener_cronograma_credito_v1(
+  (result_units->>'venta_id')::bigint);
+RESET ROLE;
+SELECT ok(
+ (SELECT (result_units->>'success')::boolean
+   AND (result_units->>'balance')::numeric=200
+   AND (result_units->>'credit_schedule_version')::integer=1
+ FROM _2db_fixture),'configured units v5 created a real credit sale');
+SELECT ok(
+ (SELECT count(*)=1
+   AND bool_and(d.presentation_snapshot->>'code'='caja')
+   AND bool_and((d.presentation_snapshot->>'factor')::numeric=2)
+   AND bool_and((d.presentation_snapshot->>'revision')::integer=1)
+ FROM public.detalle_ventas d CROSS JOIN _2db_fixture f
+ WHERE d.organization_id=f.org
+ AND d.venta_id=(f.result_units->>'venta_id')::bigint),
+ 'configured presentation snapshot preserves caja with factor 2 and revision 1');
+SELECT ok(
+ (SELECT ia.cantidad=11 FROM public.inventario_almacen ia
+ CROSS JOIN _2db_fixture f WHERE ia.organization_id=f.org
+ AND ia.producto_id=f.product_id AND ia.almacen_id=f.warehouse_id),
+ 'configured one box consumes two base units, exact stock now 11');
+SELECT ok(
+ (SELECT (reader_units->>'saldo_pendiente')::numeric=200
+   AND jsonb_array_length(reader_units->'cuotas')=2
+   AND (reader_units->'cuotas'->0->>'importe_vigente')::numeric=100
+ FROM _2db_fixture),'configured unit credit schedule reads two exact installments');
+SELECT ok(
+ (SELECT COUNT(*)=1
+ FROM public.venta_cuentas_financieras cf CROSS JOIN _2db_fixture f
+ WHERE cf.organization_id=f.org
+   AND cf.venta_id=(f.result_units->>'venta_id')::bigint
+   AND cf.exigible=200 AND cf.cobros_netos=0 AND cf.saldo_pendiente=200),
+ 'configured unit account reconciles exact PEN amounts');
+
+-- A subsequent bank payment is allocated FIFO and can be reversed
+-- by 2C5A. This is NOT the original down-payment reversal contract.
+CREATE TEMP TABLE _2db_transfer_followup(
+ request_id uuid NOT NULL, reverse_request_id uuid NOT NULL,
+ result_pay jsonb, result_reversal jsonb, original_event_id uuid
+) ON COMMIT DROP;
+INSERT INTO _2db_transfer_followup
+ VALUES(gen_random_uuid(),gen_random_uuid(),NULL,NULL,NULL);
+UPDATE _2db_transfer_followup t
+SET result_pay=private.financial_2c2_record_transfer_payment(
+ (SELECT org FROM _2db_fixture),
+ (SELECT (result_units->>'venta_id')::bigint FROM _2db_fixture),
+ t.request_id,'PEN',50,now()-interval '10 seconds'
+);
+UPDATE _2db_transfer_followup t
+SET original_event_id=(
+ SELECT ev.id FROM public.venta_eventos_financieros ev
+ WHERE ev.operacion_id=(t.result_pay->>'operacion_id')::uuid
+   AND ev.tipo='cobro' LIMIT 1
+);
+SELECT ok(
+ (SELECT (result_pay->>'success')::boolean
+   AND (result_pay->>'saldo')::numeric=150
+ FROM _2db_transfer_followup),
+ 'subsequent canonical transfer reduces credit balance from 200 to 150');
+SELECT ok(
+ (SELECT SUM(m.importe_asignado)=50
+ FROM public.venta_cuota_movimientos m
+ CROSS JOIN _2db_fixture f
+ WHERE m.venta_id=(f.result_units->>'venta_id')::bigint
+ AND m.tipo='cobro'),
+ 'subsequent transfer allocated exactly 50 to installments');
+UPDATE _2db_transfer_followup t
+SET result_reversal=private.financial_2c5a_reverse_transfer_payment(
+ (SELECT org FROM _2db_fixture),
+ (SELECT (result_units->>'venta_id')::bigint FROM _2db_fixture),
+ t.reverse_request_id,t.original_event_id,now()
+);
+SELECT ok(
+ (SELECT (result_reversal->>'success')::boolean
+   AND (result_reversal->>'saldo')::numeric=200
+ FROM _2db_transfer_followup),
+ 'reversed follow-up transfer restores original credit balance');
+SELECT ok(
+ (SELECT cf.saldo_pendiente=200 AND cf.cobros_netos=0
+ FROM public.venta_cuentas_financieras cf CROSS JOIN _2db_fixture f
+ WHERE cf.venta_id=(f.result_units->>'venta_id')::bigint AND cf.organization_id=f.org),
+ 'financial account exactly reconciles after follow-up reversal');
+SELECT ok(
+ (SELECT COALESCE(SUM(m.importe_asignado),0)=0
+ FROM public.venta_cuota_movimientos m CROSS JOIN _2db_fixture f
+ WHERE m.venta_id=(f.result_units->>'venta_id')::bigint),
+ 'installment allocations net to zero after reversal');
 
 SELECT set_config('request.jwt.claim.sub','',true);
 SELECT ok(
