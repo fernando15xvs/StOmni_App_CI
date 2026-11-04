@@ -57,6 +57,18 @@ function verify(s, r, l, vr, dr) {
   need(errors,creditReader,/FROM public\.venta_cuota_movimientos m/i,'2D-B readonly movement aggregation');
   need(errors,creditRepo,/_client\.rpc\(\s*'obtener_cronograma_credito_v1'/i,'2D-B Flutter reader call');
   need(errors,creditRepo,/'credito': futures\[3\]/i,'2D-B sale detail integration');
+  const initialReversal = read('supabase/migrations/20261104212500_financial_2dc_initial_downpayment_reversal.sql');
+  need(errors, initialReversal, /CREATE FUNCTION private\.financial_2dc_reverse_initial_transfer\(/i, '2D-C private initial reversal writer');
+  need(errors, initialReversal, /SECURITY INVOKER/i, '2D-C private reversal retains invoker context');
+  need(errors, initialReversal, /app_tiene_permiso\('sales\.collect'\)/i, '2D-C requires collection permission');
+  need(errors, initialReversal, /require_current_organization_id\(\)/i, '2D-C derives tenant from identity');
+  need(errors, initialReversal, /'reverso_abono_inicial_v5'/i, '2D-C v2 schedule certified origin');
+  need(errors, initialReversal, /v_last_number\+1/i, '2D-C compensatory last installment');
+  need(errors, initialReversal, /'sustituido'/i, '2D-C preserves old schedule history');
+  need(errors, initialReversal, /REVOKE ALL ON FUNCTION private\.financial_2dc_reverse_initial_transfer\([\s\S]*?FROM PUBLIC,anon,authenticated,service_role/i, '2D-C financial writer is client-inaccessible');
+  need(errors, initialReversal, /private\.financial_2dc_supported_v2_schedule\(/i, '2D-C certified version-2 schedule guard');
+  need(errors, initialReversal, /CREATE OR REPLACE FUNCTION private\.financial_2c4_allocate_cash_receipt\(/i, '2D-C receipt allocation supports guarded v2');
+  need(errors, initialReversal, /CREATE OR REPLACE FUNCTION private\.financial_2c5a_reverse_transfer_payment\(/i, '2D-C subsequent transfer reversal supports guarded v2');
   const domainTables = [
     'ventas','detalle_ventas','pagos_venta','cotizaciones','detalle_cotizaciones',
     'pagos_deuda_requests','ventas_requests_anulados',
