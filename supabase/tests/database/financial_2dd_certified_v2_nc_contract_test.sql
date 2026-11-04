@@ -4,7 +4,7 @@
 -- Only local/DEV, BEGIN...ROLLBACK; no production/customer records are read.
 BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
-SELECT plan(24);
+SELECT plan(26);
 CREATE TEMP TABLE _2db_fixture(
  org uuid,actor uuid,branch uuid,role_id uuid,
  employee_id bigint,customer_id bigint,product_id bigint,warehouse_id bigint,
@@ -116,6 +116,15 @@ INSERT INTO public.notas_credito(
  now()-interval '20 seconds',f.org,'PEN','aceptado',true,30,now()-interval '10 seconds'
  FROM _2dd_nc x CROSS JOIN _2db_fixture f;
 SET LOCAL session_replication_role=origin;
+
+SELECT ok(
+ NOT has_function_privilege('anon','private.financial_nc_apply_transition()','EXECUTE')
+ AND NOT has_function_privilege('authenticated','private.financial_nc_apply_transition()','EXECUTE'),
+ 'NC financial transition remains private to trusted execution');
+SELECT ok(
+ NOT has_function_privilege('anon','private.financial_2c6a_preview_credit_note(uuid,bigint,uuid)','EXECUTE')
+ AND NOT has_function_privilege('authenticated','private.financial_2c6a_preview_credit_note(uuid,bigint,uuid)','EXECUTE'),
+ 'financial NC preview remains private despite new version-2 support');
 
 -- Preview under administrator identity. Other-tenant access is denied.
 SELECT set_config('request.jwt.claim.sub',(SELECT actor::text FROM _2db_fixture),true);
