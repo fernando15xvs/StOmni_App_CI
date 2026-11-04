@@ -82,9 +82,10 @@ class ValidateSaleUseCase {
         amountDue: command.totalAPagar - command.montoAbono,
       );
       if (termsError != null) throw StateError(termsError);
-      if (command.payments.any(
+      final hasUnsupportedDownPayment = command.payments.any(
         (payment) => payment.metodo.trim().toLowerCase() != 'transferencia',
-      )) {
+      );
+      if (hasUnsupportedDownPayment) {
         throw StateError(
           'Las ventas con cuotas persistidas requieren abono por transferencia '
           'o sin abono. El efectivo se habilitará tras integrar caja.',
