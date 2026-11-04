@@ -73,6 +73,24 @@ class ValidateSaleUseCase {
         'Los pagos no coinciden con el importe que debe cobrarse.',
       );
     }
+    if (command.creditTerms != null) {
+      if (!command.esCredito) {
+        throw StateError('Las cuotas solo se permiten en ventas a crédito.');
+      }
+      final termsError = command.creditTerms!.validate(
+        saleDate: command.fecha,
+        amountDue: command.totalAPagar - command.montoAbono,
+      );
+      if (termsError != null) throw StateError(termsError);
+      if (command.payments.any(
+        (payment) => payment.metodo.trim().toLowerCase() != 'transferencia',
+      )) {
+        throw StateError(
+          'Las ventas con cuotas persistidas requieren abono por transferencia '
+          'o sin abono. El efectivo se habilitará tras integrar caja.',
+        );
+      }
+    }
     return ValidatedSale(lines: lines, subtotal: subtotal);
   }
 }
