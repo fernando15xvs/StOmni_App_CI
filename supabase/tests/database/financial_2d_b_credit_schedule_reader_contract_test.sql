@@ -1,6 +1,8 @@
 -- 2D-B: reversible authenticated reader test. Multi-tenant, paid installments,
 -- empty/unauthorized, corrupt schedule; never persists customer information.
 BEGIN;
+CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
+SELECT plan(10);
 CREATE TEMP TABLE _credit_fixture (
   org_a uuid,org_b uuid,actor_a uuid,actor_b uuid,sale_a bigint,sale_b bigint,
   cr_a uuid,cr_b uuid
@@ -44,19 +46,14 @@ SELECT org_b,sale_b,cr_b,1,(now() AT TIME ZONE 'America/Lima')::date+10,50,50
 FROM _credit_fixture;
 
 -- Owner (postgres) checks direct client grant surface before impersonation.
-CREATE FUNCTION pg_temp.check_reader(p_ok boolean,p_label text)
-RETURNS void LANGUAGE plpgsql AS $$
-BEGIN
- IF p_ok IS DISTINCT FROM true THEN RAISE EXCEPTION '2D-B reader: %',p_label; END IF;
-END $$;
-SELECT pg_temp.check_reader(
+SELECT ok(
   NOT has_function_privilege('anon','public.obtener_cronograma_credito_v1(bigint)','EXECUTE')
   AND has_function_privilege('authenticated','public.obtener_cronograma_credito_v1(bigint)','EXECUTE'),
   'reader authenticated-only');
-SELECT pg_temp.check_reader(
+SELECT ok(
   NOT (SELECT p.prosecdef FROM pg_proc p WHERE p.oid='public.obtener_cronograma_credito_v1(bigint)'::regprocedure),
   'reader is security invoker, not definer');
-SELECT pg_temp.check_reader(public.obtener_cronograma_credito_v1(840030101) IS NULL,
+SELECT ok(public.obtener_cronograma_credito_v1(840030101) IS NULL,
   'missing identity returns null');
 
 SELECT set_config('request.jwt.claim.sub',(SELECT actor_a::text FROM _credit_fixture),true);
@@ -80,7 +77,7 @@ INSERT INTO _credit_reader_results(name,response)
 VALUES ('without_membership',public.obtener_cronograma_credito_v1(840030101));
 RESET ROLE;
 
-SELECT pg_temp.check_reader(
+SELECT ok(
  (SELECT response->>'venta_id'='840030101'
     AND response->>'moneda'='PEN'
     AND (response->>'exigible')::numeric=100
@@ -89,23 +86,23 @@ SELECT pg_temp.check_reader(
     AND (response->>'cronograma_version')::integer=1
     AND jsonb_array_length(response->'cuotas')=2
     FROM _credit_reader_results WHERE name='a_own'),'A sees own current balance and schedule');
-SELECT pg_temp.check_reader(
+SELECT ok(
  (SELECT (response->'cuotas'->0->>'saldo_pendiente')::numeric=20
     AND (response->'cuotas'->1->>'saldo_pendiente')::numeric=40
     AND response->'cuotas'->0->>'estado'='pendiente'
     FROM _credit_reader_results WHERE name='a_own'),'A sees ordered exact installment amounts');
-SELECT pg_temp.check_reader(
+SELECT ok(
  (SELECT response IS NULL FROM _credit_reader_results WHERE name='a_cross'),'A cannot see B sale');
-SELECT pg_temp.check_reader(
+SELECT ok(
  (SELECT response IS NULL FROM _credit_reader_results WHERE name='b_cross'),'B cannot see A sale');
-SELECT pg_temp.check_reader(
+SELECT ok(
  (SELECT response IS NULL FROM _credit_reader_results WHERE name='a_unknown'),'unknown sale stays invisible');
-SELECT pg_temp.check_reader(
+SELECT ok(
  (SELECT response IS NULL FROM _credit_reader_results WHERE name='without_membership'),'removed membership returns null');
-SELECT pg_temp.check_reader(
+SELECT ok(
  (SELECT response->>'venta_id'='840030102'
     AND (response->>'saldo_pendiente')::numeric=50
     AND jsonb_array_length(response->'cuotas')=1
    FROM _credit_reader_results WHERE name='b_own'),'B sees only own credit balance');
-SELECT jsonb_build_object('checks',10,'passed',true) AS reader_2db_verification;
+SELECT * FROM finish();
 ROLLBACK;
