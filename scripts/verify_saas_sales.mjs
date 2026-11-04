@@ -69,6 +69,15 @@ function verify(s, r, l, vr, dr) {
   need(errors, initialReversal, /private\.financial_2dc_supported_v2_schedule\(/i, '2D-C certified version-2 schedule guard');
   need(errors, initialReversal, /CREATE OR REPLACE FUNCTION private\.financial_2c4_allocate_cash_receipt\(/i, '2D-C receipt allocation supports guarded v2');
   need(errors, initialReversal, /CREATE OR REPLACE FUNCTION private\.financial_2c5a_reverse_transfer_payment\(/i, '2D-C subsequent transfer reversal supports guarded v2');
+  const creditV2NC = read('supabase/migrations/20261105002000_financial_2dd_certified_v2_nc_compat.sql');
+  need(errors,creditV2NC,/CREATE OR REPLACE FUNCTION private\.financial_nc_apply_transition\(/i,'2D-D atomic NC writer remains private');
+  need(errors,creditV2NC,/CREATE OR REPLACE FUNCTION private\.financial_2c6a_preview_credit_note\(/i,'2D-D financial NC preview remains private');
+  need(errors,creditV2NC,/financial_2dc_supported_v2_schedule\(/i,'2D-D NC checks certified-v2 provenance');
+  need(errors,creditV2NC,/v_schedule\.version NOT IN \(1,2\)/i,'2D-D rejects unknown schedule versions');
+  need(errors,creditV2NC,/estado='vigente' FOR UPDATE/i,'2D-D locks active version before NC mutation');
+  need(errors,creditV2NC,/REVOKE ALL ON FUNCTION private\.financial_nc_apply_transition\(\)/i,'2D-D writer keeps deny-by-default client surface');
+  need(errors,creditV2NC,/public\.app_tiene_permiso\('sales\.create'\) IS NOT TRUE/i,'2D-D v5 seller permission is null-safe fail-closed');
+  need(errors,creditV2NC,/CREATE OR REPLACE FUNCTION public\.process_sale_credit_v5\(/i,'2D-D privileged v5 hardened without changing grants');
   const domainTables = [
     'ventas','detalle_ventas','pagos_venta','cotizaciones','detalle_cotizaciones',
     'pagos_deuda_requests','ventas_requests_anulados',
