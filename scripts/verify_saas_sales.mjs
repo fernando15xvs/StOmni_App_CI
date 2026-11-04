@@ -48,6 +48,15 @@ function verify(s, r, l, vr, dr) {
   need(errors, credit, /GRANT EXECUTE ON FUNCTION public\.process_sale_credit_v5[\s\S]*?TO authenticated/i, 'authorized v5 RPC grant');
   need(errors, creditRepo, /'p_credit_terms': creditTerms\.installments/i, 'creditTerms serialized to RPC');
   need(errors, creditRepo, /_client\.rpc\('process_sale_credit_v5'/i, 'credit RPC explicit selection');
+  const creditReader = read('supabase/migrations/20261104174500_financial_2d_b_credit_schedule_reader.sql');
+  need(errors,creditReader,/CREATE FUNCTION public\.obtener_cronograma_credito_v1\(p_venta_id bigint\)/i,'2D-B credit reader RPC');
+  need(errors,creditReader,/STABLE SECURITY INVOKER/i,'2D-B reader does not bypass RLS');
+  need(errors,creditReader,/private\.require_current_organization_id\(\)/i,'2D-B tenant from authenticated identity');
+  need(errors,creditReader,/private\.has_permission\('tenant\.read'\) IS NOT TRUE/i,'2D-B null permission fails closed');
+  need(errors,creditReader,/GRANT EXECUTE ON FUNCTION public\.obtener_cronograma_credito_v1\(bigint\)[\s\S]*?TO authenticated/i,'2D-B authenticated-only grant');
+  need(errors,creditReader,/FROM public\.venta_cuota_movimientos m/i,'2D-B readonly movement aggregation');
+  need(errors,creditRepo,/_client\.rpc\(\s*'obtener_cronograma_credito_v1'/i,'2D-B Flutter reader call');
+  need(errors,creditRepo,/'credito': futures\[3\]/i,'2D-B sale detail integration');
   const domainTables = [
     'ventas','detalle_ventas','pagos_venta','cotizaciones','detalle_cotizaciones',
     'pagos_deuda_requests','ventas_requests_anulados',
