@@ -3,6 +3,7 @@ import '../../../utils/app_time.dart';
 import '../../almacen/data/supabase_product_unit_configuration_gateway.dart';
 import '../application/sale_processing_models.dart';
 import '../domain/sale_cart.dart';
+import '../domain/sale_models.dart';
 import 'quotation_sale_cart_mapper.dart';
 import 'sale_detail_presentation_mapper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,6 +28,7 @@ class VentasRepository {
     required double montoAbono,
     required List<Map<String, dynamic>> detalles,
     required List<Map<String, dynamic>> pagos,
+    SaleCreditTerms? creditTerms,
     int? cotizacionId,
     int? vendedorId,
     String tipoComprobante = 'ticket_interno',
@@ -39,9 +41,14 @@ class VentasRepository {
     final usesConfiguredUnits = detalles.any(
       (detail) => detail['unit_profile_revision'] != null,
     );
-    final rpcLabel = usesConfiguredUnits
-        ? 'process_sale_with_units_v4'
-        : 'process_sale_v4';
+    if (creditTerms != null && !esCredito) {
+      throw ArgumentError('No se pueden enviar cuotas en una venta al contado.');
+    }
+    final rpcLabel = creditTerms != null
+        ? 'process_sale_credit_v5'
+        : (usesConfiguredUnits
+            ? 'process_sale_with_units_v4'
+            : 'process_sale_v4');
     final params = <String, dynamic>{
       'p_request_id': requestId,
       'p_cliente_id': clienteId,
@@ -59,14 +66,28 @@ class VentasRepository {
       'p_motivo_descuento': motivoDescuento,
       'p_subtotal_bruto': subtotalBruto,
       'p_descuento_autorizado_por': descuentoAutorizadoPor,
+      if (creditTerms != null)
+        'p_credit_terms': creditTerms.installments
+            .map((installment) => <String, dynamic>{
+                  'number': installment.number,
+                  'amount': installment.amount,
+                  'due_date': DateTime(
+                    installment.dueDate.year,
+                    installment.dueDate.month,
+                    installment.dueDate.day,
+                  ).toIso8601String().substring(0, 10),
+                })
+            .toList(growable: false),
     };
 
     try {
       // Los nombres permanecen literales para que el gate RPC pueda demostrar
       // exactamente qué entrypoints son ejecutables desde el cliente.
-      final result = usesConfiguredUnits
-          ? await _client.rpc('process_sale_with_units_v4', params: params)
-          : await _client.rpc('process_sale_v4', params: params);
+      final result = creditTerms != null
+          ? await _client.rpc('process_sale_credit_v5', params: params)
+          : (usesConfiguredUnits
+              ? await _client.rpc('process_sale_with_units_v4', params: params)
+              : await _client.rpc('process_sale_v4', params: params));
       if (result is Map<String, dynamic>) return result;
       if (result is Map) return Map<String, dynamic>.from(result);
       throw StateError('$rpcLabel devolvió una respuesta inválida.');
