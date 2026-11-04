@@ -2,7 +2,7 @@
 -- Only local/DEV, BEGIN...ROLLBACK; no production/customer records are read.
 BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
-SELECT plan(20);
+SELECT plan(28);
 CREATE TEMP TABLE _2db_fixture(
  org uuid,actor uuid,branch uuid,role_id uuid,
  employee_id bigint,customer_id bigint,product_id bigint,warehouse_id bigint,
@@ -125,6 +125,37 @@ SELECT ok(
   gen_random_uuid(),(SELECT original_event_id FROM _2dc_results),now(),'BAD'),
  'reversal rejects inadequate bank reference');
 
+-- 2D-F bank proof must be recorded only after out-of-band verified
+-- API/signed webhook. This is a synthetic attestation, never a real bank call.
+SELECT ok(
+ pg_temp._2dc_rejected(
+  (SELECT org FROM _2db_fixture),
+  (SELECT (result20->>'venta_id')::bigint FROM _2db_fixture),
+  gen_random_uuid(),(SELECT original_event_id FROM _2dc_results),
+  now(),'BANK-REV-TEST-20261104'),
+ 'initial reversal fails closed when trusted bank evidence is absent');
+SELECT ok(
+ NOT has_table_privilege('anon','private.financial_2df_bank_reversal_evidence','INSERT')
+ AND NOT has_table_privilege('authenticated','private.financial_2df_bank_reversal_evidence','INSERT')
+ AND NOT has_table_privilege('service_role','private.financial_2df_bank_reversal_evidence','INSERT'),
+ 'no client or service-role may forge trusted bank attestations');
+
+INSERT INTO private.financial_2df_bank_reversal_evidence(
+ organization_id,venta_id,original_event_id,bank_reversal_ref,
+ provider,provider_event_id,verification_source,provider_payload_sha256,
+ currency,amount,effective_at,verified_at,verified_by
+) SELECT f.org,(f.result20->>'venta_id')::bigint,r.original_event_id,
+ 'BANK-REV-TEST-20261104','bank_fixture_ci',
+ gen_random_uuid()::text,'bank_api',repeat('a',64),'PEN',20,
+ now()-interval '10 seconds',now(),'dev-ci-verified-worker'
+ FROM _2db_fixture f CROSS JOIN _2dc_results r;
+SELECT ok(
+ pg_temp._2dc_rejected(
+  (SELECT org FROM _2db_fixture),
+  (SELECT (result20->>'venta_id')::bigint FROM _2db_fixture),
+  gen_random_uuid(),(SELECT original_event_id FROM _2dc_results),
+  now(),'BANK-REV-WRONG-20261104'),
+ 'attested payment cannot be reversed under a different bank reference');
 -- Trusted-backend-only call. Bank reference is illustrative, no bank transfer.
 UPDATE _2dc_results r SET reversed=private.financial_2dc_reverse_initial_transfer(
  (SELECT org FROM _2db_fixture),
@@ -228,5 +259,40 @@ SELECT ok(
   gen_random_uuid(),(SELECT original_event_id FROM _2dc_results),
   now(),'BANK-REV-TEST-20261104'),
  'no JWT actor cannot execute private initial reversal');
+-- Evidence is consumed once, without mutating the attestation.
+SELECT ok(
+ (SELECT count(*)=1 FROM private.financial_2df_bank_evidence_usages u
+ CROSS JOIN _2db_fixture f
+ WHERE u.organization_id=f.org AND u.venta_id=(f.result20->>'venta_id')::bigint),
+ 'bank attestation consumed exactly once');
+SELECT ok(
+ (SELECT count(*)=1 FROM private.financial_2df_bank_reversal_evidence e
+ CROSS JOIN _2db_fixture f
+ WHERE e.organization_id=f.org AND e.venta_id=(f.result20->>'venta_id')::bigint),
+ 'original immutable bank attestation retained');
+CREATE FUNCTION pg_temp._2df_evidence_mutation_rejected()
+RETURNS boolean LANGUAGE plpgsql AS $f$
+BEGIN
+ UPDATE private.financial_2df_bank_reversal_evidence
+ SET bank_reversal_ref='FORGED-REVERSAL-REFERENCE'
+ WHERE original_event_id=(SELECT original_event_id FROM _2dc_results);
+ RETURN false;
+EXCEPTION WHEN OTHERS THEN RETURN true;
+END $f$;
+SELECT ok(pg_temp._2df_evidence_mutation_rejected(),
+ 'trusted attestations cannot be silently rewritten');
+CREATE FUNCTION pg_temp._2df_consumption_mutation_rejected()
+RETURNS boolean LANGUAGE plpgsql AS $f$
+BEGIN
+ DELETE FROM private.financial_2df_bank_evidence_usages
+ WHERE organization_id=(SELECT org FROM _2db_fixture);
+ RETURN false;
+EXCEPTION WHEN OTHERS THEN RETURN true;
+END $f$;
+SELECT ok(pg_temp._2df_consumption_mutation_rejected(),
+ 'trusted consumption receipts cannot be silently deleted');
+SELECT ok((SELECT 'search_path=""'=ANY(p.proconfig)
+ FROM pg_proc p WHERE p.oid='public.fn_autoclasificar_tipo_doc_cliente()'::regprocedure),
+ 'customer document normalization trigger has immutable empty search_path');
 SELECT * FROM finish();
 ROLLBACK;
