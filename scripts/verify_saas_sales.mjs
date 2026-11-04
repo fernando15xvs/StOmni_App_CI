@@ -84,6 +84,20 @@ function verify(s, r, l, vr, dr) {
   need(errors,tenantNaturalKeys,/productos_organization_code_key/i,'2D-E preserve per-tenant product code gate');
   need(errors,tenantNaturalKeys,/DROP INDEX IF EXISTS public\.clientes_dni_ruc_unique/i,'2D-E drop unsafe global customer document gate');
   need(errors,tenantNaturalKeys,/clientes_organization_document_key/i,'2D-E preserve per-tenant customer document gate');
+  const bankProof = read('supabase/migrations/20261105023000_financial_2df_bank_reversal_evidence_gate.sql');
+  need(errors,bankProof,/CREATE TABLE private\.financial_2df_bank_reversal_evidence/i,'2D-F private bank evidence custody');
+  need(errors,bankProof,/CREATE TABLE private\.financial_2df_bank_evidence_usages/i,'2D-F one-time evidence consumption');
+  need(errors,bankProof,/ENABLE ROW LEVEL SECURITY/i,'2D-F RLS defense in depth');
+  need(errors,bankProof,/REVOKE ALL ON TABLE private\.financial_2df_bank_reversal_evidence[\s\S]*?FROM PUBLIC,anon,authenticated,service_role/i,'2D-F evidence never exposed to clients');
+  need(errors,bankProof,/REVOKE ALL ON TABLE private\.financial_2df_bank_evidence_usages[\s\S]*?FROM PUBLIC,anon,authenticated,service_role/i,'2D-F consumption receipts never exposed');
+  need(errors,bankProof,/CREATE OR REPLACE FUNCTION private\.financial_2dc_reverse_initial_transfer/i,'2D-F atomic initial reversal evidence gate');
+  need(errors,bankProof,/e\.original_event_id=p_original_event_id/i,'2D-F source payment binding');
+  need(errors,bankProof,/e\.amount=v_payment\.monto/i,'2D-F bank amount binding');
+  need(errors,bankProof,/e\.bank_reversal_ref=p_bank_reversal_ref/i,'2D-F bank reference binding');
+  need(errors,bankProof,/FOR UPDATE/i,'2D-F serialized evidence selection');
+  need(errors,bankProof,/INSERT INTO private\.financial_2df_bank_evidence_usages/i,'2D-F atomic one-time custody');
+  need(errors,bankProof,/BEFORE UPDATE OR DELETE ON private\.financial_2df_bank_reversal_evidence/i,'2D-F evidence immutability');
+  need(errors,bankProof,/ALTER FUNCTION public\.fn_autoclasificar_tipo_doc_cliente\(\)[\s\S]*?SET search_path = ''/i,'2D-F stable document classification search path');
   const domainTables = [
     'ventas','detalle_ventas','pagos_venta','cotizaciones','detalle_cotizaciones',
     'pagos_deuda_requests','ventas_requests_anulados',
