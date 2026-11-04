@@ -1,1 +1,1 @@
-CI validation 2D-B configured presentations and reversal. source 71ab41596f0a81c9cee6481bbf22874165a0a2e7 pgTAP 31 DEV checks; PGDG retry
+2D-C initial bank down-payment reversal guarded internal v2. original=071df2f473e2cf7534618ff5fd7eec4262dcedd9; pgTAP 20+21+10=51 DEV
