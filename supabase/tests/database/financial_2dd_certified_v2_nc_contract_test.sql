@@ -89,6 +89,17 @@ UPDATE _2dc_results r SET original_event_id=(
  AND op.tipo='apertura' AND ev.tipo='cobro' LIMIT 1
 );
 
+-- 2D-F verified evidence fixture is a database-only attestation of a
+-- synthetic bank event. It is NOT an actual banking API response.
+INSERT INTO private.financial_2df_bank_reversal_evidence(
+ organization_id,venta_id,original_event_id,bank_reversal_ref,
+ provider,provider_event_id,verification_source,provider_payload_sha256,
+ currency,amount,effective_at,verified_at,verified_by
+) SELECT f.org,(f.result20->>'venta_id')::bigint,r.original_event_id,
+ 'BANK-REV-TEST-20261104','bank_fixture_ci',gen_random_uuid()::text,
+ 'bank_api',repeat('a',64),'PEN',20,now()-interval '10 seconds',
+ now(),'dev-ci-verified-worker' FROM _2db_fixture f CROSS JOIN _2dc_results r;
+
 UPDATE _2dc_results r SET reversed=private.financial_2dc_reverse_initial_transfer(
  (SELECT org FROM _2db_fixture),
  (SELECT (result20->>'venta_id')::bigint FROM _2db_fixture),
