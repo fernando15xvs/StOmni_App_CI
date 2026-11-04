@@ -34,6 +34,20 @@ function mutated(source, regex, replacement, label) {
 
 function verify(s, r, l, vr, dr) {
   const errors = [];
+  // 2D-A: new credit RPC must remain tenant-scoped, exact, atomic and ticket-only.
+  const credit = read('supabase/migrations/20261104025000_financial_2d_credit_sale_v5.sql');
+  const creditRepo = ventasRepo();
+  need(errors, credit, /CREATE FUNCTION public\.process_sale_credit_v5\(/i, 'credit sale v5 explicit RPC');
+  need(errors, credit, /SECURITY DEFINER SET search_path='' SET "TimeZone"='UTC'/i, 'credit sale fixed search_path and UTC');
+  need(errors, credit, /public\.app_tiene_permiso\('sales\.create'\)/i, 'credit sale caller permission');
+  need(errors, credit, /private\.require_current_organization_id\(\)/i, 'credit sale derived tenant');
+  need(errors, credit, /private\.financial_2d_validate_terms/i, 'credit terms preflight');
+  need(errors, credit, /private\.financial_2c_audit_sale\(v_org,v_sale\)/i, 'atomic financial audit');
+  need(errors, credit, /'historico_auditado'/i, 'opening event historical certification');
+  need(errors, credit, /'ticket_interno'/i, 'fiscal credit remains disabled');
+  need(errors, credit, /GRANT EXECUTE ON FUNCTION public\.process_sale_credit_v5[\s\S]*?TO authenticated/i, 'authorized v5 RPC grant');
+  need(errors, creditRepo, /'p_credit_terms': creditTerms\.installments/i, 'creditTerms serialized to RPC');
+  need(errors, creditRepo, /_client\.rpc\('process_sale_credit_v5'/i, 'credit RPC explicit selection');
   const domainTables = [
     'ventas','detalle_ventas','pagos_venta','cotizaciones','detalle_cotizaciones',
     'pagos_deuda_requests','ventas_requests_anulados',
