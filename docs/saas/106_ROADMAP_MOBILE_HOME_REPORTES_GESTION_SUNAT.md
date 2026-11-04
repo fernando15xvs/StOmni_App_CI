@@ -1064,7 +1064,7 @@ No se realizará una refactorización visual de escritorio dentro de este bloque
 
 La ruta única es: fase 0 (decisiones) → fase 1 (consolidar base de navegación) → fase 2 (deuda/cuotas/cobros) → fase 3 (crédito completo) → fase 4 (ND integrada) → fase 5 (agregados) → fases 6–7 (Reportes) → fases 8–9 (Gestión SUNAT) → fases 10–11 (Inventario e Inicio) → fase 12 (navegación cruzada) → fase 13 (cierre visual) → fase 14 (regresión y QA).
 
-Próximo paso: continuar 2C6B (aplicación atómica de NC, cuotas y bajas con pruebas de concurrencia). La liquidación 2C5B-B depende de excedentes conciliados y fondos verificables. Mantener visible el pendiente de interacción de fase 1 y el contrato v5 de fase 2D; las entregas 2A–2C5B-A ya están documentadas arriba. No empezar por rediseñar Inicio ni habilitar crédito electrónico en UI.
+2C6B cerrado: aplicación atómica de NC, cuotas y bajas, CI 41711330018 7/7 y ocho carreras concurrentes aprobadas; aplicado y verificado en DEV. Próximo paso: 2C5B-B (reservas y liquidación de excedentes). La liquidación 2C5B-B depende de excedentes conciliados y fondos verificables. Mantener visible el pendiente de interacción de fase 1 y el contrato v5 de fase 2D; las entregas 2A–2C5B-A ya están documentadas arriba. No empezar por rediseñar Inicio ni habilitar crédito electrónico en UI.
 
 Actualizar la tabla de línea base y añadir evidencia al cierre de cada fase. Usar los estados pendiente, parcial, implementado y validado; implementado sin evidencia integrada no equivale a validado. Los requisitos fiscales solo se consideran verificados después de contrastar las especificaciones vigentes y probar su implementación.
 
