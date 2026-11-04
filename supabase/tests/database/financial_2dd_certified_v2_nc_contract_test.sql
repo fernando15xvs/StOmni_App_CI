@@ -4,7 +4,7 @@
 -- Only local/DEV, BEGIN...ROLLBACK; no production/customer records are read.
 BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
-SELECT plan(26);
+SELECT plan(32);
 CREATE TEMP TABLE _2db_fixture(
  org uuid,actor uuid,branch uuid,role_id uuid,
  employee_id bigint,customer_id bigint,product_id bigint,warehouse_id bigint,
@@ -274,5 +274,45 @@ SELECT ok((SELECT count(*)=1 FROM public.venta_cronogramas cr CROSS JOIN _2db_fi
  WHERE cr.organization_id=f.org AND cr.venta_id=(f.result20->>'venta_id')::bigint
  AND cr.version=2 AND cr.estado='vigente'),
  'baja retains one certified active v2 schedule');
+-- 2D-E: after a compensated NC/baja on certified v2, a new transfer
+-- must allocate and reverse against v2 while preserving immutable v1.
+CREATE TEMP TABLE _2de_followup(result jsonb,reversed jsonb,event_id uuid) ON COMMIT DROP;
+INSERT INTO _2de_followup DEFAULT VALUES;
+UPDATE _2de_followup SET result=private.financial_2c2_record_transfer_payment(
+ (SELECT org FROM _2db_fixture),
+ (SELECT (result20->>'venta_id')::bigint FROM _2db_fixture),
+ gen_random_uuid(),'PEN',20,clock_timestamp()
+);
+SELECT ok((SELECT (result->>'success')::boolean AND (result->>'saldo')::numeric=80
+ FROM _2de_followup),'after NC+baja new transfer reduces v2 balance to 80');
+SELECT ok((SELECT SUM(m.importe_asignado)=20
+ FROM public.venta_cuota_movimientos m
+ JOIN _2db_fixture f ON m.organization_id=f.org
+ WHERE m.venta_id=(f.result20->>'venta_id')::bigint AND m.tipo='cobro'),
+ 'follow-up transfer allocates 20 exactly to v2 installments');
+SELECT ok((SELECT (public.obtener_cronograma_credito_v1(
+ (result20->>'venta_id')::bigint)->>'saldo_pendiente')::numeric=80
+ FROM _2db_fixture),'reader returns canonical balance after NC+baja payment');
+UPDATE _2de_followup t SET event_id=(
+ SELECT ev.id FROM public.venta_eventos_financieros ev
+ WHERE ev.operacion_id=(t.result->>'operacion_id')::uuid AND ev.tipo='cobro' LIMIT 1
+);
+UPDATE _2de_followup t SET reversed=private.financial_2c5a_reverse_transfer_payment(
+ (SELECT org FROM _2db_fixture),
+ (SELECT (result20->>'venta_id')::bigint FROM _2db_fixture),
+ gen_random_uuid(),t.event_id,clock_timestamp()
+);
+SELECT ok((SELECT (reversed->>'success')::boolean
+ AND (reversed->>'saldo')::numeric=100 FROM _2de_followup),
+ 'v2 follow-up transfer reversal restores canonical 100');
+SELECT ok((SELECT a.apta_para_motor AND a.saldo_calculado=100
+ FROM private.financial_2c_audit_sale(
+  (SELECT org FROM _2db_fixture),
+  (SELECT (result20->>'venta_id')::bigint FROM _2db_fixture)) a),
+ 'after compensated NC and transferred reversal v2 passes audit');
+SELECT ok((SELECT SUM(importe_vigente)=80 FROM public.venta_cuotas
+ WHERE cronograma_id=(SELECT (reversed->>'previous_schedule_id')::uuid FROM _2dc_results)),
+ 'NC, baja and follow-up payments leave historical v1 untouched');
+
 SELECT * FROM finish();
 ROLLBACK;
