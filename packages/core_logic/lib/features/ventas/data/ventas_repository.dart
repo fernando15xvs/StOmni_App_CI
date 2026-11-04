@@ -42,13 +42,15 @@ class VentasRepository {
       (detail) => detail['unit_profile_revision'] != null,
     );
     if (creditTerms != null && !esCredito) {
-      throw ArgumentError('No se pueden enviar cuotas en una venta al contado.');
+      throw ArgumentError(
+        'No se pueden enviar cuotas en una venta al contado.',
+      );
     }
     final rpcLabel = creditTerms != null
         ? 'process_sale_credit_v5'
         : (usesConfiguredUnits
-            ? 'process_sale_with_units_v4'
-            : 'process_sale_v4');
+              ? 'process_sale_with_units_v4'
+              : 'process_sale_v4');
     final params = <String, dynamic>{
       'p_request_id': requestId,
       'p_cliente_id': clienteId,
@@ -68,15 +70,17 @@ class VentasRepository {
       'p_descuento_autorizado_por': descuentoAutorizadoPor,
       if (creditTerms != null)
         'p_credit_terms': creditTerms.installments
-            .map((installment) => <String, dynamic>{
-                  'number': installment.number,
-                  'amount': installment.amount,
-                  'due_date': DateTime(
-                    installment.dueDate.year,
-                    installment.dueDate.month,
-                    installment.dueDate.day,
-                  ).toIso8601String().substring(0, 10),
-                })
+            .map(
+              (installment) => <String, dynamic>{
+                'number': installment.number,
+                'amount': installment.amount,
+                'due_date': DateTime(
+                  installment.dueDate.year,
+                  installment.dueDate.month,
+                  installment.dueDate.day,
+                ).toIso8601String().substring(0, 10),
+              },
+            )
             .toList(growable: false),
     };
 
@@ -86,8 +90,11 @@ class VentasRepository {
       final result = creditTerms != null
           ? await _client.rpc('process_sale_credit_v5', params: params)
           : (usesConfiguredUnits
-              ? await _client.rpc('process_sale_with_units_v4', params: params)
-              : await _client.rpc('process_sale_v4', params: params));
+                ? await _client.rpc(
+                    'process_sale_with_units_v4',
+                    params: params,
+                  )
+                : await _client.rpc('process_sale_v4', params: params));
       if (result is Map<String, dynamic>) return result;
       if (result is Map) return Map<String, dynamic>.from(result);
       throw StateError('$rpcLabel devolvió una respuesta inválida.');
