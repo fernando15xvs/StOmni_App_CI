@@ -54,7 +54,7 @@ void main() {
         esCredito: true,
         totalAPagar: 20,
         montoAbono: 5,
-        payments: const [SalePayment(metodo: 'Efectivo', monto: 5)],
+        payments: const [SalePayment(metodo: 'Transferencia', monto: 5)],
         creditTerms: SaleCreditTerms.single(
           amount: 15,
           dueDate: DateTime(2026, 9, 30),
