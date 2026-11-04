@@ -415,3 +415,14 @@ BEGIN
   SET resultado_payload=v_result WHERE id=v_op AND organization_id=v_org AND venta_id=v_sale;
  RETURN v_result;
 END $function$;
+
+-- Redefinition does not widen execute privileges: explicit defense in depth.
+REVOKE ALL ON FUNCTION private.financial_nc_apply_transition()
+ FROM PUBLIC,anon,authenticated,service_role;
+REVOKE ALL ON FUNCTION private.financial_2c6a_preview_credit_note(uuid,bigint,uuid)
+ FROM PUBLIC,anon,authenticated,service_role;
+-- Preserve the one authenticated sale entrypoint, no anonymous/other grants.
+REVOKE ALL ON FUNCTION public.process_sale_credit_v5(uuid,bigint,numeric,timestamptz,boolean,numeric,jsonb,jsonb,bigint,bigint,text,numeric,numeric,text,numeric,bigint,jsonb)
+ FROM PUBLIC,anon,service_role;
+GRANT EXECUTE ON FUNCTION public.process_sale_credit_v5(uuid,bigint,numeric,timestamptz,boolean,numeric,jsonb,jsonb,bigint,bigint,text,numeric,numeric,text,numeric,bigint,jsonb)
+ TO authenticated;
