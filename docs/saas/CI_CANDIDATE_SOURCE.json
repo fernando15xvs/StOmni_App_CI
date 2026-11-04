@@ -1,15 +1,11 @@
 {
   "source_repository": "fernando15xvs/StOmni_App",
   "source_branch": "feature/saas-multitenant-foundation",
-  "source_sha": "64e2c89548b057996fa2687d9f3f67f45d4cd74d",
-  "synchronized_at_utc": "2026-11-03T18:26:04.595Z",
+  "source_sha": "1ad2f026ad641cb1aabd1e7c1d4172a193e4e14c",
+  "synchronized_at_utc": "2026-11-04T01:11:49.805Z",
   "sync_mode": "contents-api-mirror",
   "bootstrap_path": "supabase/migrations/20260822052116_bootstrap_public_schema.sql",
   "bootstrap_sha256_checkout": "c6421682c5a64ee026d864483315c32e6e814b595fa91dfde527699236ad31ed",
   "bootstrap_identity_kind": "canonical-git-lf",
-  "actions_trigger_requested": false,
-  "validated_source_sha": "8e0ca91f493d273c3eb7e8cb3d5634973a57333a",
-  "validated_ci_sha": "7bc3cc9276471469433b5230e80ec67712c8961c",
-  "validation_run_id": 41711330018,
-  "post_validation_changes": "Documentation and migration filename aligned with DEV; migration SQL unchanged."
+  "actions_trigger_requested": false
 }

@@ -241,6 +241,9 @@ jobs:
       - name: 2C6B NC payment baja concurrent transactions
         run: node scripts/run_financial_2c6b_concurrency_ci.mjs
 
+      - name: 2C5B refund reservation settlement and closure races
+        run: node scripts/run_financial_2c5b_concurrency_ci.mjs
+
       - name: T18 backup
         env:
           STOMNI_SAAS_BACKUP_DIR: .dart_tool/saas/backups/ci
