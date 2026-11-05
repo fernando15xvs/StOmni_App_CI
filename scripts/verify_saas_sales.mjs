@@ -98,6 +98,21 @@ function verify(s, r, l, vr, dr) {
   need(errors,bankProof,/INSERT INTO private\.financial_2df_bank_evidence_usages/i,'2D-F atomic one-time custody');
   need(errors,bankProof,/BEFORE UPDATE OR DELETE ON private\.financial_2df_bank_reversal_evidence/i,'2D-F evidence immutability');
   need(errors,bankProof,/ALTER FUNCTION public\.fn_autoclasificar_tipo_doc_cliente\(\)[\s\S]*?SET search_path = ''/i,'2D-F stable document classification search path');
+  const privilegedTenantAccess = read('supabase/migrations/20261105030000_security_2dg_tenant_scoped_user_role.sql');
+  need(errors,privilegedTenantAccess,/CREATE OR REPLACE FUNCTION public\.get_user_role\(\)/i,'2D-G privileged role RPC is tenant scoped');
+  need(errors,privilegedTenantAccess,/e\.organization_id=private\.current_organization_id\(\)/i,'2D-G legacy role requires active membership org');
+  need(errors,privilegedTenantAccess,/au\.user_id=auth\.uid\(\)/i,'2D-G identity derived from JWT');
+  need(errors,privilegedTenantAccess,/au\.status='active'/i,'2D-G active membership enforced');
+  need(errors,privilegedTenantAccess,/e\.employment_status='active'/i,'2D-G active employment enforced');
+  need(errors,privilegedTenantAccess,/REVOKE ALL ON FUNCTION public\.get_user_role\(\) FROM PUBLIC,anon,service_role/i,'2D-G restrict legacy definer to authenticated');
+  need(errors,privilegedTenantAccess,/CREATE OR REPLACE FUNCTION public\.app_tiene_permiso\(/i,'2D-G centralized permission engine hardened');
+  need(errors,privilegedTenantAccess,/COALESCE\(e\.activo,false\)=true/i,'2D-G deactivated employee cannot keep permissions');
+  need(errors,privilegedTenantAccess,/CREATE OR REPLACE FUNCTION public\.get_my_effective_permissions_v1\(/i,'2D-G effective permission reader hardened');
+  need(errors,privilegedTenantAccess,/CREATE OR REPLACE FUNCTION public\._gre_empleado_activo\(/i,'2D-G active employee helper hardened');
+  need(errors,privilegedTenantAccess,/CREATE OR REPLACE FUNCTION public\.obtener_tendencia_movimientos\(/i,'2D-G privileged movement trends hardened');
+  need(errors,privilegedTenantAccess,/m\.organization_id=private\.require_current_organization_id\(\)/i,'2D-G movement aggregates cannot mix tenants');
+  need(errors,privilegedTenantAccess,/CREATE OR REPLACE FUNCTION public\.resolve_sale_price_v1\(/i,'2D-G sale price resolver tenant check');
+  need(errors,privilegedTenantAccess,/private\.assert_product_in_current_organization\(p_product_id\)/i,'2D-G price resolver blocks foreign products');
   const domainTables = [
     'ventas','detalle_ventas','pagos_venta','cotizaciones','detalle_cotizaciones',
     'pagos_deuda_requests','ventas_requests_anulados',
