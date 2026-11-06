@@ -169,7 +169,22 @@ La regresión posterior a la migración pasó **681/681 comprobaciones en 31 arc
 
 **Pendiente de 2D-H.** Completar la revisión y evidencia RPC por RPC de las 101 funciones accesibles a usuarios autenticados, ampliando los casos positivos y negativos para las operaciones restantes. El conjunto anterior acredita las operaciones cubiertas. La identidad multiempresa sigue condicionada al rediseño conjunto descrito a continuación.
 
-**Preparación de identidades.** La PK de `app_users(user_id)` y la unicidad de `empleados(app_user_id)` son globales. Ya existe una FK compuesta de empleado a membresía. Tanto `private.current_organization_id()` como `private.current_base_role()` buscan por usuario activo sin selector de empresa. Antes de admitir una segunda membresía, resolver organización y rol sobre la misma membresía elegida, validar su vigencia en cada operación y cubrir dos sesiones simultáneas, revocación y clientes actuales de una sola empresa. Revisar también el vínculo heredado `empleados.auth_id` y las políticas RLS dependientes. La última migración registrada en DEV es `20261105201748`; la resolución de identidad aún requiere este rediseño.
+**2D-H — bloque de sucursales y cajas validado en DEV (2026-11-06, America/Lima).** Se corrigió una diferencia de errores de `update_cash_register_v1` que revelaba si una caja ajena tenía una sesión abierta. La migración `20261106014224_security_2dh_cash_register_tenant_preflight.sql` comprueba y bloquea primero la caja de la empresa actual, y filtra las sesiones por empresa. El contrato nuevo reproduce 1 fallo de 23 en la versión anterior y pasa 23/23 con la corrección.
+
+Candidato privado `7ca6ee50b00e94ef4f1abb44058044d1f08f1b59`, espejo `6f4bf584ce4afbd5afc707dc49129340ff22724b`. [CI 42145855852](https://github.com/fernando15xvs/StOmni_App_CI/actions/runs/42145855852), intento 1, **7/7 success**. El backend ejecutó 1.554 pruebas en 76 archivos en dos ciclos de reconstrucción, ambos aprobados, además de las pruebas E2E, concurrencia y restauración. La corrección se aplicó en DEV después del CI completo.
+
+La validación posterior al despliegue pasó **65/65 comprobaciones** en transacciones revertidas, con cero fallos y diagnósticos vacíos.
+
+| Archivo en `supabase/tests/database/` | Aprobadas |
+|---|---:|
+| `security_2dh_branch_cash_tenant_test.sql` | 23 |
+| `branches_tenant_contract_test.sql` | 16 |
+| `cash_registers_tenant_contract_test.sql` | 24 |
+| `security_2dh_definer_surface_contract_test.sql` | 2 |
+
+El código instalado coincide exactamente con el cuerpo de la función del candidato. Se alineó el registro de migración creado por el conector, `20261106105204`, con la versión canónica del archivo de GitHub, `20261106014224`, tras comprobar la identidad del código. El asesor de seguridad conserva las 101 advertencias de funciones autenticadas pendientes de revisión individual. La matriz [SECURITY_2DH_RPC_AUDIT.md](SECURITY_2DH_RPC_AUDIT.md) registra las firmas, la cobertura disponible y el trabajo restante. **2D-H sigue en curso** por las filas pendientes y la revisión de auxiliares.
+
+**Preparación de identidades.** La PK de `app_users(user_id)` y la unicidad de `empleados(app_user_id)` son globales. Ya existe una FK compuesta de empleado a membresía. Tanto `private.current_organization_id()` como `private.current_base_role()` buscan por usuario activo sin selector de empresa. Antes de admitir una segunda membresía, resolver organización y rol sobre la misma membresía elegida, validar su vigencia en cada operación y cubrir dos sesiones simultáneas, revocación y clientes actuales de una sola empresa. Revisar también el vínculo heredado `empleados.auth_id` y las políticas RLS dependientes. La última migración registrada en DEV es `20261106014224`; la resolución de identidad aún requiere este rediseño.
 
 Antes de construir estadísticas finales, unificar la forma en la que StOmni calcula cuánto debe realmente un cliente.
 

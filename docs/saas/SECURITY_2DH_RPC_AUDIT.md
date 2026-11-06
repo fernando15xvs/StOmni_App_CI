@@ -8,7 +8,9 @@ La columna de evidencia identifica pruebas de ejecución autenticada entre empre
 
 `update_cash_register_v1` consultaba las sesiones abiertas por identificador de caja antes de comprobar la empresa. Un administrador de A recibía `23514` si una caja de B tenía sesión abierta y `P0002` para una caja inexistente. La diferencia revelaba el estado de una caja ajena.
 
-La corrección selecciona y bloquea primero la caja de la empresa actual. La consulta de sesiones incluye explícitamente `organization_id`. El conjunto nuevo reproduce un fallo de 23 en la versión anterior y pasa 23/23 con la corrección temporal dentro de una transacción revertida. El despliegue persistente depende del CI del candidato.
+La corrección selecciona y bloquea primero la caja de la empresa actual. La consulta de sesiones incluye explícitamente `organization_id`. El conjunto nuevo reproduce un fallo de 23 en la versión anterior y pasa 23/23 con la corrección temporal dentro de una transacción revertida. El despliegue persistente se completó el 6 de noviembre de 2026 (America/Lima), después del [CI 42145855852](https://github.com/fernando15xvs/StOmni_App_CI/actions/runs/42145855852) con 7/7 trabajos aprobados. Candidato privado `7ca6ee50b00e94ef4f1abb44058044d1f08f1b59` y espejo `6f4bf584ce4afbd5afc707dc49129340ff22724b`. DEV registra la versión canónica `20261106014224`. Después de aplicar la migración pasaron 23/23 pruebas nuevas y 42/42 comprobaciones existentes de sucursales, cajas y superficie privilegiada. El cuerpo instalado coincide con el candidato.
+
+En la inspección común del inventario, las 101 funciones fijan `search_path`. Los roles `authenticated` y `anon` carecen de CREATE en el esquema `public`. Continúa pendiente la revisión individual de los cuerpos y sus auxiliares señalados en la matriz.
 
 ## Matriz de seguimiento
 
