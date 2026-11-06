@@ -56,6 +56,20 @@ INSERT INTO public.app_users(user_id,organization_id,status,base_role)
 SELECT x.actor_admin,f.org_a,'active','admin' FROM _refund_fixture x CROSS JOIN _fin2c2_f f
 UNION ALL SELECT x.actor_operator,f.org_a,'active','operador' FROM _refund_fixture x CROSS JOIN _fin2c2_f f
 UNION ALL SELECT x.actor_other,f.org_b,'active','admin' FROM _refund_fixture x CROSS JOIN _fin2c2_f f;
+-- Authenticated financial scenarios require a real active employee for each member.
+-- Membership-only fixtures must not bypass the 2D-H employment gate.
+CREATE TEMP TABLE _refund_branches(organization_id uuid PRIMARY KEY,branch_id uuid NOT NULL) ON COMMIT DROP;
+INSERT INTO _refund_branches(organization_id,branch_id)
+SELECT org_a,gen_random_uuid() FROM _fin2c2_f
+UNION ALL SELECT org_b,gen_random_uuid() FROM _fin2c2_f;
+INSERT INTO public.branches(id,organization_id,code,name,is_main,status)
+SELECT branch_id,organization_id,'MAIN','Financial fixture',true,'active' FROM _refund_branches;
+INSERT INTO public.empleados(organization_id,branch_id,auth_id,app_user_id,nombre,rol,activo,employment_status)
+SELECT au.organization_id,b.branch_id,au.user_id,au.user_id,
+       'Refund fixture employee',au.base_role,true,'active'
+FROM public.app_users au
+JOIN _refund_branches b ON b.organization_id=au.organization_id
+JOIN _refund_fixture f ON au.user_id IN (f.actor_admin,f.actor_operator,f.actor_other);
 SET LOCAL session_replication_role=origin;
 CREATE TEMP TABLE _nc_schedule(id uuid) ON COMMIT DROP;
 INSERT INTO _nc_schedule VALUES(gen_random_uuid());

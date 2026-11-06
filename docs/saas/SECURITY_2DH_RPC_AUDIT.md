@@ -28,6 +28,8 @@ Se revisaron siete RPC autenticadas de alertas, tareas y configuración: `acknow
 
 **Validación DEV:** `security_2dh_operational_alerts_and_active_employment_test.sql` pasó **41/41 pruebas reversibles**: dos empresas, roles admin/operador, consulta y modificaciones propias, identificadores ajenos, permisos insuficientes, ausencia de membresía, revisión optimista, tareas, refresh y denegación tras inactivar `activo` o `employment_status`. El código instalado de ambos helpers se verificó en Supabase DEV `iqooedpkihmzkmynsisl`, sin conservar fixtures. Pendiente certificar el nuevo candidato en GitHub Actions y completar el resto de las 101 firmas. Esta corrección no se aplicó a producción.
 
+**Regresión CI y fixtures financieros (2026-11-06).** La primera ejecución completa del espejo [42311123809](https://github.com/fernando15xvs/StOmni_App_CI/actions/runs/42311123809) encontró fallos en T04 por fixtures históricos que solo creaban `app_users` sin empleados activos, incompatibles con el gate 2D-H. Se corrigieron cinco contratos financieros: `financial_2c5b_cash_refund_contract_test.sql`, `financial_2c5b_internal_refund_case_contract_test.sql`, `financial_2c5b_refund_settlement_contract_test.sql`, `financial_2c6a_credit_note_preview_contract_test.sql`, `financial_2d_b_credit_schedule_reader_contract_test.sql`. Ahora los escenarios positivos crean sucursales y `empleados` activos por empresa; las operaciones de operador, usuario ajeno o sin JWT siguen siendo negativas. Se mantuvo la migración de autorización estricta, sin concesiones para identidades incompletas. La regresión corregida está pendiente de nueva ejecución CI.
+
 ## Matriz de seguimiento
 
 | Firma | Evidencia de comportamiento / siguiente revisión |

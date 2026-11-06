@@ -24,6 +24,17 @@ UNION ALL SELECT actor_b,'authenticated','authenticated' FROM _credit_fixture;
 INSERT INTO public.app_users(user_id,organization_id,status,base_role)
 SELECT actor_a,org_a,'active','admin' FROM _credit_fixture
 UNION ALL SELECT actor_b,org_b,'active','admin' FROM _credit_fixture;
+-- 2D-H: readers need active employee identities in addition to memberships.
+CREATE TEMP TABLE _credit_reader_branches(organization_id uuid,branch_id uuid) ON COMMIT DROP;
+INSERT INTO _credit_reader_branches
+SELECT org_a,gen_random_uuid() FROM _credit_fixture
+UNION ALL SELECT org_b,gen_random_uuid() FROM _credit_fixture;
+INSERT INTO public.branches(id,organization_id,code,name,is_main,status)
+SELECT branch_id,organization_id,'MAIN','Reader fixture',true,'active' FROM _credit_reader_branches;
+INSERT INTO public.empleados(organization_id,branch_id,auth_id,app_user_id,nombre,rol,activo,employment_status)
+SELECT au.organization_id,b.branch_id,au.user_id,au.user_id,'Reader fixture employee','admin',true,'active'
+FROM public.app_users au JOIN _credit_reader_branches b ON b.organization_id=au.organization_id
+JOIN _credit_fixture f ON au.user_id IN (f.actor_a,f.actor_b);
 INSERT INTO public.ventas(id,organization_id,total,saldo,estado,fecha,monto_notas_credito,fue_credito)
 SELECT sale_a,org_a,100,60,'pendiente',now()-interval '1 day',0,true FROM _credit_fixture
 UNION ALL SELECT sale_b,org_b,50,50,'pendiente',now()-interval '1 day',0,true FROM _credit_fixture;
