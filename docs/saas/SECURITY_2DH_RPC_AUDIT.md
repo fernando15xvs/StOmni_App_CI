@@ -12,6 +12,14 @@ La corrección selecciona y bloquea primero la caja de la empresa actual. La con
 
 En la inspección común del inventario, las 101 funciones fijan `search_path`. Los roles `authenticated` y `anon` carecen de CREATE en el esquema `public`. Continúa pendiente la revisión individual de los cuerpos y sus auxiliares señalados en la matriz.
 
+## Catálogo, variantes y precios
+
+El 6 de noviembre de 2026 se revisaron nueve puntos de entrada de paquetes, tipos de catálogo, variantes y reglas de precios. El contrato `security_2dh_catalog_operations_test.sql` pasó **57/57 comprobaciones en DEV** dentro de una transacción revertida. Cubre lecturas y escrituras entre empresas, listados filtrados, administrador y operador, ausencia de membresía, creación y modificación válidas, borrado local y conservación de datos de la empresa ajena.
+
+La sustitución de componentes con un lote mixto rechaza el componente ajeno mediante `private.validate_bundle_component` y revierte la eliminación previa de la composición original. Las variantes validan cada miembro antes de entrar al escritor heredado. Las reglas de precios validan tanto el producto como la regla existente. Los siete auxiliares públicos heredados y de serialización revisados carecen de EXECUTE para `anon` y `authenticated`; el contrato comprueba ese límite de acceso.
+
+Este bloque añade pruebas y evidencia de las rutas revisadas. La validación del candidato en CI queda pendiente al momento de este commit. La matriz conserva pendientes las demás firmas.
+
 ## Matriz de seguimiento
 
 | Firma | Evidencia de comportamiento / siguiente revisión |
@@ -35,8 +43,8 @@ En la inspección común del inventario, las 101 funciones fijan `search_path`. 
 | `create_purchase_order_v1(uuid,bigint,bigint,timestamp with time zone,timestamp with time zone,text,jsonb)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
 | `create_role_v1(text,text,text[])` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
 | `deactivate_service_v1(bigint)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
-| `delete_product_variant_group_v1(bigint)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
-| `delete_sale_price_rule_v1(bigint)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
+| `delete_product_variant_group_v1(bigint)` | Cuerpo y auxiliares revisados para aislamiento y permisos. Casos de ejecución en `security_2dh_catalog_operations_test.sql` (57 aserciones en conjunto). |
+| `delete_sale_price_rule_v1(bigint)` | Cuerpo y auxiliares revisados para aislamiento y permisos. Casos de ejecución en `security_2dh_catalog_operations_test.sql` (57 aserciones en conjunto). |
 | `eliminar_borrador_guia_v1(uuid)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
 | `eliminar_cotizacion_v2(bigint)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
 | `eliminar_gasto_v1(bigint)` | Casos incluidos en las pruebas 2D-H de operaciones entre empresas o empleo fiscal. Completar revisión de rutas restantes. |
@@ -45,7 +53,7 @@ En la inspección común del inventario, las 101 funciones fijan `search_path`. 
 | `eliminar_pago_venta_v1(bigint,bigint)` | Casos incluidos en las pruebas 2D-H de operaciones entre empresas o empleo fiscal. Completar revisión de rutas restantes. |
 | `eliminar_producto_seguro_v1(bigint)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
 | `evaluar_eliminacion_producto_v1(bigint)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
-| `get_bundle_components_v1(bigint)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
+| `get_bundle_components_v1(bigint)` | Cuerpo y auxiliares revisados para aislamiento y permisos. Casos de ejecución en `security_2dh_catalog_operations_test.sql` (57 aserciones en conjunto). |
 | `get_business_assistant_context_v1(text,integer,uuid,integer)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
 | `get_business_assistant_settings_v1()` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
 | `get_business_profile_v1()` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
@@ -72,10 +80,10 @@ En la inspección común del inventario, las 101 funciones fijan `search_path`. 
 | `list_business_metrics_v1()` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
 | `list_custom_field_definitions_v1(text,boolean)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
 | `list_operational_alerts_v1(text,integer)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
-| `list_product_variant_groups_v1()` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
+| `list_product_variant_groups_v1()` | Cuerpo y auxiliares revisados para aislamiento y permisos. Casos de ejecución en `security_2dh_catalog_operations_test.sql` (57 aserciones en conjunto). |
 | `list_purchase_orders_v1(text,integer)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
 | `list_recent_observability_errors_v1(integer)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
-| `list_sale_price_rules_v1()` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
+| `list_sale_price_rules_v1()` | Cuerpo y auxiliares revisados para aislamiento y permisos. Casos de ejecución en `security_2dh_catalog_operations_test.sql` (57 aserciones en conjunto). |
 | `list_services_v1(boolean)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
 | `list_subscription_plans_v1()` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
 | `listar_documentos_electronicos_v1(timestamp with time zone,timestamp with time zone,integer,integer)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
@@ -97,11 +105,11 @@ En la inspección común del inventario, las 101 funciones fijan `search_path`. 
 | `save_business_metrics_v1(jsonb)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
 | `save_product_traceability_config_v1(bigint,bigint,text,boolean)` | Casos incluidos en las pruebas 2D-H de operaciones entre empresas o empleo fiscal. Completar revisión de rutas restantes. |
 | `save_product_unit_profile_v6(bigint,bigint,jsonb)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
-| `save_product_variant_group_v1(bigint,text,jsonb,jsonb)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
-| `save_sale_price_rule_v1(bigint,text,bigint,text,numeric,numeric,numeric,integer,timestamp with time zone,timestamp with time zone,boolean)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
+| `save_product_variant_group_v1(bigint,text,jsonb,jsonb)` | Cuerpo y auxiliares revisados para aislamiento y permisos. Casos de ejecución en `security_2dh_catalog_operations_test.sql` (57 aserciones en conjunto). |
+| `save_sale_price_rule_v1(bigint,text,bigint,text,numeric,numeric,numeric,integer,timestamp with time zone,timestamp with time zone,boolean)` | Cuerpo y auxiliares revisados para aislamiento y permisos. Casos de ejecución en `security_2dh_catalog_operations_test.sql` (57 aserciones en conjunto). |
 | `save_service_v1(bigint,text,text,text,numeric,numeric)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
-| `set_bundle_components_v1(bigint,jsonb)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
-| `set_catalog_item_type_v1(bigint,text)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
+| `set_bundle_components_v1(bigint,jsonb)` | Cuerpo y auxiliares revisados para aislamiento y permisos. Casos de ejecución en `security_2dh_catalog_operations_test.sql` (57 aserciones en conjunto). |
+| `set_catalog_item_type_v1(bigint,text)` | Cuerpo y auxiliares revisados para aislamiento y permisos. Casos de ejecución en `security_2dh_catalog_operations_test.sql` (57 aserciones en conjunto). |
 | `set_default_cash_register_v1(uuid)` | Cuerpo revisado y casos incluidos en `security_2dh_branch_cash_tenant_test.sql` (23 aserciones en conjunto). |
 | `set_employee_roles_v1(bigint,uuid[])` | Casos incluidos en las pruebas 2D-H de operaciones entre empresas o empleo fiscal. Completar revisión de rutas restantes. |
 | `set_entity_custom_fields_v1(text,bigint,jsonb)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
