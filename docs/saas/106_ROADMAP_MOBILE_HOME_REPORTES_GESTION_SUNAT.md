@@ -126,9 +126,50 @@ Conservar ReportesInitialContext y sus pruebas: pestaña, filtro financiero, per
 
 **2D-G cerrado técnicamente en desarrollo (2026-11-04):** auditoría de 101 RPC con `SECURITY DEFINER` ejecutables por usuarios autenticados y corrección de tres riesgos concretos: rol cruzado de `get_user_role`, movimientos financieros interempresa en `obtener_tendencia_movimientos` y resolución de precios ajenos en `resolve_sale_price_v1`. `app_tiene_permiso`, `get_my_effective_permissions_v1` y `_gre_empleado_activo` requieren simultáneamente `activo=true` y `employment_status='active'`. Migración `20261105030000` **aplicada exclusivamente en Supabase DEV**, con **150/150 pruebas reversibles** (19 nuevas de seguridad, 131 financieras y catálogo). [CI 41941086791](https://github.com/fernando15xvs/StOmni_App_CI/actions/runs/41941086791) **7/7 SUCCESS**; se normalizaron finales CRLF del SQL del primer candidato que causaron error del control de dependencias Android. Auditoría posterior confirma que no quedaron datos sintéticos. **Pendiente:** revisión RPC por RPC de las 101 advertencias, rediseño completo de identidad multiempresa, validación externa bancaria y SUNAT crédito; sin cambios en producción. Documento 108 §32.
 
-**2D-H en curso (2026-11-05, DEV).** Se versionó el contrato pgTAP `security_2dh_definer_surface_contract_test.sql`. El catálogo contiene 218 rutinas privilegiadas en `public`; 101 permiten ejecución a `authenticated` y 0 a `anon`. El contrato detecta nuevos permisos anónimos y firmas autenticadas adicionales, incluidas sobrecargas, y permite retirar acceso. Pasaron 2/2 aserciones en DEV y [los siete trabajos de CI](https://github.com/fernando15xvs/StOmni_App_CI/actions/runs/42098818623) para el candidato privado `59069522`. En una transacción independiente, seis llamadas autenticadas sin membresía devolvieron `42501` (resumen de tablero, caja chica, perfiles de unidades, permisos de empleado, vencimiento de cotizaciones y traslado de stock). Estas pruebas cubren ausencia de membresía; sigue pendiente verificar operaciones entre dos empresas con usuarios válidos y permisos distintos.
+**2D-H en curso — bloque de aislamiento y empleo validado en DEV (2026-11-05, America/Lima).** El candidato privado `c27519f62159c4dabafcb9c9530613c14bef5857` corresponde al espejo `93bfd1c81e591ad72a75face4d888ef1f5c614ef`. [CI 42102264203](https://github.com/fernando15xvs/StOmni_App_CI/actions/runs/42102264203), intento 2, terminó con sus siete trabajos en `success`. La migración `20261105201748_security_2dh_active_employment_fiscal_void.sql` está registrada en Supabase DEV `iqooedpkihmzkmynsisl`. La baja tributaria exige un administrador con empleo activo y rechaza al administrador terminado incluso cuando conserva `activo=true`, antes de validar el documento.
 
-**Preparación de identidades.** La PK de `app_users(user_id)` y la unicidad de `empleados(app_user_id)` son globales. Ya existe una FK compuesta de empleado a membresía. Tanto `private.current_organization_id()` como `private.current_base_role()` buscan por usuario activo sin selector de empresa. Antes de admitir una segunda membresía, resolver organización y rol sobre la misma membresía elegida, validar su vigencia en cada operación y cubrir dos sesiones simultáneas, revocación y clientes actuales de una sola empresa. Revisar también el vínculo heredado `empleados.auth_id` y las políticas RLS dependientes. Sigue vigente la migración `20261105030000`.
+Las pruebas de aislamiento entre dos empresas válidas pasaron **29/29**, con administrador y operador de permisos distintos, identificadores cruzados, lotes mixtos, catálogo, permisos, pagos, gastos y traslado de stock. Las cuatro pruebas de empleo fiscal pasaron **4/4**. El contrato de superficie privilegiada pasó **2/2**. La lectura posterior del catálogo confirmó 218 rutinas privilegiadas en `public`, 101 ejecutables por `authenticated` y cero por `anon`.
+
+La regresión posterior a la migración pasó **681/681 comprobaciones en 31 archivos**, obtenidos del SHA privado indicado. Cada archivo se ejecutó en una transacción con `ROLLBACK`. Para recuperar el resultado por el conector se resumió la salida final de pgTAP con `finish()`, `num_failed()` y `_get('curr_test')`; los contratos con aserciones que lanzan excepciones se resumieron contando su tabla temporal de comprobaciones. Los 27 contratos pgTAP devolvieron cero fallos y diagnósticos vacíos. Los cuatro restantes completaron todas sus aserciones. Una confirmación caducada del conector se reintentó satisfactoriamente antes de continuar.
+
+| Contrato en `supabase/tests/database/` | Aprobadas |
+|---|---:|
+| `catalog_tenant_contract_test.sql` | 24 |
+| `debt_payment_v2_contract_test.sql` | 17 |
+| `financial_2a_tenant_ledger_contract_test.sql` | 27 |
+| `financial_2b_guarded_legacy_opening_contract_test.sql` | 22 |
+| `financial_2b_reconciliation_preview_contract_test.sql` | 15 |
+| `financial_2c2_atomic_transfer_writer_contract_test.sql` | 33 |
+| `financial_2c3_cash_permission_preflight_contract_test.sql` | 26 |
+| `financial_2c3b_atomic_cash_writer_contract_test.sql` | 31 |
+| `financial_2c4_atomic_installment_allocation_contract_test.sql` | 31 |
+| `financial_2c4_cash_installment_integration_test.sql` | 14 |
+| `financial_2c5a_cash_reversal_guard_contract_test.sql` | 14 |
+| `financial_2c5a_full_transfer_reversal_contract_test.sql` | 29 |
+| `financial_2c5b_cash_refund_contract_test.sql` | 17 |
+| `financial_2c5b_internal_refund_case_contract_test.sql` | 23 |
+| `financial_2c5b_refund_settlement_contract_test.sql` | 32 |
+| `financial_2c6a_credit_note_preview_contract_test.sql` | 32 |
+| `financial_2c6b_atomic_credit_note_contract_test.sql` | 36 |
+| `financial_2c6b_batch_baja_contract_test.sql` | 5 |
+| `financial_2c_strict_ledger_preflight_contract_test.sql` | 26 |
+| `financial_2d_b_credit_sale_e2e_contract_test.sql` | 21 |
+| `financial_2d_b_credit_schedule_reader_contract_test.sql` | 10 |
+| `financial_2d_credit_sale_v5_contract_test.sql` | 23 |
+| `financial_2dc_initial_downpayment_reversal_contract_test.sql` | 28 |
+| `financial_2dd_certified_v2_nc_contract_test.sql` | 32 |
+| `financial_2de_customer_document_tenant_uniqueness_contract_test.sql` | 7 |
+| `financial_2de_product_tenant_uniqueness_contract_test.sql` | 10 |
+| `fiscal_tenant_contract_test.sql` | 42 |
+| `security_2dg_tenant_scoped_user_role_contract_test.sql` | 19 |
+| `security_2dh_cross_tenant_operations_test.sql` | 29 |
+| `security_2dh_definer_surface_contract_test.sql` | 2 |
+| `security_2dh_fiscal_void_employment_test.sql` | 4 |
+| **Total** | **681** |
+
+**Pendiente de 2D-H.** Completar la revisión y evidencia RPC por RPC de las 101 funciones accesibles a usuarios autenticados, ampliando los casos positivos y negativos para las operaciones restantes. El conjunto anterior acredita las operaciones cubiertas. La identidad multiempresa sigue condicionada al rediseño conjunto descrito a continuación.
+
+**Preparación de identidades.** La PK de `app_users(user_id)` y la unicidad de `empleados(app_user_id)` son globales. Ya existe una FK compuesta de empleado a membresía. Tanto `private.current_organization_id()` como `private.current_base_role()` buscan por usuario activo sin selector de empresa. Antes de admitir una segunda membresía, resolver organización y rol sobre la misma membresía elegida, validar su vigencia en cada operación y cubrir dos sesiones simultáneas, revocación y clientes actuales de una sola empresa. Revisar también el vínculo heredado `empleados.auth_id` y las políticas RLS dependientes. La última migración registrada en DEV es `20261105201748`; la resolución de identidad aún requiere este rediseño.
 
 Antes de construir estadísticas finales, unificar la forma en la que StOmni calcula cuánto debe realmente un cliente.
 
@@ -1082,7 +1123,7 @@ No se realizará una refactorización visual de escritorio dentro de este bloque
 
 La ruta única es: fase 0 (decisiones) → fase 1 (consolidar base de navegación) → fase 2 (deuda/cuotas/cobros) → fase 3 (crédito completo) → fase 4 (ND integrada) → fase 5 (agregados) → fases 6–7 (Reportes) → fases 8–9 (Gestión SUNAT) → fases 10–11 (Inventario e Inicio) → fase 12 (navegación cruzada) → fase 13 (cierre visual) → fase 14 (regresión y QA).
 
-2C6B y 2C5B-B cerrados y desplegados en DEV (CI 41711330018 y 41752361125, ambos 7/7). 2D-A implementado, probado en CI 41766118344 (7/7), migración v5 desplegada en DEV. **Próximo paso: 2D-B**, lectura protegida de cronogramas y E2E positivo de venta a crédito con inventario, abono y cuotas, antes de habilitar en producto; resolver la revisión de SECURITY DEFINER. Sigue pendiente la prueba de navegación de fase 1. No empezar por rediseñar Inicio ni habilitar crédito electrónico SUNAT en UI.
+2C6B, 2C5B-B y los bloques 2D-A a 2D-G tienen evidencia registrada en sus apartados. El bloque de aislamiento y empleo de **2D-H** quedó validado en DEV con 681/681 comprobaciones y CI 42102264203 (7/7) para el candidato privado `c27519f6`. **Próximo paso dentro de 2D-H** — completar la matriz de revisión y pruebas RPC por RPC de la superficie autenticada, partiendo de las 101 firmas del contrato de seguridad y de las operaciones ya cubiertas. Después corresponde resolver la membresía seleccionada y su rol de forma conjunta antes de habilitar identidades multiempresa. Continúan pendientes la navegación de fase 1, la integración bancaria externa y la validación SUNAT de crédito según sus respectivos criterios.
 
 Actualizar la tabla de línea base y añadir evidencia al cierre de cada fase. Usar los estados pendiente, parcial, implementado y validado; implementado sin evidencia integrada no equivale a validado. Los requisitos fiscales solo se consideran verificados después de contrastar las especificaciones vigentes y probar su implementación.
 
