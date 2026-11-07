@@ -17,7 +17,11 @@ const fixture=contract.slice(0,contract.indexOf('SELECT pg_temp.check_rf'));
 const ncContract=fs.readFileSync('supabase/tests/database/financial_2c6b_atomic_credit_note_contract_test.sql','utf8');
 const bajaFixture=ncContract.slice(ncContract.indexOf('CREATE TEMP TABLE _baja'),ncContract.indexOf('SELECT public.tributario_finalizar_proceso'));
 const cashContract=fs.readFileSync('supabase/tests/database/financial_2c5b_cash_refund_contract_test.sql','utf8');
-const cashFixture=cashContract.slice(cashContract.indexOf('CREATE TEMP TABLE _rf_cash'),cashContract.indexOf('UPDATE _rf SET reservation_id'));
+// The shared refund fixture already adds a MAIN branch per tenant. The cash-specific
+// branch is a secondary one; otherwise the partial unique MAIN index rejects the race.
+const cashFixture=cashContract.slice(cashContract.indexOf('CREATE TEMP TABLE _rf_cash'),cashContract.indexOf('UPDATE _rf SET reservation_id'))
+  .replace("c.branch,f.org_a,'RFC','Refund test',true,'active'",
+           "c.branch,f.org_a,'RFC','Refund test',false,'active'");
 const fixtures=[]; const evidence=[];
 function prepare(index,{held=false,cash=false,two=false}={}) {
  let q=fixture.replaceAll('-840030001',String(-860000001-index*2)).replaceAll('-840030002',String(-860000002-index*2));
