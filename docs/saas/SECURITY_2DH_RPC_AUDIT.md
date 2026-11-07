@@ -48,6 +48,12 @@ Se corrigieron las políticas `organizations_select_current` y `app_users_select
 
 **Compatibilidad de seguridad:** `20261107162850_security_2dh_preserve_revoked_guard_semantics.sql` mantiene `private.require_current_organization_id()` como `VOLATILE` para respetar la evaluación del contexto de sesión; `_gre_empleado_activo()` devuelve `false` con empleo revocado, sin lanzar excepción; la baja fiscal conserva su denegación explícita y consulta el contexto estricto solo después del permiso. Los contratos `db_lint_hardening`, `security_2dg_tenant_scoped_user_role` y `security_2dh_fiscal_void_employment` pasaron **28/28** en DEV tras aplicar la migración.
 
+## Taxonomía comprobable de las 101 firmas (7 de noviembre de 2026)
+
+La inspección de los **cuerpos instalados en DEV**, no solo de los nombres, clasifica la superficie ejecutable por `authenticated` en **75** RPC con `private.require_current_organization_id()` (ahora empleo activo requerido), **20** con comprobación directa de permiso o `private.assert_*`, **4** de identidad/autoservicio basadas en estado y `auth.uid()`, **1** envoltorio `trasladar_stock` delegado a `trasladar_stock_v2` y **1** catálogo público de planes, filtrado por `status='active'` e `is_public`. El contrato `security_2dh_privileged_guard_classification_test.sql` aprobó **11/11** en DEV. También comprueba `search_path` fijo, que no hay CREATE para usuarios cliente en `public`, helper estricto y delegación de traslado.
+
+Esta taxonomía y el smoke de 202 llamadas detectan expansiones o pérdida de barreras. **No prueban aún** los payloads válidos y casos de empresa ajena, empleo revocado, lote mixto y permisos de cada firma individual; las entradas pendientes de la matriz permanecen abiertas hasta contar con esas evidencias.
+
 ## Matriz de seguimiento
 
 | Firma | Evidencia de comportamiento / siguiente revisión |
