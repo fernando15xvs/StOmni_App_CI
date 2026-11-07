@@ -1,2 +1,2 @@
-2D-H employment + direct metadata RLS + signup state safe revocation
-source_sha=82dab19c5340f791abd7d452206d53bd60b364de
+2D-H final candidate including guard taxonomy, RLS revocation and full backend
+source_sha=5cc44e38a0301a8b6afdc5e7eacf757af3abab79
