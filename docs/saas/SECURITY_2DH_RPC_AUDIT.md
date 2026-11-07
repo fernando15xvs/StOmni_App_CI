@@ -40,6 +40,14 @@ Se detectó que `private.require_current_organization_id()` solo exigía una mem
 
 **RLS de estado de cuenta:** `public.organizations` y la membresía propia en `public.app_users` siguen visibles por políticas heredadas basadas en `private.current_organization_id()` aunque el empleado esté inactivo. No se modificaron estas políticas sin definir primero la compatibilidad del onboarding ni la transición a membresía multiempresa; [issue #7](https://github.com/fernando15xvs/StOmni_App/issues/7). Las RPC operativas siguen protegidas. Mantener 2D-H abierta hasta cerrar este análisis y los cuerpos pendientes.
 
+## Revocación RLS directa y contrato de sesión (7 de noviembre de 2026)
+
+Se corrigieron las políticas `organizations_select_current` y `app_users_select_current_tenant` para exigir `private.has_permission('tenant.read') IS TRUE` además de la organización seleccionada, evitando que un antiguo trabajador con membresía `app_users` residual pueda leer filas de la organización y su propia membresía directamente mediante PostgREST. La RPC `get_organization_signup_state_v1` conserva el estado `attached` para administradores activos y para el período transitorio de bootstrap, pero devuelve `access_revoked` sin nombre ni ID de organización al detectarse empleo terminado o membresía desactivada. Flutter reconoce el nuevo estado sin conceder acceso ni alta de empresa.
+
+**DEV verificado:** `20261107163200_security_2dh_revoke_direct_tenant_metadata.sql` desplegada en DEV, `security_2dh_account_state_rls_test.sql` **12/12** aserciones A/B/alta pendiente, sin efectos persistentes. Un alta sintética real de `create_my_organization_v1` bajo rol `authenticated` confirmó: alta creada, ficha laboral activa, políticas RLS legibles para el propietario, `get_my_tenant_context_v1` operativo y estado `attached`; todo revertido con `ROLLBACK`. Corresponde cerrar el hallazgo de metadatos RLS de la issue #7 tras certificar CI.
+
+**Compatibilidad de seguridad:** `20261107162850_security_2dh_preserve_revoked_guard_semantics.sql` mantiene `private.require_current_organization_id()` como `VOLATILE` para respetar la evaluación del contexto de sesión; `_gre_empleado_activo()` devuelve `false` con empleo revocado, sin lanzar excepción; la baja fiscal conserva su denegación explícita y consulta el contexto estricto solo después del permiso. Los contratos `db_lint_hardening`, `security_2dg_tenant_scoped_user_role` y `security_2dh_fiscal_void_employment` pasaron **28/28** en DEV tras aplicar la migración.
+
 ## Matriz de seguimiento
 
 | Firma | Evidencia de comportamiento / siguiente revisión |

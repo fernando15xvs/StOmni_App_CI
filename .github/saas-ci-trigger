@@ -1,2 +1,2 @@
-2D-H active organization context, 101-RPC probe, concurrency fixture fix
-source_sha=1c6d7035327f443d79c6d988fbd7ed1874720e38
+2D-H employment + direct metadata RLS + signup state safe revocation
+source_sha=82dab19c5340f791abd7d452206d53bd60b364de

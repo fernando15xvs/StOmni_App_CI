@@ -1,6 +1,7 @@
 enum OrganizationSignupStateKind {
   eligible,
   attached,
+  accessRevoked,
   legacyIdentityRequiresMigration,
 }
 
@@ -26,6 +27,7 @@ class OrganizationSignupState {
     final kind = switch (rawState) {
       'eligible' => OrganizationSignupStateKind.eligible,
       'attached' => OrganizationSignupStateKind.attached,
+      'access_revoked' => OrganizationSignupStateKind.accessRevoked,
       'legacy_identity_requires_migration' =>
         OrganizationSignupStateKind.legacyIdentityRequiresMigration,
       _ => throw FormatException(
