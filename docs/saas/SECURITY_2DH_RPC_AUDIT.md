@@ -70,6 +70,12 @@ Al revisar la ruta de inscripción se detectó un caso distinto de un empleado s
 
 La suite complementaria de lectores `security_2dh_reader_rpc_real_bootstrap_test.sql` pasó **19/19**; siete suites afectadas sumaron **176/176** en DEV tras la migración y cuatro suites de contrato adicionales **52/52**. A partir de esta evidencia, la matriz registra **27 firmas con revisión individual, 39 con cobertura parcial y 35 pendientes** de las 101 firmadas. El CI integral previo `42392621594` estaba 7/7 verde, pero **no incluye los cambios de 9 de noviembre**. La rama debe pasar CI otra vez antes de cerrar 2D-H; la fase no se declara cerrada todavía.
 
+## Mutaciones de gestión y onboarding con alta real (9 de noviembre de 2026)
+
+El contrato `security_2dh_management_real_bootstrap_test.sql` pasó **32/32** en Supabase DEV. Crea dos organizaciones por el RPC de usuario real; ambos propietarios crean sucursales secundarias, cajas y roles con permiso de producto. Se comprueba la asociación de cada sucursal, caja, rol y permiso a su organización, que una caja no puede apuntar a sucursal ajena, y que un operador no puede crear sucursales/cajas/roles ni completar onboarding. El administrador A completa las etapas `business_profile → modules → operations → review`, y se valida secuencia, estado, incremento de revisión, conflicto de revisión caducada y reintento idempotente. A y B no pueden registrar una segunda empresa desde la misma cuenta (23505). Todo en `BEGIN...ROLLBACK`.
+
+Se examinaron además los cuerpos de `create_branch_v1`, `create_cash_register_v1`, `create_role_v1`, `complete_my_onboarding_step_v1`, `create_my_organization_v1` y el auxiliar `bootstrap_organization_v1`, incluido el bloqueo de `auth.users`, controles de identidad y asignaciones server-side. Las cinco firmas pasan a revisión individual documentada. La matriz ahora contiene **32 revisadas / 39 parciales / 30 pendientes**. Este avance no significa que las 69 firmas restantes estén certificadas ni reemplaza el nuevo CI integral.
+
 ## Matriz de seguimiento
 
 | Firma | Evidencia de comportamiento / siguiente revisión |
@@ -83,15 +89,15 @@ La suite complementaria de lectores `security_2dh_reader_rpc_real_bootstrap_test
 | `anular_venta_v2(bigint,text)` | Casos incluidos en las pruebas 2D-H de operaciones entre empresas o empleo fiscal. Completar revisión de rutas restantes. |
 | `app_tiene_permiso(text)` | Revisión individual: permisos activos, empleado activo, roles propios y override dentro de la organización seleccionada. Contratos `security_2dg_tenant_scoped_user_role_contract_test.sql` (19) y `security_2dh_cross_tenant_operations_test.sql` (29). |
 | `cancel_purchase_order_v1(bigint,text)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
-| `complete_my_onboarding_step_v1(bigint,text)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
+| `complete_my_onboarding_step_v1(bigint,text)` | Revisión individual: tenant.admin, secuencia estricta, revisión optimista y fuentes propias. Alta real A completa las cuatro etapas, reintento idempotente, revisión obsoleta 40001, salto inválido 22023 y operador denegado (`security_2dh_management_real_bootstrap_test.sql`, 32). |
 | `crear_nota_credito_with_units_v3(uuid,uuid,text,text,jsonb,numeric,boolean,timestamp with time zone)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
 | `crear_producto_con_stock(uuid,jsonb,jsonb)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
-| `create_branch_v1(text,text,text)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
-| `create_cash_register_v1(uuid,text,text)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
-| `create_my_organization_v1(text,text,text,text,text)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
+| `create_branch_v1(text,text,text)` | Revisión individual: require_current_organization_id + tenant.admin y creación de sucursal solo con organization_id del servidor. Altas reales A/B, acceso RLS propio y rechazo del operador en `security_2dh_management_real_bootstrap_test.sql` (32 pruebas conjuntas). |
+| `create_cash_register_v1(uuid,text,text)` | Revisión individual: exige tenant.admin, verifica sucursal activa y propia y escribe caja con organization_id del servidor. Altas A/B, sucursal ajena rechazada P0002, operador denegado 42501 (`security_2dh_management_real_bootstrap_test.sql`, 32). |
+| `create_my_organization_v1(text,text,text,text,text)` | Revisión individual: bootstrap_organization_v1 bloquea auth.users por usuario y niega membresía existente o identidad laboral heredada; alta atómica de empresa, membresía, administrador y Starter. Dos empresas de propietarios distintos, prohibido duplicar alta A/B con 23505 (`security_2dh_management_real_bootstrap_test.sql`, 32), más contratos de signup (21) y lectores (19). |
 | `create_operational_task_v1(text,text,timestamp with time zone,text)` | Cuerpo, pertenencia y auxiliares revisados. Pruebas de ejecución autenticada en `security_2dh_operational_alerts_and_active_employment_test.sql` (41 aserciones compartidas), incluido rechazo por empleo inactivo. |
 | `create_purchase_order_v1(uuid,bigint,bigint,timestamp with time zone,timestamp with time zone,text,jsonb)` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
-| `create_role_v1(text,text,text[])` | Pendiente de revisión individual y de vincular pruebas positivas y negativas. |
+| `create_role_v1(text,text,text[])` | Revisión individual: creación de rol por tenant, solo permisos activos y filas role_permissions enlazadas a organización; mismo código en A/B sin colisión, operador denegado (`security_2dh_management_real_bootstrap_test.sql`, 32). |
 | `deactivate_service_v1(bigint)` | Cobertura parcial: Alta A/B: cancelación de servicio ajeno rechazada antes del escritor heredado. Ejecutado en `security_2dh_catalog_operations_test.sql` (71 aserciones globales). Pendiente: casos positivos completos, datos extranjeros o auxiliares internos. |
 | `delete_product_variant_group_v1(bigint)` | Cuerpo y auxiliares revisados para aislamiento y permisos. Casos de ejecución en `security_2dh_catalog_operations_test.sql` (57 aserciones en conjunto). |
 | `delete_sale_price_rule_v1(bigint)` | Cuerpo y auxiliares revisados para aislamiento y permisos. Casos de ejecución en `security_2dh_catalog_operations_test.sql` (57 aserciones en conjunto). |
