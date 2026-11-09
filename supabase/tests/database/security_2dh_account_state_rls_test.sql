@@ -3,7 +3,7 @@
 BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET LOCAL search_path=public,extensions,pg_catalog;
-SELECT plan(12);
+SELECT plan(14);
 CREATE TEMP TABLE actors ON COMMIT DROP AS
  SELECT label,gen_random_uuid() org,gen_random_uuid() actor,gen_random_uuid() branch
  FROM (VALUES ('A'),('B'),('C')) x(label);
@@ -34,8 +34,10 @@ SELECT ok((public.get_organization_signup_state_v1()->>'organization_id') IS NUL
 SELECT ok((public.get_organization_signup_state_v1() ? 'display_name') IS FALSE,'Revoked state redacts organization name');
 SELECT throws_ok($q$SELECT private.require_current_organization_id()$q$,'42501',NULL,'Revoked employee cannot access privileged context');
 SELECT set_config('request.jwt.claim.sub',(SELECT actor::text FROM actors WHERE label='C'),true);
-SELECT is((SELECT count(*)::int FROM public.app_users),0,'Pre-employee bootstrap does not expose membership table');
-SELECT is((public.get_organization_signup_state_v1()->>'state'),'attached','Pre-employee bootstrap account-state remains readable');
+SELECT is((SELECT count(*)::int FROM public.app_users),0,'Orphan membership does not bypass direct RLS');
+SELECT is((public.get_organization_signup_state_v1()->>'state'),'access_revoked','Orphan app_users membership is not an authorized tenant identity');
+SELECT ok((public.get_organization_signup_state_v1()->>'organization_id') IS NULL,'Orphan membership cannot obtain tenant ID');
+SELECT ok((public.get_organization_signup_state_v1() ? 'display_name') IS FALSE,'Orphan membership cannot obtain tenant name');
 SELECT set_config('request.jwt.claim.sub',gen_random_uuid()::text,true);
 SELECT is((public.get_organization_signup_state_v1()->>'state'),'eligible','Fresh user can create a business');
 RESET ROLE;

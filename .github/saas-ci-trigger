@@ -1,2 +1,2 @@
-2D-H final candidate including guard taxonomy, RLS revocation and full backend
-source_sha=5cc44e38a0301a8b6afdc5e7eacf757af3abab79
+2D-H reader RPC bootstrap, catalog negative cases and orphan membership RLS
+source_sha=175d2411b903e7aa87170fd594fcc3f9e40a4693

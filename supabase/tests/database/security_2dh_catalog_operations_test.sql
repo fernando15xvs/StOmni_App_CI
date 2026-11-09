@@ -2,7 +2,7 @@
 BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET LOCAL search_path = public, extensions, pg_catalog;
-SELECT plan(57);
+SELECT plan(71);
 
 CREATE TEMP TABLE actors ON COMMIT DROP AS
 SELECT label, base_role, employee_id, product_id, gen_random_uuid() AS org,
@@ -47,6 +47,8 @@ INSERT INTO public.sale_price_rules(id,organization_id,name,product_id,fixed_pri
 SELECT product_id,org,'Fixture price',product_id,8 FROM actors;
 INSERT INTO public.bundle_components(organization_id,bundle_product_id,component_product_id,quantity)
 SELECT org,product_id+20,product_id,1 FROM actors;
+INSERT INTO public.almacenes(id,organization_id,branch_id,nombre)
+SELECT product_id,org,branch,'2DH fixture warehouse' FROM actors;
 SET LOCAL session_replication_role = origin;
 SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claim.sub',(SELECT actor::text FROM actors WHERE label='A'),true);
@@ -118,5 +120,29 @@ SELECT lives_ok($q$SELECT public.save_sale_price_rule_v1(NULL,'Created price',84
 RESET ROLE;
 SELECT ok((SELECT count(*)=1 FROM public.product_variant_groups WHERE organization_id=(SELECT org FROM actors WHERE label='A') AND name='Created variants'),'Created variant group belongs to A');
 SELECT ok((SELECT count(*)=1 FROM public.sale_price_rules WHERE organization_id=(SELECT org FROM actors WHERE label='A') AND name='Created price' AND product_id=840180401),'Created price rule belongs to A');
+
+-- 2D-H: additional cross-tenant ownership and operator permission preflight.
+-- Stock and service helpers must reject the foreign product before any mutation.
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub',(SELECT actor::text FROM actors WHERE label='A'),true);
+SELECT throws_ok($q$SELECT public.deactivate_service_v1(840180402)$q$,'P0002',NULL,'Foreign service deactivation blocked');
+SELECT throws_ok($q$SELECT public.save_product_unit_profile_v6(840180402,0,'{}')$q$,'P0002',NULL,'Foreign unit profile write blocked');
+SELECT throws_ok($q$SELECT public.evaluar_eliminacion_producto_v1(840180402)$q$,'P0002',NULL,'Foreign product deletion preview blocked');
+SELECT throws_ok($q$SELECT public.eliminar_producto_seguro_v1(840180402)$q$,'P0002',NULL,'Foreign product deletion blocked');
+SELECT throws_ok($q$SELECT public.ajustar_stock_scaled_v2(840180402,840180401,1,'INGRESO','fixture')$q$,'P0002',NULL,'Foreign stock adjustment blocked');
+SELECT throws_ok($q$SELECT public.registrar_merma_scaled_v4(gen_random_uuid(),840180402,840180401,1,'fixture')$q$,'P0002',NULL,'Foreign stock waste blocked');
+SELECT throws_ok($q$SELECT public.trasladar_stock(840180402,840180401,840180402,1,'fixture','Unidad')$q$,'P0002',NULL,'Legacy stock transfer blocks foreign product');
+SELECT throws_ok($q$SELECT public.resolve_sale_price_v1(840180402,'unidad',1,now())$q$,'P0002',NULL,'Foreign sale price resolver blocked');
+SELECT throws_ok($q$SELECT public.save_service_v1(840180402,'SV-A','Service','Fixture',10,0)$q$,'P0002',NULL,'Foreign service writer blocked');
+SELECT set_config('request.jwt.claim.sub',(SELECT actor::text FROM actors WHERE label='B'),true);
+SELECT throws_ok($q$SELECT public.eliminar_producto_seguro_v1(840180402)$q$,'42501',NULL,'Operator denied product deletion');
+SELECT throws_ok($q$SELECT public.evaluar_eliminacion_producto_v1(840180402)$q$,'42501',NULL,'Operator denied product deletion preview');
+SELECT throws_ok($q$SELECT public.ajustar_stock_scaled_v2(840180402,840180402,1,'INGRESO','operator')$q$,'42501',NULL,'Operator denied stock adjustment');
+SELECT throws_ok($q$SELECT public.save_product_unit_profile_v6(840180401,0,'{}')$q$,'P0002',NULL,'Operator cannot write A unit profile');
+RESET ROLE;
+SELECT ok(
+ (SELECT count(*)=2 FROM public.productos WHERE id IN (840180401,840180402) AND activo),
+ 'Foreign and operator mutations retain both product rows'
+);
 SELECT * FROM finish();
 ROLLBACK;
