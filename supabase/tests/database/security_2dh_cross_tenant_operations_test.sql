@@ -2,7 +2,7 @@
 BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET LOCAL search_path = public, extensions, pg_catalog;
-SELECT plan(29);
+SELECT plan(43);
 
 CREATE TEMP TABLE actors ON COMMIT DROP AS
 SELECT label, base_role, employee_id, product_id, gen_random_uuid() AS org,
@@ -115,5 +115,57 @@ SELECT ok((SELECT count(*)=2 FROM public.ventas v JOIN actors a ON (v.organizati
 SELECT ok((SELECT count(*)=2 FROM public.pagos_venta p JOIN actors a ON (p.organization_id,p.id,p.venta_id)=(a.org,a.product_id,a.product_id) WHERE p.monto=25.10)
       AND (SELECT count(*)=2 FROM public.pagos_gasto p JOIN actors a ON (p.organization_id,p.id,p.gasto_id)=(a.org,a.product_id,a.product_id) WHERE p.monto=25.10),
   'Both tenants retain their original sale and expense payments');
+-- 2D-H quotation-idempotency replay: two genuinely authorized admins,
+-- distinct tenant resources, and duplicate request UUID in both writers.
+SET LOCAL session_replication_role=replica;
+INSERT INTO public.clientes(id,organization_id,nombre)
+SELECT product_id+100,org,'Quotation customer '||label FROM actors;
+UPDATE public.productos SET tipo_venta='CAJA_UNIDADES',cantidad_por_caja=1,codigo='QUOTE-'||id::text
+WHERE id IN (840170401,840170402);
+UPDATE public.app_users SET base_role='admin'
+WHERE organization_id=(SELECT org FROM actors WHERE label='B');
+UPDATE public.empleados SET rol='admin'
+WHERE organization_id=(SELECT org FROM actors WHERE label='B');
+UPDATE public.roles SET code='admin'
+WHERE organization_id=(SELECT org FROM actors WHERE label='B');
+SET LOCAL session_replication_role=origin;
+CREATE TEMP TABLE _quote_requests(label text,req uuid,quote bigint) ON COMMIT DROP;
+INSERT INTO _quote_requests(label,req)
+SELECT label,gen_random_uuid() FROM actors;
+GRANT SELECT,UPDATE ON _quote_requests TO authenticated;
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub',(SELECT actor::text FROM actors WHERE label='A'),true);
+UPDATE _quote_requests SET quote=(public.guardar_cotizacion_v2(req,840170501,20,now(),'Quote A',15,'[{"producto_id":840170401,"almacen_id":840170401,"cantidad":2,"tipo_unidad":"unidad","subtotal":20,"precio_unitario_comercial":10,"precio_unitario":10,"piezas_reales":2}]')->>'cotizacion_id')::bigint
+WHERE label='A';
+SELECT ok((SELECT quote FROM _quote_requests WHERE label='A') IS NOT NULL,'A creates valid own quotation');
+SELECT is((public.guardar_cotizacion_v2((SELECT req FROM _quote_requests WHERE label='A'),840170501,20,now(),'A own replay',15,'[{"producto_id":840170401,"almacen_id":840170401,"cantidad":2,"tipo_unidad":"unidad","subtotal":20,"precio_unitario_comercial":10,"precio_unitario":10,"piezas_reales":2}]')->>'cotizacion_id')::bigint,
+ (SELECT quote FROM _quote_requests WHERE label='A'),'A standard idempotent replay remains valid');
+SELECT is((public.guardar_cotizacion_with_units_v2((SELECT req FROM _quote_requests WHERE label='A'),840170501,20,now(),'A units replay',15,'[{"producto_id":840170401,"almacen_id":840170401,"cantidad":2,"tipo_unidad":"unidad","subtotal":20,"precio_unitario_comercial":10,"precio_unitario":10,"piezas_reales":2}]')->>'cotizacion_id')::bigint,
+ (SELECT quote FROM _quote_requests WHERE label='A'),'A units idempotent replay remains valid');
+SELECT set_config('request.jwt.claim.sub',(SELECT actor::text FROM actors WHERE label='B'),true);
+SELECT throws_ok($q$SELECT public.guardar_cotizacion_v2((SELECT req FROM _quote_requests WHERE label='A'),840170502,20,now(),'B collision',15,'[{"producto_id":840170402,"almacen_id":840170402,"cantidad":2,"tipo_unidad":"unidad","subtotal":20,"precio_unitario_comercial":10,"precio_unitario":10,"piezas_reales":2}]')$q$,
+ '23505','request_id belongs to another organization','B cannot replay A quote through standard writer');
+SELECT throws_ok($q$SELECT public.guardar_cotizacion_with_units_v2((SELECT req FROM _quote_requests WHERE label='A'),840170502,20,now(),'B units collision',15,'[{"producto_id":840170402,"almacen_id":840170402,"cantidad":2,"tipo_unidad":"unidad","subtotal":20,"precio_unitario_comercial":10,"precio_unitario":10,"piezas_reales":2}]')$q$,
+ '23505','request_id belongs to another organization','B cannot replay A quote through units writer');
+UPDATE _quote_requests SET quote=(public.guardar_cotizacion_with_units_v2(req,840170502,20,now(),'B own quote',15,'[{"producto_id":840170402,"almacen_id":840170402,"cantidad":2,"tipo_unidad":"unidad","subtotal":20,"precio_unitario_comercial":10,"precio_unitario":10,"piezas_reales":2}]')->>'cotizacion_id')::bigint
+WHERE label='B';
+SELECT ok((SELECT quote FROM _quote_requests WHERE label='B') IS NOT NULL,'B writes its own quote with a different UUID');
+SELECT is((public.guardar_cotizacion_v2((SELECT req FROM _quote_requests WHERE label='B'),840170502,20,now(),'B replay',15,'[{"producto_id":840170402,"almacen_id":840170402,"cantidad":2,"tipo_unidad":"unidad","subtotal":20,"precio_unitario_comercial":10,"precio_unitario":10,"piezas_reales":2}]')->>'cotizacion_id')::bigint,
+ (SELECT quote FROM _quote_requests WHERE label='B'),'B own replay remains valid');
+SELECT throws_ok($q$SELECT public.eliminar_cotizacion_v2((SELECT quote FROM _quote_requests WHERE label='A'))$q$,
+ 'P0002',NULL,'B cannot delete A quotation');
+SELECT set_config('request.jwt.claim.sub',(SELECT actor::text FROM actors WHERE label='A'),true);
+SELECT throws_ok($q$SELECT public.eliminar_cotizacion_v2((SELECT quote FROM _quote_requests WHERE label='B'))$q$,
+ 'P0002',NULL,'A cannot delete B quotation');
+SELECT throws_ok($q$SELECT public.guardar_cotizacion_v2(gen_random_uuid(),840170502,20,now(),'Foreign client',15,'[{"producto_id":840170401,"almacen_id":840170401,"cantidad":2,"tipo_unidad":"unidad","subtotal":20,"precio_unitario_comercial":10,"precio_unitario":10,"piezas_reales":2}]')$q$,
+ 'P0002',NULL,'A cannot quote B customer');
+SELECT throws_ok($q$SELECT public.guardar_cotizacion_v2(gen_random_uuid(),840170501,20,now(),'Foreign product',15,'[{"producto_id":840170402,"almacen_id":840170402,"cantidad":2,"tipo_unidad":"unidad","subtotal":20,"precio_unitario_comercial":10,"precio_unitario":10,"piezas_reales":2}]')$q$,
+ 'P0002',NULL,'A cannot use B product/warehouse');
+SELECT ok((public.eliminar_cotizacion_v2((SELECT quote FROM _quote_requests WHERE label='A'))->>'success')::boolean,'A can delete its own pending quote');
+RESET ROLE;
+SELECT ok(NOT EXISTS(SELECT 1 FROM public.cotizaciones c WHERE c.id=(SELECT quote FROM _quote_requests WHERE label='A')),
+ 'Own quotation deletion removes only A header');
+SELECT ok(EXISTS(SELECT 1 FROM public.cotizaciones c WHERE c.id=(SELECT quote FROM _quote_requests WHERE label='B')),
+ 'B quotation survives cross-tenant attempts');
 SELECT * FROM finish();
 ROLLBACK;

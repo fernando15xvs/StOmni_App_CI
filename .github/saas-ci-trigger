@@ -1,2 +1,2 @@
-2D-H real tenant mutation report checks 25 assertions, audit 35/41/25
-source_sha=17172cce8dec0b986acef1fee87718f7e7ccf955
+2D-H critical quotation idempotency cross-tenant replay fix and 43 tests
+source_sha=7b783c02170b08260a5f69af1d28ca23b7713b1e
