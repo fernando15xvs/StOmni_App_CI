@@ -90,6 +90,8 @@ Se reprodujo una **fuga real de metadatos de cotización**: el usuario administr
 
 **Regresión:** `security_2dh_cross_tenant_operations_test.sql` pasó de 29 a **43/43** aserciones y verifica escritura real en A/B, repetición de UUID propio, rechazo de UUID ajeno en ambos wrappers, cliente/producto/almacén ajeno, eliminación propia, prohibición de eliminar ajena y conservación de datos de B. Después de desplegar la migración, **210/210** aserciones de siete suites relacionadas pasaron en DEV. Se cerró la auditoría individual de tres firmas nuevas. **Estado: 38 firmas revisadas / 41 parciales / 22 pendientes de 101**. Este cambio necesita CI del candidato que lo contiene; el anterior verde no sirve para certificarlo.
 
+**Compatibilidad CI para las 25 comprobaciones de mutaciones (2026-11-09).** La ejecución `42722807243` falló al ejecutar `security_2dh_tenant_mutations_reporting_test.sql` porque las 25 aserciones pgTAP se insertaban en una tabla temporal y no aparecían como líneas TAP para `pg_prove` (plan 25, salida 0). El test pasó **25/25** en DEV antes y después de cambiar `INSERT INTO _checks SELECT` por `SELECT` ordinario. La causa era exclusivamente el formato de salida del fixture CI, no un fallo del guard de seguridad ni de las 25 aserciones. Se sincroniza otra vez el espejo y se solicita una certificación íntegra.
+
 ## Matriz de seguimiento
 
 | Firma | Evidencia de comportamiento / siguiente revisión |

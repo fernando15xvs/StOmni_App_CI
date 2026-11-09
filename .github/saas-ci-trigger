@@ -1,2 +1,2 @@
-2D-H critical quotation idempotency cross-tenant replay fix and 43 tests
-source_sha=7b783c02170b08260a5f69af1d28ca23b7713b1e
+2D-H quote idempotency fixed and 25 pgTAP tests emitted to harness
+source_sha=10c3c2e83d89bc74b907a958992f9076b126f076
