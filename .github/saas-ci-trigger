@@ -1,2 +1,2 @@
-2D-H 100 authenticated purchase+assistant+custom_fields tests, audit trigger fix
-source_sha=ea41402682c50d1cb86ca0b5e29a07304c7fcf8d
+2D-H 32 more A/B expense, inventory, GRE draft checks; 266/266 DEV regression
+source_sha=0cd21f1ee1923510ee176da24652858a3de46aa6
