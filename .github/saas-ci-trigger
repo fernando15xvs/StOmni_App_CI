@@ -1,2 +1,2 @@
-2D-H 32 more A/B expense, inventory, GRE draft checks; 266/266 DEV regression
-source_sha=0cd21f1ee1923510ee176da24652858a3de46aa6
+2D-H test coverage 59/42/0; 5 new SQL suites, 2 migrations for inventory traceability and fiscal NC
+source_sha=684baffe2bec817c63b262d6ae6b65ecefed4a0f
