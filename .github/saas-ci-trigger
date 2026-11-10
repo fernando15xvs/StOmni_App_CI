@@ -1,2 +1,2 @@
-2D-H test coverage 59/42/0; 5 new SQL suites, 2 migrations for inventory traceability and fiscal NC
-source_sha=684baffe2bec817c63b262d6ae6b65ecefed4a0f
+2D-H: normalize SQL migration LF endings; rerun full CI
+source_sha=e9abf8eb226c0f3840dfa13e51af4bec21894c06
