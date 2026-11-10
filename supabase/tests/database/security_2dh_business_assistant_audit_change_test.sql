@@ -1,0 +1,56 @@
+-- 2D-H: audit event contract for business assistant configuration.
+-- Two live self-service tenant bootstraps; fully reversible and independent.
+BEGIN;
+CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
+SET LOCAL search_path=public,extensions,pg_catalog;
+SELECT plan(19);
+CREATE TEMP TABLE _actor(label text,uid uuid,org uuid) ON COMMIT DROP;
+INSERT INTO _actor(label,uid) SELECT label,gen_random_uuid() FROM (VALUES('A'),('B')) x(label);
+GRANT SELECT,UPDATE ON _actor TO authenticated;
+SET LOCAL session_replication_role=replica;
+INSERT INTO auth.users(id,aud,role,email,email_confirmed_at)
+SELECT uid,'authenticated','authenticated','assistant-2dh-'||uid::text||'@example.invalid',now() FROM _actor;
+SET LOCAL session_replication_role=origin;
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub',(SELECT uid::text FROM _actor WHERE label='A'),true);
+UPDATE _actor SET org=(public.create_my_organization_v1('Assistant A','PE','PEN','America/Lima')->>'organization_id')::uuid WHERE label='A';
+SELECT set_config('request.jwt.claim.sub',(SELECT uid::text FROM _actor WHERE label='B'),true);
+UPDATE _actor SET org=(public.create_my_organization_v1('Assistant B','PE','PEN','America/Lima')->>'organization_id')::uuid WHERE label='B';
+SELECT set_config('request.jwt.claim.sub',(SELECT uid::text FROM _actor WHERE label='A'),true);
+SELECT is((public.get_business_assistant_settings_v1()->>'revision')::bigint,1::bigint,'A starts with revision 1');
+SELECT is((public.update_business_assistant_settings_v1(1,false,7,14)->>'revision')::bigint,2::bigint,'A can change disabled assistant settings');
+SELECT is((public.get_business_assistant_settings_v1()->>'max_result_items')::integer,7,'A retains updated limit');
+SELECT is((public.get_business_assistant_settings_v1()->>'default_period_days')::integer,14,'A retains updated period');
+SELECT throws_ok($q$SELECT public.update_business_assistant_settings_v1(1,false,7,14)$q$,'40001',NULL,'A stale revision rejected');
+SELECT throws_ok($q$SELECT public.update_business_assistant_settings_v1(2,false,0,14)$q$,'22023',NULL,'A invalid assistant limit rejected');
+SELECT set_config('request.jwt.claim.sub',(SELECT uid::text FROM _actor WHERE label='B'),true);
+SELECT is((public.get_business_assistant_settings_v1()->>'revision')::bigint,1::bigint,'B settings unaffected by A');
+SELECT is((public.update_business_assistant_settings_v1(1,false,9,21)->>'revision')::bigint,2::bigint,'B changes own assistant settings');
+SELECT is((public.get_business_assistant_settings_v1()->>'max_result_items')::integer,9,'B has separate updated limit');
+SELECT throws_ok($q$SELECT public.update_business_assistant_settings_v1(1,false,9,21)$q$,'40001',NULL,'B stale revision rejected');
+RESET ROLE;
+SELECT is((SELECT count(*)::integer FROM public.audit_logs l JOIN _actor a ON a.org=l.organization_id WHERE l.action='assistant.settings.updated'),2,'Exactly two assistant settings audit events');
+SELECT ok((SELECT bool_and(l.source_table='business_assistant_settings' AND l.source_operation='UPDATE' AND l.entity_type='business_assistant_settings' AND l.action='assistant.settings.updated') FROM public.audit_logs l JOIN _actor a ON a.org=l.organization_id WHERE l.action='assistant.settings.updated'),'Audit source table and operation are valid');
+SELECT ok((SELECT bool_and(l.actor_user_id=a.uid) FROM public.audit_logs l JOIN _actor a ON a.org=l.organization_id WHERE l.action='assistant.settings.updated'),'Both events retain correct actor within own organization');
+SELECT ok((SELECT bool_and(l.metadata->'old'->>'revision'='1' AND l.metadata->'new'->>'revision'='2') FROM public.audit_logs l JOIN _actor a ON a.org=l.organization_id WHERE l.action='assistant.settings.updated'),'Audit logs preserve old and new revisions');
+SELECT ok((SELECT bool_and(l.entity_id=a.org::text) FROM public.audit_logs l JOIN _actor a ON a.org=l.organization_id WHERE l.action='assistant.settings.updated'),'Audit entity identifier is the organization');
+SET LOCAL session_replication_role=replica;
+UPDATE public.app_users SET base_role='operador' WHERE user_id=(SELECT uid FROM _actor WHERE label='B');
+UPDATE public.empleados SET rol='operador' WHERE auth_id=(SELECT uid FROM _actor WHERE label='B');
+SET LOCAL session_replication_role=origin;
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub',(SELECT uid::text FROM _actor WHERE label='B'),true);
+SELECT throws_ok($q$SELECT public.update_business_assistant_settings_v1(2,false,8,20)$q$,'42501',NULL,'Operator cannot configure assistant');
+SELECT is((public.get_business_assistant_settings_v1()->>'max_result_items')::integer,9,'Operator cannot alter existing configuration');
+RESET ROLE;
+SET LOCAL session_replication_role=replica;
+UPDATE public.empleados SET activo=false,employment_status='inactive'
+WHERE organization_id=(SELECT org FROM _actor WHERE label='A');
+SET LOCAL session_replication_role=origin;
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub',(SELECT uid::text FROM _actor WHERE label='A'),true);
+SELECT throws_ok($q$SELECT public.update_business_assistant_settings_v1(2,false,10,30)$q$,'42501',NULL,'Revoked A cannot configure assistant');
+SELECT throws_ok($q$SELECT public.get_business_assistant_settings_v1()$q$,'42501',NULL,'Revoked A cannot read assistant settings');
+RESET ROLE;
+SELECT * FROM finish();
+ROLLBACK;

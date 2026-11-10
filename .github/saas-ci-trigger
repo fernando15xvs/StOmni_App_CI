@@ -1,2 +1,2 @@
-2D-H quote idempotency fixed and 25 pgTAP tests emitted to harness
-source_sha=10c3c2e83d89bc74b907a958992f9076b126f076
+2D-H 100 authenticated purchase+assistant+custom_fields tests, audit trigger fix
+source_sha=ea41402682c50d1cb86ca0b5e29a07304c7fcf8d
