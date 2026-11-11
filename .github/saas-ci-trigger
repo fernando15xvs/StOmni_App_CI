@@ -1,2 +1,2 @@
-2D-H: closed cash sale payment guard; 21 new A/B tests, 170 financial regressions, audit 65/36/0
-source_sha=86e8d607197683e88a53f85c42da4d27558a073a
+2D-H: 97 individually audited, four partial; 214 new A/B DEV assertions; composite FK product deletion fixed.
+source_sha=2cd89c96221a830f2d37fe45a3044153a9d7fcf1
