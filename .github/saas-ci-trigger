@@ -1,2 +1,2 @@
-2D-I1 operational atomic membership context bridge; DEV migration and tests.
-source_sha=cd76c597c3121a3779d509ef10e26659110095c5
+2D-I1 validated 7/7; I2 staged indexes and selected audit guard with 21 new assertions.
+source_sha=67ef286632b93c3fa7f7e09d699f649cd95d6ac2
