@@ -50,14 +50,14 @@ SELECT is(private.current_base_role(),'admin','A resolves admin role from same m
 SELECT is(public.get_user_role(),'admin','A employee role also admin');
 SELECT is(private.require_current_organization_id(),(SELECT org FROM _reader_owner WHERE label='A'),'A require-current-org checks active employment');
 SELECT set_config('request.headers',jsonb_build_object('x-stomni-organization-id',(SELECT org FROM _reader_owner WHERE label='B'),'x-stomni-role','admin')::text,true);
-SELECT is(private.current_organization_id(),(SELECT org FROM _reader_owner WHERE label='A'),'A cannot change org by forged B header');
-SELECT is(private.current_base_role(),'admin','A role comes from server-side member row, not header');
-SELECT is((public.get_business_profile_v1()->>'organization_id')::uuid,(SELECT org FROM _reader_owner WHERE label='A'),'A remains confined to A profile on forged B header');
+SELECT is(private.current_organization_id(),NULL::uuid,'A foreign organization selector fails closed');
+SELECT is(private.current_base_role(),NULL::text,'A forged B selector cannot recover a base role');
+SELECT throws_ok($q$SELECT public.get_business_profile_v1()$q$,'42501',NULL,'A forged B selector cannot read any tenant profile');
 SELECT set_config('request.jwt.claim.sub',(SELECT uid FROM _reader_owner WHERE label='B')::text,true);
 SELECT set_config('request.headers',jsonb_build_object('x-stomni-organization-id',(SELECT org FROM _reader_owner WHERE label='A'),'x-stomni-role','admin')::text,true);
-SELECT is(private.current_organization_id(),(SELECT org FROM _reader_owner WHERE label='B'),'B cannot change org by forged A header');
-SELECT is(private.current_base_role(),'admin','B initially admin via B member row');
-SELECT is((public.get_my_subscription_v1()->>'organization_id')::uuid,(SELECT org FROM _reader_owner WHERE label='B'),'B subscription always B despite A header');
+SELECT is(private.current_organization_id(),NULL::uuid,'B foreign organization selector fails closed');
+SELECT is(private.current_base_role(),NULL::text,'B cannot use own role with foreign selector');
+SELECT throws_ok($q$SELECT public.get_my_subscription_v1()$q$,'42501',NULL,'B cannot read subscription with foreign selector');
 RESET ROLE;
 SET LOCAL session_replication_role=replica;
 UPDATE public.app_users SET base_role='operador' WHERE user_id=(SELECT uid FROM _reader_owner WHERE label='B');
@@ -66,6 +66,7 @@ DELETE FROM public.employee_roles WHERE organization_id=(SELECT org FROM _reader
 SET LOCAL session_replication_role=origin;
 SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claim.sub',(SELECT uid FROM _reader_owner WHERE label='B')::text,true);
+SELECT set_config('request.headers','{}',true);
 SELECT is(private.current_organization_id(),(SELECT org FROM _reader_owner WHERE label='B'),'B role change does not change organization');
 SELECT is(private.current_base_role(),'operador','B demotion reflected in server-side base_role');
 SELECT is(public.get_user_role(),'operador','B employee role follows same demotion');
