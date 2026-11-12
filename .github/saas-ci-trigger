@@ -1,2 +1,2 @@
-2D-H: 97 individually audited, four partial; 214 new A/B DEV assertions; composite FK product deletion fixed.
-source_sha=2cd89c96221a830f2d37fe45a3044153a9d7fcf1
+2D-H: 101/101 RPCs individually audited; canonical credit debt writer and tax baja payload binding fixed; 659 DEV assertions.
+source_sha=29d94c1908e1454c5a16e0e22b96ecc1fdadd3c4
