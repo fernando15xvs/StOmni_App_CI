@@ -1,2 +1,2 @@
-2D-I1 staged internal atomic membership selector, NOT activated; 22/22+23/23 DEV checks.
-source_sha=7ec05e41a8fb7955737e43d466bbcd4f2470d980
+2D-I1 operational atomic membership context bridge; DEV migration and tests.
+source_sha=cd76c597c3121a3779d509ef10e26659110095c5
