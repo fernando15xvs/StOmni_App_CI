@@ -1,2 +1,2 @@
-2D-H: four new local two-session cash-close/debt collection races in backend validation.
-source_sha=4bed227e967978b9d793e04a08efaf16ab8f8dc8
+2D-H cash close 2-session runner JavaScript quoting fix; rerun full backend.
+source_sha=9a16935277ae4cb55669b277b6979c087c3b71bc

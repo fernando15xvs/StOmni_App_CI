@@ -92,7 +92,7 @@ function audit(f) {
     " 'balance',(SELECT saldo_pendiente FROM public.venta_cuentas_financieras WHERE organization_id='"+f.org_a+"' AND venta_id="+f.sale_a+"),",
     " 'cash_count',(SELECT count(*) FROM public.pagos_venta WHERE organization_id='"+f.org_a+"' AND venta_id="+f.sale_a+" AND cash_session_id='"+f.sess_a+"'),",
     " 'operations',(SELECT count(*) FROM public.venta_operaciones_financieras WHERE organization_id='"+f.org_a+"' AND venta_id="+f.sale_a+" AND tipo='cobro' AND resultado='aplicado'),",
-    " 'valid',(SELECT apta_para_motor FROM private.financial_2c_audit_sale('"+f.org_a+"',"+f.sale_a+'))",
+    " 'valid',(SELECT apta_para_motor FROM private.financial_2c_audit_sale('"+f.org_a+"',"+f.sale_a+"))",
     ');'
   ].join('\n');
   return JSON.parse(sql(query));
