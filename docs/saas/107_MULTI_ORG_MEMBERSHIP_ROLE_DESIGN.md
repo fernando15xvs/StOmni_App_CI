@@ -1,0 +1,43 @@
+# 107 — Preparación de membresías multiempresa y selección atómica de rol
+
+> Estado: **DISEÑO / NO ACTIVADO** — rama `feature/saas-multitenant-foundation`, únicamente Supabase DEV. No habilitar una segunda membresía de ningún usuario todavía. La revisión 2D-H de 101 RPC y el CI previo 7/7 constituyen la línea base; esta fase cambia el contrato de identidad y requiere pruebas independientes.
+
+## 1. Hechos verificados en PostgreSQL DEV
+
+- `public.app_users` tiene **`PRIMARY KEY (user_id)`**, y también `UNIQUE (organization_id,user_id)`; un usuario autenticado todavía puede pertenecer a una sola empresa.
+- `public.empleados` tiene **`UNIQUE (app_user_id)`** global, aunque ya dispone de `FOREIGN KEY (organization_id,app_user_id) REFERENCES app_users(organization_id,user_id)`; la PK de empleado `id` es global y varios objetos operativos ya disponen de FK compuesta por tenant.
+- `private.current_organization_id()` busca la empresa por `auth.uid()` y `app_users.status='active'`, **sin selector de empresa**. `private.current_base_role()` realiza una consulta separada de `app_users.base_role` y exige empleado activo. Si se eliminara la PK global sin corregir ambas RPC, las consultas serían ambiguas.
+- `private.require_current_organization_id()` bloquea con 42501 si el rol/membresía/empleo no están activos. Este guard se debe conservar. `private.has_permission()` y otras funciones heredan `current_base_role()`.
+- La auditoría del catálogo de funciones encontró **11 funciones** que hacen referencia directa a `public.app_users`, **26** que refieren `private.current_organization_id()` y **4** a `private.current_base_role()`. Son referencias de función, no un censo de todos los objetos RLS/vistas/cliente.
+- Entre las rutas que requieren migración o revisión explícita están `bootstrap_organization_v1`, `get_organization_signup_state_v1`, `get_user_role`, `_gre_empleado_activo`, `private.write_audit_log`, los procesos tributarios internos y `private.enforce_subscription_count_limit`.
+- `supabase/tests/database/security_multi_membership_readiness_baseline_test.sql`: **23/23** pruebas en DEV con onboarding A/B real. Comprueba organización y rol procedentes de la fila de membresía, encabezados falsificados, lectura aislada, degradación a operador, revocación, usuario sin membresía y los dos índices únicos que **hoy** impiden el segundo vínculo. Las pruebas terminan con `ROLLBACK`.
+
+## 2. Contrato futuro obligatorio
+
+La empresa y su rol deben resolverse **desde una única membresía activa** en la base de datos, nunca por consultas independientes ni mediante un `role` de cabecera sin verificar. Se propone un resolver interno `private.resolve_selected_membership_v1()` que devuelva juntos `organization_id`, `base_role` y el empleado activo:
+
+1. `auth.uid()` es la identidad autenticada; no confiar en `user_metadata`, `raw_user_meta_data`, nombres o IDs proporcionados sin validación.
+2. Se puede aceptar un ID de organización seleccionado por el cliente (p. ej. `x-stomni-organization-id`) **únicamente como solicitud de elección**. El servidor debe validar que exista una membresía `app_users(user_id,organization_id,status='active')`, organización activa y empleado local activo con ese usuario.
+3. Si falta el selector y existe **exactamente una** membresía activa, conservar el comportamiento heredado. Si hay dos o más, **fallar cerrado** (no elegir `LIMIT 1`, mínimo, máximo ni “última usada”).
+4. El rol autorizado se toma de **esa misma fila** y se contrasta con empleado/roles/permisos de esa organización; un encabezado con rol no concede privilegios.
+5. Las RPC `private.current_organization_id()` y `private.current_base_role()` deben delegar al resolver atómico, con la misma identidad de membresía durante toda la operación. La selección jamás debe cambiar mediante un estado global compartido entre dos sesiones o pestañas.
+6. Empleo revocado, empresa suspendida, membresía deshabilitada, ID extranjero, selector malformado o elección ambigua deben producir denegación sin fuga de metadatos de otras empresas. Conservar JWT y verificaciones SQL por petición; no basar permisos en claims desactualizados.
+
+## 3. Secuencia de implementación (gates bloqueantes)
+
+**I0 — Línea base (implementada).** Conservar 101/101 RPC auditadas, contratos existentes y **23/23 pruebas de selección actual**. La prueba de unicidad global se actualizará *deliberadamente* al habilitar una segunda membresía, nunca se eliminará sin sustituto de aislamiento.
+
+**I1 — Resolver y pruebas (pendiente).** Implementar resolver atómico, selección explícita y retorno de 42501 al faltar/falsear una elección; probar A/B, rol admin/operador distinto, cambios de elección en peticiones consecutivas, revocación, membresía ambigua y dos sesiones simultáneas. Debe funcionar con `app_users` todavía singleton y clientes existentes antes de cambiar restricciones.
+
+**I2 — Esquema (pendiente).** Cambiar PK de `app_users` a compuesta `(organization_id,user_id)` (el índice único compuesto ya existe), adaptar el índice `empleados(app_user_id)` a `(organization_id,app_user_id)`, y revisar cualquier dependencia de PK/UPSERT y las referencias a `auth_id`. La FK compuesta de empleado debe conservarse. Revisar suscripciones/límites por empresa, políticas RLS y triggers. No permitir inserciones de membresías múltiples hasta que I1 e I2, los backfills y las rutas de bootstrap/listado sean válidos conjuntamente.
+
+**I3 — Servidor y cliente (pendiente).** Adaptar `bootstrap_organization_v1`, `create_my_organization_v1`, `get_organization_signup_state_v1`, roles, auditoría y entradas fiscales/operativas que hoy asumen un usuario=una empresa. En móvil/escritorio introducir elección explícita de empresa, limpiar cachés/query keys/cajas/carritos al cambiar, vincular las peticiones a su elección vigente y evitar confundir datos entre sesiones.
+
+**I4 — Certificación (pendiente).** Probar A y B con el **mismo auth.uid** y roles distintos, autorización positiva, IDOR cruzado, revocación de una sola membresía sin afectar la otra, dos sesiones concurrentes con selecciones distintas, facturación, caja, inventario, ventas, pagos, cotizaciones y UX; ejecutar pgTAP, E2E local, no-drift, validación 7/7 y QA. Sin pase de producción hasta revisión específica.
+
+## 4. Riesgos y límites
+
+- No confundir cobertura de las 101 RPC actuales con aprobación del modelo multiempresa futuro: **éste aún no está habilitado**.
+- `request.headers` es aportado por el cliente y no autoriza sin membresía DB; tampoco debe reutilizarse de una conexión del pool como estado persistente.
+- La clave global de `empleados.id` sigue siendo estable por referencias históricas; no migrar IDs de empleados sin inventario de FKs.
+- No ejecutar operaciones contra SUNAT real ni contra el proyecto de producción durante pruebas de selección multiempresa.
