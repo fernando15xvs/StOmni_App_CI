@@ -1,2 +1,2 @@
-2D-H: 101/101 RPCs individually audited; canonical credit debt writer and tax baja payload binding fixed; 659 DEV assertions.
-source_sha=29d94c1908e1454c5a16e0e22b96ecc1fdadd3c4
+2D-H: four new local two-session cash-close/debt collection races in backend validation.
+source_sha=4bed227e967978b9d793e04a08efaf16ab8f8dc8

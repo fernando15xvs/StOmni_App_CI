@@ -273,6 +273,9 @@ jobs:
       - name: 2D-E certified v2 credit note payment and baja two-session races
         run: node scripts/run_financial_2de_v2_concurrency_ci.mjs
 
+      - name: 2D-H cash closure versus canonical customer debt two-session races
+        run: node scripts/run_security_2dh_cash_close_concurrency_ci.mjs
+
       - name: T18 backup
         env:
           STOMNI_SAAS_BACKUP_DIR: .dart_tool/saas/backups/ci
