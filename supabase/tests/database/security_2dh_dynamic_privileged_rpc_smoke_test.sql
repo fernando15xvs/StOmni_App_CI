@@ -4,7 +4,7 @@
 BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET LOCAL search_path=public,extensions,pg_catalog;
-SELECT plan(9);
+SELECT plan(10);
 CREATE TEMP TABLE _rpc2dh_probe(stage text,sig text,outcome text,sqlstate text,sample jsonb) ON COMMIT DROP;
 GRANT SELECT,INSERT ON _rpc2dh_probe TO authenticated;
 CREATE TEMP TABLE _rpc2dh_actor(org uuid,user_id uuid,branch uuid) ON COMMIT DROP;
@@ -56,13 +56,14 @@ BEGIN
  END LOOP;
 END $audit$;
 RESET ROLE;
-SELECT is((SELECT count(*)::int FROM _rpc2dh_probe WHERE stage='missing_membership'),101,'101 RPCs probed without membership');
-SELECT is((SELECT count(*)::int FROM _rpc2dh_probe WHERE stage='inactive_employee'),101,'101 RPCs probed with revoked employee');
+SELECT is((SELECT count(*)::int FROM _rpc2dh_probe WHERE stage='missing_membership'),102,'102 RPCs probed without membership');
+SELECT is((SELECT count(*)::int FROM _rpc2dh_probe WHERE stage='inactive_employee'),102,'102 RPCs probed with revoked employee');
 SELECT is_empty($q$
  SELECT sig FROM _rpc2dh_probe
  WHERE outcome='VALUE' AND sig NOT IN (
   '_gre_empleado_activo()','app_tiene_permiso(text)',
-  'get_organization_signup_state_v1()','list_subscription_plans_v1()'
+  'get_organization_signup_state_v1()','list_subscription_plans_v1()',
+  'list_my_organization_memberships_v1()'
  )$q$,'No unexpected privileged RPC returns a value with typed NULL arguments');
 SELECT is_empty($q$
  SELECT sig FROM _rpc2dh_probe
@@ -71,6 +72,11 @@ SELECT is_empty($q$
  'Employment and permission booleans fail closed');
 SELECT is((SELECT count(*)::int FROM _rpc2dh_probe WHERE sig='get_organization_signup_state_v1()' AND outcome='VALUE'),2,'Public signup-state endpoint remains available for account recovery');
 SELECT is((SELECT count(*)::int FROM _rpc2dh_probe WHERE sig='list_subscription_plans_v1()' AND outcome='VALUE'),2,'Public plan catalog remains available');
+SELECT is_empty($q$
+ SELECT sig FROM _rpc2dh_probe
+ WHERE sig='list_my_organization_memberships_v1()'
+ AND (outcome <> 'VALUE' OR sample IS DISTINCT FROM '[]'::jsonb)$q$,
+ 'Membership-list RPC exposes only an empty array to unknown or revoked identities');
 SELECT is_empty($q$
  SELECT p.oid::regprocedure::text FROM pg_proc p WHERE p.pronamespace='public'::regnamespace
  AND p.prosecdef AND has_function_privilege('anon',p.oid,'EXECUTE')$q$,
