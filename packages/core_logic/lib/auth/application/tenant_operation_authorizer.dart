@@ -46,9 +46,9 @@ final class TenantVerifiedPermissions {
       final permission = AppPermission.fromCode(code as String);
       if (permission != null) appPermissions.add(permission);
     }
-    if (!RolePermissionPolicy.forRole(tenant.baseRole).containsAll(
-      appPermissions,
-    )) {
+    if (!RolePermissionPolicy.forRole(
+      tenant.baseRole,
+    ).containsAll(appPermissions)) {
       throw StateError('Permisos mayores que el rol base seleccionado.');
     }
     return TenantVerifiedPermissions(
@@ -98,9 +98,9 @@ final class TenantOperationAuthorizer implements OperationAuthorizer {
       request: (organizationId) async {
         final verified = await verifyPermissions(scope);
         if (verified.organizationId != organizationId ||
-            !RolePermissionPolicy.forRole(verified.baseRole).containsAll(
-              verified.permissions,
-            ) ||
+            !RolePermissionPolicy.forRole(
+              verified.baseRole,
+            ).containsAll(verified.permissions) ||
             !verified.permissions.containsAll(permissions)) {
           throw const UserFacingException(
             'No hay permisos suficientes en la empresa seleccionada.',
