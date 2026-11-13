@@ -67,6 +67,7 @@ const legacyDenied = new Set([
 // es válida si el gate dueño forma parte de domainGates y, por tanto, se ejecuta.
 const explicitlyClassified = new Map([
   ['get_my_tenant_context_v1', 'scripts/verify_saas_catalog_foundation.mjs'],
+  ['list_my_organization_memberships_v1', 'scripts/verify_saas_organization_signup.mjs'],
   ['update_employee_permission_overrides_v1', 'scripts/verify_saas_configurable_roles.mjs'],
   ['desactivar_almacen_seguro_v1', 'scripts/verify_saas_inventory.mjs'],
   ['reactivar_almacen_seguro_v1', 'scripts/verify_saas_inventory.mjs'],
