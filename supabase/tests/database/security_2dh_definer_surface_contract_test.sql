@@ -75,6 +75,7 @@ SELECT is_empty(
       'guardar_cotizacion_with_units_v2(uuid,bigint,numeric,timestamp with time zone,text,integer,jsonb)',
       'guardar_guia_remision_v4(uuid,uuid,boolean,text,text,bigint,bigint,uuid,text,text,text,text,text,timestamp with time zone,timestamp with time zone,jsonb,jsonb,jsonb,jsonb,bigint,bigint,bigint,numeric,integer,boolean,text,jsonb,boolean,bigint,bigint,bigint,text)',
       'list_audit_logs_v1(integer,bigint,text,text)',
+      'list_my_organization_memberships_v1()',
       'list_business_metrics_v1()',
       'list_custom_field_definitions_v1(text,boolean)',
       'list_operational_alerts_v1(text,integer)',
