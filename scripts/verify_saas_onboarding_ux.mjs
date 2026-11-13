@@ -187,6 +187,12 @@ function verify() {
     scopedSubmissionTests: read(
       'packages/core_logic/test/features/ventas/tenant_pending_sale_queue_gateway_test.dart',
     ),
+    scopedSaleContext: read(
+      'packages/core_logic/lib/features/ventas/data/tenant_venta_context_repository.dart',
+    ),
+    scopedSaleContextTests: read(
+      'packages/core_logic/test/features/ventas/tenant_venta_context_repository_test.dart',
+    ),
   };
   sources.setupScreens = {
     'alta mobile/web': sources.mobileSetup,
@@ -749,6 +755,61 @@ function verify() {
     sources.scopedSubmissionTests,
     /parallel company queues cannot overwrite one shared request ID/,
     'Missing cross-company idempotency test for the sale submission port',
+  );
+
+  // I3 context: customer, seller and cashbox must share the immutable
+  // request-local organization. A header alone is never authorization.
+  need(
+    errors,
+    sources.scopedSaleContext,
+    /implements VentaContextGateway/,
+    'The existing sale context port has no selected-tenant implementation',
+  );
+  need(
+    errors,
+    sources.scopedSaleContext,
+    /scope\.execute<T>/,
+    'Sale context requests do not enforce Auth/selection before and after IO',
+  );
+  need(
+    errors,
+    sources.scopedSaleContext,
+    /\.rpc\('get_my_tenant_context_v1'\)/,
+    'Sale context must verify server membership before auxiliary operations',
+  );
+  const saleContextHeaders =
+    sources.scopedSaleContext.match(/\.setHeader\(/g) ?? [];
+  if (saleContextHeaders.length < 6) {
+    errors.push('Seller, cashbox and customer requests lack per-request tenant headers');
+  }
+  const saleContextFilters =
+    sources.scopedSaleContext.match(/\.eq\('organization_id', organizationId\)/g) ?? [];
+  if (saleContextFilters.length < 3) {
+    errors.push('Customer and seller requests lack explicit tenant-row filters');
+  }
+  need(
+    errors,
+    sources.scopedSaleContext,
+    /'organization_id': organizationId/,
+    'Tenant customer insertion does not write the selected organization',
+  );
+  need(
+    errors,
+    sources.scopedSaleContext,
+    /row\['organization_id'\] != organizationId/,
+    'Sale context fails to reject rows from another tenant',
+  );
+  need(
+    errors,
+    sources.scopedSaleContextTests,
+    /rejects foreign customer even when its numeric id exists/,
+    'Missing cross-tenant customer IDOR response validation tests',
+  );
+  forbid(
+    errors,
+    sources.scopedSaleContext,
+    /_client\.headers\s*=|_client\.rest\.headers\s*=|_client\.headers\[/,
+    'Sale context must not share a global tenant header between windows',
   );
 
   return errors;
