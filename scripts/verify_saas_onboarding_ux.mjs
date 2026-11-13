@@ -40,6 +40,12 @@ function verifySecurityBoundaries(errors, sources) {
     /organizationSetupRequired/,
     'pre-tenant fue incluido como autorización empresarial',
   );
+  forbid(
+    errors,
+    authorized,
+    /organizationSelectionRequired/,
+    'selección de empresa no puede autorizar operaciones sin contexto',
+  );
 
   for (const [name, source] of Object.entries(sources.setupScreens)) {
     forbid(
@@ -175,8 +181,20 @@ function verify() {
   need(
     errors,
     sources.controller,
-    /organizationSetupRequired =>[\s\S]*?AuthRevalidationResult\.denied/,
-    'operaciones podrían revalidar pre-tenant como válido',
+    /organizationSetupRequired\s*\|\|\s*SessionValidationStatus\.organizationSelectionRequired\s*=>\s*AuthRevalidationResult\.denied/,
+    'operaciones podrían revalidar pre-tenant/selección pendiente como válido',
+  );
+  need(
+    errors,
+    sources.policy,
+    /clearCachedAuthorization\(userId\)[\s\S]*?requiresOrganizationSelection\(userId\)/,
+    'sesión sin tenant no borra caché antes de exigir selección',
+  );
+  need(
+    errors,
+    sources.routing,
+    /SessionValidationStatus\.organizationSelectionRequired\s*=>\s*SaasEntryRoute\.organizationSelectionRequired/,
+    'routing no bloquea Home mientras falta selección de empresa',
   );
   const signIn = sources.controller.slice(
     sources.controller.indexOf('Future<bool> signIn'),
