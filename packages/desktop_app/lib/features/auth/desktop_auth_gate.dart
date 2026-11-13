@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../home/desktop_home_shell.dart';
 import '../onboarding/desktop_saas_onboarding.dart';
 import 'desktop_password_change_view.dart';
+import 'desktop_organization_selection_view.dart';
 
 class DesktopAuthGate extends ConsumerStatefulWidget {
   const DesktopAuthGate({super.key});
@@ -58,6 +59,8 @@ class _DesktopAuthGateState extends ConsumerState<DesktopAuthGate> {
         return DesktopPasswordChangeView(onSessionChanged: _restoreSession);
       case SaasEntryRoute.organizationSetupRequired:
         return DesktopOrganizationSetupView(onReady: _restoreSession);
+      case SaasEntryRoute.organizationSelectionRequired:
+        return DesktopOrganizationSelectionView(onSignOut: _signOut);
       case SaasEntryRoute.signedOut:
         return DesktopLoginView(onSessionChanged: _restoreSession);
       case SaasEntryRoute.offlineAuthorized:
