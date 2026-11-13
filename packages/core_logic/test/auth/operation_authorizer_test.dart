@@ -136,7 +136,7 @@ class _Sessions implements SessionValidationGateway {
     String authUserId,
   ) async => CachedSessionAuthorization(
     authUserId: 'user-1',
-    role: role,
+    role: role ?? 'operador',
     validatedAt: cachedAt,
     permissions: RolePermissionPolicy.forRole(role),
   );
