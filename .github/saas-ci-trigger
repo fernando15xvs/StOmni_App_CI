@@ -1,2 +1,2 @@
-I3 stage: scope-bound queued ticket retries in sync/data (architecture compliant), 10 sync regressions, per-request selected tenant header on all 3 sale RPC processors; no multi-membership activation.
-source_sha=d2911c2b6d6bb616f5de51dc689c53b674de6c0b
+I3 tenant-safe queued ticket coordinator in data, three sale RPCs support builder-local tenant selector, Dart formatter corrected and ten sync tests.
+source_sha=8f376af18bb86dc3ee1e94032cac29db50857fac
