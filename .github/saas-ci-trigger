@@ -1,2 +1,2 @@
-I2 correction of strict RPC gate, Dart model, membership selection; backend previously passed.
-source_sha=3373466f0290a831682c8a9bd712a2005b5af749
+I2 repaired: safe membership enumeration, selection-required state, static 102 RPC inventory, Dart format correct.
+source_sha=a525dca9247b143fbc8d9ff9cdc9ce669c1f7c02
