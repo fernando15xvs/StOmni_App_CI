@@ -63,6 +63,20 @@ void main() {
     },
   );
 
+  test('multiempresa sin selector no puede ejecutar operaciones', () async {
+    final gateway = _Sessions()
+      ..role = null
+      ..selectionRequired = true;
+    final authorizer = SessionOperationAuthorizer(
+      ValidateSessionUseCase(gateway: gateway),
+    );
+    await expectLater(
+      authorizer.require({AppPermission.salesCreate}, allowOffline: true),
+      throwsA(isA<UserFacingException>()),
+    );
+    expect(gateway.currentAuthUserId, 'user-1');
+  });
+
   test('solo operaciones explícitas admiten autorización offline', () async {
     final gateway = _Sessions()..unavailable = true;
     final authorizer = SessionOperationAuthorizer(
@@ -91,7 +105,8 @@ class _Sessions implements SessionValidationGateway {
   @override
   bool requiresPasswordChange = false;
 
-  String role = 'operador';
+  String? role = 'operador';
+  bool selectionRequired = false;
   bool unavailable = false;
   DateTime cachedAt = DateTime.now();
 
@@ -103,6 +118,10 @@ class _Sessions implements SessionValidationGateway {
 
   @override
   Future<bool> canStartOrganizationSignup(String authUserId) async => false;
+
+  @override
+  Future<bool> requiresOrganizationSelection(String authUserId) async =>
+      selectionRequired;
 
   @override
   Future<Set<AppPermission>?> readEffectivePermissions(
