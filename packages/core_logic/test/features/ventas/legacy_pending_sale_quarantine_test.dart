@@ -18,10 +18,7 @@ void main() {
     temp = await Directory.systemTemp.createTemp('stomni-legacy-queue-');
     legacy = PendingSaleQueueStore(
       databaseFactoryOverride: databaseFactoryFfi,
-      databasePathOverride: p.join(
-        temp.path,
-        'ferreteria_pending_sales_v1.db',
-      ),
+      databasePathOverride: p.join(temp.path, 'ferreteria_pending_sales_v1.db'),
     );
     gate = LegacyPendingSaleQuarantine(legacy);
   });
@@ -40,17 +37,20 @@ void main() {
     await gate.requireNoUnattributedTickets();
   });
 
-  test('historical SQLite ticket blocks activation without erasing it', () async {
-    await legacy.upsertPayload({
-      'request_id': 'historic-1',
-      'tipo_comprobante': 'ticket_interno',
-    });
-    final status = await gate.inspect();
-    expect(status.sqliteCount, 1);
-    expect(status.safeToSwitch, isFalse);
-    await expectLater(gate.requireNoUnattributedTickets(), throwsStateError);
-    expect((await legacy.list()).single.requestId, 'historic-1');
-  });
+  test(
+    'historical SQLite ticket blocks activation without erasing it',
+    () async {
+      await legacy.upsertPayload({
+        'request_id': 'historic-1',
+        'tipo_comprobante': 'ticket_interno',
+      });
+      final status = await gate.inspect();
+      expect(status.sqliteCount, 1);
+      expect(status.safeToSwitch, isFalse);
+      await expectLater(gate.requireNoUnattributedTickets(), throwsStateError);
+      expect((await legacy.list()).single.requestId, 'historic-1');
+    },
+  );
 
   test('old shared preferences ticket is quarantined, not migrated', () async {
     final prefs = await SharedPreferences.getInstance();
@@ -76,30 +76,34 @@ void main() {
     await expectLater(gate.requireNoUnattributedTickets(), throwsStateError);
   });
 
-  test('legacy global catalog alone is disposable and does not block',
-      () async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('catalogo_cache', '[{"legacy":true}]');
-    expect((await gate.inspect()).safeToSwitch, isTrue);
-    await gate.requireNoUnattributedTickets();
-    expect(prefs.getString('catalogo_cache'), isNotNull);
-  });
+  test(
+    'legacy global catalog alone is disposable and does not block',
+    () async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('catalogo_cache', '[{"legacy":true}]');
+      expect((await gate.inspect()).safeToSwitch, isTrue);
+      await gate.requireNoUnattributedTickets();
+      expect(prefs.getString('catalogo_cache'), isNotNull);
+    },
+  );
 
-  test('counts both historical sources before allowing tenant switch',
-      () async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      LegacyPendingSaleQuarantine.historicalPreferencesKey,
-      '[{"request_id":"one"},{"request_id":"two"}]',
-    );
-    await legacy.upsertPayload({
-      'request_id': 'third',
-      'tipo_comprobante': 'ticket_interno',
-    });
-    final status = await gate.inspect();
-    expect(status.sqliteCount, 1);
-    expect(status.preferencesCount, 2);
-    expect(status.safeToSwitch, isFalse);
-    await expectLater(gate.requireNoUnattributedTickets(), throwsStateError);
-  });
+  test(
+    'counts both historical sources before allowing tenant switch',
+    () async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        LegacyPendingSaleQuarantine.historicalPreferencesKey,
+        '[{"request_id":"one"},{"request_id":"two"}]',
+      );
+      await legacy.upsertPayload({
+        'request_id': 'third',
+        'tipo_comprobante': 'ticket_interno',
+      });
+      final status = await gate.inspect();
+      expect(status.sqliteCount, 1);
+      expect(status.preferencesCount, 2);
+      expect(status.safeToSwitch, isFalse);
+      await expectLater(gate.requireNoUnattributedTickets(), throwsStateError);
+    },
+  );
 }
