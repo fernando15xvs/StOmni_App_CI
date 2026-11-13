@@ -160,6 +160,12 @@ function verify() {
     tenantCatalogTests: read(
       'packages/core_logic/test/features/ventas/tenant_catalog_cache_test.dart',
     ),
+    tenantSelectionSession: read(
+      'packages/core_logic/lib/onboarding/application/tenant_selection_session.dart',
+    ),
+    tenantSelectionTests: read(
+      'packages/core_logic/test/onboarding/tenant_selection_session_test.dart',
+    ),
   };
   sources.setupScreens = {
     'alta mobile/web': sources.mobileSetup,
@@ -532,6 +538,43 @@ function verify() {
     sources.tenantCatalogTests,
     /one company cannot read cached products of another/,
     'Missing cross-company catalog cache tests',
+  );
+
+  need(
+    errors,
+    sources.tenantSelectionSession,
+    /_candidateOrganizationId = organizationId/,
+    'Tenant selection does not hold a request-local candidate',
+  );
+  need(
+    errors,
+    sources.tenantSelectionSession,
+    /currentAuthUserId\(\) != userId/,
+    'A stale Auth identity could activate a former tenant',
+  );
+  need(
+    errors,
+    sources.tenantSelectionSession,
+    /attempt != _generation/,
+    'Concurrent tenant responses are not ordered by generation',
+  );
+  need(
+    errors,
+    sources.tenantSelectionSession,
+    /_verified = null/,
+    'A pending switch does not revoke the previous active tenant',
+  );
+  need(
+    errors,
+    sources.tenantSelectionTests,
+    /two windows for same auth user keep separate independent selections/,
+    'Missing per-window A/B selection isolation regression',
+  );
+  need(
+    errors,
+    sources.tenantSelectionTests,
+    /later B selection wins and stale A response cannot replace it/,
+    'Missing stale-response rejection during rapid tenant changes',
   );
 
   return errors;
