@@ -1,2 +1,2 @@
-I3 offline isolation: tenant/user SQLite ticket queue, browser fallback, isolated catalog cache, 19 tests, no migration of unowned historical sales, no activation.
-source_sha=4ef415f6a0e91549848e8b84678d37df67599c4a
+I3 scoped SQLite pending tickets + catalog cache across user/tenant; 19 tests; exact Dart formatter corrections.
+source_sha=eb5f4130113c4afd2d1a49716769733975c2d990
