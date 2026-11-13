@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../constants/app_roles.dart';
 import '../domain/app_permission.dart';
 import '../domain/session_authorization.dart';
+import 'tenant_authorization_cache.dart';
 
 class AuthSessionSnapshot {
   AuthSessionSnapshot({
@@ -125,5 +126,8 @@ abstract final class AuthSessionCache {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);
     await prefs.remove(_legacyKey);
+    // Sign-out/revocation must also purge future per-company snapshots.
+    // Do not leave a different organization's v3 permissions on this device.
+    await TenantAuthorizationCache.clearAll();
   }
 }
