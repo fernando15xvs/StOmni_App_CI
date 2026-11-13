@@ -61,38 +61,32 @@ final class TenantVentaContextRepository implements VentaContextGateway {
   }
 
   @override
-  Future<int?> resolverVendedorActivoId(int? vendedorId) =>
-      _authorized((organizationId) async {
-        // An explicit seller ID is never accepted without proving its tenant.
-        // Without one, use the canonical current user's employee membership.
-        final builder = _client
-            .from('empleados')
-            .select('id, organization_id')
-            .eq('organization_id', organizationId)
-            .eq('activo', true);
-        final response = vendedorId == null
-            ? await builder
-                  .eq('app_user_id', scope.authUserId)
-                  .maybeSingle()
-                  .setHeader(
-                    TenantRequestScope.organizationHeader,
-                    organizationId,
-                  )
-            : await builder
-                  .eq('id', vendedorId)
-                  .maybeSingle()
-                  .setHeader(
-                    TenantRequestScope.organizationHeader,
-                    organizationId,
-                  );
-        if (response == null) {
-          throw StateError('No existe vendedor activo en esta empresa.');
-        }
-        return (requireOwnRow(
-          response,
-          organizationId: organizationId,
-        )['id'] as num).toInt();
-      });
+  Future<int?> resolverVendedorActivoId(int? vendedorId) => _authorized((
+    organizationId,
+  ) async {
+    // An explicit seller ID is never accepted without proving its tenant.
+    // Without one, use the canonical current user's employee membership.
+    final builder = _client
+        .from('empleados')
+        .select('id, organization_id')
+        .eq('organization_id', organizationId)
+        .eq('activo', true);
+    final response = vendedorId == null
+        ? await builder
+              .eq('app_user_id', scope.authUserId)
+              .maybeSingle()
+              .setHeader(TenantRequestScope.organizationHeader, organizationId)
+        : await builder
+              .eq('id', vendedorId)
+              .maybeSingle()
+              .setHeader(TenantRequestScope.organizationHeader, organizationId);
+    if (response == null) {
+      throw StateError('No existe vendedor activo en esta empresa.');
+    }
+    return (requireOwnRow(response, organizationId: organizationId)['id']
+            as num)
+        .toInt();
+  });
 
   @override
   Future<bool> cajaChicaAbierta() => _authorized((organizationId) async {
@@ -138,10 +132,7 @@ final class TenantVentaContextRepository implements VentaContextGateway {
           .eq('organization_id', organizationId)
           .eq('dni_ruc', document)
           .maybeSingle()
-          .setHeader(
-            TenantRequestScope.organizationHeader,
-            organizationId,
-          );
+          .setHeader(TenantRequestScope.organizationHeader, organizationId);
       return row == null
           ? null
           : requireOwnRow(row, organizationId: organizationId);
@@ -157,14 +148,10 @@ final class TenantVentaContextRepository implements VentaContextGateway {
           .eq('id', customerId)
           .select('id, organization_id')
           .single()
-          .setHeader(
-            TenantRequestScope.organizationHeader,
-            organizationId,
-          );
-      return (requireOwnRow(
-        updated,
-        organizationId: organizationId,
-      )['id'] as num).toInt();
+          .setHeader(TenantRequestScope.organizationHeader, organizationId);
+      return (requireOwnRow(updated, organizationId: organizationId)['id']
+              as num)
+          .toInt();
     }
 
     try {
@@ -178,14 +165,10 @@ final class TenantVentaContextRepository implements VentaContextGateway {
           })
           .select('id, organization_id')
           .single()
-          .setHeader(
-            TenantRequestScope.organizationHeader,
-            organizationId,
-          );
-      return (requireOwnRow(
-        inserted,
-        organizationId: organizationId,
-      )['id'] as num).toInt();
+          .setHeader(TenantRequestScope.organizationHeader, organizationId);
+      return (requireOwnRow(inserted, organizationId: organizationId)['id']
+              as num)
+          .toInt();
     } on PostgrestException catch (error) {
       if (error.code != '23505') rethrow;
       final recovered = await lookup();
