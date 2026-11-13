@@ -1,2 +1,2 @@
-I3 tenant scoped ticket/catalog stores, fixed UUID verifier, 19 offline regressions and 10 per-window company selection concurrency tests; no operational activation.
-source_sha=ef41d55bf0fa200493edb30b39e2ac252f46b3bb
+I3 offline per-user per-company catalog and tickets, validated 5-segment UUID, local selector lifecycle race protection, historic sale quarantine; 35 new unit tests.
+source_sha=0906e29e385a1bf7e66685bd22d5d0ea6cd62b56
