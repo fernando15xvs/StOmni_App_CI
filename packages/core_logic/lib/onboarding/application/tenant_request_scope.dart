@@ -2,10 +2,7 @@
 /// verify that auth.uid() has an active membership and employment in this
 /// organization on every request. Do not put this id into global REST headers.
 final class TenantRequestScope {
-  TenantRequestScope({
-    required this.authUserId,
-    required this.organizationId,
-  }) {
+  TenantRequestScope({required this.authUserId, required this.organizationId}) {
     if (authUserId.trim().isEmpty || !_uuid.hasMatch(organizationId)) {
       throw const FormatException('Identidad o empresa seleccionada inválida.');
     }
