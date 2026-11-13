@@ -127,6 +127,24 @@ function verify() {
     signupGateway: read(
       'packages/core_logic/lib/onboarding/data/supabase_organization_signup_gateway.dart',
     ),
+    tenantScope: read(
+      'packages/core_logic/lib/onboarding/application/tenant_request_scope.dart',
+    ),
+    scopedRpc: read(
+      'packages/core_logic/lib/onboarding/data/supabase_tenant_request_gateway.dart',
+    ),
+    tenantScopeTests: read(
+      'packages/core_logic/test/onboarding/tenant_request_scope_test.dart',
+    ),
+    tenantCache: read(
+      'packages/core_logic/lib/auth/data/tenant_authorization_cache.dart',
+    ),
+    tenantCacheTests: read(
+      'packages/core_logic/test/auth/tenant_authorization_cache_test.dart',
+    ),
+    legacySessionCache: read(
+      'packages/core_logic/lib/auth/data/auth_session_cache.dart',
+    ),
   };
   sources.setupScreens = {
     'alta mobile/web': sources.mobileSetup,
@@ -373,6 +391,57 @@ function verify() {
     sources.exports,
     /export 'onboarding\/application\/saas_entry_routing_policy\.dart';/,
     'core_logic no exporta la política compartida',
+  );
+
+  // 2D-I3: explicit tenant request scope is read-only, request-local and
+  // checks Auth/selection both before and after network await.
+  need(
+    errors,
+    sources.tenantScope,
+    /currentAuthUserId\(\) == authUserId[\s\S]*?currentSelectedOrganizationId\(\) == organizationId/,
+    'tenant request scope no vincula usuario y organización activa',
+  );
+  need(
+    errors,
+    sources.scopedRpc,
+    /\.rpc\('get_my_tenant_context_v1'\)[\s\S]*?\.setHeader\([\s\S]*?TenantRequestScope\.organizationHeader[\s\S]*?organizationId/,
+    'verificación del tenant no adjunta selector sólo a la petición',
+  );
+  forbid(
+    errors,
+    sources.scopedRpc,
+    /(?:client\.headers\s*=|client\.rest\.headers\[|client\.headers\[)/,
+    'el selector no debe modificar cabeceras globales Supabase',
+  );
+  need(
+    errors,
+    sources.tenantScopeTests,
+    /two simultaneous sessions cannot overwrite each other headers/,
+    'faltan pruebas de peticiones simultáneas A/B independientes',
+  );
+  need(
+    errors,
+    sources.tenantCache,
+    /'schema_version': 3/,
+    'el cache offline tenant no está versionado como v3',
+  );
+  need(
+    errors,
+    sources.tenantCache,
+    /auth_validated_session_v3:/,
+    'el cache v3 no está separado por usuario y organización',
+  );
+  need(
+    errors,
+    sources.tenantCacheTests,
+    /tenant-specific purge does not disturb other tenant/,
+    'faltan pruebas de limpieza por tenant sin afectar otra empresa',
+  );
+  need(
+    errors,
+    sources.legacySessionCache,
+    /TenantAuthorizationCache\.clearAll\(\)/,
+    'logout debe purgar todas las autorizaciones tenant v3',
   );
 
   return errors;
