@@ -46,7 +46,9 @@ final class TenantPendingSaleQueue {
 
   static void _requireIds(String authUserId, String organizationId) {
     if (!_uuid.hasMatch(authUserId) || !_uuid.hasMatch(organizationId)) {
-      throw const FormatException('Identificador de usuario o tenant inválido.');
+      throw const FormatException(
+        'Identificador de usuario o tenant inválido.',
+      );
     }
   }
 
