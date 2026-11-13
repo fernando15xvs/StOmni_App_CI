@@ -1,2 +1,2 @@
-I3 safe sales groundwork: scoped sale RPC x3, sync/data coordinator, tenant pending sale enqueue gateway; 15 new tests; formatter exact; no I4 activation.
-source_sha=b86e294dbee523dcf6efe9b489be1576bca78e67
+I3 staged per-request tenant customer seller and cashbox gateway, 6 Dart fail-closed tests, I4 36 assertions customer seller cashbox A/admin B/operator RLS, no operational activation.
+source_sha=4e1216b43dc27a42ee35b0156eda85886867d2f2
