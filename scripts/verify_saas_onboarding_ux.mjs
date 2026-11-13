@@ -173,10 +173,13 @@ function verify() {
       'packages/core_logic/test/features/ventas/legacy_pending_sale_quarantine_test.dart',
     ),
     scopedSaleSync: read(
-      'packages/core_logic/lib/sync/application/tenant_pending_sale_sync_coordinator.dart',
+      'packages/core_logic/lib/sync/data/tenant_pending_sale_sync_coordinator.dart',
     ),
     scopedSaleSyncTests: read(
       'packages/core_logic/test/sync/application/tenant_pending_sale_sync_coordinator_test.dart',
+    ),
+    saleRepository: read(
+      'packages/core_logic/lib/features/ventas/data/ventas_repository.dart',
     ),
   };
   sources.setupScreens = {
@@ -679,6 +682,36 @@ function verify() {
     sources.scopedSaleSyncTests,
     /failed server write remains in the tenant queue for safe retry/,
     'Missing retry test for transient backend failure',
+  );
+
+  need(
+    errors,
+    sources.saleRepository,
+    /TenantRequestScope\? tenantScope/,
+    'Sale repository does not support explicit per-request tenant scope',
+  );
+  need(
+    errors,
+    sources.saleRepository,
+    /tenantScope\.execute<dynamic>\(/,
+    'Selected sale RPC is not bound to the Auth and tenant session lifecycle',
+  );
+  need(
+    errors,
+    sources.saleRepository,
+    /currentAuthUserId: \(\) => _client\.auth\.currentUser\?\.id/,
+    'Tenant-scoped sale writes do not verify the authenticated identity',
+  );
+  const scopedHeaders =
+    sources.saleRepository.match(/await rpc\.setHeader\(/g) ?? [];
+  if (scopedHeaders.length < 3) {
+    errors.push('All three sale RPC variants require a request-local tenant header');
+  }
+  forbid(
+    errors,
+    sources.saleRepository,
+    /_client\.headers\s*=|_client\.rest\.headers\s*=|_client\.headers\[/,
+    'Sale RPC must never mutate global Supabase headers',
   );
 
   return errors;
