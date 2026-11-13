@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const migrationPath='supabase/migrations/20260908059000_saas_self_service_organization_signup.sql';
 const ownerIdentityPath='supabase/migrations/20260916053000_saas_signup_owner_employee.sql';
+const membershipSelectionPath='supabase/migrations/20261113134412_security_multi_membership_signup_selection_and_own_listing.sql';
 const domainPath='packages/core_logic/lib/onboarding/domain/organization_signup.dart';
 const gatewayPath='packages/core_logic/lib/onboarding/data/supabase_organization_signup_gateway.dart';
 const useCasePath='packages/core_logic/lib/onboarding/application/organization_signup_use_case.dart';
@@ -16,6 +17,7 @@ function verify(){
   const errors=[];
   const sql=`${read(migrationPath)}\n${read(ownerIdentityPath)}`;
   const ownerIdentity=read(ownerIdentityPath);
+  const membershipSelection=read(membershipSelectionPath);
   const domain=read(domainPath);
   const gateway=read(gatewayPath);
   const useCase=read(useCasePath);
@@ -36,6 +38,20 @@ function verify(){
   if(/create_my_organization_v1\([\s\S]*?organization_id/i.test(sql.split('RETURNS jsonb')[0]??''))errors.push('alta acepta organization_id del cliente');
   if(/p_plan_code/i.test(sql))errors.push('alta acepta plan_code del cliente');
   if(/EXCEPTION\s+WHEN\s+OTHERS/i.test(sql))errors.push('alta captura WHEN OTHERS y puede ocultar rollback');
+
+  // 2D-I2: audited selection state, no cross-company enumeration, no
+  // unauthenticated API expansion or client-supplied role privileges.
+  need(errors,membershipSelection,/CREATE OR REPLACE FUNCTION public\.list_my_organization_memberships_v1\(\)/i,'falta RPC para membresías propias');
+  need(errors,membershipSelection,/au\.user_id=v_actor/i,'listado no deriva membresías exclusivamente de auth.uid');
+  need(errors,membershipSelection,/e\.organization_id=au\.organization_id/i,'listado no valida empleo en la misma empresa');
+  need(errors,membershipSelection,/e\.activo IS TRUE AND e\.employment_status='active'/i,'listado no valida empleo activo');
+  need(errors,membershipSelection,/REVOKE ALL ON FUNCTION public\.list_my_organization_memberships_v1\(\) FROM PUBLIC,anon/i,'listado nuevo no revoca ejecución pública');
+  need(errors,membershipSelection,/GRANT EXECUTE ON FUNCTION public\.list_my_organization_memberships_v1\(\) TO authenticated/i,'listado nuevo no declara permiso exclusivo authenticated');
+  need(errors,membershipSelection,/private\.resolve_selected_membership_v1\(\)/i,'estado de alta no usa resolver atómico');
+  need(errors,membershipSelection,/selection_required/i,'alta no falla cerrada sin selección con varias empresas');
+  need(errors,membershipSelection,/access_revoked/i,'alta no oculta selectores ajenos');
+  need(errors,gateway,/\.rpc\('list_my_organization_memberships_v1'\)/,'gateway no llama al listado revisado');
+  need(errors,domain,/selectionRequired/i,'Flutter no representa el selector requerido');
 
   need(errors,domain,/enum OrganizationSignupStateKind/i,'falta enum de estado onboarding');
   need(errors,domain,/class OrganizationSignupRequest/i,'falta request tipado');
