@@ -145,6 +145,21 @@ function verify() {
     legacySessionCache: read(
       'packages/core_logic/lib/auth/data/auth_session_cache.dart',
     ),
+    tenantPendingQueue: read(
+      'packages/core_logic/lib/database/tenant_pending_sale_queue.dart',
+    ),
+    persistentQueueStore: read(
+      'packages/core_logic/lib/database/pending_sale_queue_store.dart',
+    ),
+    tenantQueueTests: read(
+      'packages/core_logic/test/features/ventas/tenant_pending_sale_queue_test.dart',
+    ),
+    tenantCatalogCache: read(
+      'packages/core_logic/lib/services/tenant_catalog_cache.dart',
+    ),
+    tenantCatalogTests: read(
+      'packages/core_logic/test/features/ventas/tenant_catalog_cache_test.dart',
+    ),
   };
   sources.setupScreens = {
     'alta mobile/web': sources.mobileSetup,
@@ -442,6 +457,81 @@ function verify() {
     sources.legacySessionCache,
     /TenantAuthorizationCache\.clearAll\(\)/,
     'logout debe purgar todas las autorizaciones tenant v3',
+  );
+
+  // I3: legacy tickets and global product cache must remain quarantined.
+  // New storage is namespaced by BOTH Auth user and selected organization.
+  need(
+    errors,
+    sources.persistentQueueStore,
+    /databaseNameOverride/,
+    'SQLite pending queue cannot choose a tenant-specific database',
+  );
+  need(
+    errors,
+    sources.persistentQueueStore,
+    /webStorageKeyOverride/,
+    'Browser fallback pending queue is still globally shared',
+  );
+  need(
+    errors,
+    sources.tenantPendingQueue,
+    /stomni_pending_v2_/,
+    'New pending sale SQLite files are not tenant namespaced',
+  );
+  need(
+    errors,
+    sources.tenantPendingQueue,
+    /stomni_pending_web_v2:/,
+    'Browser queue namespace does not include user and tenant',
+  );
+  need(
+    errors,
+    sources.tenantPendingQueue,
+    /_requireOwnPayload\(payload\)/,
+    'Offline ticket enqueue does not validate tenant provenance',
+  );
+  need(
+    errors,
+    sources.tenantPendingQueue,
+    /scope\.execute<T>/,
+    'Offline queue does not verify session and tenant after writes',
+  );
+  forbid(
+    errors,
+    sources.tenantPendingQueue,
+    /(?:ventas_pendientes_queue_web_v1|ferreteria_pending_sales_v1\.db)/,
+    'New tenant queue must never overwrite legacy unbound tickets',
+  );
+  need(
+    errors,
+    sources.tenantCatalogCache,
+    /catalogo_cache_v2:/,
+    'Catalog cache is not namespaced to selected tenant',
+  );
+  need(
+    errors,
+    sources.tenantCatalogCache,
+    /_requireOwnProduct/,
+    'Catalog cache accepts product rows without verifying tenant',
+  );
+  need(
+    errors,
+    sources.tenantQueueTests,
+    /same request_id in A and B never overwrites another company/,
+    'Missing SQLite isolation test with duplicate request id',
+  );
+  need(
+    errors,
+    sources.tenantQueueTests,
+    /existing historical SQLite sales stay untouched and quarantined/,
+    'Missing test preserving unmigrated historical tickets',
+  );
+  need(
+    errors,
+    sources.tenantCatalogTests,
+    /one company cannot read cached products of another/,
+    'Missing cross-company catalog cache tests',
   );
 
   return errors;
