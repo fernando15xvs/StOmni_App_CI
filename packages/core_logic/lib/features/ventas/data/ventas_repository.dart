@@ -109,10 +109,7 @@ class VentasRepository {
                 );
         }
         if (usesConfiguredUnits) {
-          final rpc = _client.rpc(
-            'process_sale_with_units_v4',
-            params: params,
-          );
+          final rpc = _client.rpc('process_sale_with_units_v4', params: params);
           return organizationId == null
               ? await rpc
               : await rpc.setHeader(
