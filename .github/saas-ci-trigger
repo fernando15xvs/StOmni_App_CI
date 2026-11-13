@@ -1,2 +1,2 @@
-I3 tenant-specific pending ticket SQLite/web, catalog cache, window-local selection lifecycle, 35 regressions, no historical sale migration; exact CI format fixes.
-source_sha=5c3b3ce8da6f45d09b1ef15035baa4b5406d8bc7
+2D-I3 staged tenant-scoped pending ticket sync: legacy quarantine, server membership revalidation before each sale, no cross-org deletions, preserved retries, 10 regression cases.
+source_sha=ff20521bdc484f966a8b441061e18997c891feec
