@@ -1,2 +1,2 @@
-I3 Auth selection-required route: 7 job CI candidate, updated operations authorizer fake, static security and formatted UI.
-source_sha=c476200a12100ff2e310d746f7aae38da020401f
+2D-I3 identity selection pending: exact session and UI tests with nullable role fixture corrected.
+source_sha=488b220324cc671779a36d8fe639a5f67bc40801
