@@ -16,6 +16,14 @@ Su objetivo es evitar pruebas dispersas, omisiones y falsos "verdes". Una fase p
 - [ ] Cero pruebas críticas fallidas.
 - [ ] Cero pruebas críticas omitidas.
 
+## Registro intermedio de identidad multiempresa — NO es T19
+
+- **I2 / 13-11-2026 / Supabase DEV:** PK `app_users(organization_id,user_id)`, UNIQUE `empleados(organization_id,app_user_id)`, FK compuesta conservada y trigger de activación con bloqueo por `auth.users FOR UPDATE`. Segunda membresía persistente **prohibida**.
+- **I2 / CI 43454175588:** 7/7 jobs verdes del espejo `feature/saas-multitenant-foundation`, con reset y segunda reconstrucción limpia. Contratos pgTAP: 14+9+23+35, todos reversibles.
+- **I3 / candidato en revisión:** `TenantRequestScope` exige coincidencia de usuario y empresa antes y después de cada RPC; `SupabaseTenantRequestGateway` usa `.setHeader()` sólo por petición. `TenantAuthorizationCache` v3 es por usuario y empresa, no sustituye aún la caché online/offline v2 ni habilita switching.
+- **I4 / ensayo de roles:** contrato `security_multi_membership_distinct_roles_isolation_test.sql` (28 aserciones) con mismo usuario admin en A y operador en B, sin segundo vínculo persistente. No equivale a dos sesiones reales concurrentes, E2E de venta/caja ni T00–T19 final.
+- **GO global:** sigue **NO-GO** hasta activar la selección por petición, migrar los almacenes locales/sync/cachés, completar I4 y ejecutar T00–T19 sobre un único SHA final.
+
 ## Arquitectura que debe cubrir la validación
 
 Workspace Dart/Flutter:
