@@ -19,10 +19,7 @@ void main() {
     String baseRole, {
     List<String>? codes,
   }) => TenantVerifiedPermissions.fromServer(
-    VerifiedTenantRequestContext(
-      organizationId: org,
-      baseRole: baseRole,
-    ),
+    VerifiedTenantRequestContext(organizationId: org, baseRole: baseRole),
     {
       'supported': true,
       'employee_id': 17,
@@ -49,8 +46,10 @@ void main() {
   test('operator permissions are limited to B base role', () {
     final verified = parsed(orgB, 'operador');
     expect(verified.permissions, {AppPermission.salesCreate});
-    expect(verified.permissions.contains(AppPermission.businessConfigure),
-        isFalse);
+    expect(
+      verified.permissions.contains(AppPermission.businessConfigure),
+      isFalse,
+    );
   });
 
   test('server role mismatch fails closed rather than inheriting A admin', () {
@@ -73,11 +72,7 @@ void main() {
 
   test('operator business.configure escalation is denied', () {
     expect(
-      () => parsed(
-        orgB,
-        'operador',
-        codes: ['business.configure'],
-      ),
+      () => parsed(orgB, 'operador', codes: ['business.configure']),
       throwsStateError,
     );
   });
@@ -117,48 +112,48 @@ void main() {
       currentSelectedOrganizationId: () => orgA,
       verifyPermissions: (_) async => parsed(orgA, 'admin'),
     );
-    expect(
-      await auth.require({AppPermission.salesCreate}),
-      user,
-    );
+    expect(await auth.require({AppPermission.salesCreate}), user);
     expect(auth.currentAuthUserId, user);
   });
 
-  test('operator cannot use an admin permission from another company',
-      () async {
-    final auth = TenantOperationAuthorizer(
-      scope: scope(orgB),
-      currentAuthUserId: () => user,
-      currentSelectedOrganizationId: () => orgB,
-      verifyPermissions: (_) async => parsed(orgB, 'operador'),
-    );
-    await expectLater(
-      auth.require({AppPermission.businessConfigure}),
-      throwsA(isA<UserFacingException>()),
-    );
-  });
+  test(
+    'operator cannot use an admin permission from another company',
+    () async {
+      final auth = TenantOperationAuthorizer(
+        scope: scope(orgB),
+        currentAuthUserId: () => user,
+        currentSelectedOrganizationId: () => orgB,
+        verifyPermissions: (_) async => parsed(orgB, 'operador'),
+      );
+      await expectLater(
+        auth.require({AppPermission.businessConfigure}),
+        throwsA(isA<UserFacingException>()),
+      );
+    },
+  );
 
-  test('offline tenant auth stays disabled until v3 cache integration',
-      () async {
-    var contacted = false;
-    final auth = TenantOperationAuthorizer(
-      scope: scope(orgA),
-      currentAuthUserId: () => user,
-      currentSelectedOrganizationId: () => orgA,
-      verifyPermissions: (_) async {
-        contacted = true;
-        return parsed(orgA, 'admin');
-      },
-    );
-    await expectLater(
-      auth.require({AppPermission.salesCreate}, allowOffline: true),
-      throwsA(isA<UserFacingException>()),
-    );
-    expect(contacted, isFalse);
-  });
+  test(
+    'offline tenant auth stays disabled until v3 cache integration',
+    () async {
+      var contacted = false;
+      final auth = TenantOperationAuthorizer(
+        scope: scope(orgA),
+        currentAuthUserId: () => user,
+        currentSelectedOrganizationId: () => orgA,
+        verifyPermissions: (_) async {
+          contacted = true;
+          return parsed(orgA, 'admin');
+        },
+      );
+      await expectLater(
+        auth.require({AppPermission.salesCreate}, allowOffline: true),
+        throwsA(isA<UserFacingException>()),
+      );
+      expect(contacted, isFalse);
+    },
+  );
 
-  test('revoked server context cannot certify another organization',
-      () async {
+  test('revoked server context cannot certify another organization', () async {
     final auth = TenantOperationAuthorizer(
       scope: scope(orgA),
       currentAuthUserId: () => user,
@@ -171,67 +166,67 @@ void main() {
     );
   });
 
-  test('changing Auth while permissions load discards stale response',
-      () async {
-    String? active = user;
-    final gate = Completer<TenantVerifiedPermissions>();
-    final auth = TenantOperationAuthorizer(
-      scope: scope(orgA),
-      currentAuthUserId: () => active,
-      currentSelectedOrganizationId: () => orgA,
-      verifyPermissions: (_) => gate.future,
-    );
-    final pending = auth.require({AppPermission.salesCreate});
-    active = 'another-user';
-    gate.complete(parsed(orgA, 'admin'));
-    await expectLater(pending, throwsStateError);
-  });
+  test(
+    'changing Auth while permissions load discards stale response',
+    () async {
+      String? active = user;
+      final gate = Completer<TenantVerifiedPermissions>();
+      final auth = TenantOperationAuthorizer(
+        scope: scope(orgA),
+        currentAuthUserId: () => active,
+        currentSelectedOrganizationId: () => orgA,
+        verifyPermissions: (_) => gate.future,
+      );
+      final pending = auth.require({AppPermission.salesCreate});
+      active = 'another-user';
+      gate.complete(parsed(orgA, 'admin'));
+      await expectLater(pending, throwsStateError);
+    },
+  );
 
-  test('switching companies during permissions load discards response',
-      () async {
-    String? selected = orgA;
-    final gate = Completer<TenantVerifiedPermissions>();
-    final auth = TenantOperationAuthorizer(
-      scope: scope(orgA),
-      currentAuthUserId: () => user,
-      currentSelectedOrganizationId: () => selected,
-      verifyPermissions: (_) => gate.future,
-    );
-    final pending = auth.require({AppPermission.salesCreate});
-    selected = orgB;
-    gate.complete(parsed(orgA, 'admin'));
-    await expectLater(pending, throwsStateError);
-  });
+  test(
+    'switching companies during permissions load discards response',
+    () async {
+      String? selected = orgA;
+      final gate = Completer<TenantVerifiedPermissions>();
+      final auth = TenantOperationAuthorizer(
+        scope: scope(orgA),
+        currentAuthUserId: () => user,
+        currentSelectedOrganizationId: () => selected,
+        verifyPermissions: (_) => gate.future,
+      );
+      final pending = auth.require({AppPermission.salesCreate});
+      selected = orgB;
+      gate.complete(parsed(orgA, 'admin'));
+      await expectLater(pending, throwsStateError);
+    },
+  );
 
-  test('two windows with same Auth identity retain different permissions',
-      () async {
-    final adminWindow = TenantOperationAuthorizer(
-      scope: scope(orgA),
-      currentAuthUserId: () => user,
-      currentSelectedOrganizationId: () => orgA,
-      verifyPermissions: (_) async => parsed(
-        orgA,
-        'admin',
-        codes: ['business.configure'],
-      ),
-    );
-    final operatorWindow = TenantOperationAuthorizer(
-      scope: scope(orgB),
-      currentAuthUserId: () => user,
-      currentSelectedOrganizationId: () => orgB,
-      verifyPermissions: (_) async => parsed(orgB, 'operador'),
-    );
-    expect(
-      await adminWindow.require({AppPermission.businessConfigure}),
-      user,
-    );
-    await expectLater(
-      operatorWindow.require({AppPermission.businessConfigure}),
-      throwsA(isA<UserFacingException>()),
-    );
-    expect(
-      await operatorWindow.require({AppPermission.salesCreate}),
-      user,
-    );
-  });
+  test(
+    'two windows with same Auth identity retain different permissions',
+    () async {
+      final adminWindow = TenantOperationAuthorizer(
+        scope: scope(orgA),
+        currentAuthUserId: () => user,
+        currentSelectedOrganizationId: () => orgA,
+        verifyPermissions: (_) async =>
+            parsed(orgA, 'admin', codes: ['business.configure']),
+      );
+      final operatorWindow = TenantOperationAuthorizer(
+        scope: scope(orgB),
+        currentAuthUserId: () => user,
+        currentSelectedOrganizationId: () => orgB,
+        verifyPermissions: (_) async => parsed(orgB, 'operador'),
+      );
+      expect(
+        await adminWindow.require({AppPermission.businessConfigure}),
+        user,
+      );
+      await expectLater(
+        operatorWindow.require({AppPermission.businessConfigure}),
+        throwsA(isA<UserFacingException>()),
+      );
+      expect(await operatorWindow.require({AppPermission.salesCreate}), user);
+    },
+  );
 }
