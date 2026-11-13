@@ -1,2 +1,2 @@
-I2 selector-safe signup, active-membership listing, 102 privileged RPCs and Flutter read-models.
-source_sha=ab17f99c35a3699e4e75484275ad7f4358a86fb9
+I2 correction of strict RPC gate, Dart model, membership selection; backend previously passed.
+source_sha=3373466f0290a831682c8a9bd712a2005b5af749
