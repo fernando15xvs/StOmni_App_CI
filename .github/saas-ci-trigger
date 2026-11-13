@@ -1,2 +1,2 @@
-I2 composite membership PK and per-organization employee UNIQUE with serialized I4 fail-closed activation guard; 81 SQL regression assertions.
-source_sha=9331bfeb1d78430f4bb4268205be05ce562b6529
+I3 request-scoped tenant ID no shared Supabase headers, race rejection, isolated auth/tenant offline v3 cache (staged, not activated).
+source_sha=57a4c5ca50e88964c1fbde3ef02b3591a6984827
