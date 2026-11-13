@@ -77,6 +77,29 @@ class SupabaseSessionValidationGateway implements SessionValidationGateway {
   }
 
   @override
+  Future<bool> requiresOrganizationSelection(String authUserId) async {
+    if (currentAuthUserId != authUserId) return false;
+    try {
+      final raw = await client
+          .rpc('get_organization_signup_state_v1')
+          .timeout(const Duration(seconds: 15));
+      if (currentAuthUserId != authUserId) return false;
+      if (raw is! Map) {
+        throw const FormatException('Respuesta de selección inválida.');
+      }
+      final state = Map<String, dynamic>.from(raw);
+      return state['state'] == 'selection_required' &&
+          state['eligible'] == false &&
+          state['organization_id'] == null;
+    } catch (error) {
+      if (ErrorMapper.isConnectionError(error)) {
+        throw const SessionValidationUnavailable();
+      }
+      rethrow;
+    }
+  }
+
+  @override
   Future<Set<AppPermission>?> readEffectivePermissions(
     String authUserId,
   ) async {
