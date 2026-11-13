@@ -1,2 +1,2 @@
-I3 offline per-user per-company catalog and tickets, validated 5-segment UUID, local selector lifecycle race protection, historic sale quarantine; 35 new unit tests.
-source_sha=0906e29e385a1bf7e66685bd22d5d0ea6cd62b56
+I3 tenant-specific pending ticket SQLite/web, catalog cache, window-local selection lifecycle, 35 regressions, no historical sale migration; exact CI format fixes.
+source_sha=5c3b3ce8da6f45d09b1ef15035baa4b5406d8bc7
