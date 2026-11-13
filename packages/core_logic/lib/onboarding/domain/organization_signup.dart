@@ -47,9 +47,7 @@ class OrganizationSignupState {
       organizationStatus: attached
           ? json['organization_status'] as String?
           : null,
-      membershipStatus: attached
-          ? json['membership_status'] as String?
-          : null,
+      membershipStatus: attached ? json['membership_status'] as String? : null,
       displayName: attached ? json['display_name'] as String? : null,
     );
   }
