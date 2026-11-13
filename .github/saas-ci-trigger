@@ -1,2 +1,2 @@
-I3 company-selection Auth route read-only; mobile logout navigation survives disposed route.
-source_sha=ee81b1380f5806bb21841714a43c2260cc21dccd
+I2 composite membership PK and per-organization employee UNIQUE with serialized I4 fail-closed activation guard; 81 SQL regression assertions.
+source_sha=9331bfeb1d78430f4bb4268205be05ce562b6529
