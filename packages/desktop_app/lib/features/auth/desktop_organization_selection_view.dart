@@ -5,10 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Multi-company Auth remains valid, but operational tenant selection is
 /// deliberately disabled until per-session context and caches are certified.
 class DesktopOrganizationSelectionView extends ConsumerWidget {
-  const DesktopOrganizationSelectionView({
-    super.key,
-    required this.onSignOut,
-  });
+  const DesktopOrganizationSelectionView({super.key, required this.onSignOut});
 
   final Future<void> Function() onSignOut;
 
@@ -40,35 +37,37 @@ class DesktopOrganizationSelectionView extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
                 if (authUserId != null)
-                  ref.watch(organizationMembershipsForUserProvider(authUserId)).when(
-                    data: (organizations) => Column(
-                      children: [
-                        for (final organization in organizations)
-                          ListTile(
-                            leading: const Icon(Icons.store_outlined),
-                            title: Text(organization.displayName),
-                            subtitle: Text(
-                              'Rol: ${organization.baseRole}',
+                  ref
+                      .watch(organizationMembershipsForUserProvider(authUserId))
+                      .when(
+                        data: (organizations) => Column(
+                          children: [
+                            for (final organization in organizations)
+                              ListTile(
+                                leading: const Icon(Icons.store_outlined),
+                                title: Text(organization.displayName),
+                                subtitle: Text('Rol: ${organization.baseRole}'),
+                                enabled: false,
+                              ),
+                          ],
+                        ),
+                        loading: () => const CircularProgressIndicator(),
+                        error: (error, stackTrace) => Column(
+                          children: [
+                            const Text(
+                              'No se pudo cargar el listado de empresas.',
                             ),
-                            enabled: false,
-                          ),
-                      ],
-                    ),
-                    loading: () => const CircularProgressIndicator(),
-                    error: (error, stackTrace) => Column(
-                      children: [
-                        const Text(
-                          'No se pudo cargar el listado de empresas.',
+                            TextButton(
+                              onPressed: () => ref.invalidate(
+                                organizationMembershipsForUserProvider(
+                                  authUserId,
+                                ),
+                              ),
+                              child: const Text('Reintentar'),
+                            ),
+                          ],
                         ),
-                        TextButton(
-                          onPressed: () => ref.invalidate(
-                            organizationMembershipsForUserProvider(authUserId),
-                          ),
-                          child: const Text('Reintentar'),
-                        ),
-                      ],
-                    ),
-                  ),
+                      ),
                 const SizedBox(height: 20),
                 FilledButton.tonalIcon(
                   onPressed: onSignOut,
