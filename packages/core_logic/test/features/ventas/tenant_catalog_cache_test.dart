@@ -21,10 +21,7 @@ void main() {
     String? Function()? signedIn,
     String? Function()? selected,
   }) => TenantCatalogCache(
-    scope: TenantRequestScope(
-      authUserId: user,
-      organizationId: organization,
-    ),
+    scope: TenantRequestScope(authUserId: user, organizationId: organization),
     currentAuthUserId: signedIn ?? () => user,
     currentSelectedOrganizationId: selected ?? () => organization,
   );
@@ -44,18 +41,23 @@ void main() {
     expect((await b.load()).single['organization_id'], orgB);
   });
 
-  test('different Auth identities cannot share one organization catalog', () async {
-    final a = cache(userA, orgA);
-    final b = cache(userB, orgA);
-    await a.save(products(orgA));
-    expect(await b.load(), isEmpty);
-  });
+  test(
+    'different Auth identities cannot share one organization catalog',
+    () async {
+      final a = cache(userA, orgA);
+      final b = cache(userB, orgA);
+      await a.save(products(orgA));
+      expect(await b.load(), isEmpty);
+    },
+  );
 
   test('foreign products cannot be written under selected company', () async {
     final a = cache(userA, orgA);
     await expectLater(a.save(products(orgB)), throwsStateError);
     await expectLater(
-      a.save([{'id': 'sku-missing-organization'}]),
+      a.save([
+        {'id': 'sku-missing-organization'},
+      ]),
       throwsStateError,
     );
     expect(await a.load(), isEmpty);
@@ -69,21 +71,28 @@ void main() {
     expect(prefs.getString('catalogo_cache'), isNotNull);
   });
 
-  test('revocation or account switch blocks all selected catalog access',
-      () async {
-    String? selected = orgA;
-    String? user = userA;
-    final a = cache(userA, orgA, signedIn: () => user, selected: () => selected);
-    await a.save(products(orgA));
-    selected = orgB;
-    await expectLater(a.load(), throwsStateError);
-    await expectLater(a.clearSelectedTenant(), throwsStateError);
-    selected = orgA;
-    user = userB;
-    await expectLater(a.load(), throwsStateError);
-    user = userA;
-    expect((await a.load()).single['id'], 'sku-1');
-  });
+  test(
+    'revocation or account switch blocks all selected catalog access',
+    () async {
+      String? selected = orgA;
+      String? user = userA;
+      final a = cache(
+        userA,
+        orgA,
+        signedIn: () => user,
+        selected: () => selected,
+      );
+      await a.save(products(orgA));
+      selected = orgB;
+      await expectLater(a.load(), throwsStateError);
+      await expectLater(a.clearSelectedTenant(), throwsStateError);
+      selected = orgA;
+      user = userB;
+      await expectLater(a.load(), throwsStateError);
+      user = userA;
+      expect((await a.load()).single['id'], 'sku-1');
+    },
+  );
 
   test('removing A cache leaves B cache unchanged', () async {
     final a = cache(userA, orgA);
