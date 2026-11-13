@@ -4,6 +4,7 @@ import 'app_permission.dart';
 enum SessionValidationStatus {
   signedOut,
   organizationSetupRequired,
+  organizationSelectionRequired,
   online,
   offline,
   denied,
@@ -65,6 +66,11 @@ class SessionValidationResult {
   /// empresarial ni puede usar autorización offline hasta completar F8.1.
   bool get requiresOrganizationSetup =>
       status == SessionValidationStatus.organizationSetupRequired;
+
+  /// Session remains authenticated, but no company has been selected.
+  /// This is never permission to enter Home or use offline state.
+  bool get requiresOrganizationSelection =>
+      status == SessionValidationStatus.organizationSelectionRequired;
 
   bool get isOffline => status == SessionValidationStatus.offline;
 }
