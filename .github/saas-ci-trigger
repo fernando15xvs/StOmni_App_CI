@@ -1,2 +1,2 @@
-I3 selected tenant operation authorization online (12 tests), seller/customer/cashbox request-local context (6 tests), A/B role and RLS rehearsal 36 assertions; exact formatting corrections; no live selector.
-source_sha=87ee1a98c7b377b40d7a275be781ced69d9c93ef
+I3 role-separated authorization, offline fail-closed, 12 permission tests, 6 customer/cash tests, 36 A/B SQL; robust formatter-flexible security gate.
+source_sha=a0cb94ed99a7ec0af317555f5c22d6d040dff02e
