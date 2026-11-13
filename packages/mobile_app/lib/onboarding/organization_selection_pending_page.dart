@@ -49,37 +49,39 @@ class OrganizationSelectionPendingPage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
                 if (authUserId != null)
-                  ref.watch(organizationMembershipsForUserProvider(authUserId)).when(
-                    data: (organizations) => Column(
-                      children: [
-                        for (final organization in organizations)
-                          ListTile(
-                            leading: const Icon(Icons.store_outlined),
-                            title: Text(organization.displayName),
-                            subtitle: Text(
-                              'Rol: ${organization.baseRole}',
+                  ref
+                      .watch(organizationMembershipsForUserProvider(authUserId))
+                      .when(
+                        data: (organizations) => Column(
+                          children: [
+                            for (final organization in organizations)
+                              ListTile(
+                                leading: const Icon(Icons.store_outlined),
+                                title: Text(organization.displayName),
+                                subtitle: Text('Rol: ${organization.baseRole}'),
+                                // Read-only until I2/I3 session isolation is certified.
+                                enabled: false,
+                              ),
+                          ],
+                        ),
+                        loading: () => const CircularProgressIndicator(),
+                        error: (error, stackTrace) => Column(
+                          children: [
+                            const Text(
+                              'No pudimos verificar tus empresas.',
+                              textAlign: TextAlign.center,
                             ),
-                            // Read-only until I2/I3 session isolation is certified.
-                            enabled: false,
-                          ),
-                      ],
-                    ),
-                    loading: () => const CircularProgressIndicator(),
-                    error: (error, stackTrace) => Column(
-                      children: [
-                        const Text(
-                          'No pudimos verificar tus empresas.',
-                          textAlign: TextAlign.center,
+                            TextButton(
+                              onPressed: () => ref.invalidate(
+                                organizationMembershipsForUserProvider(
+                                  authUserId,
+                                ),
+                              ),
+                              child: const Text('Reintentar'),
+                            ),
+                          ],
                         ),
-                        TextButton(
-                          onPressed: () => ref.invalidate(
-                            organizationMembershipsForUserProvider(authUserId),
-                          ),
-                          child: const Text('Reintentar'),
-                        ),
-                      ],
-                    ),
-                  ),
+                      ),
                 const SizedBox(height: 18),
                 const Text(
                   'El cambio de empresa estará disponible cuando finalicen '
