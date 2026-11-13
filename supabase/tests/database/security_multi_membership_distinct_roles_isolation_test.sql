@@ -4,7 +4,7 @@
 BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET LOCAL search_path=public,extensions,pg_catalog;
-SELECT plan(28);
+SELECT plan(36);
 
 CREATE TEMP TABLE _i4_identity(label text PRIMARY KEY,uid uuid,org uuid) ON COMMIT DROP;
 INSERT INTO _i4_identity SELECT label,gen_random_uuid(),NULL::uuid
@@ -68,6 +68,16 @@ JOIN public.roles r ON r.organization_id=e.organization_id
 WHERE e.organization_id=(SELECT org FROM _i4_identity WHERE label='B')
  AND e.app_user_id=(SELECT uid FROM _i4_identity WHERE label='A');
 
+-- Isolated fixture customers for the seller/customer/cash context gateway.
+-- The trigger is bypassed only for controlled setup in this rollback-only
+-- transaction. Normal authenticated requests below always run with RLS.
+SET LOCAL session_replication_role=replica;
+INSERT INTO public.clientes(organization_id,nombre,dni_ruc,direccion)
+SELECT org,'I4 customer '||label,
+  CASE WHEN label='A' THEN '12345678' ELSE '87654321' END,'test'
+FROM _i4_identity;
+SET LOCAL session_replication_role=origin;
+
 SET LOCAL ROLE authenticated;
 SELECT set_config('request.headers','{}',true);
 SELECT is(private.current_organization_id(),NULL::uuid,'Ambiguous A/B does not auto-select a company');
@@ -88,6 +98,16 @@ SELECT is((public.get_my_subscription_v1()->>'organization_id')::uuid,
   (SELECT org FROM _i4_identity WHERE label='A'),'A subscription is A only');
 SELECT is(public.get_my_effective_permissions_v1()->>'role','admin',
   'A effective role is A admin');
+SELECT is((SELECT count(*)::int FROM public.clientes WHERE dni_ruc='12345678'),1,
+  'A can see its own customer through clientes RLS');
+SELECT is((SELECT count(*)::int FROM public.clientes WHERE dni_ruc='87654321'),0,
+  'A cannot see B customer through clientes RLS');
+SELECT is((SELECT count(*)::int FROM public.empleados
+  WHERE organization_id=(SELECT org FROM _i4_identity WHERE label='A')
+  AND app_user_id=(SELECT uid FROM _i4_identity WHERE label='A') AND activo),1,
+  'A can resolve its active seller in A');
+SELECT is(public.get_estado_caja_chica()->>'estado','CERRADA',
+  'A cashbox state is selected A with no open session');
 
 SELECT set_config('request.headers',jsonb_build_object(
   'x-stomni-organization-id',(SELECT org FROM _i4_identity WHERE label='B')
@@ -112,6 +132,16 @@ SELECT is((SELECT count(*)::int FROM public.organizations
 SELECT is((SELECT count(*)::int FROM public.organizations
  WHERE id=(SELECT org FROM _i4_identity WHERE label='B')),1,
  'B selected request can read its own organization');
+SELECT is((SELECT count(*)::int FROM public.clientes WHERE dni_ruc='87654321'),1,
+  'B can see its own customer through clientes RLS');
+SELECT is((SELECT count(*)::int FROM public.clientes WHERE dni_ruc='12345678'),0,
+  'B cannot see A customer through clientes RLS');
+SELECT is((SELECT count(*)::int FROM public.empleados
+  WHERE organization_id=(SELECT org FROM _i4_identity WHERE label='B')
+  AND app_user_id=(SELECT uid FROM _i4_identity WHERE label='A') AND activo),1,
+  'B can resolve its separate active seller as operator');
+SELECT is(public.get_estado_caja_chica()->>'estado','CERRADA',
+  'B cashbox read cannot inherit A cashbox context');
 
 SELECT set_config('request.headers',jsonb_build_object(
   'x-stomni-organization-id',gen_random_uuid()
