@@ -32,6 +32,9 @@ class AuthState {
   bool get requiresOrganizationSetup =>
       sessionStatus == SessionValidationStatus.organizationSetupRequired;
 
+  bool get requiresOrganizationSelection =>
+      sessionStatus == SessionValidationStatus.organizationSelectionRequired;
+
   AuthState copyWith({
     bool? isLoading,
     String? error,
@@ -121,6 +124,20 @@ class AuthController extends StateNotifier<AuthState> {
           isLoading: false,
           clearError: true,
           sessionStatus: SessionValidationStatus.passwordChangeRequired,
+        );
+        return true;
+      }
+
+      if (validation.requiresOrganizationSelection) {
+        // No operational role, Home, cached permissions or implicit tenant.
+        // Preserve the authenticated identity so the verified membership
+        // candidates can be shown without exposing company business data.
+        ref.read(rolProvider.notifier).state = 'sin_rol';
+        ConfiguracionService.clearActiveConfiguration();
+        state = state.copyWith(
+          isLoading: false,
+          clearError: true,
+          sessionStatus: SessionValidationStatus.organizationSelectionRequired,
         );
         return true;
       }
@@ -261,7 +278,8 @@ class AuthController extends StateNotifier<AuthState> {
       SessionValidationStatus.denied ||
       SessionValidationStatus.signedOut ||
       SessionValidationStatus.passwordChangeRequired ||
-      SessionValidationStatus.organizationSetupRequired =>
+      SessionValidationStatus.organizationSetupRequired ||
+      SessionValidationStatus.organizationSelectionRequired =>
         AuthRevalidationResult.denied,
       _ => AuthRevalidationResult.unavailable,
     };
@@ -287,7 +305,8 @@ class AuthController extends StateNotifier<AuthState> {
         result.status == SessionValidationStatus.denied ||
         result.status == SessionValidationStatus.signedOut ||
         result.status == SessionValidationStatus.passwordChangeRequired ||
-        result.status == SessionValidationStatus.organizationSetupRequired;
+        result.status == SessionValidationStatus.organizationSetupRequired ||
+        result.status == SessionValidationStatus.organizationSelectionRequired;
     if (shouldClearRole) {
       ref.read(rolProvider.notifier).state = 'sin_rol';
       ConfiguracionService.clearActiveConfiguration();
