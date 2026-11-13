@@ -60,75 +60,85 @@ void main() {
     'detalles': <Map<String, dynamic>>[],
   };
 
-  test('existing sale submission port stages ticket with verified tenant id',
-      () async {
-    final store = queue(orgA);
-    final gateway = TenantPendingSaleQueueGateway(store);
-    await gateway.enqueue(PendingSaleMapper.decode(saleMap()));
-    final records = await store.list();
-    expect(records.length, 1);
-    expect(records.single.payload['organization_id'], orgA);
-    expect(records.single.payload['auth_user_id'], user);
-    expect(records.single.payload['schema_version'], 3);
-    expect(records.single.requestId, 'shared-sale-id');
-  });
+  test(
+    'existing sale submission port stages ticket with verified tenant id',
+    () async {
+      final store = queue(orgA);
+      final gateway = TenantPendingSaleQueueGateway(store);
+      await gateway.enqueue(PendingSaleMapper.decode(saleMap()));
+      final records = await store.list();
+      expect(records.length, 1);
+      expect(records.single.payload['organization_id'], orgA);
+      expect(records.single.payload['auth_user_id'], user);
+      expect(records.single.payload['schema_version'], 3);
+      expect(records.single.requestId, 'shared-sale-id');
+    },
+  );
 
-  test('other Auth user cannot inject ticket into current tenant queue',
-      () async {
-    final store = queue(orgA);
-    final gateway = TenantPendingSaleQueueGateway(store);
-    await expectLater(
-      gateway.enqueue(
-        PendingSaleMapper.decode(saleMap(authUserId: otherUser)),
-      ),
-      throwsStateError,
-    );
-    expect(await store.count(), 0);
-  });
+  test(
+    'other Auth user cannot inject ticket into current tenant queue',
+    () async {
+      final store = queue(orgA);
+      final gateway = TenantPendingSaleQueueGateway(store);
+      await expectLater(
+        gateway.enqueue(
+          PendingSaleMapper.decode(saleMap(authUserId: otherUser)),
+        ),
+        throwsStateError,
+      );
+      expect(await store.count(), 0);
+    },
+  );
 
-  test('sale submission adapter rejects invoices and never queues fiscal docs',
-      () async {
-    final store = queue(orgA);
-    final gateway = TenantPendingSaleQueueGateway(store);
-    await expectLater(
-      gateway.enqueue(PendingSaleMapper.decode(saleMap(type: 'factura'))),
-      throwsStateError,
-    );
-    expect(await store.count(), 0);
-  });
+  test(
+    'sale submission adapter rejects invoices and never queues fiscal docs',
+    () async {
+      final store = queue(orgA);
+      final gateway = TenantPendingSaleQueueGateway(store);
+      await expectLater(
+        gateway.enqueue(PendingSaleMapper.decode(saleMap(type: 'factura'))),
+        throwsStateError,
+      );
+      expect(await store.count(), 0);
+    },
+  );
 
-  test('parallel company queues cannot overwrite one shared request ID',
-      () async {
-    final first = queue(orgA);
-    final second = queue(orgB);
-    await TenantPendingSaleQueueGateway(first).enqueue(
-      PendingSaleMapper.decode(saleMap()),
-    );
-    selected = orgB;
-    await TenantPendingSaleQueueGateway(second).enqueue(
-      PendingSaleMapper.decode(saleMap()),
-    );
-    expect((await second.list()).single.payload['organization_id'], orgB);
-    selected = orgA;
-    expect((await first.list()).single.payload['organization_id'], orgA);
-  });
+  test(
+    'parallel company queues cannot overwrite one shared request ID',
+    () async {
+      final first = queue(orgA);
+      final second = queue(orgB);
+      await TenantPendingSaleQueueGateway(
+        first,
+      ).enqueue(PendingSaleMapper.decode(saleMap()));
+      selected = orgB;
+      await TenantPendingSaleQueueGateway(
+        second,
+      ).enqueue(PendingSaleMapper.decode(saleMap()));
+      expect((await second.list()).single.payload['organization_id'], orgB);
+      selected = orgA;
+      expect((await first.list()).single.payload['organization_id'], orgA);
+    },
+  );
 
-  test('session or tenant change blocks the submission port before storage',
-      () async {
-    final store = queue(orgA);
-    final gateway = TenantPendingSaleQueueGateway(store);
-    selected = orgB;
-    await expectLater(
-      gateway.enqueue(PendingSaleMapper.decode(saleMap())),
-      throwsStateError,
-    );
-    selected = orgA;
-    authUser = otherUser;
-    await expectLater(
-      gateway.enqueue(PendingSaleMapper.decode(saleMap())),
-      throwsStateError,
-    );
-    authUser = user;
-    expect(await store.count(), 0);
-  });
+  test(
+    'session or tenant change blocks the submission port before storage',
+    () async {
+      final store = queue(orgA);
+      final gateway = TenantPendingSaleQueueGateway(store);
+      selected = orgB;
+      await expectLater(
+        gateway.enqueue(PendingSaleMapper.decode(saleMap())),
+        throwsStateError,
+      );
+      selected = orgA;
+      authUser = otherUser;
+      await expectLater(
+        gateway.enqueue(PendingSaleMapper.decode(saleMap())),
+        throwsStateError,
+      );
+      authUser = user;
+      expect(await store.count(), 0);
+    },
+  );
 }
