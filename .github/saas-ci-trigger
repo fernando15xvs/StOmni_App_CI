@@ -1,2 +1,2 @@
-I3 scoped SQLite pending tickets + catalog cache across user/tenant; 19 tests; exact Dart formatter corrections.
-source_sha=eb5f4130113c4afd2d1a49716769733975c2d990
+I3 tenant scoped ticket/catalog stores, fixed UUID verifier, 19 offline regressions and 10 per-window company selection concurrency tests; no operational activation.
+source_sha=ef41d55bf0fa200493edb30b39e2ac252f46b3bb
