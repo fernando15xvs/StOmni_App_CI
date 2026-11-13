@@ -42,7 +42,7 @@ SELECT set_config('request.jwt.claim.sub',(SELECT uid::text FROM _reader_owner W
 UPDATE _reader_owner SET org=(public.create_my_organization_v1('2DH reader tenant A','PE','PEN','America/Lima')->>'organization_id')::uuid WHERE label='A';
 SELECT set_config('request.jwt.claim.sub',(SELECT uid::text FROM _reader_owner WHERE label='B'),true);
 UPDATE _reader_owner SET org=(public.create_my_organization_v1('2DH reader tenant B','PE','PEN','America/Lima')->>'organization_id')::uuid WHERE label='B';
--- 2D-I readiness: never grant multiple memberships until org AND role are selected atomically.
+-- 2D-I schema readiness: activation trigger rejects persisted second membership.
 SELECT set_config('request.jwt.claim.sub',(SELECT uid FROM _reader_owner WHERE label='A')::text,true);
 SELECT set_config('request.headers','{}',true);
 SELECT is(private.current_organization_id(),(SELECT org FROM _reader_owner WHERE label='A'),'A resolves own unique active organization');
@@ -86,9 +86,9 @@ SELECT is(private.current_organization_id(),NULL::uuid,'Unknown user resolves no
 SELECT is(private.current_base_role(),NULL::text,'Unknown user resolves no role');
 SELECT throws_ok($q$SELECT private.require_current_organization_id()$q$,'42501',NULL,'Unknown user cannot require tenant');
 RESET ROLE;
-SET LOCAL session_replication_role=replica;
-SELECT throws_ok($q$INSERT INTO public.app_users(user_id,organization_id,status,base_role) VALUES ((SELECT uid FROM _reader_owner WHERE label='A'),(SELECT org FROM _reader_owner WHERE label='B'),'active','admin')$q$,'23505',NULL,'Current app_users user_id primary key blocks cross-org membership; migration required');
-SELECT throws_ok($q$INSERT INTO public.empleados(organization_id,branch_id,nombre,rol,activo,employment_status,app_user_id,auth_id) VALUES ((SELECT org FROM _reader_owner WHERE label='B'),(SELECT id FROM public.branches WHERE organization_id=(SELECT org FROM _reader_owner WHERE label='B') AND is_main),'Second membership','operador',true,'active',(SELECT uid FROM _reader_owner WHERE label='A'),(SELECT uid FROM _reader_owner WHERE label='A'))$q$,'23505',NULL,'Current employee app_user_id global unique blocks cross-org employee; migration required');
+SET LOCAL session_replication_role=origin;
+SELECT throws_ok($q$INSERT INTO public.app_users(user_id,organization_id,status,base_role) VALUES ((SELECT uid FROM _reader_owner WHERE label='A'),(SELECT org FROM _reader_owner WHERE label='B'),'active','admin')$q$,'23505',NULL,'I4 activation trigger rejects second organization despite composite primary key');
+SELECT throws_ok($q$INSERT INTO public.empleados(organization_id,branch_id,nombre,rol,activo,employment_status,app_user_id,auth_id) VALUES ((SELECT org FROM _reader_owner WHERE label='B'),(SELECT id FROM public.branches WHERE organization_id=(SELECT org FROM _reader_owner WHERE label='B') AND is_main),'Second membership','operador',true,'active',(SELECT uid FROM _reader_owner WHERE label='A'),(SELECT uid FROM _reader_owner WHERE label='A'))$q$,'23503',NULL,'Composite FK prevents an employee link without a matching tenant membership');
 SET LOCAL session_replication_role=origin;
 SELECT * FROM finish();
 ROLLBACK;
