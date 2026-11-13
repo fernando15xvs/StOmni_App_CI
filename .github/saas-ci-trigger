@@ -1,2 +1,2 @@
-I3 request-scoped tenant ID no shared Supabase headers, race rejection, isolated auth/tenant offline v3 cache (staged, not activated).
-source_sha=57a4c5ca50e88964c1fbde3ef02b3591a6984827
+I3 request-scoped tenant builder + v3 per-tenant offline authorization staging, 15 tests, all formatter corrections applied.
+source_sha=291dcc060b40059d1bad749460040d870dc04f24
