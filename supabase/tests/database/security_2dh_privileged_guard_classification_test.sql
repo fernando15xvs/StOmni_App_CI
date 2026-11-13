@@ -1,4 +1,4 @@
--- 2D-H: guard taxonomy for all 101 authenticated SECURITY DEFINER RPCs.
+-- 2D-H: guard taxonomy for 101 original plus 1 reviewed membership-list RPC.
 -- This is static gate evidence; it does not replace behavioral tenant tests.
 BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
@@ -20,10 +20,10 @@ SELECT signature,proconfig,body,
    ELSE 'PUBLIC_OR_UNGUARDED'
  END AS guard_class
 FROM rpc;
-SELECT is((SELECT count(*)::int FROM _2dh_rpc_classes),101,'Privileged API inventory remains explicit at 101');
+SELECT is((SELECT count(*)::int FROM _2dh_rpc_classes),102,'Privileged API inventory remains explicit at 102');
 SELECT is((SELECT count(*)::int FROM _2dh_rpc_classes WHERE guard_class='STRICT_ORG'),75,'75 RPCs directly require privileged active-tenant context');
 SELECT is((SELECT count(*)::int FROM _2dh_rpc_classes WHERE guard_class='PERMISSION_OR_ASSERT'),20,'20 RPCs use explicit permission or ownership assertions');
-SELECT is((SELECT count(*)::int FROM _2dh_rpc_classes WHERE guard_class='CONTEXT_AUTH'),4,'Four deliberately scoped identity and bootstrap endpoints');
+SELECT is((SELECT count(*)::int FROM _2dh_rpc_classes WHERE guard_class='CONTEXT_AUTH'),5,'Five deliberately scoped identity and bootstrap endpoints');
 SELECT is((SELECT count(*)::int FROM _2dh_rpc_classes WHERE guard_class='DELEGATED'),1,'Single legacy transfer delegates to guarded v2 writer');
 SELECT is_empty($q$SELECT signature FROM _2dh_rpc_classes
  WHERE guard_class='PUBLIC_OR_UNGUARDED'
