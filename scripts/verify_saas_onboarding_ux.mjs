@@ -193,6 +193,15 @@ function verify() {
     scopedSaleContextTests: read(
       'packages/core_logic/test/features/ventas/tenant_venta_context_repository_test.dart',
     ),
+    tenantOperationAuthorizer: read(
+      'packages/core_logic/lib/auth/application/tenant_operation_authorizer.dart',
+    ),
+    tenantPermissionGateway: read(
+      'packages/core_logic/lib/auth/data/supabase_tenant_permission_gateway.dart',
+    ),
+    tenantOperationTests: read(
+      'packages/core_logic/test/auth/tenant_operation_authorizer_test.dart',
+    ),
   };
   sources.setupScreens = {
     'alta mobile/web': sources.mobileSetup,
@@ -810,6 +819,66 @@ function verify() {
     sources.scopedSaleContext,
     /_client\.headers\s*=|_client\.rest\.headers\s*=|_client\.headers\[/,
     'Sale context must not share a global tenant header between windows',
+  );
+
+  need(
+    errors,
+    sources.tenantOperationAuthorizer,
+    /implements OperationAuthorizer/,
+    'No tenant-bound replacement for the authorization application port',
+  );
+  need(
+    errors,
+    sources.tenantOperationAuthorizer,
+    /scope\.execute<String>/,
+    'Tenant permission verification lacks session-change rejection',
+  );
+  need(
+    errors,
+    sources.tenantOperationAuthorizer,
+    /if \(allowOffline\)/,
+    'Offline permissions are enabled before v3 tenant auth cache certification',
+  );
+  need(
+    errors,
+    sources.tenantOperationAuthorizer,
+    /RolePermissionPolicy\.forRole\(tenant\.baseRole\)/,
+    'Server permission payload can exceed the selected tenant base role',
+  );
+  need(
+    errors,
+    sources.tenantPermissionGateway,
+    /\.rpc\('get_my_tenant_context_v1'\)/,
+    'Permission gateway does not verify server-selected membership',
+  );
+  need(
+    errors,
+    sources.tenantPermissionGateway,
+    /\.rpc\('get_my_effective_permissions_v1'\)/,
+    'Permission gateway does not query effective permissions for this tenant',
+  );
+  const permissionRequestHeaders =
+    sources.tenantPermissionGateway.match(/\.setHeader\(/g) ?? [];
+  if (permissionRequestHeaders.length < 2) {
+    errors.push('Both tenant permission RPC calls must have request-local headers');
+  }
+  need(
+    errors,
+    sources.tenantOperationTests,
+    /two windows with same Auth identity retain different permissions/,
+    'Missing A-admin/B-operator permission isolation regression',
+  );
+  need(
+    errors,
+    sources.tenantOperationTests,
+    /offline tenant auth stays disabled until v3 cache integration/,
+    'Missing safe-denial offline tenant permission regression',
+  );
+  forbid(
+    errors,
+    sources.tenantPermissionGateway,
+    /client\.headers\s*=|client\.rest\.headers\s*=|client\.headers\[/,
+    'Permission gateway must not mutate global Supabase request headers',
   );
 
   return errors;
