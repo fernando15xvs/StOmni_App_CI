@@ -15,6 +15,18 @@ void main() {
     expect(route.opensBusinessHome, isFalse);
   });
 
+  test('usuario con varias empresas no puede entrar a Home sin elegir', () {
+    const status = SessionValidationStatus.organizationSelectionRequired;
+    final route = policy.resolve(
+      sessionStatus: status,
+      onboardingCompleted: true,
+    );
+
+    expect(route, SaasEntryRoute.organizationSelectionRequired);
+    expect(route.opensBusinessHome, isFalse);
+    expect(policy.requiresGuidedOnboarding(status), isFalse);
+  });
+
   test('cambio obligatorio de contraseña tiene prioridad', () {
     final route = policy.resolve(
       sessionStatus: SessionValidationStatus.passwordChangeRequired,
