@@ -166,6 +166,12 @@ function verify() {
     tenantSelectionTests: read(
       'packages/core_logic/test/onboarding/tenant_selection_session_test.dart',
     ),
+    legacyPendingGuard: read(
+      'packages/core_logic/lib/database/legacy_pending_sale_quarantine.dart',
+    ),
+    legacyPendingTests: read(
+      'packages/core_logic/test/features/ventas/legacy_pending_sale_quarantine_test.dart',
+    ),
   };
   sources.setupScreens = {
     'alta mobile/web': sources.mobileSetup,
@@ -575,6 +581,43 @@ function verify() {
     sources.tenantSelectionTests,
     /later B selection wins and stale A response cannot replace it/,
     'Missing stale-response rejection during rapid tenant changes',
+  );
+
+  need(
+    errors,
+    sources.legacyPendingGuard,
+    /legacyQueue\.count\(\)/,
+    'Tenant activation does not inspect the existing SQLite pending queue',
+  );
+  need(
+    errors,
+    sources.legacyPendingGuard,
+    /prefs\.getString\(historicalPreferencesKey\)/,
+    'Tenant activation ignores the old preferences sales queue',
+  );
+  need(
+    errors,
+    sources.legacyPendingGuard,
+    /!status\.safeToSwitch/,
+    'Unowned historical tickets do not block real company switching',
+  );
+  forbid(
+    errors,
+    sources.legacyPendingGuard,
+    /legacyQueue\.(?:deleteByRequestId|clear|upsertPayload)\(/,
+    'Legacy-ticket quarantine must never delete or migrate historical sales',
+  );
+  need(
+    errors,
+    sources.legacyPendingTests,
+    /historical SQLite ticket blocks activation without erasing it/,
+    'Missing durable legacy-ticket activation block regression',
+  );
+  need(
+    errors,
+    sources.legacyPendingTests,
+    /old shared preferences ticket is quarantined, not migrated/,
+    'Missing shared preferences legacy-sale quarantine regression',
   );
 
   return errors;
