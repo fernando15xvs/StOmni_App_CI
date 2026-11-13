@@ -72,46 +72,58 @@ void main() {
     },
   );
 
-  test('multiempresa sin selector conserva Auth pero nunca cache ni Home', () async {
-    gateway.role = null;
-    gateway.signupEligible = false;
-    gateway.selectionRequired = true;
-    gateway.cached = cached();
+  test(
+    'multiempresa sin selector conserva Auth pero nunca cache ni Home',
+    () async {
+      gateway.role = null;
+      gateway.signupEligible = false;
+      gateway.selectionRequired = true;
+      gateway.cached = cached();
 
-    final result = await useCase.execute();
+      final result = await useCase.execute();
 
-    expect(result.status, SessionValidationStatus.organizationSelectionRequired);
-    expect(result.requiresOrganizationSelection, isTrue);
-    expect(result.isAuthorized, isFalse);
-    expect(result.role, isNull);
-    expect(gateway.currentAuthUserId, 'user-1');
-    expect(gateway.cached, isNull);
-    expect(gateway.saved, isNull);
-    expect(gateway.calls, ['remote', 'clear', 'signup', 'selection']);
-  });
+      expect(
+        result.status,
+        SessionValidationStatus.organizationSelectionRequired,
+      );
+      expect(result.requiresOrganizationSelection, isTrue);
+      expect(result.isAuthorized, isFalse);
+      expect(result.role, isNull);
+      expect(gateway.currentAuthUserId, 'user-1');
+      expect(gateway.cached, isNull);
+      expect(gateway.saved, isNull);
+      expect(gateway.calls, ['remote', 'clear', 'signup', 'selection']);
+    },
+  );
 
   test('selector obligatorio nunca habilita autorizacion offline', () async {
     gateway.role = null;
     gateway.selectionRequired = true;
     gateway.cached = cached();
     final result = await useCase.execute(allowOffline: true);
-    expect(result.status, SessionValidationStatus.organizationSelectionRequired);
+    expect(
+      result.status,
+      SessionValidationStatus.organizationSelectionRequired,
+    );
     expect(result.isOffline, isFalse);
     expect(result.isAuthorized, isFalse);
     expect(gateway.calls, ['remote', 'clear', 'signup', 'selection']);
   });
 
-  test('si falla verificar el selector no cierra sesion ni concede Home', () async {
-    gateway.role = null;
-    gateway.cached = cached();
-    gateway.selectionError = const SessionValidationUnavailable();
-    final result = await useCase.execute();
-    expect(result.status, SessionValidationStatus.unavailable);
-    expect(result.isAuthorized, isFalse);
-    expect(gateway.currentAuthUserId, 'user-1');
-    expect(gateway.cached, isNull);
-    expect(gateway.calls, ['remote', 'clear', 'signup', 'selection']);
-  });
+  test(
+    'si falla verificar el selector no cierra sesion ni concede Home',
+    () async {
+      gateway.role = null;
+      gateway.cached = cached();
+      gateway.selectionError = const SessionValidationUnavailable();
+      final result = await useCase.execute();
+      expect(result.status, SessionValidationStatus.unavailable);
+      expect(result.isAuthorized, isFalse);
+      expect(gateway.currentAuthUserId, 'user-1');
+      expect(gateway.cached, isNull);
+      expect(gateway.calls, ['remote', 'clear', 'signup', 'selection']);
+    },
+  );
 
   test('pre-tenant nunca reutiliza cache si falla la elegibilidad', () async {
     gateway.role = null;
@@ -149,7 +161,13 @@ void main() {
     expect(result.status, SessionValidationStatus.denied);
     expect(result.isAuthorized, isFalse);
     expect(gateway.cached, isNull);
-    expect(gateway.calls, ['remote', 'clear', 'signup', 'selection', 'invalidate']);
+    expect(gateway.calls, [
+      'remote',
+      'clear',
+      'signup',
+      'selection',
+      'invalidate',
+    ]);
   });
 
   test(
