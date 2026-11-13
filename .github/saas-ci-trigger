@@ -1,2 +1,2 @@
-I2 repaired: safe membership enumeration, selection-required state, static 102 RPC inventory, Dart format correct.
-source_sha=a525dca9247b143fbc8d9ff9cdc9ce669c1f7c02
+2D-I3 staging: require organization selection; preserve Auth, reject operational access, clear offline cache, read-only mobile/desktop candidates, regression tests.
+source_sha=8651b0b9891f9528e57a7d6172aaae87567ba675
