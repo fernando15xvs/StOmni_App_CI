@@ -27,10 +27,7 @@ class SupabaseTenantRequestGateway {
         // validates active member, employee, company and the exact JWT actor.
         final payload = await client
             .rpc('get_my_tenant_context_v1')
-            .setHeader(
-              TenantRequestScope.organizationHeader,
-              organizationId,
-            )
+            .setHeader(TenantRequestScope.organizationHeader, organizationId)
             .timeout(const Duration(seconds: 15));
         return VerifiedTenantRequestContext.fromServer(
           payload,
