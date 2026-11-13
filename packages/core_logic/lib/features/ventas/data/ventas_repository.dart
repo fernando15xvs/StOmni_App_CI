@@ -1,4 +1,5 @@
 import '../../../providers/supabase_provider.dart';
+import '../../../onboarding/application/tenant_request_scope.dart';
 import '../../../utils/app_time.dart';
 import '../../almacen/data/supabase_product_unit_configuration_gateway.dart';
 import '../application/sale_processing_models.dart';
@@ -37,7 +38,16 @@ class VentasRepository {
     String? motivoDescuento,
     double subtotalBruto = 0,
     int? descuentoAutorizadoPor,
+    TenantRequestScope? tenantScope,
+    String? Function()? currentSelectedOrganizationId,
   }) async {
+    // Optional I3 transport: legacy single-company callers are unchanged.
+    // Any tenant-scoped caller must supply its own per-window selection getter.
+    if ((tenantScope == null) != (currentSelectedOrganizationId == null)) {
+      throw ArgumentError(
+        'El contexto por empresa exige scope y selector de sesión.',
+      );
+    }
     final usesConfiguredUnits = detalles.any(
       (detail) => detail['unit_profile_revision'] != null,
     );
@@ -85,16 +95,47 @@ class VentasRepository {
     };
 
     try {
-      // Los nombres permanecen literales para que el gate RPC pueda demostrar
-      // exactamente qué entrypoints son ejecutables desde el cliente.
-      final result = creditTerms != null
-          ? await _client.rpc('process_sale_credit_v5', params: params)
-          : (usesConfiguredUnits
-                ? await _client.rpc(
-                    'process_sale_with_units_v4',
-                    params: params,
-                  )
-                : await _client.rpc('process_sale_v4', params: params));
+      // Each selected-company RPC receives its own immutable PostgREST
+      // builder header, not a mutable SupabaseClient-wide header. The
+      // database resolves/authorizes the tenant against auth.uid().
+      Future<dynamic> invokeForTenant(String? organizationId) async {
+        if (creditTerms != null) {
+          final rpc = _client.rpc('process_sale_credit_v5', params: params);
+          return organizationId == null
+              ? await rpc
+              : await rpc.setHeader(
+                  TenantRequestScope.organizationHeader,
+                  organizationId,
+                );
+        }
+        if (usesConfiguredUnits) {
+          final rpc = _client.rpc(
+            'process_sale_with_units_v4',
+            params: params,
+          );
+          return organizationId == null
+              ? await rpc
+              : await rpc.setHeader(
+                  TenantRequestScope.organizationHeader,
+                  organizationId,
+                );
+        }
+        final rpc = _client.rpc('process_sale_v4', params: params);
+        return organizationId == null
+            ? await rpc
+            : await rpc.setHeader(
+                TenantRequestScope.organizationHeader,
+                organizationId,
+              );
+      }
+
+      final result = tenantScope == null
+          ? await invokeForTenant(null)
+          : await tenantScope.execute<dynamic>(
+              currentAuthUserId: () => _client.auth.currentUser?.id,
+              currentSelectedOrganizationId: currentSelectedOrganizationId!,
+              request: invokeForTenant,
+            );
       if (result is Map<String, dynamic>) return result;
       if (result is Map) return Map<String, dynamic>.from(result);
       throw StateError('$rpcLabel devolvió una respuesta inválida.');
