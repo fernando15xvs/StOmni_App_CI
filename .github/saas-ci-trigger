@@ -1,2 +1,2 @@
-I2 composite membership schema with activation guard; I3 request-scoped headers and v3 tenant caches; I4 28-case same JWT admin A / operator B rollback isolation regression.
-source_sha=2d732d199100ebae80b856dc6fc61b4665161449
+I3 offline isolation: tenant/user SQLite ticket queue, browser fallback, isolated catalog cache, 19 tests, no migration of unowned historical sales, no activation.
+source_sha=4ef415f6a0e91549848e8b84678d37df67599c4a
