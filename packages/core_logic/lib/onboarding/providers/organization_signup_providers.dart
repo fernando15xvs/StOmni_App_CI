@@ -15,11 +15,22 @@ final organizationSignupUseCaseProvider = Provider<OrganizationSignupUseCase>(
       OrganizationSignupUseCase(ref.watch(organizationSignupGatewayProvider)),
 );
 
-/// La elegibilidad pre-tenant pertenece exclusivamente a la sesión Auth actual.
-final organizationMembershipsProvider =
-    FutureProvider.autoDispose<List<OrganizationMembership>>(
-      (ref) => ref.watch(organizationSignupUseCaseProvider).listMemberships(),
-    );
+/// Key membership candidates by the authenticated user. Never share a
+/// previous user's tenant choices across sign-out/sign-in or account change.
+final organizationMembershipsForUserProvider = FutureProvider.autoDispose
+    .family<List<OrganizationMembership>, String>((ref, authUserId) async {
+      final client = ref.watch(supabaseProvider);
+      if (authUserId.isEmpty || client.auth.currentUser?.id != authUserId) {
+        throw StateError('La sesión cambió. Vuelve a iniciar sesión.');
+      }
+      final memberships = await ref
+          .watch(organizationSignupUseCaseProvider)
+          .listMemberships();
+      if (client.auth.currentUser?.id != authUserId) {
+        throw StateError('La sesión cambió. Vuelve a iniciar sesión.');
+      }
+      return memberships;
+    });
 
 final organizationSignupStateProvider =
     FutureProvider.autoDispose<OrganizationSignupState>(
