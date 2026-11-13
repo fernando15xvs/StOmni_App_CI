@@ -1,2 +1,2 @@
-I3 request-scoped tenant builder + v3 per-tenant offline authorization staging, 15 tests, all formatter corrections applied.
-source_sha=291dcc060b40059d1bad749460040d870dc04f24
+I2 composite membership schema with activation guard; I3 request-scoped headers and v3 tenant caches; I4 28-case same JWT admin A / operator B rollback isolation regression.
+source_sha=2d732d199100ebae80b856dc6fc61b4665161449
