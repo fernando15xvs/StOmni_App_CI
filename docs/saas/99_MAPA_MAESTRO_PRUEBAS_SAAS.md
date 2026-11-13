@@ -28,7 +28,8 @@ Su objetivo es evitar pruebas dispersas, omisiones y falsos "verdes". Una fase p
 
 - **I3 / gateway de venta offline (13-11-2026):** `TenantPendingSaleQueueGateway` implementa el puerto de encolado de `VentaSubmissionCoordinator` con el contexto de usuario/empresa, preserva `request_id`, solo Ticket Interno y añade 5 pruebas de A/B, fraude y cambio de sesión. El adaptador está disponible pero **no registrado en composición de clientes operativos**; la activación de multiempresa sigue NO-GO.
 
-- **I4 / ensayo de roles:** contrato `security_multi_membership_distinct_roles_isolation_test.sql` (28 aserciones) con mismo usuario admin en A y operador en B, sin segundo vínculo persistente. No equivale a dos sesiones reales concurrentes, E2E de venta/caja ni T00–T19 final.
+- **I3 / contexto auxiliar por petición (13-11-2026):** `TenantVentaContextRepository` valida membresía en servidor antes de cada vendedor, cliente o consulta a Caja Chica; usa encabezado únicamente por builder, filtros por `organization_id`, comprobación explícita de las filas y rechazo de sesiones cruzadas. Se añadieron 6 pruebas de IDOR/formatos. **Sin conexión al composition root operativo**; no marcar Home, stock ni fiscalidad multiempresa como certificados.
+- **I4 / ensayo de roles:** contrato `security_multi_membership_distinct_roles_isolation_test.sql` (36 aserciones) con mismo usuario admin en A y operador en B, sin segundo vínculo persistente. No equivale a dos sesiones reales concurrentes, E2E de venta/caja ni T00–T19 final.
 - **GO global:** sigue **NO-GO** hasta activar la selección por petición, migrar los almacenes locales/sync/cachés, completar I4 y ejecutar T00–T19 sobre un único SHA final.
 
 ## Arquitectura que debe cubrir la validación
