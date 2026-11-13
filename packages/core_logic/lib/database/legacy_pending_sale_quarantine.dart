@@ -71,7 +71,5 @@ final class LegacyPendingSaleStatus {
   final bool malformedHistoricalPayload;
 
   bool get safeToSwitch =>
-      sqliteCount == 0 &&
-      preferencesCount == 0 &&
-      !malformedHistoricalPayload;
+      sqliteCount == 0 && preferencesCount == 0 && !malformedHistoricalPayload;
 }
