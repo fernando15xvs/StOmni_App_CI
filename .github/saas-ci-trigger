@@ -1,2 +1,2 @@
-I3 pending-ticket sync coordinator staging: scoped server revalidation, retry, legacy quarantine, per-tenant stores, exact Dart format tests.
-source_sha=76a04b491545a14388427ffd79ed2e66718d23ac
+I3 stage: scope-bound queued ticket retries in sync/data (architecture compliant), 10 sync regressions, per-request selected tenant header on all 3 sale RPC processors; no multi-membership activation.
+source_sha=d2911c2b6d6bb616f5de51dc689c53b674de6c0b
