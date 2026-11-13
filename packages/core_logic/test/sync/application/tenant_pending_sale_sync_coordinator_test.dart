@@ -6,7 +6,7 @@ import 'package:core_logic/database/pending_sale_queue_store.dart';
 import 'package:core_logic/database/tenant_pending_sale_queue.dart';
 import 'package:core_logic/features/ventas/domain/sale_models.dart';
 import 'package:core_logic/onboarding/application/tenant_request_scope.dart';
-import 'package:core_logic/sync/application/tenant_pending_sale_sync_coordinator.dart';
+import 'package:core_logic/sync/data/tenant_pending_sale_sync_coordinator.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
