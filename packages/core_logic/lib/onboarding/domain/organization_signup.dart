@@ -36,11 +36,12 @@ class OrganizationSignupState {
         'Estado de alta de empresa desconocido: $rawState',
       ),
     };
-    // Organization metadata is never surfaced by a revoked or ambiguous state.
+    // Ambiguous and revoked identities never surface company identifiers.
     final attached = kind == OrganizationSignupStateKind.attached;
     return OrganizationSignupState(
       kind: kind,
-      eligible: kind == OrganizationSignupStateKind.eligible &&
+      eligible:
+          kind == OrganizationSignupStateKind.eligible &&
           json['eligible'] == true,
       organizationId: attached ? json['organization_id'] as String? : null,
       organizationStatus: attached
@@ -54,9 +55,8 @@ class OrganizationSignupState {
   }
 }
 
-/// Organization metadata returned only for an active membership owned by
-/// the authenticated user. This is not an authorization token: the server
-/// must independently validate a selection on every request.
+/// Read-only candidate: server-side membership validation remains mandatory
+/// on every operational request. The client cannot grant itself this role.
 class OrganizationMembership {
   const OrganizationMembership({
     required this.organizationId,
@@ -65,65 +65,7 @@ class OrganizationMembership {
   });
 
   static final RegExp _uuidPattern = RegExp(
-    r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
-  const OrganizationSignupRequest({
-    required this.displayName,
-    required this.countryCode,
-    required this.currencyCode,
-    required this.timezone,
-    this.legalName,
-  });
-
-  final String displayName;
-  final String countryCode;
-  final String currencyCode;
-  final String timezone;
-  final String? legalName;
-}
-
-class OrganizationSignupResult {
-  const OrganizationSignupResult({
-    required this.organizationId,
-    required this.displayName,
-    required this.countryCode,
-    required this.currencyCode,
-    required this.timezone,
-    required this.membershipRole,
-    required this.planCode,
-    required this.subscriptionStatus,
-    required this.subscriptionRevision,
-  });
-
-  final String organizationId;
-  final String displayName;
-  final String countryCode;
-  final String currencyCode;
-  final String timezone;
-  final String membershipRole;
-  final String planCode;
-  final String subscriptionStatus;
-  final int subscriptionRevision;
-
-  factory OrganizationSignupResult.fromJson(Map<String, dynamic> json) {
-    final subscription = json['subscription'];
-    if (subscription is! Map) {
-      throw const FormatException('La suscripción inicial es inválida.');
-    }
-    final subscriptionMap = Map<String, dynamic>.from(subscription);
-    return OrganizationSignupResult(
-      organizationId: json['organization_id'] as String,
-      displayName: json['display_name'] as String,
-      countryCode: json['country_code'] as String,
-      currencyCode: json['currency_code'] as String,
-      timezone: json['timezone'] as String,
-      membershipRole: json['membership_role'] as String,
-      planCode: subscriptionMap['plan_code'] as String,
-      subscriptionStatus: subscriptionMap['status'] as String,
-      subscriptionRevision: (subscriptionMap['revision'] as num).toInt(),
-    );
-  }
-}
-,
+    r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
   );
 
   final String organizationId;
@@ -132,19 +74,19 @@ class OrganizationSignupResult {
 
   factory OrganizationMembership.fromJson(Map<String, dynamic> json) {
     final id = json['organization_id'];
-    final displayName = json['display_name'];
+    final name = json['display_name'];
     final role = json['base_role'];
     if (id is! String ||
         !_uuidPattern.hasMatch(id) ||
-        displayName is! String ||
-        displayName.trim().isEmpty ||
+        name is! String ||
+        name.trim().isEmpty ||
         role is! String ||
         (role != 'admin' && role != 'operador')) {
       throw const FormatException('La membresía de empresa es inválida.');
     }
     return OrganizationMembership(
       organizationId: id,
-      displayName: displayName,
+      displayName: name,
       baseRole: role,
     );
   }
