@@ -842,7 +842,7 @@ function verify() {
   need(
     errors,
     sources.tenantOperationAuthorizer,
-    /RolePermissionPolicy\.forRole\(tenant\.baseRole\)/,
+    /RolePermissionPolicy\.forRole\(\s*tenant\.baseRole/,
     'Server permission payload can exceed the selected tenant base role',
   );
   need(
