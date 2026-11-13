@@ -8,6 +8,7 @@ import '../home/home_page.dart';
 import '../home/post_login_home_page.dart';
 import 'guided_onboarding_page.dart';
 import 'organization_setup_page.dart';
+import 'organization_selection_pending_page.dart';
 
 /// Punto único post-auth para Android, iOS y Web.
 ///
@@ -36,6 +37,10 @@ class MobileSaasEntryGate extends ConsumerWidget {
           ref.invalidate(guidedOnboardingProgressProvider);
         },
       );
+    }
+
+    if (route == SaasEntryRoute.organizationSelectionRequired) {
+      return const OrganizationSelectionPendingPage();
     }
 
     if (route == SaasEntryRoute.offlineAuthorized) {
