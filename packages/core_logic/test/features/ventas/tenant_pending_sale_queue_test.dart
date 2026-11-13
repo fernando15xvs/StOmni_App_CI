@@ -67,8 +67,10 @@ void main() {
     final c = TenantPendingSaleQueue.databaseNameFor(userB, orgA);
     expect({a, b, c}.length, 3);
     expect(a.endsWith('.db'), isTrue);
-    expect(TenantPendingSaleQueue.webKeyFor(userA, orgA),
-        isNot(TenantPendingSaleQueue.webKeyFor(userA, orgB)));
+    expect(
+      TenantPendingSaleQueue.webKeyFor(userA, orgA),
+      isNot(TenantPendingSaleQueue.webKeyFor(userA, orgB)),
+    );
     expect(
       () => TenantPendingSaleQueue.databaseNameFor('../escape', orgA),
       throwsFormatException,
@@ -86,44 +88,43 @@ void main() {
     expect(await b.count(), 1);
   });
 
-  test('same organization and different users never share pending sales',
-      () async {
-    final a = queue(userA, orgA);
-    final b = queue(userB, orgA);
-    await a.saveTicket(ticket(userA, orgA, item: 'From user A'));
-    await b.saveTicket(ticket(userB, orgA, item: 'From user B'));
-    expect((await a.list()).single.payload['nombre_producto'], 'From user A');
-    expect((await b.list()).single.payload['nombre_producto'], 'From user B');
-  });
+  test(
+    'same organization and different users never share pending sales',
+    () async {
+      final a = queue(userA, orgA);
+      final b = queue(userB, orgA);
+      await a.saveTicket(ticket(userA, orgA, item: 'From user A'));
+      await b.saveTicket(ticket(userB, orgA, item: 'From user B'));
+      expect((await a.list()).single.payload['nombre_producto'], 'From user A');
+      expect((await b.list()).single.payload['nombre_producto'], 'From user B');
+    },
+  );
 
   test('writes with a foreign or missing tenant owner fail closed', () async {
     final a = queue(userA, orgA);
     await expectLater(
-      a.saveTicket(ticket(userA, orgB)),
-      throwsStateError,
-    );
-    await expectLater(
-      a.saveTicket(ticket(userB, orgA)),
-      throwsStateError,
-    );
-    await expectLater(
-      a.saveTicket({'request_id': 'missing-owner', 'tipo_comprobante': 'ticket_interno'}),
+      a.saveTicket({
+        'request_id': 'missing-owner',
+        'tipo_comprobante': 'ticket_interno',
+      }),
       throwsStateError,
     );
     expect(await a.count(), 0);
   });
 
-  test('only internal tickets with request identifiers can be queued',
-      () async {
-    final a = queue(userA, orgA);
-    final invoice = ticket(userA, orgA)..['tipo_comprobante'] = 'factura';
-    await expectLater(a.saveTicket(invoice), throwsArgumentError);
-    await expectLater(
-      a.saveTicket(ticket(userA, orgA, requestId: '')),
-      throwsArgumentError,
-    );
-    expect(await a.count(), 0);
-  });
+  test(
+    'only internal tickets with request identifiers can be queued',
+    () async {
+      final a = queue(userA, orgA);
+      final invoice = ticket(userA, orgA)..['tipo_comprobante'] = 'factura';
+      await expectLater(a.saveTicket(invoice), throwsArgumentError);
+      await expectLater(
+        a.saveTicket(ticket(userA, orgA, requestId: '')),
+        throwsArgumentError,
+      );
+      expect(await a.count(), 0);
+    },
+  );
 
   test('selection or Auth change blocks all queued data access', () async {
     String? selected = orgA;
@@ -155,27 +156,29 @@ void main() {
     expect(await b.count(), 1);
   });
 
-  test('existing historical SQLite sales stay untouched and quarantined',
-      () async {
-    final legacy = PendingSaleQueueStore(
-      databaseFactoryOverride: databaseFactoryFfi,
-      databasePathOverride: p.join(
-        working.path,
-        'ferreteria_pending_sales_v1.db',
-      ),
-    );
-    try {
-      await legacy.upsertPayload({
-        'request_id': 'historic-ticket',
-        'tipo_comprobante': 'ticket_interno',
-      });
-      final a = queue(userA, orgA);
-      expect(await a.count(), 0);
-      expect((await legacy.list()).single.requestId, 'historic-ticket');
-    } finally {
-      await legacy.close();
-    }
-  });
+  test(
+    'existing historical SQLite sales stay untouched and quarantined',
+    () async {
+      final legacy = PendingSaleQueueStore(
+        databaseFactoryOverride: databaseFactoryFfi,
+        databasePathOverride: p.join(
+          working.path,
+          'ferreteria_pending_sales_v1.db',
+        ),
+      );
+      try {
+        await legacy.upsertPayload({
+          'request_id': 'historic-ticket',
+          'tipo_comprobante': 'ticket_interno',
+        });
+        final a = queue(userA, orgA);
+        expect(await a.count(), 0);
+        expect((await legacy.list()).single.requestId, 'historic-ticket');
+      } finally {
+        await legacy.close();
+      }
+    },
+  );
 
   test('foreign row injected into a tenant file cannot be returned', () async {
     final injected = PendingSaleQueueStore(
