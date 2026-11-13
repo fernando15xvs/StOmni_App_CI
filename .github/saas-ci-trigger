@@ -1,2 +1,2 @@
-I3 tenant selected seller/client/cash context plus request-local permission gateway, 18 new Dart regressions, 36 A/B SQL RLS checks, offline auth disabled pending v3 integration.
-source_sha=09219bc0045555ef26e54b339501eadb50396028
+I3 selected tenant operation authorization online (12 tests), seller/customer/cashbox request-local context (6 tests), A/B role and RLS rehearsal 36 assertions; exact formatting corrections; no live selector.
+source_sha=87ee1a98c7b377b40d7a275be781ced69d9c93ef
