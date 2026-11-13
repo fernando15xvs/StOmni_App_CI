@@ -1,2 +1,2 @@
-I3 customer/seller/cashbox selected tenant per-request gateway, formatted Dart, 6 context tests, 36 A/B admin/operator RLS checks; still no live switch.
-source_sha=317f77ab399fbeb891e648e663c24bc565f7422b
+I3 tenant selected seller/client/cash context plus request-local permission gateway, 18 new Dart regressions, 36 A/B SQL RLS checks, offline auth disabled pending v3 integration.
+source_sha=09219bc0045555ef26e54b339501eadb50396028
