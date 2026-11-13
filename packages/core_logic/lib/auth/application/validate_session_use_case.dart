@@ -16,6 +16,10 @@ abstract interface class SessionValidationGateway {
   /// realmente habilitada para crear su primera organización.
   Future<bool> canStartOrganizationSignup(String authUserId);
 
+  /// True only for authenticated accounts with multiple active company
+  /// memberships and no currently selected company. Must fail closed.
+  Future<bool> requiresOrganizationSelection(String authUserId);
+
   /// `null` significa únicamente que el backend todavía no expone permisos
   /// granulares; en ese caso se conserva la matriz base del rol.
   Future<Set<AppPermission>?> readEffectivePermissions(String authUserId);
@@ -134,6 +138,27 @@ class ValidateSessionUseCase {
       }
       if (canOnboard) {
         return result(SessionValidationStatus.organizationSetupRequired);
+      }
+
+      // The old flow revoked Auth after a missing tenant context. An
+      // ambiguous multi-membership identity is not revoked; only its
+      // business access is withheld until an explicit selection.
+      bool requiresSelection;
+      try {
+        requiresSelection = await gateway.requiresOrganizationSelection(userId);
+      } on SessionValidationUnavailable {
+        return result(SessionValidationStatus.unavailable);
+      } catch (_) {
+        if (sessionChanged()) {
+          return result(SessionValidationStatus.sessionChanged);
+        }
+        return result(SessionValidationStatus.failed);
+      }
+      if (sessionChanged()) {
+        return result(SessionValidationStatus.sessionChanged);
+      }
+      if (requiresSelection) {
+        return result(SessionValidationStatus.organizationSelectionRequired);
       }
 
       try {
