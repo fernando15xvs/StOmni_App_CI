@@ -1,2 +1,2 @@
-I3 staged per-request tenant customer seller and cashbox gateway, 6 Dart fail-closed tests, I4 36 assertions customer seller cashbox A/admin B/operator RLS, no operational activation.
-source_sha=4e1216b43dc27a42ee35b0156eda85886867d2f2
+I3 customer/seller/cashbox selected tenant per-request gateway, formatted Dart, 6 context tests, 36 A/B admin/operator RLS checks; still no live switch.
+source_sha=317f77ab399fbeb891e648e663c24bc565f7422b
