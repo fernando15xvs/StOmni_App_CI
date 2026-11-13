@@ -1,2 +1,2 @@
-I3 operational groundwork: scoped sale RPC header x3, tenant sync orchestrator with 10 tests, tenant PendingSaleQueueGateway with 5 tests, all legacy sales quarantined, no multi-membership activation.
-source_sha=f37de728561a0b377a7e45d61f9bfc2a766a27f4
+I3 safe sales groundwork: scoped sale RPC x3, sync/data coordinator, tenant pending sale enqueue gateway; 15 new tests; formatter exact; no I4 activation.
+source_sha=b86e294dbee523dcf6efe9b489be1576bca78e67
