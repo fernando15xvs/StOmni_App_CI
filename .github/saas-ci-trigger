@@ -1,2 +1,2 @@
-2D-I3 staging: require organization selection; preserve Auth, reject operational access, clear offline cache, read-only mobile/desktop candidates, regression tests.
-source_sha=8651b0b9891f9528e57a7d6172aaae87567ba675
+I3 preactivation safe company choice route on all clients, exact CI dart formatting and explicit non-authorized no-tenant cases.
+source_sha=5f03bd5bd85cd45b79f6ce566bfcd0b51e33e89b
