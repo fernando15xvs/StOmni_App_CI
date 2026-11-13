@@ -1,2 +1,2 @@
-I3 tenant-safe queued ticket coordinator in data, three sale RPCs support builder-local tenant selector, Dart formatter corrected and ten sync tests.
-source_sha=8f376af18bb86dc3ee1e94032cac29db50857fac
+I3 operational groundwork: scoped sale RPC header x3, tenant sync orchestrator with 10 tests, tenant PendingSaleQueueGateway with 5 tests, all legacy sales quarantined, no multi-membership activation.
+source_sha=f37de728561a0b377a7e45d61f9bfc2a766a27f4
