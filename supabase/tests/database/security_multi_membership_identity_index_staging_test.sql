@@ -8,8 +8,8 @@ SELECT ok(to_regclass('public.empleados_organization_auth_lookup_idx') IS NOT NU
 SELECT is((SELECT indisunique FROM pg_index WHERE indexrelid='public.empleados_organization_app_user_ready_uidx'::regclass),true,'Composite employee membership index is unique');
 SELECT is((SELECT indpred IS NOT NULL FROM pg_index WHERE indexrelid='public.empleados_organization_app_user_ready_uidx'::regclass),true,'Composite employee index ignores unlinked staff');
 SELECT ok((SELECT pg_get_indexdef('public.app_users_identity_selection_idx'::regclass) LIKE '%(user_id, status, organization_id)%'),'Membership lookup index leading key is user_id');
-SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.app_users'::regclass AND conname='app_users_pkey' AND contype='p'),'Global app_users primary key preserved during I2 staging');
-SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.empleados'::regclass AND conname='empleados_app_user_id_key' AND contype='u'),'Global employee login uniqueness preserved during I2 staging');
+SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.app_users'::regclass AND conname='app_users_pkey' AND contype='p' AND pg_get_constraintdef(oid)='PRIMARY KEY (organization_id, user_id)'),'App users primary key is tenant-composite after I2 schema gate');
+SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.empleados'::regclass AND conname='empleados_organization_app_user_key' AND contype='u' AND pg_get_constraintdef(oid)='UNIQUE (organization_id, app_user_id)'),'Employee login uniqueness is tenant-composite after I2 schema gate');
 SELECT ok(EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.empleados'::regclass AND conname='empleados_organization_app_user_fkey' AND conindid='public.app_users_organization_user_key'::regclass),'Composite membership FK still references canonical organization+user unique key');
 SELECT * FROM finish();
 ROLLBACK;
