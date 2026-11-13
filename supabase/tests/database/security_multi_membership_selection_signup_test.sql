@@ -71,13 +71,13 @@ RESET ROLE;
 SELECT set_config('request.jwt.claim.sub',(SELECT uid::text FROM _i2_member_actor WHERE label='A'),true);
 SELECT set_config('request.headers','{}',true);
 
--- Only within this transaction; ROLLBACK restores both original unique
--- constraints. Disabling B's old membership avoids subscription user limits.
+-- Only within this transaction: an administrator temporarily disables the
+-- I4 activation trigger to emulate the future schema. ROLLBACK restores it.
+-- Disabling B's old membership avoids subscription user limits.
 UPDATE public.app_users SET status='disabled'
  WHERE user_id=(SELECT uid FROM _i2_member_actor WHERE label='B')
    AND organization_id=(SELECT org FROM _i2_member_actor WHERE label='B');
-ALTER TABLE public.app_users DROP CONSTRAINT app_users_pkey;
-ALTER TABLE public.empleados DROP CONSTRAINT empleados_app_user_id_key;
+ALTER TABLE public.app_users DISABLE TRIGGER app_users_multi_membership_activation_gate;
 INSERT INTO public.app_users(user_id,organization_id,status,base_role)
 VALUES(
  (SELECT uid FROM _i2_member_actor WHERE label='A'),
