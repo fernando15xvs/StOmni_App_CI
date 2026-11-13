@@ -181,6 +181,12 @@ function verify() {
     saleRepository: read(
       'packages/core_logic/lib/features/ventas/data/ventas_repository.dart',
     ),
+    scopedSubmissionGateway: read(
+      'packages/core_logic/lib/features/ventas/data/tenant_pending_sale_queue_gateway.dart',
+    ),
+    scopedSubmissionTests: read(
+      'packages/core_logic/test/features/ventas/tenant_pending_sale_queue_gateway_test.dart',
+    ),
   };
   sources.setupScreens = {
     'alta mobile/web': sources.mobileSetup,
@@ -712,6 +718,37 @@ function verify() {
     sources.saleRepository,
     /_client\.headers\s*=|_client\.rest\.headers\s*=|_client\.headers\[/,
     'Sale RPC must never mutate global Supabase headers',
+  );
+
+  need(
+    errors,
+    sources.scopedSubmissionGateway,
+    /implements PendingSaleQueueGateway/,
+    'The existing sale submission port has no tenant-bound implementation',
+  );
+  need(
+    errors,
+    sources.scopedSubmissionGateway,
+    /sale\.authUserId != queue\.scope\.authUserId/,
+    'An offline sale could be submitted under a different Auth identity',
+  );
+  need(
+    errors,
+    sources.scopedSubmissionGateway,
+    /payload\['organization_id'\] = queue\.scope\.organizationId/,
+    'Offline sale payload is missing the selected tenant',
+  );
+  need(
+    errors,
+    sources.scopedSubmissionGateway,
+    /await queue\.saveTicket\(payload\)/,
+    'Offline sale submission bypasses the scoped durable queue',
+  );
+  need(
+    errors,
+    sources.scopedSubmissionTests,
+    /parallel company queues cannot overwrite one shared request ID/,
+    'Missing cross-company idempotency test for the sale submission port',
   );
 
   return errors;
