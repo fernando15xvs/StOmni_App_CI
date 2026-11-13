@@ -11,9 +11,12 @@ class OrganizationSelectionPendingPage extends ConsumerWidget {
   const OrganizationSelectionPendingPage({super.key});
 
   Future<void> _signOut(BuildContext context, WidgetRef ref) async {
+    // Cache NavigatorState before Auth changes: the selection page itself can
+    // be disposed during signOut, but the root navigator stays mounted.
+    final navigator = Navigator.of(context);
     await ref.read(authControllerProvider.notifier).signOut();
-    if (!context.mounted) return;
-    Navigator.of(context).pushAndRemoveUntil(
+    if (!navigator.mounted) return;
+    navigator.pushAndRemoveUntil(
       MaterialPageRoute<void>(builder: (_) => const LoginPage()),
       (_) => false,
     );
