@@ -117,6 +117,46 @@ final class TenantPendingSaleQueue {
     await _store.deleteByRequestId(id);
   });
 
+  /// Mark a verified local ticket as in-flight. The selected tenant must
+  /// still match; an injected row for another tenant blocks every mutation.
+  Future<void> markProcessing(String requestId) => _withinSession(() async {
+    final id = requestId.trim();
+    if (id.isEmpty) throw ArgumentError('request_id inválido.');
+    final records = await _store.list();
+    for (final record in records) {
+      _requireOwnPayload(record.payload);
+    }
+    if (!records.any((record) => record.requestId == id)) {
+      throw StateError('No existe el ticket del tenant seleccionado.');
+    }
+    await _store.markProcessing(id);
+  });
+
+  /// Preserve failed tickets for a safe, idempotent retry. No deletion.
+  Future<void> markFailed(String requestId, Object reason) =>
+      _withinSession(() async {
+        final id = requestId.trim();
+        if (id.isEmpty) throw ArgumentError('request_id inválido.');
+        final records = await _store.list();
+        for (final record in records) {
+          _requireOwnPayload(record.payload);
+        }
+        if (!records.any((record) => record.requestId == id)) {
+          throw StateError('No existe el ticket del tenant seleccionado.');
+        }
+        await _store.markFailed(id, reason);
+      });
+
+  /// Call only after proving that no other worker is actively processing
+  /// this tenant queue, e.g. on app startup before starting sync.
+  Future<void> recoverInterruptedProcessing() => _withinSession(() async {
+    final records = await _store.list();
+    for (final record in records) {
+      _requireOwnPayload(record.payload);
+    }
+    await _store.recoverInterruptedProcessing();
+  });
+
   /// The caller must explicitly acknowledge that only its selected tenant
   /// queue will be removed. Does not touch any legacy or other-tenant records.
   Future<void> clearSelectedTenant() => _withinSession(() => _store.clear());
