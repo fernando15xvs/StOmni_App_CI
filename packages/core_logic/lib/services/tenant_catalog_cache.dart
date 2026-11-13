@@ -19,7 +19,7 @@ final class TenantCatalogCache {
   final String? Function() currentSelectedOrganizationId;
 
   static final RegExp _uuid = RegExp(
-    r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+    r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
   );
 
   static String storageKeyFor(String authUserId, String organizationId) {
