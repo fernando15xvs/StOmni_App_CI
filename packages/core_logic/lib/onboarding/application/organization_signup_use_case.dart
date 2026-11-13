@@ -8,6 +8,9 @@ class OrganizationSignupUseCase {
 
   Future<OrganizationSignupState> getState() => gateway.getState();
 
+  Future<List<OrganizationMembership>> listMemberships() =>
+      gateway.listMemberships();
+
   Future<OrganizationSignupResult> create(OrganizationSignupRequest request) {
     final displayName = request.displayName.trim();
     final countryCode = request.countryCode.trim().toUpperCase();
