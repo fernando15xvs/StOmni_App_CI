@@ -16,6 +16,11 @@ final organizationSignupUseCaseProvider = Provider<OrganizationSignupUseCase>(
 );
 
 /// La elegibilidad pre-tenant pertenece exclusivamente a la sesión Auth actual.
+final organizationMembershipsProvider =
+    FutureProvider.autoDispose<List<OrganizationMembership>>(
+      (ref) => ref.watch(organizationSignupUseCaseProvider).listMemberships(),
+    );
+
 final organizationSignupStateProvider =
     FutureProvider.autoDispose<OrganizationSignupState>(
       (ref) => ref.watch(organizationSignupUseCaseProvider).getState(),
