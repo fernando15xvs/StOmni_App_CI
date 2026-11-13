@@ -14,29 +14,23 @@ final class SupabaseTenantPermissionGateway {
   final SupabaseClient client;
   final String? Function() currentSelectedOrganizationId;
 
-  Future<TenantVerifiedPermissions> verify(
-    TenantRequestScope scope,
-  ) => scope.execute<TenantVerifiedPermissions>(
-    currentAuthUserId: () => client.auth.currentUser?.id,
-    currentSelectedOrganizationId: currentSelectedOrganizationId,
-    request: (organizationId) async {
-      final contextPayload = await client
-          .rpc('get_my_tenant_context_v1')
-          .setHeader(
-            TenantRequestScope.organizationHeader,
-            organizationId,
+  Future<TenantVerifiedPermissions> verify(TenantRequestScope scope) =>
+      scope.execute<TenantVerifiedPermissions>(
+        currentAuthUserId: () => client.auth.currentUser?.id,
+        currentSelectedOrganizationId: currentSelectedOrganizationId,
+        request: (organizationId) async {
+          final contextPayload = await client
+              .rpc('get_my_tenant_context_v1')
+              .setHeader(TenantRequestScope.organizationHeader, organizationId);
+          final tenant = VerifiedTenantRequestContext.fromServer(
+            contextPayload,
+            requestedOrganizationId: organizationId,
           );
-      final tenant = VerifiedTenantRequestContext.fromServer(
-        contextPayload,
-        requestedOrganizationId: organizationId,
+          final effectivePayload = await client
+              .rpc('get_my_effective_permissions_v1')
+              .setHeader(TenantRequestScope.organizationHeader, organizationId);
+          return TenantVerifiedPermissions.fromServer(tenant, effectivePayload);
+        },
       );
-      final effectivePayload = await client
-          .rpc('get_my_effective_permissions_v1')
-          .setHeader(
-            TenantRequestScope.organizationHeader,
-            organizationId,
-          );
-      return TenantVerifiedPermissions.fromServer(tenant, effectivePayload);
-    },
-  );
+
 }
