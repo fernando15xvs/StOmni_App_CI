@@ -8,6 +8,7 @@ enum SaasEntryRoute {
   signedOut,
   passwordChangeRequired,
   organizationSetupRequired,
+  organizationSelectionRequired,
   onboardingRequired,
   authorized,
   offlineAuthorized,
@@ -34,6 +35,8 @@ class SaasEntryRoutingPolicy {
         SaasEntryRoute.passwordChangeRequired,
       SessionValidationStatus.organizationSetupRequired =>
         SaasEntryRoute.organizationSetupRequired,
+      SessionValidationStatus.organizationSelectionRequired =>
+        SaasEntryRoute.organizationSelectionRequired,
       SessionValidationStatus.online =>
         onboardingCompleted == true
             ? SaasEntryRoute.authorized
