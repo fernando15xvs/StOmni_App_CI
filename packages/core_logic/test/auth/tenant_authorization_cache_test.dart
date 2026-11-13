@@ -22,19 +22,22 @@ void main() {
         permissions: const {AppPermission.salesCreate},
       );
 
-  test('v3 saves only selected tenant and typed restricted permissions', () async {
-    await TenantAuthorizationCache.save(valid(companyA));
-    final loaded = await TenantAuthorizationCache.load(
-      authUserId: 'user-1',
-      organizationId: companyA,
-    );
-    expect(loaded, isNotNull);
-    expect(loaded!.organizationId, companyA);
-    expect(loaded.role, 'operador');
-    expect(loaded.permissions, {AppPermission.salesCreate});
-    expect(loaded.toMap()['schema_version'], 3);
-    expect(loaded.toMap().containsKey('access_token'), isFalse);
-  });
+  test(
+    'v3 saves only selected tenant and typed restricted permissions',
+    () async {
+      await TenantAuthorizationCache.save(valid(companyA));
+      final loaded = await TenantAuthorizationCache.load(
+        authUserId: 'user-1',
+        organizationId: companyA,
+      );
+      expect(loaded, isNotNull);
+      expect(loaded!.organizationId, companyA);
+      expect(loaded.role, 'operador');
+      expect(loaded.permissions, {AppPermission.salesCreate});
+      expect(loaded.toMap()['schema_version'], 3);
+      expect(loaded.toMap().containsKey('access_token'), isFalse);
+    },
+  );
 
   test('cache does not grant authorization to another tenant', () async {
     await TenantAuthorizationCache.save(valid(companyA));
@@ -161,11 +164,9 @@ void main() {
         .add(const Duration(minutes: 6))
         .toIso8601String();
     expect(
-      TenantAuthorizationSnapshot.fromMap(future).isValidFor(
-        'user-1',
-        companyA,
-        DateTime.now().toUtc(),
-      ),
+      TenantAuthorizationSnapshot.fromMap(
+        future,
+      ).isValidFor('user-1', companyA, DateTime.now().toUtc()),
       isFalse,
     );
   });
