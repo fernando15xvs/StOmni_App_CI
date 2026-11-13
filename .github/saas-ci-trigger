@@ -1,2 +1,2 @@
-2D-I3 identity selection pending: exact session and UI tests with nullable role fixture corrected.
-source_sha=488b220324cc671779a36d8fe639a5f67bc40801
+I3 company-selection Auth route read-only; mobile logout navigation survives disposed route.
+source_sha=ee81b1380f5806bb21841714a43c2260cc21dccd
