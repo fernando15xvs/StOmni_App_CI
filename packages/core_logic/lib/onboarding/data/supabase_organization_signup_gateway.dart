@@ -23,12 +23,16 @@ class SupabaseOrganizationSignupGateway implements OrganizationSignupGateway {
     if (raw is! List) {
       throw const FormatException('La lista de empresas es inválida.');
     }
-    return List<OrganizationMembership>.unmodifiable(raw.map((value) {
-      if (value is! Map) {
-        throw const FormatException('La membresía de empresa es inválida.');
-      }
-      return OrganizationMembership.fromJson(Map<String, dynamic>.from(value));
-    }));
+    return List<OrganizationMembership>.unmodifiable(
+      raw.map((value) {
+        if (value is! Map) {
+          throw const FormatException('La membresía de empresa es inválida.');
+        }
+        return OrganizationMembership.fromJson(
+          Map<String, dynamic>.from(value),
+        );
+      }),
+    );
   }
 
   @override
