@@ -18,6 +18,20 @@ class SupabaseOrganizationSignupGateway implements OrganizationSignupGateway {
   }
 
   @override
+  Future<List<OrganizationMembership>> listMemberships() async {
+    final raw = await client.rpc('list_my_organization_memberships_v1');
+    if (raw is! List) {
+      throw const FormatException('La lista de empresas es inválida.');
+    }
+    return List<OrganizationMembership>.unmodifiable(raw.map((value) {
+      if (value is! Map) {
+        throw const FormatException('La membresía de empresa es inválida.');
+      }
+      return OrganizationMembership.fromJson(Map<String, dynamic>.from(value));
+    }));
+  }
+
+  @override
   Future<OrganizationSignupResult> createOrganization(
     OrganizationSignupRequest request,
   ) async {
