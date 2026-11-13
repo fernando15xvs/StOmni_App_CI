@@ -90,15 +90,28 @@ class PendingSaleQueueStore {
   PendingSaleQueueStore({
     DatabaseFactory? databaseFactoryOverride,
     String? databasePathOverride,
+    String? databaseNameOverride,
+    String? webStorageKeyOverride,
   }) : _databaseFactoryOverride = databaseFactoryOverride,
-       _databasePathOverride = databasePathOverride;
+       _databasePathOverride = databasePathOverride,
+       _databaseName = databaseNameOverride ?? _legacyDbName,
+       _webStorageKey = webStorageKeyOverride ?? _legacyWebStorageKey {
+    if (!_safeDatabaseName.hasMatch(_databaseName) ||
+        _databaseName.contains('..') ||
+        _webStorageKey.isEmpty) {
+      throw ArgumentError('Nombre de almacenamiento offline inválido.');
+    }
+  }
 
-  static const _dbName = 'ferreteria_pending_sales_v1.db';
+  static const _legacyDbName = 'ferreteria_pending_sales_v1.db';
   static const _table = 'ventas_pendientes';
-  static const _webStorageKey = 'ventas_pendientes_queue_web_v1';
+  static const _legacyWebStorageKey = 'ventas_pendientes_queue_web_v1';
+  static final RegExp _safeDatabaseName = RegExp(r'^[a-zA-Z0-9_.-]+$');
 
   final DatabaseFactory? _databaseFactoryOverride;
   final String? _databasePathOverride;
+  final String _databaseName;
+  final String _webStorageKey;
   Database? _databaseInstance;
 
   Future<Database> _database() async {
@@ -108,7 +121,7 @@ class PendingSaleQueueStore {
     final factory = _databaseFactoryOverride ?? databaseFactory;
     final path =
         _databasePathOverride ??
-        p.join(await factory.getDatabasesPath(), _dbName);
+        p.join(await factory.getDatabasesPath(), _databaseName);
     final db = await factory.openDatabase(
       path,
       options: OpenDatabaseOptions(
