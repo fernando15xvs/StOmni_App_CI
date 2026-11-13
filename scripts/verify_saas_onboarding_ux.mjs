@@ -172,6 +172,12 @@ function verify() {
     legacyPendingTests: read(
       'packages/core_logic/test/features/ventas/legacy_pending_sale_quarantine_test.dart',
     ),
+    scopedSaleSync: read(
+      'packages/core_logic/lib/sync/application/tenant_pending_sale_sync_coordinator.dart',
+    ),
+    scopedSaleSyncTests: read(
+      'packages/core_logic/test/sync/application/tenant_pending_sale_sync_coordinator_test.dart',
+    ),
   };
   sources.setupScreens = {
     'alta mobile/web': sources.mobileSetup,
@@ -618,6 +624,61 @@ function verify() {
     sources.legacyPendingTests,
     /old shared preferences ticket is quarantined, not migrated/,
     'Missing shared preferences legacy-sale quarantine regression',
+  );
+
+  need(
+    errors,
+    sources.scopedSaleSync,
+    /legacyQuarantine\.requireNoUnattributedTickets\(\)/,
+    'Sync scoped must block unattributed historical tickets',
+  );
+  need(
+    errors,
+    sources.scopedSaleSync,
+    /_requireServerMembership\(\)/,
+    'Scoped ticket sync must verify selected tenant from server',
+  );
+  need(
+    errors,
+    sources.scopedSaleSync,
+    /adapter\.sendTicket\(scope: scope, sale: sale\)/,
+    'Ticket sync must pass the immutable tenant scope to its transport',
+  );
+  need(
+    errors,
+    sources.scopedSaleSync,
+    /await queue\.deleteByRequestId\(record\.requestId\)/,
+    'Ticket sync must delete local pending row only after confirmed send',
+  );
+  need(
+    errors,
+    sources.scopedSaleSync,
+    /if \(!_stillSelected\(\)\)/,
+    'Selected-company switch must stop in-flight sync safely',
+  );
+  need(
+    errors,
+    sources.scopedSaleSync,
+    /PendingSaleQueueStatus\.processing/,
+    'Scoped sync must not claim another worker processing a ticket',
+  );
+  need(
+    errors,
+    sources.scopedSaleSyncTests,
+    /session switch during network write retains in-flight ticket/,
+    'Missing retry test for Auth switch during sale submission',
+  );
+  need(
+    errors,
+    sources.scopedSaleSyncTests,
+    /equal request IDs in two organizations never mix queues/,
+    'Missing same-id cross-company sync regression',
+  );
+  need(
+    errors,
+    sources.scopedSaleSyncTests,
+    /failed server write remains in the tenant queue for safe retry/,
+    'Missing retry test for transient backend failure',
   );
 
   return errors;
