@@ -26,6 +26,8 @@ Su objetivo es evitar pruebas dispersas, omisiones y falsos "verdes". Una fase p
 
 - **I3 / escritura de ventas preparada (13-11-2026):** se añadió `TenantRequestScope` opcional en `VentasRepository.processSaleRpc`, con selector exclusivo por builder para tres RPC de ventas y validación antes/después de la respuesta. No equivale a E2E: persistencia de clientes, resolución de vendedor, caja, stock, crédito y permisos deben portar scope por petición y pasar IDOR/roles en A/B antes de activar cambio de empresa. Los clientes existentes continúan bajo single-tenancy.
 
+- **I3 / gateway de venta offline (13-11-2026):** `TenantPendingSaleQueueGateway` implementa el puerto de encolado de `VentaSubmissionCoordinator` con el contexto de usuario/empresa, preserva `request_id`, solo Ticket Interno y añade 5 pruebas de A/B, fraude y cambio de sesión. El adaptador está disponible pero **no registrado en composición de clientes operativos**; la activación de multiempresa sigue NO-GO.
+
 - **I4 / ensayo de roles:** contrato `security_multi_membership_distinct_roles_isolation_test.sql` (28 aserciones) con mismo usuario admin en A y operador en B, sin segundo vínculo persistente. No equivale a dos sesiones reales concurrentes, E2E de venta/caja ni T00–T19 final.
 - **GO global:** sigue **NO-GO** hasta activar la selección por petición, migrar los almacenes locales/sync/cachés, completar I4 y ejecutar T00–T19 sobre un único SHA final.
 
