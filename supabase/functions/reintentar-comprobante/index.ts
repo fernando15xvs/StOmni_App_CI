@@ -20,7 +20,7 @@ Deno.serve(serveObserved('reintentar-comprobante', async (req: Request) => {
     const context = await createUserContext(req)
     const body = await req.json().catch(() => ({}))
     const forzar = body?.forzar === true
-    if (forzar && context.employee.rol !== 'admin') {
+    if (forzar && context.employee?.rol !== 'admin') {
       throw new HttpError(403, 'Rol no autorizado para esta operación')
     }
     const comprobanteId = String(body?.comprobante_id || '').trim()
