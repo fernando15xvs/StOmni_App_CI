@@ -1,2 +1,2 @@
-I3 role-separated authorization, offline fail-closed, 12 permission tests, 6 customer/cash tests, 36 A/B SQL; robust formatter-flexible security gate.
-source_sha=a0cb94ed99a7ec0af317555f5c22d6d040dff02e
+I3 fix: remove extra blank line from SupabaseTenantPermissionGateway; rerun formatting, 12 role tests, 36 SQL tenant isolation, and all platform builds.
+source_sha=b6148c8162f7d60143ba9dbdc55136ad0cbb7823
