@@ -1,2 +1,2 @@
-I3 staged: request-local business capabilities, no cross-tenant profile cache, product unit RPCs, 19 new Dart tests, 42 A/B pgTAP assertions; multi-membership remains gated.
-source_sha=dd11a98ffaafaf4b6448b9dc14a4f4cd8be707e4
+I3 business capabilities and inventory units per selected company, 19 Flutter regression tests, 42 pgTAP A/B isolation assertions; exact dart format corrections.
+source_sha=e9506f0fa911b474e9a4767e009aff2d1f7bc313
