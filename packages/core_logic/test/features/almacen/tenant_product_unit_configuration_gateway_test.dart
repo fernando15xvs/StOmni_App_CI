@@ -72,7 +72,7 @@ void main() {
   });
 
   test('fractional or string product ids are rejected', () {
-    for (final id in <Object>[31.5, '31', null]) {
+    for (final id in <Object?>[31.5, '31', null]) {
       final invalid = serverUnitProfile(31)..['product_id'] = id;
       expect(
         () => TenantProductUnitConfigurationGateway.decodeRequestedProfiles(
