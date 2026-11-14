@@ -4,7 +4,7 @@
 BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET LOCAL search_path=public,extensions,pg_catalog;
-SELECT plan(36);
+SELECT plan(42);
 
 CREATE TEMP TABLE _i4_identity(label text PRIMARY KEY,uid uuid,org uuid) ON COMMIT DROP;
 INSERT INTO _i4_identity SELECT label,gen_random_uuid(),NULL::uuid
@@ -108,6 +108,12 @@ SELECT is((SELECT count(*)::int FROM public.empleados
   'A can resolve its active seller in A');
 SELECT is(public.get_estado_caja_chica()->>'estado','CERRADA',
   'A cashbox state is selected A with no open session');
+SELECT is((public.get_business_profile_v1()->>'organization_id')::uuid,
+  (SELECT org FROM _i4_identity WHERE label='A'),
+  'A business capabilities are selected from A only');
+SELECT is((SELECT count(*)::int FROM public.get_product_unit_profiles_v1(
+  ARRAY[]::bigint[])),0,
+  'A can query an empty scoped inventory-unit request');
 
 SELECT set_config('request.headers',jsonb_build_object(
   'x-stomni-organization-id',(SELECT org FROM _i4_identity WHERE label='B')
@@ -142,6 +148,15 @@ SELECT is((SELECT count(*)::int FROM public.empleados
   'B can resolve its separate active seller as operator');
 SELECT is(public.get_estado_caja_chica()->>'estado','CERRADA',
   'B cashbox read cannot inherit A cashbox context');
+SELECT is((public.get_business_profile_v1()->>'organization_id')::uuid,
+  (SELECT org FROM _i4_identity WHERE label='B'),
+  'B business capabilities are selected from B only');
+SELECT is((SELECT count(*)::int FROM public.get_product_unit_profiles_v1(
+  ARRAY[]::bigint[])),0,
+  'B can query an empty scoped inventory-unit request');
+SELECT throws_ok(
+  $q$SELECT public.update_business_capabilities_v1(0,'{}'::jsonb)$q$,
+  '42501',NULL,'B operator cannot update A business capabilities');
 
 SELECT set_config('request.headers',jsonb_build_object(
   'x-stomni-organization-id',gen_random_uuid()
@@ -171,6 +186,8 @@ SELECT is(private.current_base_role(),NULL::text,
   'Revoked B employee immediately loses selected B role');
 SELECT throws_ok($q$SELECT public.get_my_subscription_v1()$q$,'42501',NULL,
   'Revoked B cannot read its subscription');
+SELECT throws_ok($q$SELECT public.get_business_profile_v1()$q$,'42501',NULL,
+  'Revoked B cannot read its business capabilities');
 SELECT set_config('request.headers',jsonb_build_object(
   'x-stomni-organization-id',(SELECT org FROM _i4_identity WHERE label='A')
 )::text,true);
