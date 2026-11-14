@@ -19,7 +19,7 @@ Deno.serve(serveObserved('reintentar-guia-remision', async (req) => {
     const context = await createUserContext(req)
     const body = await req.json()
     const forzar = body?.forzar === true
-    if (forzar && context.employee.rol !== 'admin') {
+    if (forzar && context.employee?.rol !== 'admin') {
       throw new HttpError(403, 'Rol no autorizado para esta operación')
     }
     const guiaId = String(body?.guia_id || '').trim()
