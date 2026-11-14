@@ -14,14 +14,14 @@ El script exige la API de Supabase local en HTTP loopback. No actúa contra Supa
 |---|---|
 | T11-01 | ORG_A y ORG_B suben PNG con JWT propios bajo `<organization_id>/products/` |
 | T11-02 | Ambas ven sus imágenes en LIST y A puede usar la ruta autenticada de lectura propia |
-| T11-03 | A no enumera ni descarga mediante endpoint *authenticated* el objeto de B |
+| T11-03 | A no enumera el objeto B; la lectura de bytes públicos por ruta conocida se trata como pública, incluso si el endpoint es *authenticated* |
 | T11-04 | A no inserta, reemplaza ni elimina la imagen de B; los bytes de B se mantienen |
 | T11-05 | Logos propios permitidos, escritura/reemplazo/borrado ajenos prohibidos |
 | T11-06 | Fiscal privado sembrado sólo por service-role no queda descargable ni enumerable desde A o URL pública |
 | T11-07 | A no sube PDF en ruta fiscal de B ni emite una URL firmada para el PDF ajeno |
 | T11-08 | La URL pública directa de imágenes/logos sigue funcionando por contrato (assets públicos) |
 
-**Distinción de seguridad:** los buckets `logos` e `imagenes_productos` tienen `public=true`. Una URL pública conocida puede servir sus imágenes a cualquier visitante; no se puede prometer confidencialidad de esos bytes. La privacidad estricta aplica a `comprobantes-electronicos`. La protección de *listado mediante API autenticada y escritura* debe mantenerse por empresa. Si un logo público puede enumerarse por listado de otro tenant, registrarlo como exposición de metadata y resolverlo sin romper los enlaces públicos previstos.
+**Distinción de seguridad:** los buckets `logos` e `imagenes_productos` tienen `public=true`. Una URL pública conocida puede servir sus imágenes a cualquier visitante; no se puede prometer confidencialidad de esos bytes. La privacidad estricta aplica a `comprobantes-electronicos`. En Supabase, incluso `/object/authenticated` puede servir contenido de un bucket público: no utilizar ese endpoint como prueba de confidencialidad. La separación por tenant debe impedir la enumeración de metadatos y toda mutación ajena. La protección de *listado mediante API autenticada y escritura* debe mantenerse por empresa. Si un logo público puede enumerarse por listado de otro tenant, registrarlo como exposición de metadata y resolverlo sin romper los enlaces públicos previstos.
 
 ## Reglas de cierre
 
@@ -45,3 +45,5 @@ El script exige la API de Supabase local en HTTP loopback. No actúa contra Supa
 - Corrección aditiva: `supabase/migrations/20261114195500_t11_storage_tenant_select_no_public_listing.sql` elimina esos dos SELECT globales y restablece SELECT autenticado `tenant.read` por `organization_id` y segmento de carpeta.
 - Contrato actualizado: `supabase/tests/database/storage_surface_contract_test.sql` (11 aserciones). Los buckets siguen siendo públicos **sólo para lectura directa de URL**; documentos fiscales siguen privados.
 - **Pendiente:** verificar la corrección en una ejecución completa CI; el hallazgo no se declara resuelto hasta confirmar T11 verde y no-drifts tras reset.
+
+- **CI #43630538800 (candidato con migración):** pasó la condición de listado cruzado, pero T11-03 falló por asumir erróneamente que GET autenticado de un bucket público debía denegarse. Se corrigió el probe para exigir aislamiento en LIST y conservar el contrato de bytes públicos; las pruebas de artefactos privados siguen estrictas. Revalidación completa pendiente.
