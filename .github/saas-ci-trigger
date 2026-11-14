@@ -1,2 +1,2 @@
-T10 auth-first fiscal handlers, nullable-safe admin forced retry; T11 A/B Storage.
-source_sha=6995f2b34f07e4d72b5cd6f0ab4fff5052d9fe89
+T10 JWT and T11 Storage A/B passed; T18 local Storage restore retries transient 502 without weakening hashes.
+source_sha=4a40462924f96866cc6f49f18a09a188a4054f1c
