@@ -37,3 +37,11 @@ El script exige la API de Supabase local en HTTP loopback. No actúa contra Supa
 - Reporte: `.dart_tool/saas/f9_1_e2e_report.json` (contiene 18 escenarios, de ellos 8 T11, sólo si el probe pasa).
 - Fuente: `supabase/tests/e2e/tenant_storage_e2e.mjs`.
 - Estado inicial: esperar ejecución sobre candidato actualizado. No atribuir éxito antes de que CI termine.
+
+## Resultado de la primera ejecución adversarial y corrección
+
+- **CI #43629431016 (candidato previo): FAIL** en `T11-03`: ORG_A pudo enumerar una imagen ORG_B con `object/list/imagenes_productos`.
+- Causa identificada en `20260908059500_saas_runtime_surface_reconciliation.sql`: la migración restablecía `productos_imagenes_public_select` y `logos_public_select` como SELECT para `public`, lo que habilitaba listar metadatos.
+- Corrección aditiva: `supabase/migrations/20261114195500_t11_storage_tenant_select_no_public_listing.sql` elimina esos dos SELECT globales y restablece SELECT autenticado `tenant.read` por `organization_id` y segmento de carpeta.
+- Contrato actualizado: `supabase/tests/database/storage_surface_contract_test.sql` (11 aserciones). Los buckets siguen siendo públicos **sólo para lectura directa de URL**; documentos fiscales siguen privados.
+- **Pendiente:** verificar la corrección en una ejecución completa CI; el hallazgo no se declara resuelto hasta confirmar T11 verde y no-drifts tras reset.
