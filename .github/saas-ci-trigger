@@ -1,2 +1,2 @@
-I3 business capabilities and inventory units per selected company, 19 Flutter regression tests, 42 pgTAP A/B isolation assertions; exact dart format corrections.
-source_sha=e9506f0fa911b474e9a4767e009aff2d1f7bc313
+I3 isolated business profile / inventory profile gateways, 19 Dart tests; formatter and nullable malformed-ID fixture corrected; 42 reversible A/B SQL assertions.
+source_sha=96b193ed183eb185ea210a60928d904e77093753
