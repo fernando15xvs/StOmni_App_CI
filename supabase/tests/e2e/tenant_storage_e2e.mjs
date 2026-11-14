@@ -16,6 +16,7 @@ export const STORAGE_SCENARIOS = Object.freeze([
   'T11-06-private-fiscal-artifact-access-blocked',
   'T11-07-private-fiscal-signing-and-spoofing-blocked',
   'T11-08-public-assets-remain-public-by-design',
+  'T11-09-private-signed-url-expiry-enforced',
 ]);
 
 function ensure(condition, message) {
@@ -183,6 +184,33 @@ export async function verifyTenantStorage(config, a, b, runId) {
   await assertByteExact(config, a.accessToken, 'logos', bLogoPath,
     PIXEL_PNG, { publicAccess: true });
   logScenario(STORAGE_SCENARIOS[7], 'lectura URL pública permitida intencionalmente; no implica acceso privado');
+
+  // Only the local test runner's service-role key may generate a signed URL
+  // for a private fiscal object. Never store the URL or token in CI evidence.
+  const privilegedSignature = await request(
+    config, config.serviceRoleKey, 'POST',
+    storageUrl(config, 'object/sign', 'comprobantes-electronicos', fiscalPath),
+    { body: JSON.stringify({ expiresIn: 2 }), contentType: 'application/json' },
+  );
+  ensure(privilegedSignature.ok, `la firma fiscal local legítima falló HTTP ${privilegedSignature.status}.`);
+  const signedRelative = privilegedSignature.data?.signedURL ?? privilegedSignature.data?.signedUrl;
+  ensure(typeof signedRelative === 'string' && signedRelative.length > 0,
+    'firma Storage no devolvió URL');
+  const signedPath = signedRelative.startsWith('/object/')
+    ? `/storage/v1${signedRelative}`
+    : signedRelative;
+  const signedTarget = new URL(signedPath, `${config.apiUrl}/storage/v1/`);
+  ensure(signedTarget.origin === new URL(config.apiUrl).origin &&
+      signedTarget.pathname.startsWith('/storage/v1/object/sign/comprobantes-electronicos/'),
+    'URL firmada contiene host o ruta inesperados');
+  const validSignedGet = await request(config, config.anonKey, 'GET', signedTarget.toString());
+  ensure(validSignedGet.ok && validSignedGet.bytes.equals(FISCAL_PDF),
+    `URL firmada fiscal no sirvió bytes correctos antes de vencer (HTTP ${validSignedGet.status}).`);
+  await new Promise((resolve) => setTimeout(resolve, 5500));
+  const expiredSignedGet = await request(config, config.anonKey, 'GET', signedTarget.toString());
+  ensure(!expiredSignedGet.ok,
+    'URL firmada fiscal sigue autorizando la descarga después de expiración');
+  logScenario(STORAGE_SCENARIOS[8], 'URL temporal fiscal válida inicialmente y rechazada tras vencimiento');
 
   return { count: STORAGE_SCENARIOS.length, bucketCount: 3, containsSecrets: false };
 }
