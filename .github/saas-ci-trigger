@@ -1,2 +1,2 @@
-T10 42 negative JWT requests and T11 tenant-only Storage listing remediation; full CI rerun.
-source_sha=f72fc28eaa77fcd59260141da2fa348a09efbe89
+T11 read semantics corrected: private fiscal denied, public URL allowed, cross-tenant list/write forbidden; T10 JWT probe.
+source_sha=738ce4e155f35063600ea2d92fd436e8d14087dd
