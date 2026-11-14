@@ -81,6 +81,12 @@ function hasTenantResourcePrecheck(source, table) {
   return direct.test(source);
 }
 
+function authBeforePayload(source) {
+  const authOffset = source.search(/await\s+(?:requireEmployee|createUserContext)\s*\(\s*req\b/);
+  const bodyOffset = source.search(/await\s+req\.json\s*\(/);
+  return bodyOffset < 0 || (authOffset >= 0 && authOffset < bodyOffset);
+}
+
 function verify(s) {
   const errors = [];
 
@@ -95,6 +101,9 @@ function verify(s) {
       /await\s+(?:requireEmployee|createUserContext)\s*\(\s*req\b/i,
       `${slug}: sesión/tenant resuelto server-side`,
     );
+    if (!authBeforePayload(source)) {
+      errors.push(`Prohibido: ${slug}: validación JSON anterior a sesión/rol`);
+    }
     forbid(
       errors,
       source,
@@ -222,6 +231,15 @@ function selfTest() {
   forbid(internalHeaderErrors, "req.headers.get('x-stomni-organization-id')", /headers\.get\(\s*['"]x-stomni-organization-id['"]\s*\)/i, 'header tenant cliente');
   if (internalHeaderErrors.length !== 1) {
     console.error('SaaS Edge self-test FAILED: no detectó header tenant falsificable');
+    process.exit(1);
+  }
+
+  if (!authBeforePayload('const context = await createUserContext(req); const payload = await req.json();')) {
+    console.error('SaaS Edge self-test FAILED: rechazó autenticación antes del payload');
+    process.exit(1);
+  }
+  if (authBeforePayload('const payload = await req.json(); const context = await createUserContext(req);')) {
+    console.error('SaaS Edge self-test FAILED: no detectó validación antes del JWT');
     process.exit(1);
   }
 
