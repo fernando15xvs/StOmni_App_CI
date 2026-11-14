@@ -23,7 +23,7 @@ Deno.serve(serveObserved('reintentar-nota-credito', async (req) => {
     const context = await createUserContext(req)
     const body = await req.json()
     const forzar = body?.forzar === true
-    if (forzar && context.employee.rol !== 'admin') {
+    if (forzar && context.employee?.rol !== 'admin') {
       throw new HttpError(403, 'Rol no autorizado para esta operación')
     }
     const notaCreditoId = String(body?.nota_credito_id || '').trim()
