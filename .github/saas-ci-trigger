@@ -1,2 +1,2 @@
-I3 isolated business profile / inventory profile gateways, 19 Dart tests; formatter and nullable malformed-ID fixture corrected; 42 reversible A/B SQL assertions.
-source_sha=96b193ed183eb185ea210a60928d904e77093753
+CI candidate: selected-business fixture dynamic typing and transient shadow-port retry; no-drift gate preserved.
+source_sha=efa3f34367fe563c7bbe81e97361385a4e54c1b6
