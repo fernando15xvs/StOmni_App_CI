@@ -47,3 +47,11 @@ El script exige la API de Supabase local en HTTP loopback. No actúa contra Supa
 - **Pendiente:** verificar la corrección en una ejecución completa CI; el hallazgo no se declara resuelto hasta confirmar T11 verde y no-drifts tras reset.
 
 - **CI #43630538800 (candidato con migración):** pasó la condición de listado cruzado, pero T11-03 falló por asumir erróneamente que GET autenticado de un bucket público debía denegarse. Se corrigió el probe para exigir aislamiento en LIST y conservar el contrato de bytes públicos; las pruebas de artefactos privados siguen estrictas. Revalidación completa pendiente.
+
+## Extensión T11: caducidad real de URL firmada fiscal
+
+Se añade el caso `T11-09-private-signed-url-expiry-enforced`: el runner local crea una firma temporal de dos segundos con la llave administrativa **solo del laboratorio**, comprueba que descarga el PDF sintético correcto y confirma el rechazo al repetir la descarga después de 5,5 segundos. La firma y su token nunca se imprimen ni se incluyen en los artefactos.
+
+Este ensayo distingue el control de *autorización para emitir firmas* del control de *caducidad de una firma previamente autorizada*. No implica que ORG_A/B puedan emitir firmas sin Edge o RLS adecuados.
+
+**Estado:** CI #43632545921 validó T11-01–T11-08 junto con restauración T18. El nuevo caso T11-09 está implementado, pero aún debe superar una ejecución CI. El resto de rutas fiscales y operaciones Edge privilegiadas siguen sujetos a T10/T16 y al cierre T19.
