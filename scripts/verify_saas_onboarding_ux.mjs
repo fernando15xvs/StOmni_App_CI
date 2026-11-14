@@ -202,6 +202,18 @@ function verify() {
     tenantOperationTests: read(
       'packages/core_logic/test/auth/tenant_operation_authorizer_test.dart',
     ),
+    tenantBusinessProfile: read(
+      'packages/core_logic/lib/business/data/tenant_business_profile_gateway.dart',
+    ),
+    tenantBusinessProfileTests: read(
+      'packages/core_logic/test/business/tenant_business_profile_gateway_test.dart',
+    ),
+    tenantProductUnits: read(
+      'packages/core_logic/lib/features/almacen/data/tenant_product_unit_configuration_gateway.dart',
+    ),
+    tenantProductUnitsTests: read(
+      'packages/core_logic/test/features/almacen/tenant_product_unit_configuration_gateway_test.dart',
+    ),
   };
   sources.setupScreens = {
     'alta mobile/web': sources.mobileSetup,
@@ -879,6 +891,111 @@ function verify() {
     sources.tenantPermissionGateway,
     /client\.headers\s*=|client\.rest\.headers\s*=|client\.headers\[/,
     'Permission gateway must not mutate global Supabase request headers',
+  );
+
+  // I3 business capabilities must use a selected organization from server;
+  // legacy user-only snapshots may not be used for another company.
+  need(
+    errors,
+    sources.tenantBusinessProfile,
+    /implements BusinessProfileGateway/,
+    'No tenant-scoped profile implements the existing business gateway port',
+  );
+  need(
+    errors,
+    sources.tenantBusinessProfile,
+    /scope\.execute<T>/,
+    'Business profile does not bind Auth and selected company across network IO',
+  );
+  need(
+    errors,
+    sources.tenantBusinessProfile,
+    /map\['organization_id'\] != organizationId/,
+    'Business profile does not reject cross-company response metadata',
+  );
+  need(
+    errors,
+    sources.tenantBusinessProfile,
+    /if \(allowOffline\)/,
+    'Business profile may reuse unscoped offline cache from another tenant',
+  );
+  need(
+    errors,
+    sources.tenantBusinessProfile,
+    /\.rpc\('get_business_profile_v1'\)/,
+    'Selected company business profile cannot be read through scoped RPC',
+  );
+  need(
+    errors,
+    sources.tenantBusinessProfile,
+    /'update_business_capabilities_v1'/,
+    'Selected business settings cannot be updated through scoped RPC',
+  );
+  const businessScopedHeaders =
+    sources.tenantBusinessProfile.match(/\.setHeader\(/g) ?? [];
+  if (businessScopedHeaders.length < 3) {
+    errors.push('All business RPC builders must carry request-local tenant selection');
+  }
+  forbid(
+    errors,
+    sources.tenantBusinessProfile,
+    /SharedPreferences\.getInstance|_cacheKey|client\.headers\s*=|client\.rest\.headers\s*=/,
+    'Scoped business capabilities cannot reuse a shared offline cache or global header',
+  );
+  need(
+    errors,
+    sources.tenantBusinessProfileTests,
+    /capability policy stays selected-company-specific/,
+    'Missing regression for different A and B credit/fiscal business capabilities',
+  );
+
+  // I3 inventory units are never merged across tenants or unrelated IDs.
+  need(
+    errors,
+    sources.tenantProductUnits,
+    /implements ProductUnitConfigurationGateway/,
+    'No selected-tenant inventory unit gateway implements the application port',
+  );
+  need(
+    errors,
+    sources.tenantProductUnits,
+    /scope\.execute<T>/,
+    'Inventory profile RPC lacks immutable Auth and company selection',
+  );
+  need(
+    errors,
+    sources.tenantProductUnits,
+    /requestedProductIds\.contains\(id\)/,
+    'Inventory profiles may return rows for an unrequested product',
+  );
+  need(
+    errors,
+    sources.tenantProductUnits,
+    /profiles\.containsKey\(id\)/,
+    'Duplicate inventory profiles could shadow one another',
+  );
+  need(
+    errors,
+    sources.tenantProductUnits,
+    /\.rpc\(\s*'get_product_unit_profiles_v1'/,
+    'Selected inventory units cannot be read under verified tenant',
+  );
+  need(
+    errors,
+    sources.tenantProductUnits,
+    /'save_product_unit_profile_v6'/,
+    'Selected inventory units cannot be saved under verified tenant',
+  );
+  const inventoryScopedHeaders =
+    sources.tenantProductUnits.match(/\.setHeader\(/g) ?? [];
+  if (inventoryScopedHeaders.length < 3) {
+    errors.push('Inventory RPCs must use request-local tenant headers');
+  }
+  need(
+    errors,
+    sources.tenantProductUnitsTests,
+    /mixed valid and foreign product rows cannot be partly merged/,
+    'Missing inventory response isolation tests for mixed product IDs',
   );
 
   return errors;
