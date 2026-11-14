@@ -1,2 +1,2 @@
-T10 JWT and T11 Storage A/B passed; T18 local Storage restore retries transient 502 without weakening hashes.
-source_sha=4a40462924f96866cc6f49f18a09a188a4054f1c
+T10: 8 valid-session A/B cross-tenant Edge scenarios; T11: signed fiscal URL expiry; prior full CI green.
+source_sha=b949820ab480f41dec72c6e3897ad9666ba04add
