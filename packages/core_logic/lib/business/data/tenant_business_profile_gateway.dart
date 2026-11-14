@@ -30,10 +30,7 @@ final class TenantBusinessProfileGateway implements BusinessProfileGateway {
     request: (organizationId) async {
       final context = await client
           .rpc('get_my_tenant_context_v1')
-          .setHeader(
-            TenantRequestScope.organizationHeader,
-            organizationId,
-          )
+          .setHeader(TenantRequestScope.organizationHeader, organizationId)
           .timeout(_timeout);
       VerifiedTenantRequestContext.fromServer(
         context,
@@ -70,15 +67,9 @@ final class TenantBusinessProfileGateway implements BusinessProfileGateway {
     return _withSelectedTenant((organizationId) async {
       final result = await client
           .rpc('get_business_profile_v1')
-          .setHeader(
-            TenantRequestScope.organizationHeader,
-            organizationId,
-          )
+          .setHeader(TenantRequestScope.organizationHeader, organizationId)
           .timeout(_timeout);
-      return decodeSelectedBusiness(
-        result,
-        organizationId: organizationId,
-      );
+      return decodeSelectedBusiness(result, organizationId: organizationId);
     });
   }
 
@@ -106,10 +97,7 @@ final class TenantBusinessProfileGateway implements BusinessProfileGateway {
                 ),
               },
             )
-            .setHeader(
-              TenantRequestScope.organizationHeader,
-              organizationId,
-            )
+            .setHeader(TenantRequestScope.organizationHeader, organizationId)
             .timeout(_timeout);
       } on PostgrestException catch (error) {
         if (error.code == '40001') {
