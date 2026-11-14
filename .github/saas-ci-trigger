@@ -1,2 +1,2 @@
-T11 A/B Storage certified in prior backend run; T10 five auth-first Edge fixes + static gate; verify 42 JWT denies.
-source_sha=f65b70f41cdb467f63dd3407305c96f55d92fbbf
+T10 auth-first fiscal handlers, nullable-safe admin forced retry; T11 A/B Storage.
+source_sha=6995f2b34f07e4d72b5cd6f0ab4fff5052d9fe89
