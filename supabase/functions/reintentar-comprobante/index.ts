@@ -17,12 +17,14 @@ Deno.serve(serveObserved('reintentar-comprobante', async (req: Request) => {
 
   try {
     if (req.method !== 'POST') throw new HttpError(405, 'Método no permitido')
+    const context = await createUserContext(req)
     const body = await req.json().catch(() => ({}))
+    const forzar = body?.forzar === true
+    if (forzar && context.employee.rol !== 'admin') {
+      throw new HttpError(403, 'Rol no autorizado para esta operación')
+    }
     const comprobanteId = String(body?.comprobante_id || '').trim()
     if (!comprobanteId) throw new HttpError(400, 'comprobante_id es obligatorio')
-
-    const forzar = body?.forzar === true
-    const context = await createUserContext(req, forzar ? ['admin'] : ['admin', 'operador'])
     await assertTenantResource(
       context.admin,
       context.employee?.organizationId ?? '',
