@@ -1,2 +1,2 @@
-T11 read semantics corrected: private fiscal denied, public URL allowed, cross-tenant list/write forbidden; T10 JWT probe.
-source_sha=738ce4e155f35063600ea2d92fd436e8d14087dd
+T11 A/B Storage certified in prior backend run; T10 five auth-first Edge fixes + static gate; verify 42 JWT denies.
+source_sha=f65b70f41cdb467f63dd3407305c96f55d92fbbf
