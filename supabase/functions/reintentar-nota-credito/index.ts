@@ -20,14 +20,16 @@ Deno.serve(serveObserved('reintentar-nota-credito', async (req) => {
       throw new HttpError(405, 'Método no permitido')
     }
 
+    const context = await createUserContext(req)
     const body = await req.json()
+    const forzar = body?.forzar === true
+    if (forzar && context.employee.rol !== 'admin') {
+      throw new HttpError(403, 'Rol no autorizado para esta operación')
+    }
     const notaCreditoId = String(body?.nota_credito_id || '').trim()
     if (!notaCreditoId) {
       throw new HttpError(400, 'nota_credito_id es obligatorio')
     }
-
-    const forzar = body?.forzar === true
-    const context = await createUserContext(req, forzar ? ['admin'] : ['admin', 'operador'])
     await assertTenantResource(
       context.admin,
       context.employee?.organizationId ?? '',
