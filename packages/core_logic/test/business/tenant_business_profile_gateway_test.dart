@@ -15,7 +15,7 @@ void main() {
     'display_name': 'Comercio local',
     'revision': 2,
     'supports_capability_settings': true,
-    'capabilities': {
+    'capabilities': <String, dynamic>{
       'inventory_enabled': true,
       'multiple_branches': true,
       'multiple_warehouses': true,
