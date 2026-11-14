@@ -1,2 +1,2 @@
-I3 fix: remove extra blank line from SupabaseTenantPermissionGateway; rerun formatting, 12 role tests, 36 SQL tenant isolation, and all platform builds.
-source_sha=b6148c8162f7d60143ba9dbdc55136ad0cbb7823
+I3 staged: request-local business capabilities, no cross-tenant profile cache, product unit RPCs, 19 new Dart tests, 42 A/B pgTAP assertions; multi-membership remains gated.
+source_sha=dd11a98ffaafaf4b6448b9dc14a4f4cd8be707e4
