@@ -309,24 +309,53 @@ export function verifyLocalStorageArtifacts(artifacts, storageDir) {
   }
 }
 
+const RESTORE_TRANSIENT_STATUSES = new Set([502, 503, 504]);
+const RESTORE_UPLOAD_MAX_ATTEMPTS = 6;
+
+function waitForStorageRetry(attempt) {
+  const delayMs = Math.min(1500 * attempt, 7500);
+  return new Promise((resolve) => setTimeout(resolve, delayMs));
+}
+
 export async function uploadStorageArtifacts(config, artifacts, storageDir) {
   verifyLocalStorageArtifacts(artifacts, storageDir);
   for (const object of artifacts) {
     const absolute = path.join(storageDir, object.artifact);
-    const response = await fetch(storageObjectUrl(config, object), {
-      method: 'POST',
-      headers: {
-        apikey: config.serviceRoleKey,
-        Authorization: `Bearer ${config.serviceRoleKey}`,
-        'Content-Type': object.mimetype || 'application/octet-stream',
-        'x-upsert': 'true',
-        'Content-Length': String(fileSize(absolute)),
-      },
-      body: fs.createReadStream(absolute),
-      duplex: 'half',
-    });
-    const body = await response.text();
-    ensure(response.ok, `Storage restore ${object.bucket_id}/${object.name} falló HTTP ${response.status}: ${body.slice(0, 300)}`);
+    const label = `${object.bucket_id}/${object.name}`;
+    for (let attempt = 1; attempt <= RESTORE_UPLOAD_MAX_ATTEMPTS; attempt += 1) {
+      let response;
+      try {
+        // Open a fresh stream on each attempt. The x-upsert=true write is
+        // idempotent for the exact same verified local artifact bytes.
+        response = await fetch(storageObjectUrl(config, object), {
+          method: 'POST',
+          headers: {
+            apikey: config.serviceRoleKey,
+            Authorization: `Bearer ${config.serviceRoleKey}`,
+            'Content-Type': object.mimetype || 'application/octet-stream',
+            'x-upsert': 'true',
+            'Content-Length': String(fileSize(absolute)),
+          },
+          body: fs.createReadStream(absolute),
+          duplex: 'half',
+        });
+      } catch (error) {
+        if (attempt === RESTORE_UPLOAD_MAX_ATTEMPTS) {
+          throw new Error(`Storage restore ${label} no respondió tras ${attempt} intentos: ${String(error?.message ?? error)}`);
+        }
+        console.warn(`Storage restore ${label}: servicio local aún no disponible (${attempt}/${RESTORE_UPLOAD_MAX_ATTEMPTS}); reintentando.`);
+        await waitForStorageRetry(attempt);
+        continue;
+      }
+      const body = await response.text();
+      if (response.ok) break;
+      if (!RESTORE_TRANSIENT_STATUSES.has(response.status) ||
+          attempt === RESTORE_UPLOAD_MAX_ATTEMPTS) {
+        ensure(false, `Storage restore ${label} falló HTTP ${response.status}: ${body.slice(0, 300)}`);
+      }
+      console.warn(`Storage restore ${label}: HTTP transitorio ${response.status} (${attempt}/${RESTORE_UPLOAD_MAX_ATTEMPTS}); reintentando.`);
+      await waitForStorageRetry(attempt);
+    }
   }
 }
 
