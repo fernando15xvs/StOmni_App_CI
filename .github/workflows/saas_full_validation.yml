@@ -247,6 +247,9 @@ jobs:
       - name: T05-T09/T12/T14 representative multi-tenant E2E
         run: node scripts/run_saas_e2e_ci.mjs
 
+      - name: T10 Edge JWT boundary (local-only, 21 functions)
+        run: node supabase/tests/e2e/edge_jwt_boundary_e2e.mjs
+
       - name: T12 tenant exports ORG_A and ORG_B
         shell: bash
         run: |
