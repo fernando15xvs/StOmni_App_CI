@@ -19,3 +19,11 @@ El workflow `StOmni SaaS Full Validation` ejecuta esta prueba después de levant
 - Pendiente: 2 JWT válidos de ORG_A/B con empleado y permisos reales, referencias cruzadas para cada ruta fiscal, GRE y funciones administrativas, con respuestas sanitizadas y datos sintéticos.
 - Pendiente: verificar que ningún proceso `service_role` ignora el tenant, incluyendo jobs y callbacks internos autorizados.
 - Los tests dinámicos deben fallar si una función deja de rechazar peticiones anónimas. No deben declarar GO final ni probar sobre un Supabase remoto.
+
+## Hallazgo dinámico y corrección
+
+- **CI #43631002518:** T11 superó sus ocho ataques, pero el paso T10 detectó HTTP 400 en `reintentar-comprobante` sin JWT. La validación de `comprobante_id` ocurría antes de `createUserContext(req)`.
+- Revisión de 21 Edge Functions: cinco rutas fiscales admitían validación o parsing de payload antes de resolver la identidad. Corregidas: `reintentar-comprobante`, `emitir-nota-credito`, `reintentar-nota-credito`, `consultar-nota-credito` y `reintentar-guia-remision`.
+- En reintentos con `forzar=true`, la autorización de `admin` se conserva mediante un chequeo explícito después de autenticar con el rol base permitido. Los operadores no pueden forzar el reintento.
+- El gate `scripts/verify_saas_edge_functions.mjs` impide ahora introducir `await req.json()` antes de la primera resolución de sesión/rol y contiene un self-test del orden de autorización.
+- **Pendiente:** nueva ejecución CI y escenarios con JWT válidos para certificar autorización por recurso/tenant.
