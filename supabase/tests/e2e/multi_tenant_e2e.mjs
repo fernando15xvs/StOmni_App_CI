@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { STORAGE_SCENARIOS, verifyTenantStorage } from './tenant_storage_e2e.mjs';
 import process from 'node:process';
 import { execFileSync } from 'node:child_process';
 
@@ -13,6 +14,7 @@ const SCENARIOS = Object.freeze([
   'E2E-08-cross-tenant-delete-blocked',
   'E2E-09-organization-id-spoof-blocked',
   'E2E-10-onboarding-cross-tenant-filter-blocked',
+  ...STORAGE_SCENARIOS,
 ]);
 
 const JWT_CLOCK_SKEW_MAX_RETRIES = 5;
@@ -489,7 +491,9 @@ async function main() {
   step('E2E-09-organization-id-spoof-blocked', 'organization_id falsificado fue rechazado');
   step('E2E-10-onboarding-cross-tenant-filter-blocked', 'progreso de onboarding de ORG_B no es visible desde ORG_A');
 
-  console.log(`F9.1 E2E multiempresa OK (${SCENARIOS.length} escenarios).`);
+  await verifyTenantStorage(config, a, b, runId);
+
+  console.log(`F9.1 + T11 E2E multiempresa OK (${SCENARIOS.length} escenarios).`);
   console.log('Los fixtures se conservan para evidencia; T14/T18 ejecutan sobre db reset limpio.');
 }
 
