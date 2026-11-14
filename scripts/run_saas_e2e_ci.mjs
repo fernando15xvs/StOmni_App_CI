@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 import { loadLocalSupabaseConfig, psql } from './saas_backup_common.mjs';
 import { STORAGE_SCENARIOS } from '../supabase/tests/e2e/tenant_storage_e2e.mjs';
+import { EDGE_TENANT_SCENARIOS } from '../supabase/tests/e2e/edge_tenant_employee_e2e.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const e2ePath = path.join(root, 'supabase', 'tests', 'e2e', 'multi_tenant_e2e.mjs');
@@ -55,6 +56,7 @@ const scenarioIds = [
   'E2E-09-organization-id-spoof-blocked',
   'E2E-10-onboarding-cross-tenant-filter-blocked',
   ...STORAGE_SCENARIOS,
+  ...EDGE_TENANT_SCENARIOS,
 ];
 
 const report = {
@@ -62,6 +64,8 @@ const report = {
   git_sha: process.env.GITHUB_SHA ?? null,
   source: 'supabase/tests/e2e/multi_tenant_e2e.mjs',
   storage_probe: 'supabase/tests/e2e/tenant_storage_e2e.mjs',
+  edge_valid_jwt_probe: 'supabase/tests/e2e/edge_tenant_employee_e2e.mjs',
+  edge_valid_jwt_attack_count: EDGE_TENANT_SCENARIOS.length,
   storage_buckets_tested: ['imagenes_productos', 'logos', 'comprobantes-electronicos'],
   public_assets_are_intentionally_public: true,
   result: 'PASS',
