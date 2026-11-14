@@ -1,2 +1,2 @@
-T11 dynamic Storage A/B authenticated listing, writes, public assets, and fiscal private URL attacks.
-source_sha=cc3d2652979003f1b73d45297b863870d9f1f6ac
+T10 42 negative JWT requests and T11 tenant-only Storage listing remediation; full CI rerun.
+source_sha=f72fc28eaa77fcd59260141da2fa348a09efbe89
