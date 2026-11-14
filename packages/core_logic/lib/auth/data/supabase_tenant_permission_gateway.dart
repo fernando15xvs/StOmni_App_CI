@@ -32,5 +32,4 @@ final class SupabaseTenantPermissionGateway {
           return TenantVerifiedPermissions.fromServer(tenant, effectivePayload);
         },
       );
-
 }
