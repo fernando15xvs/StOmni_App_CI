@@ -20,13 +20,12 @@ Deno.serve(serveObserved('emitir-nota-credito', async (req) => {
       throw new HttpError(405, 'Método no permitido')
     }
 
+    const context = await createUserContext(req)
     const body = await req.json()
     const notaCreditoId = String(body?.nota_credito_id || '').trim()
     if (!notaCreditoId) {
       throw new HttpError(400, 'nota_credito_id es obligatorio')
     }
-
-    const context = await createUserContext(req)
     await assertTenantResource(
       context.admin,
       context.employee?.organizationId ?? '',
