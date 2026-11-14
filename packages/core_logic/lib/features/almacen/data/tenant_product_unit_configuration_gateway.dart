@@ -35,10 +35,7 @@ final class TenantProductUnitConfigurationGateway
     request: (organizationId) async {
       final response = await client
           .rpc('get_my_tenant_context_v1')
-          .setHeader(
-            TenantRequestScope.organizationHeader,
-            organizationId,
-          )
+          .setHeader(TenantRequestScope.organizationHeader, organizationId)
           .timeout(_timeout);
       VerifiedTenantRequestContext.fromServer(
         response,
@@ -94,10 +91,7 @@ final class TenantProductUnitConfigurationGateway
               'p_product_ids': [productId],
             },
           )
-          .setHeader(
-            TenantRequestScope.organizationHeader,
-            organizationId,
-          )
+          .setHeader(TenantRequestScope.organizationHeader, organizationId)
           .timeout(_timeout);
       final profiles = decodeRequestedProfiles(
         response,
@@ -134,10 +128,7 @@ final class TenantProductUnitConfigurationGateway
                 ),
               },
             )
-            .setHeader(
-              TenantRequestScope.organizationHeader,
-              organizationId,
-            )
+            .setHeader(TenantRequestScope.organizationHeader, organizationId)
             .timeout(_timeout);
       } on PostgrestException catch (error) {
         if (error.code == '40001') {
