@@ -10,7 +10,7 @@ const DENIED_IMAGE = Buffer.from('cross-tenant-overwrite-must-never-persist', 'u
 export const STORAGE_SCENARIOS = Object.freeze([
   'T11-01-tenant-owned-product-uploads',
   'T11-02-owned-product-listing-and-authenticated-read',
-  'T11-03-foreign-product-listing-and-authenticated-read-blocked',
+  'T11-03-foreign-product-listing-blocked-public-read-documented',
   'T11-04-foreign-product-insert-update-delete-blocked',
   'T11-05-tenant-logo-writes-and-foreign-overwrite-blocked',
   'T11-06-private-fiscal-artifact-access-blocked',
@@ -117,8 +117,14 @@ export async function verifyTenantStorage(config, a, b, runId) {
     download(config, a.accessToken, 'imagenes_productos', bProductPath),
   ]);
   ensure(!containsFile(foreignList, filename), 'ORG_A enumeró una imagen ORG_B.');
-  ensure(!foreignRead.ok, 'ORG_A descargó por ruta autenticada una imagen ORG_B.');
-  logScenario(STORAGE_SCENARIOS[2], 'listado y lectura autenticada de la otra empresa denegados');
+  // imagenes_productos is deliberately public. Supabase can serve public
+  // bytes even via /object/authenticated; SELECT RLS protects listing, not
+  // the confidentiality of a URL-known object in a public bucket.
+  if (foreignRead.ok) {
+    ensure(foreignRead.bytes.equals(PIXEL_PNG),
+      'un asset público conocido devolvió contenido distinto al fixture.');
+  }
+  logScenario(STORAGE_SCENARIOS[2], 'listado B bloqueado; descarga de asset público tratada como pública');
 
   const [foreignInsert, foreignOverwrite] = await Promise.all([
     upload(config, a.accessToken, 'imagenes_productos', `${b.organizationId}/products/foreign-${filename}`, DENIED_IMAGE),
